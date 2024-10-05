@@ -355,16 +355,20 @@ class BaseController {
      * Add location from frontend (AJAX)
      */
     public function ajax_add_location_from_frontend() {
-        if ( !empty( $_POST['action'] && $_POST['action'] == 'oum_add_location_from_frontend' ) ) {
+        if ( !empty( $_POST['action'] ) && $_POST['action'] == 'oum_add_location_from_frontend' ) {
             // Initialize error handling
             $error = new \WP_Error();
             // Dont save without nonce
             if ( !isset( $_POST['oum_location_nonce'] ) ) {
+                $error->add( '000', 'Security error (no nonce povided)' );
+                wp_send_json_error( $error );
                 die;
             }
             // Dont save if nonce is incorrect
             $nonce = $_POST['oum_location_nonce'];
             if ( !wp_verify_nonce( $nonce, 'oum_location' ) ) {
+                $error->add( '000', 'Security error (incorrect nonce)' );
+                wp_send_json_error( $error );
                 die;
             }
             $data['oum_location_title'] = ( isset( $_POST['oum_location_title'] ) && $_POST['oum_location_title'] != '' ? sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_title'] ) ) : time() );

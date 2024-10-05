@@ -93,6 +93,8 @@ foreach ( $locations_list as $location ) {
     } else {
         $edit_button = '';
     }
+    // Add words that are not visible to the user but can be used for search
+    $additional_search_meta = '<div style="display: none">' . get_post_field( 'post_name', $location['post_id'] ) . '</div>';
     // building bubble block content
     $content = $img_tag;
     $content .= '<div class="oum_location_text">';
@@ -105,6 +107,7 @@ foreach ( $locations_list as $location ) {
     $content .= $link_tag;
     $content .= '</div>';
     $content .= $edit_button;
+    $content .= $additional_search_meta;
     // removing backslash escape
     $content = str_replace( "\\", "", $content );
     // HOOK: modify location bubble content

@@ -242,9 +242,12 @@
               }
   
               .oum_location_custom_fields {
-                margin-bottom: 10px;
                 font-size: 14px;
                 opacity: 0.8;
+
+                .oum_custom_field {
+                  margin-bottom: 10px;
+                }
   
                 a {
                   display: inline-block;
@@ -1058,6 +1061,8 @@
           background-repeat: no-repeat;
           background-position: right 10px center;
           background-size: 20px;
+          line-height: 1.1;
+          height: auto;
         }
 
         fieldset {
@@ -1627,9 +1632,12 @@
           }
     
           .oum_location_custom_fields {
-            margin-bottom: 10px;
             font-size: 14px;
             opacity: 0.8;
+
+            .oum_custom_field {
+              margin-bottom: 10px;
+            }
     
             a {
               display: inline-block;
@@ -1905,9 +1913,12 @@
       }
 
       .oum_location_custom_fields {
-        margin-bottom: 10px;
         font-size: 14px;
         opacity: 0.8;
+
+        .oum_custom_field {
+          margin-bottom: 10px;
+        }
 
         a {
           display: inline-block;

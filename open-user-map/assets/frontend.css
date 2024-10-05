@@ -204,9 +204,11 @@
   margin-bottom: 10px;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields {
-  margin-bottom: 10px;
   font-size: 14px;
   opacity: 0.8;
+}
+.open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum_custom_field {
+  margin-bottom: 10px;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields a {
   display: inline-block;
@@ -896,6 +898,8 @@
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 20px;
+  line-height: 1.1;
+  height: auto;
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location fieldset {
   display: flex;
@@ -1354,9 +1358,11 @@
   margin-bottom: 10px;
 }
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_location_custom_fields {
-  margin-bottom: 10px;
   font-size: 14px;
   opacity: 0.8;
+}
+.open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_location_custom_fields .oum_custom_field {
+  margin-bottom: 10px;
 }
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_location_custom_fields a {
   display: inline-block;
@@ -1596,9 +1602,11 @@
   margin-bottom: 10px;
 }
 .open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_location_custom_fields {
-  margin-bottom: 10px;
   font-size: 14px;
   opacity: 0.8;
+}
+.open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_location_custom_fields .oum_custom_field {
+  margin-bottom: 10px;
 }
 .open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_location_custom_fields a {
   display: inline-block;

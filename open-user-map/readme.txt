@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, mapbox, regions
 Requires at least: 5.5
 Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 1.3.45
+Stable tag: 1.3.46
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -17,6 +17,8 @@ Create a custom map featuring your own locations or an interactive map where any
 The map is based on [Leaflet Map JS](https://leafletjs.com/?target=_blank) and offers you many free map and marker styles. You do not need an API Key, Access Token or any other external registration (like Google). Additionally you have access to awesome MapBox map styles. 
 
 [Demos](https://www.open-user-map.com/demo/?target=_blank) | [Start 7-day PRO trial (no credit card required)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free&target=_blank) | [More Info](https://www.open-user-map.com/?target=_blank) | [Help](https://www.open-user-map.com/support/knowledge-base/?target=_blank)
+
+https://www.youtube.com/watch?v=FRUkzKSZeL8&ab_channel=100plugins
 
 
 = 🌏 How to create a Simple Map =
@@ -200,6 +202,13 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.3.46 =
+* Bugfix: Multilingual locations are not filtered by language
+* Bugfix: Frontend adding
+* Style optimizations
+* Add location slug to searchable content (solves oe / ö search requests)
+* Freemius SDK update
+
 = 1.3.45 =
 * Bugfix: "Locate" button failed
 * Bugfix: Form Map position is initialy slightly off
