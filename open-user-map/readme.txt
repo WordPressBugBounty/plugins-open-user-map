@@ -4,11 +4,11 @@ Tags: map, interactive map, leaflet, mapbox, regions
 Requires at least: 5.5
 Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 1.3.46
+Stable tag: 1.3.47
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Create a customizable, simple or interactive map. Anyone can add new markers without registering — perfect for collaborative and community projects.
+Create a custom map featuring your own locations or an interactive map where anyone can add location pins without registering. The map is based on Leaflet.js (no API keys - it's free!).
 
 == Description ==
 
@@ -202,6 +202,9 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.3.47 =
+* Freemius SDK update
+
 = 1.3.46 =
 * Bugfix: Multilingual locations are not filtered by language
 * Bugfix: Frontend adding
