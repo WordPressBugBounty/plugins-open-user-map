@@ -24,6 +24,12 @@ class LocationController extends BaseController {
         );
         // this method has 2 attributes
         add_action( 'admin_menu', array($this, 'add_pending_counter_to_menu') );
+        add_filter(
+            'post_thumbnail_html',
+            array($this, 'default_location_header'),
+            10,
+            5
+        );
         add_filter( 'the_content', array($this, 'default_location_content') );
     }
 
@@ -123,10 +129,14 @@ class LocationController extends BaseController {
     public function render_customfields_box( $post ) {
         wp_nonce_field( 'oum_location', 'oum_location_nonce' );
         $data = get_post_meta( $post->ID, '_oum_location_key', true );
+        error_log( print_r( $data, true ) );
         $address = ( isset( $data['address'] ) ? $data['address'] : '' );
         $lat = ( isset( $data['lat'] ) ? $data['lat'] : '' );
         $lng = ( isset( $data['lng'] ) ? $data['lng'] : '' );
         $text = ( isset( $data['text'] ) ? $data['text'] : '' );
+        $video = ( isset( $data['video'] ) ? $data['video'] : '' );
+        $has_video = ( isset( $video ) && $video != '' ? 'has-video' : '' );
+        $video_tag = ( $has_video ? apply_filters( 'the_content', esc_attr( $video ) ) : '' );
         $image = get_post_meta( $post->ID, '_oum_location_image', true );
         $has_image = ( isset( $image ) && $image != '' ? 'has-image' : '' );
         $image_tag = ( $has_image ? '<img src="' . esc_attr( $image ) . '" style="width: 100%;">' : '' );
@@ -251,6 +261,7 @@ class LocationController extends BaseController {
             'text'         => ( isset( $location_data['oum_location_text'] ) ? wp_kses_post( $location_data['oum_location_text'] ) : '' ),
             'author_name'  => ( isset( $location_data['oum_location_author_name'] ) ? sanitize_text_field( $location_data['oum_location_author_name'] ) : '' ),
             'author_email' => ( isset( $location_data['oum_location_author_email'] ) ? sanitize_text_field( $location_data['oum_location_author_email'] ) : '' ),
+            'video'        => ( isset( $location_data['oum_location_video'] ) ? sanitize_text_field( $location_data['oum_location_video'] ) : '' ),
         );
         if ( isset( $location_data['oum_location_notification'] ) ) {
             $data['notification'] = sanitize_text_field( $location_data['oum_location_notification'] );
@@ -406,6 +417,16 @@ class LocationController extends BaseController {
             } else {
                 $value = ( $has_audio ? esc_attr( $audio ) : '' );
             }
+        } elseif ( $attr == 'video' ) {
+            // GET VIDEO
+            $video = $location['video'];
+            $has_video = ( isset( $video ) && $video != '' ? 'has-video' : '' );
+            $video_tag = ( $has_video ? apply_filters( 'the_content', esc_attr( $video ) ) : '' );
+            if ( !$raw ) {
+                $value = ( $has_video ? $video_tag : '' );
+            } else {
+                $value = ( $has_video ? esc_attr( $video ) : '' );
+            }
         } elseif ( $attr == 'type' ) {
             // GET TYPE
             $location_types = ( get_the_terms( $post_id, 'oum-type' ) && !is_wp_error( get_the_terms( $post_id, 'oum-type' ) ) ? get_the_terms( $post_id, 'oum-type' ) : false );
@@ -460,6 +481,26 @@ class LocationController extends BaseController {
         return $value;
     }
 
+    // Add a custom header to the location single page
+    public function default_location_header(
+        $featured_image_html,
+        $post_id,
+        $post_thumbnail_id,
+        $size,
+        $attr
+    ) {
+        if ( is_singular( 'oum-location' ) && in_the_loop() && is_main_query() ) {
+            $location = get_post_meta( $post_id, '_oum_location_key', true );
+            if ( isset( $location['video'] ) && $location['video'] != '' ) {
+                $featured_image_html = '<div class="open-user-map-single-default-template-media has-video">' . apply_filters( 'the_content', esc_attr( $location['video'] ) ) . '</div>';
+            } else {
+                $featured_image_html = '<div class="open-user-map-single-default-template-media">' . $featured_image_html . '</div>';
+            }
+        }
+        return $featured_image_html;
+    }
+
+    // Add custom content to the location single page
     public function default_location_content( $content ) {
         // Check if we're inside the main loop in a single Post of type 'custom_post_type'.
         if ( is_singular( 'oum-location' ) && in_the_loop() && is_main_query() ) {
@@ -467,8 +508,8 @@ class LocationController extends BaseController {
             if ( empty( trim( $content ) ) ) {
                 // Custom content to display if the original content is empty
                 $custom_content = '
-                <!-- wp:group {"className":"open-user-map-single-default-template","layout":{"type":"default"}} -->
-                <div class="wp-block-group open-user-map-single-default-template">
+                <!-- wp:group {"className":"open-user-map-single-default-template alignwide","layout":{"type":"default"}} -->
+                <div class="wp-block-group alignwide open-user-map-single-default-template">
                 
                 <!-- wp:columns -->
                 <div class="wp-block-columns">

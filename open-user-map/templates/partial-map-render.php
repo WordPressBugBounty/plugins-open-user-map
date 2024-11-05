@@ -8,13 +8,12 @@ foreach ( $locations_list as $location ) {
         $date_tag = '';
     }
     $name_tag = ( get_option( 'oum_enable_title', 'on' ) == 'on' ? '<h3 class="oum_location_name">' . esc_attr( $location['name'] ) . '</h3>' : '' );
+    $media_tag = '';
     if ( $location['image'] ) {
-        $img_tag = '<div class="oum_location_image"><img class="skip-lazy" src="' . esc_url_raw( $location['image'] ) . '"></div>';
-    } else {
-        $img_tag = '';
+        $media_tag = '<div class="oum_location_image"><img class="skip-lazy" src="' . esc_url_raw( $location['image'] ) . '"></div>';
     }
     // HOOK: modify location image
-    $img_tag = apply_filters( 'oum_location_bubble_image', $img_tag, $location );
+    $media_tag = apply_filters( 'oum_location_bubble_image', $media_tag, $location );
     $audio_tag = ( $location['audio'] ? '<audio controls="controls" style="width:100%"><source type="audio/mp4" src="' . $location['audio'] . '"><source type="audio/mpeg" src="' . $location['audio'] . '"><source type="audio/wav" src="' . $location['audio'] . '"></audio>' : '' );
     $address_tag = '';
     if ( get_option( 'oum_enable_address', 'on' ) === 'on' ) {
@@ -96,7 +95,7 @@ foreach ( $locations_list as $location ) {
     // Add words that are not visible to the user but can be used for search
     $additional_search_meta = '<div style="display: none">' . get_post_field( 'post_name', $location['post_id'] ) . '</div>';
     // building bubble block content
-    $content = $img_tag;
+    $content = $media_tag;
     $content .= '<div class="oum_location_text">';
     $content .= $date_tag;
     $content .= $address_tag;
@@ -125,6 +124,7 @@ foreach ( $locations_list as $location ) {
         'text'          => wp_kses_post( $location["text"] ),
         'image'         => esc_url( $location["image"] ),
         'audio'         => esc_url( $location["audio"] ),
+        'video'         => esc_url( $location["video"] ),
         'custom_fields' => $location['custom_fields'],
     ];
     $oum_all_locations[] = $oum_location;
@@ -236,6 +236,7 @@ if ( $types ) {
     ?>">
         <div class="oum-filter-toggle"></div>
         <div class="oum-filter-list">
+          <div class="close-filter-list">&#x2715;</div>
           <?php 
     foreach ( $types as $type ) {
         ?>
@@ -426,6 +427,9 @@ if ( $oum_ui_color ) {
           /* custom color */
           oum_custom_css += `
             .open-user-map .add-location #close-add-location-overlay:hover {color: <?php 
+    echo $oum_ui_color;
+    ?> !important}
+            .open-user-map .box-wrap .map-wrap .oum-filter-controls .oum-filter-list .close-filter-list:hover {color: <?php 
     echo $oum_ui_color;
     ?> !important}
             .open-user-map input.oum-switch[type="checkbox"]:checked + label::before {background-color: <?php 

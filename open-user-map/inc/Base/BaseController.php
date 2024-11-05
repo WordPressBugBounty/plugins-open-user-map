@@ -67,7 +67,13 @@ class BaseController {
         "custom1",
         "custom2",
         "custom3",
-        "custom4"
+        "custom4",
+        "custom5",
+        "custom6",
+        "custom7",
+        "custom8",
+        "custom9",
+        "custom10"
     );
 
     public $oum_map_sizes = array(
@@ -379,6 +385,7 @@ class BaseController {
             $data['oum_location_notification'] = ( isset( $_POST['oum_location_notification'] ) ? $_POST['oum_location_notification'] : '' );
             $data['oum_location_author_name'] = ( isset( $_POST['oum_location_notification'] ) ? sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_author_name'] ) ) : '' );
             $data['oum_location_author_email'] = ( isset( $_POST['oum_location_notification'] ) ? sanitize_email( wp_strip_all_tags( $_POST['oum_location_author_email'] ) ) : '' );
+            $data['oum_location_video'] = ( isset( $_POST['oum_location_video'] ) ? sanitize_url( wp_strip_all_tags( $_POST['oum_location_video'] ) ) : '' );
             if ( isset( $_POST['oum_marker_icon'] ) ) {
                 $data['oum_marker_icon'] = array();
                 foreach ( $_POST['oum_marker_icon'] as $index => $val ) {
@@ -516,6 +523,7 @@ class BaseController {
                         'lat'     => $lat_validated,
                         'lng'     => $lng_validated,
                         'text'    => $data['oum_location_text'],
+                        'video'   => $data['oum_location_video'],
                     );
                     if ( isset( $data['oum_location_notification'] ) && isset( $data['oum_location_author_name'] ) && isset( $data['oum_location_author_email'] ) ) {
                         $data_meta['notification'] = $data['oum_location_notification'];

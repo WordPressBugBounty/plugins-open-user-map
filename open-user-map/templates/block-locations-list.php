@@ -37,6 +37,7 @@ if ( $locations_query->have_posts() ) {
         $name = str_replace( "'", "\\'", strip_tags( get_the_title( $post_id ) ) );
         $address = ( isset( $location_meta['address'] ) ? str_replace( "'", "\\'", preg_replace( '/\\r|\\n/', '', $location_meta['address'] ) ) : '' );
         $text = ( isset( $location_meta["text"] ) ? str_replace( "'", "\\'", str_replace( array("\r\n", "\r", "\n"), "<br>", $location_meta["text"] ) ) : '' );
+        $video = ( isset( $location_meta["video"] ) ? $location_meta["video"] : '' );
         $image = get_post_meta( $post_id, '_oum_location_image', true );
         $image_thumb = null;
         if ( stristr( $image, 'oum-useruploads' ) ) {
@@ -113,6 +114,7 @@ if ( $locations_query->have_posts() ) {
             'text'          => $text,
             'image'         => $image,
             'audio'         => $audio,
+            'video'         => $video,
             'icon'          => $icon,
             'custom_fields' => $custom_fields,
         );
@@ -141,13 +143,12 @@ foreach ( $locations_list as $location ) {
     }
     $name_tag = ( get_option( 'oum_enable_title', 'on' ) == 'on' ? '<h3 class="oum_location_name">' . esc_attr( $location['name'] ) . '</h3>' : '' );
     //error_log(print_r($location, true));
+    $media_tag = '';
     if ( $location['image'] ) {
-        $img_tag = '<div class="oum_location_image"><img class="skip-lazy" src="' . esc_url_raw( $location['image'] ) . '"></div>';
-    } else {
-        $img_tag = '';
+        $media_tag = '<div class="oum_location_image"><img class="skip-lazy" src="' . esc_url_raw( $location['image'] ) . '"></div>';
     }
     //HOOK: modify location image
-    $img_tag = apply_filters( 'oum_location_bubble_image', $img_tag, $location );
+    $media_tag = apply_filters( 'oum_location_bubble_image', $media_tag, $location );
     $audio_tag = ( $location['audio'] ? '<audio controls="controls" style="width:100%"><source type="audio/mp4" src="' . $location['audio'] . '"><source type="audio/mpeg" src="' . $location['audio'] . '"><source type="audio/wav" src="' . $location['audio'] . '"></audio>' : '' );
     $address_tag = '';
     if ( get_option( 'oum_enable_address', 'on' ) === 'on' ) {
@@ -215,7 +216,7 @@ foreach ( $locations_list as $location ) {
         $link_tag = '';
     }
     // building bubble block content
-    $content = $img_tag;
+    $content = $media_tag;
     $content .= '<div class="oum_location_text">';
     $content .= $date_tag;
     $content .= $address_tag;

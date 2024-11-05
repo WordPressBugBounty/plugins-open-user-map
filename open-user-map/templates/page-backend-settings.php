@@ -1229,6 +1229,8 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $oum_image_required = get_option( 'oum_image_required' );
     $oum_enable_audio = get_option( 'oum_enable_audio', 'on' );
     $oum_audio_required = get_option( 'oum_audio_required' );
+    $oum_enable_video = get_option( 'oum_enable_video', false );
+    $oum_video_required = get_option( 'oum_video_required' );
     $oum_upload_media_label = get_option( 'oum_upload_media_label' );
     ?>
               <th scope="row"><?php 
@@ -1256,6 +1258,36 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                 </div>
                 <br><br>
 
+                <?php 
+    ?>
+
+                <?php 
+    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+        ?>
+
+                  <div class="oum_2cols">
+                      <div class="oum-gopro-div">
+                        <input class="oum-switch" type="checkbox" disabled>
+                        <label><?php 
+        echo __( 'Video (YouTube, Vimeo)', 'open-user-map' );
+        ?></label>
+                      </div>
+                      <div class="oum-gopro-div">
+                        <input class="oum-switch" type="checkbox" disabled>
+                        <label><?php 
+        echo __( 'Required', 'open-user-map' );
+        ?></label>
+                      </div>
+                      <div>
+                        <span class="oum-pro">PRO</span>
+                      </div>
+                    </div>
+                    <br><br>
+
+                <?php 
+    }
+    ?>
+
                 <div class="oum_2cols">
                   <div>
                     <input class="oum-switch" type="checkbox" name="oum_enable_audio" id="oum_enable_audio" <?php 
@@ -1275,6 +1307,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   </div>
                 </div>
                 <br><br>
+
                 <strong><?php 
     echo __( 'Custom Label:', 'open-user-map' );
     ?></strong><br>
@@ -2096,6 +2129,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <li>title</li>
                   <li>image</li>
                   <li>audio</li>
+                  <li>video</li>
                   <li>type</li>
                   <li>map</li>
                   <li>address</li>

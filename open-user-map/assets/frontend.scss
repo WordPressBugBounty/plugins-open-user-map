@@ -206,6 +206,21 @@
                 pointer-events: none;
               }
             }
+
+            .oum_location_video {
+              background-color: #eee;
+
+              p {
+                margin: 0;
+                aspect-ratio: 16/9;
+
+                iframe {
+                  width: 100%;
+                  height: 100%;
+                  margin: 0 auto;
+                }
+              }
+            }
   
             .oum_location_text {
               padding: 15px;
@@ -774,7 +789,7 @@
         bottom: 20px;
 
         .oum-filter-toggle {
-          display: none;
+          display: block;
           background-color: rgba(255, 255, 255, 0.9);
           background-image: url('images/ico_marker_categories.png');
           background-position: center center;
@@ -785,23 +800,24 @@
           border: 2px solid rgba(0, 0, 0, 0.2);
           border-radius: 5px;
           cursor: pointer;
-          position: relative;
+          position: absolute;
+          bottom: 0;
+          right: 0;
           z-index: 1;
         }
 
         .oum-filter-list {
+          display: none;
           background: rgba(255, 255, 255, 0.95);
           color: #333;
           padding: 6px;
           border: 1px solid rgba(0, 0, 0, 0.2);
           border-radius: 5px;
-          position: absolute;
+          position: relative;
           z-index: 2;
-          right: 0;
-          bottom: 0;
-          display: flex;
           flex-direction: column;
           gap: 5px;
+          padding-right: 30px;
 
           label {
             display: flex;
@@ -835,27 +851,31 @@
 
             span {
               font-size: 12px;
-              white-space: nowrap;
+              line-height: 1.2;
+              margin-top: 2px;
+              margin-bottom: 5px;
+            }
+          }
+
+          .close-filter-list {
+            position: absolute;
+            top: 4px;
+            right: 10px;
+            cursor: pointer;
+
+            &:hover {
+              color: map-get($colors, "primary");
             }
           }
         }
 
-        &.use-collapse {
-          .oum-filter-toggle {
-            display: block;
-          }
-
+        &.active {
           .oum-filter-list {
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            display: flex;
           }
 
-          &:hover .oum-filter-list,
-          &:focus-within .oum-filter-list {
-            visibility: visible;
-            opacity: 1;
-            pointer-events: auto;
+          .oum-filter-toggle {
+            display: none;
           }
         }
       }
@@ -1275,12 +1295,18 @@
         .oum_media {
           display: flex;
           margin-bottom: 15px;
+          flex-direction: column;
+          gap: 10px;
 
           .media-upload {
             position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
 
             label {
-              display: inline-block;
+              display: flex;
+              gap: 3px;
               font-size: 20px;
               padding: 5px;
               margin: 0;
@@ -1298,6 +1324,10 @@
                 font-size: 25px;
               }
             }
+
+            input[type=text] {
+              margin: 0;
+            }
   
             input[type=file] {
               // display: none;
@@ -1309,13 +1339,13 @@
               height: 100%;
               width: 100%;
               overflow: hidden;
-              overflow: hidden;
               padding: 0;
               margin: 0;
             }
 
             .preview {
-              display: inline-block;
+              display: flex;
+              gap: 5px;
 
               span {
                 color: map-get($colors, "primary");
@@ -1335,10 +1365,6 @@
                 color: #fff;
                 font-family: sans-serif;
                 font-size: 17px;
-                margin-left: 4px;
-                margin-right: 16px;
-                position: relative;
-                top: 1px;
 
                 &:hover {
                   opacity: 1;
@@ -1347,7 +1373,7 @@
 
               &.active {
                 .remove-upload {
-                  display: inline-block;
+                  display: block;
                 }
               }
             }
@@ -1593,6 +1619,21 @@
             max-width: 100%;
             margin: 0 auto;
             pointer-events: none;
+          }
+        }
+
+        .oum_location_video {
+          background-color: #eee;
+
+          p {
+            margin: 0;
+            aspect-ratio: 16/9;
+
+            iframe {
+              width: 100%;
+              height: 100%;
+              margin: 0 auto;
+            }
           }
         }
     
@@ -1855,24 +1896,31 @@
   /* end resets */
 
   .oum-locations-list-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
     margin-bottom: 30px;
     background: #fff;
     box-shadow: 0 0 3px rgba(0,0,0,0.2);
 
     .oum_location_image {
-      flex-basis: 20%;
-      flex-grow: 0;
-      flex-shrink: 0;
-    }
-
-    .oum_location_image {
-      background-color: #eee;
+      padding: 15px;
 
       img {
-        max-height: 220px;
-        max-width: 100%;
-        aspect-ratio: unset;
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+
+    .oum_location_video {
+      padding: 15px;
+
+      > div {
+        aspect-ratio: 16/9;
+      }
+
+      iframe {
+        width: 100%;
+        height: 100%;
         margin: 0 auto;
       }
     }
@@ -2034,6 +2082,29 @@
     list-style: none;
     gap: 10px;
     justify-content: center;
+  }
+}
+
+.oum-location-template-default {
+  .wp-block-post-featured-image {
+    aspect-ratio: auto !important;
+  }
+}
+
+.open-user-map-single-default-template-media {
+  &.has-video {
+    aspect-ratio: 16/9;
+
+    p {
+      width: 100%;
+      height: 100%;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      margin: 0 auto;
+    }
   }
 }
 

@@ -304,7 +304,7 @@ if ( get_option( 'oum_enable_description', 'on' ) === 'on' ) {
 ?>
       
       <?php 
-if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_audio', 'on' ) === 'on' ) {
+if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_video', false ) === 'on' || get_option( 'oum_enable_audio', 'on' ) === 'on' ) {
     ?>
         <label class="oum-label"><?php 
     echo $oum_upload_media_label;
@@ -332,6 +332,8 @@ if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_
             </div>
           <?php 
     }
+    ?>
+          <?php 
     ?>
           <?php 
     if ( get_option( 'oum_enable_audio', 'on' ) === 'on' ) {

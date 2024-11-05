@@ -169,6 +169,9 @@ echo $image_tag;
             </td>
         </tr>
 
+        <?php 
+?>
+
         <tr valign="top">
             <th scope="row">
                 <?php 

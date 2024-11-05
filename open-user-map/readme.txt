@@ -2,9 +2,9 @@
 Contributors: 100plugins
 Tags: map, interactive map, leaflet, mapbox, regions
 Requires at least: 5.5
-Tested up to: 6.6
+Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.3.47
+Stable tag: 1.3.48
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -14,11 +14,13 @@ Create a custom map featuring your own locations or an interactive map where any
 
 Create a custom map featuring your own locations or an interactive map where anyone can add location pins without registering. New locations will wait for your approval before getting published. 
 
-The map is based on [Leaflet Map JS](https://leafletjs.com/?target=_blank) and offers you many free map and marker styles. You do not need an API Key, Access Token or any other external registration (like Google). Additionally you have access to awesome MapBox map styles. 
+The map is based on [Leaflet Map JS](https://leafletjs.com/) and offers you many free map and marker styles. You do not need an API Key, Access Token or any other external registration (unlike Google Maps). Additionally you have access to awesome MapBox map styles. 
 
-[Demos](https://www.open-user-map.com/demo/?target=_blank) | [Start 7-day PRO trial (no credit card required)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free&target=_blank) | [More Info](https://www.open-user-map.com/?target=_blank) | [Help](https://www.open-user-map.com/support/knowledge-base/?target=_blank)
+[Demos](https://www.open-user-map.com/demo/) | [Start 7-day PRO trial (no credit card required)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free) | [More Info](https://www.open-user-map.com/) | [Help](https://www.open-user-map.com/support/knowledge-base/)
 
 https://www.youtube.com/watch?v=FRUkzKSZeL8&ab_channel=100plugins
+
+🍿 Watch Video on YouTube: [What is Open User Map?](https://www.youtube.com/watch?v=FRUkzKSZeL8&ab_channel=100plugins)
 
 
 = 🌏 How to create a Simple Map =
@@ -27,21 +29,27 @@ Integrate a customized and clear map showcasing only your own location markers, 
 
 https://www.youtube.com/watch?v=7nPKNg7f0Qs&ab_channel=100plugins
 
+🍿 Watch Video on YouTube: [How to create a Simple Map](https://www.youtube.com/watch?v=7nPKNg7f0Qs&ab_channel=100plugins)
+
 
 = 👩🏾‍🚀🤵👩🏻‍🎤👩🏽‍🌾👩🏿‍💻 How to create an Interactive Map =
 
-Create a community map! Visitors to your page can add new location markers to the map. You will receive a notification to approve each location before it is published. Your visitors can **search for addresses or markers** worldwide to quickly find the right spots. You can add **custom fields** and descriptions to the form to collect the data you need. Image and audio uploads are possible and much more. Let your users collaborate!
+Create a community map! Visitors to your page can add new location markers to the map. You will receive a notification to approve each location before it is published. Your visitors can **search for addresses or markers** worldwide to quickly find the right spots. You can add **custom fields** and descriptions to the form to collect the data you need. Image, Video and Audio uploads are possible and much more. Let your users collaborate!
 
 = How your website visitors add new markers to your map: =
 Just by clicking a "+"-Button a form will popup to let the visitor enter location details the same comfortable way you can do it in the backend. After submit the location proposal will be "pending" and wait for your review approval to get published.
 
 https://www.youtube.com/watch?v=7v605z1FT2c&ab_channel=100plugins
 
+🍿 Watch Video on YouTube: [Add a new Location](https://www.youtube.com/watch?v=7v605z1FT2c&ab_channel=100plugins)
+
 = 🆕 Regions =
 
-Add regional navigation tabs and let your visitors 'fly' back and forth between locations that are far apart from each other. See the [Demo Map](https://www.open-user-map.com/demo/?target=_blank).
+Add regional navigation tabs and let your visitors 'fly' back and forth between locations that are far apart from each other. See the [Demo Map](https://www.open-user-map.com/demo/).
 
 https://www.youtube.com/watch?v=Y_Fp_FeoBw0&ab_channel=100plugins
+
+🍿 Watch Video on YouTube: [Regions](https://www.youtube.com/watch?v=Y_Fp_FeoBw0&ab_channel=100plugins)
 
 
 = More than 60 options to customize =
@@ -91,6 +99,9 @@ Organize locations in multiple filterable marker groups. Each group (category) c
 Add custom fields like links, radio buttons, checkboxes, dropdowns and even HTML. Social media links will automatically be rendered as icons.
 
 - **Additional geosearch providers (Geoapify, Here, MapBox)**
+
+- **Videos from YouTube & Vimeo**
+Use videos instead of images to highlight each location.
 
 - **Export & Import locations**
 Maybe you already have a list of places you need to show on the map. No problem - just make use of the CSV Export & Import feature. This also comes in handy for bulk editing a lot of locations.
@@ -143,7 +154,7 @@ Use the shortcode [open-user-map-list] to get a list view of all the locations. 
 - **Allow registered users to edit their locations**
 Open User Map PRO extends WordPress capabilities to allow backend access. If assigned to the user role registered users get access to read, edit and delete their locations from within the map.
 
-[Get a 7-day PRO trial (no credit card)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free&target=_blank)
+[Get a 7-day PRO trial (no credit card)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free)
 
 === Use Cases ===
 
@@ -152,6 +163,9 @@ You want to build a collaborative map service where your visitors can add locati
 
 = 👭👬 Community building =
 Extend the WordPress user registration form with an "Add location" input. Your new users can drop a marker on the map to share their location. Use it to build an awesome user map and help your audience connecting.
+
+= 📺 Video tour map =
+Bring locations to life with video! Let your visitors enhance location markers by embedding YouTube or Vimeo videos directly on the map. This could be a video tour of a neighborhood, a restaurant walkthrough, or a cultural event highlight. Perfect for travel bloggers, city guides, or virtual tours—give your audience a dynamic, interactive experience by combining video with location markers.
 
 = 🎤🎸 Sound map =
 Get your audience a soundmap. Your visitors can not only upload text and images to their locations but audio as well! This way e.g urban (or remote) areas can be discovered by its specific soundscape.
@@ -202,6 +216,13 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.3.48 =
+* Ensure WordPress 6.7 compatibility
+* Add YouTube & Vimeo videos to a location (PRO Feature)
+* New Icons (Attention, In Progress, Done, House, Person)
+* Close-Button for Filterbox
+* Better responsive styles for Filterbox
+
 = 1.3.47 =
 * Freemius SDK update
 

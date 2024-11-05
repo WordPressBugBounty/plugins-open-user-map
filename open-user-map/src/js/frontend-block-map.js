@@ -139,6 +139,10 @@ window.addEventListener('load', function(e) {
                 }
             }
 
+            // Video
+            const videoField = document.querySelector('input[name="oum_location_video"]');
+            if (videoField) videoField.value = decodeURIComponent(locationData.video.replace(/&#038;/g, '&'));
+
             // Set the form action or hidden input to indicate this is an edit and not a new submission
             const postIdField = document.querySelector('input[name="oum_post_id"]');
             if (postIdField) postIdField.value = locationData.post_id;
@@ -599,6 +603,38 @@ window.addEventListener('load', function(e) {
   
     });
   });
+
+  // Event: Toggle Filter List
+  (function() {
+    // Cache the filter controls element
+    let filterControls = document.querySelector('.open-user-map .oum-filter-controls');
+  
+    if (!filterControls) return; // Exit if element is not found
+  
+    // Function to show the filter list
+    function showFilterList() {
+      filterControls.classList.add('active');
+    }
+  
+    // Function to hide the filter list
+    function hideFilterList() {
+      filterControls.classList.remove('active');
+    }
+  
+    // Event: Open Filter List (mouseover for collapsed design)
+    if (filterControls.classList.contains('use-collapse')) {
+      filterControls.querySelector('.oum-filter-toggle').addEventListener('mouseover', showFilterList);
+  
+      // Close on mouseleave
+      filterControls.querySelector('.oum-filter-list').addEventListener('mouseleave', hideFilterList);
+    }
+  
+    // Event: Open Filter List (click)
+    filterControls.querySelector('.oum-filter-toggle').addEventListener('click', showFilterList);
+  
+    // Event: Close Filter List (click on close button)
+    filterControls.querySelector('.oum-filter-list .close-filter-list').addEventListener('click', hideFilterList);
+  })();
 
   
   // ADD LOCATION

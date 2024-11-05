@@ -226,6 +226,12 @@ function oumRemoveImageUpload() {
     document.getElementById('oum_location_image_preview').textContent = '';
 }
 
+function oumRemoveVideoUpload() {
+    document.getElementById('oum_location_video').value = '';
+    document.getElementById('oum_location_video_preview').classList.remove('has-video');
+    document.getElementById('oum_location_video_preview').textContent = '';
+}
+
 function oumRemoveAudioUpload() {
     document.getElementById('oum_location_audio').value = '';
     document.getElementById('oum_location_audio_preview').classList.remove('has-audio');

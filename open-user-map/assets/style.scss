@@ -228,6 +228,46 @@
     }
   }
 
+  #oum_location_video_preview {
+    .remove-upload {
+      display: none;
+    }
+
+    &.has-video {
+      width: 500px;
+      max-width: 100%;
+      position: relative;
+
+      iframe {
+        position: relative;
+        width: 100%;
+      }
+
+      .remove-upload {
+        display: block;
+        position: absolute;
+        z-index: 10;
+        top: 10px;
+        right: -30px;
+        cursor: pointer;
+        opacity: 0.8;
+        width: 20px;
+        height: 20px;
+        border-radius: 100px;
+        line-height: 18px;
+        text-align: center;
+        background: indianred;
+        color: #fff;
+        font-family: sans-serif;
+        font-size: 17px;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
   #oum_location_audio_preview {
     .remove-upload {
       display: none;
@@ -282,7 +322,7 @@
       line-height: 23px;
       padding-left: 50px;
       position: relative;
-      margin-top: -12px;
+      margin-top: -18px;
 
       &::before {
         box-sizing: border-box;
@@ -370,6 +410,30 @@
 
         &[data-style="custom4"] {
           background-image: url('../src/leaflet/images/marker-icon_custom4-2x.png');
+        }
+
+        &[data-style="custom5"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom5-2x.png');
+        }
+
+        &[data-style="custom6"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom6-2x.png');
+        }
+
+        &[data-style="custom7"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom7-2x.png');
+        }
+
+        &[data-style="custom8"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom8-2x.png');
+        }
+
+        &[data-style="custom9"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom9-2x.png');
+        }
+
+        &[data-style="custom10"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom10-2x.png');
         }
 
         &[data-style="user1"] {
@@ -471,6 +535,30 @@
 
         &[data-style="custom4"] {
           background-image: url('../src/leaflet/images/marker-icon_custom4-2x.png');
+        }
+
+        &[data-style="custom5"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom5-2x.png');
+        }
+
+        &[data-style="custom6"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom6-2x.png');
+        }
+
+        &[data-style="custom7"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom7-2x.png');
+        }
+
+        &[data-style="custom8"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom8-2x.png');
+        }
+
+        &[data-style="custom9"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom9-2x.png');
+        }
+
+        &[data-style="custom10"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom10-2x.png');
         }
 
         &[data-style="user1"] {
@@ -933,10 +1021,8 @@
 
   .oum_2cols {
     display: flex;
-
-    > div {
-      margin-right: 15px;
-    }
+    align-items: center;
+    gap: 15px;
   }
 
   code.block {
@@ -1258,6 +1344,30 @@
           background-image: url('../src/leaflet/images/marker-icon_custom4-2x.png');
         }
 
+        &[data-style="custom5"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom5-2x.png');
+        }
+
+        &[data-style="custom6"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom6-2x.png');
+        }
+
+        &[data-style="custom7"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom7-2x.png');
+        }
+
+        &[data-style="custom8"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom8-2x.png');
+        }
+
+        &[data-style="custom9"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom9-2x.png');
+        }
+
+        &[data-style="custom10"] {
+          background-image: url('../src/leaflet/images/marker-icon_custom10-2x.png');
+        }
+
         &[data-style="user1"] {
           background-image: url('../src/leaflet/images/marker-icon_user1-2x.png');
         }
@@ -1525,7 +1635,7 @@
       line-height: 23px;
       padding-left: 50px;
       position: relative;
-      margin-top: -12px;
+      margin-top: -18px;
 
       &::before {
         box-sizing: border-box;
@@ -1577,7 +1687,8 @@
     padding: 0px 4px;
   }
 
-  .oum-gopro-tr td {
+  .oum-gopro-tr td,
+  .oum-gopro-div {
     opacity: 0.65;
   }
 

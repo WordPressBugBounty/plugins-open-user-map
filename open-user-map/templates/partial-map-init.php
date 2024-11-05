@@ -26,7 +26,7 @@ $text_notify_me_on_publish_name = __( 'Your name', 'open-user-map' );
 $text_notify_me_on_publish_email = __( 'Your email', 'open-user-map' );
 $oum_enable_currentlocation = ( get_option( 'oum_enable_currentlocation' ) ? 'true' : 'false' );
 $oum_disable_oum_attribution = get_option( 'oum_disable_oum_attribution' );
-$oum_collapse_filter = ( get_option( 'oum_collapse_filter' ) ? 'use-collapse' : '' );
+$oum_collapse_filter = ( get_option( 'oum_collapse_filter' ) ? 'use-collapse' : 'active' );
 $oum_ui_color = ( get_option( 'oum_ui_color' ) ? get_option( 'oum_ui_color' ) : $this->oum_ui_color_default );
 $oum_plus_button_label = ( get_option( 'oum_plus_button_label' ) ? get_option( 'oum_plus_button_label' ) : __( 'Add location', 'open-user-map' ) );
 $oum_marker_types_label = ( get_option( 'oum_marker_types_label' ) ? get_option( 'oum_marker_types_label' ) : $this->oum_marker_types_label_default );
@@ -175,6 +175,7 @@ foreach ( $locations as $post_id ) {
     $name = str_replace( "'", "\\'", strip_tags( get_the_title( $post_id ) ) );
     $address = ( isset( $location_meta['address'] ) ? str_replace( "'", "\\'", preg_replace( '/\\r|\\n/', '', $location_meta['address'] ) ) : '' );
     $text = ( isset( $location_meta["text"] ) ? str_replace( "'", "\\'", str_replace( array("\r\n", "\r", "\n"), "<br>", $location_meta["text"] ) ) : '' );
+    $video = ( isset( $location_meta["video"] ) ? $location_meta["video"] : '' );
     $image = get_post_meta( $post_id, '_oum_location_image', true );
     $image_thumb = null;
     if ( stristr( $image, 'oum-useruploads' ) ) {
@@ -259,6 +260,7 @@ foreach ( $locations as $post_id ) {
         'text'          => $text,
         'image'         => $image,
         'audio'         => $audio,
+        'video'         => $video,
         'icon'          => $icon,
         'custom_fields' => $custom_fields,
         'author_id'     => get_post_field( 'post_author', $post_id ),
