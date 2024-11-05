@@ -1038,6 +1038,14 @@
           margin-bottom: 16px;
           color: #333;
 
+          &.oum-add-location-headline {
+            display: block;
+          }
+
+          &.oum-edit-location-headline {
+            display: none;
+          }
+
           @media screen and (max-width: 768px) {
             text-align: left;
           }
@@ -1428,6 +1436,22 @@
             width: 100%;
           }
         }
+
+        #oum_delete_location_btn {
+          display: none;
+          text-align: center;
+
+          span {
+            cursor: pointer;
+            color: map-get($colors, "primary");
+            display: inline-block;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            line-height: 1.2;
+            border-bottom: 1px solid;
+          }
+        }
       }
 
       #oum_add_location_error {
@@ -1465,6 +1489,32 @@
 
     &.active {
       display: flex;
+    }
+
+    &.edit-location {
+      .location-overlay-content {
+        #oum_add_location {
+          h2 {
+            &.oum-add-location-headline {
+              display: none;
+            }
+  
+            &.oum-edit-location-headline {
+              display: block;
+            }
+          }
+
+          #oum_delete_location_btn {
+            display: block;
+          }
+        }
+        
+        #oum_add_location_thankyou {
+          .oum-add-location-thankyou-text {
+            display: none;
+          }
+        }
+      }
     }
   }
 

@@ -301,6 +301,8 @@ class BaseController {
             $this->plugin_version
         );
         //https://github.com/yafred/leaflet-responsive-popup
+        // enqueue WordPress i18n (for translations inside JS)
+        wp_enqueue_script( 'wp-i18n' );
     }
 
     /**
@@ -335,7 +337,8 @@ class BaseController {
                 'oum_leaflet_locate_js',
                 'oum_leaflet_fullscreen_js',
                 'oum_leaflet_search_js',
-                'oum_leaflet_gesture_js'
+                'oum_leaflet_gesture_js',
+                'wp-i18n'
             ),
             $this->plugin_version
         );
@@ -420,6 +423,10 @@ class BaseController {
                 if ( !(current_user_can( 'edit_post', $data['oum_post_id'] ) || current_user_can( 'edit_oum-locations' )) ) {
                     $error->add( '009', 'You are not allowed to edit this location.' );
                 }
+                // Should the location be deleted?
+                if ( isset( $_POST['oum_delete_location'] ) && $_POST['oum_delete_location'] == 'true' ) {
+                    $data['oum_delete_location'] = $_POST['oum_delete_location'];
+                }
             }
             if ( !$data['oum_location_title'] ) {
                 $error->add( '001', 'Missing or incorrect Title value.' );
@@ -503,104 +510,114 @@ class BaseController {
                     'post_status'    => $this->post_status,
                     'comment_status' => 'closed',
                 );
-                // INSERT or UPDATE the location based on oum_post_id
-                $post_id = ( isset( $data['oum_post_id'] ) && get_post_status( $data['oum_post_id'] ) !== false ? wp_update_post( array_merge( $new_post, [
-                    'ID' => $data['oum_post_id'],
-                ] ) ) : wp_insert_post( $new_post ) );
-                if ( $post_id ) {
-                    // update meta
-                    // Validation
-                    $lat_validated = floatval( str_replace( ',', '.', $data['oum_location_lat'] ) );
-                    if ( !$lat_validated ) {
-                        $lat_validated = '';
-                    }
-                    $lng_validated = floatval( str_replace( ',', '.', $data['oum_location_lng'] ) );
-                    if ( !$lng_validated ) {
-                        $lng_validated = '';
-                    }
-                    $data_meta = array(
-                        'address' => $data['oum_location_address'],
-                        'lat'     => $lat_validated,
-                        'lng'     => $lng_validated,
-                        'text'    => $data['oum_location_text'],
-                        'video'   => $data['oum_location_video'],
-                    );
-                    if ( isset( $data['oum_location_notification'] ) && isset( $data['oum_location_author_name'] ) && isset( $data['oum_location_author_email'] ) ) {
-                        $data_meta['notification'] = $data['oum_location_notification'];
-                        $data_meta['author_name'] = $data['oum_location_author_name'];
-                        $data_meta['author_email'] = $data['oum_location_author_email'];
-                    }
-                    if ( isset( $data['oum_location_custom_fields'] ) && is_array( $data['oum_location_custom_fields'] ) ) {
-                        $data_meta['custom_fields'] = $data['oum_location_custom_fields'];
-                    }
-                    update_post_meta( $post_id, '_oum_location_key', $data_meta );
-                    // IMAGE
-                    // remove the existing image
-                    if ( isset( $_POST['oum_remove_existing_image'] ) && $_POST['oum_remove_existing_image'] == '1' ) {
-                        delete_post_meta( $post_id, '_oum_location_image' );
-                        delete_post_meta( $post_id, '_oum_location_image_thumb' );
-                    }
-                    if ( isset( $data['oum_location_image_src'] ) && isset( $data['oum_location_image_ext'] ) ) {
-                        //set uploads dir
-                        $uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'oum-useruploads/';
-                        wp_mkdir_p( $uploads_dir );
-                        $file_name = $post_id . '.' . $data['oum_location_image_ext'];
-                        $file_fullpath = $uploads_dir . $file_name;
-                        // save file to wp-content/uploads/oum-useruploads/
-                        if ( move_uploaded_file( $data['oum_location_image_src'], $file_fullpath ) ) {
-                            $oum_location_image_url = wp_upload_dir()['baseurl'] . '/oum-useruploads/' . $file_name;
-                            $data_image = esc_url_raw( $oum_location_image_url );
-                            update_post_meta( $post_id, '_oum_location_image', $data_image );
-                            // create thumbnail
-                            $oum_location_image_path = wp_upload_dir()['basedir'] . '/oum-useruploads/' . $file_name;
-                            switch ( $data['oum_location_image_ext'] ) {
-                                case 'png':
-                                    $img_thumb = imagescale( imagecreatefrompng( $oum_location_image_path ), 500 );
-                                    $img_thumb = $this->correctImageOrientation( $oum_location_image_path, $img_thumb );
-                                    imagepng( $img_thumb, $uploads_dir . $post_id . '_thumb.' . $data['oum_location_image_ext'] );
-                                    break;
-                                case 'jpg':
-                                case 'jpeg':
-                                    $img_thumb = imagescale( imagecreatefromjpeg( $oum_location_image_path ), 500 );
-                                    $img_thumb = $this->correctImageOrientation( $oum_location_image_path, $img_thumb );
-                                    imagejpeg( $img_thumb, $uploads_dir . $post_id . '_thumb.' . $data['oum_location_image_ext'] );
-                                    break;
-                                case 'gif':
-                                    $img_thumb = imagescale( imagecreatefromgif( $oum_location_image_path ), 500 );
-                                    $img_thumb = $this->correctImageOrientation( $oum_location_image_path, $img_thumb );
-                                    imagegif( $img_thumb, $uploads_dir . $post_id . '_thumb.' . $data['oum_location_image_ext'] );
-                                    break;
-                                default:
-                                    break;
+                // DELETE, UPDATE or INSERT the location
+                if ( isset( $data['oum_delete_location'] ) && $data['oum_delete_location'] == 'true' ) {
+                    // DELETE (Move to trash)
+                    wp_trash_post( $data['oum_post_id'] );
+                    wp_send_json_success( array(
+                        'message' => 'Ok, the location has been removed.',
+                        'post_id' => $data['oum_post_id'],
+                    ) );
+                } else {
+                    // INSERT or UPDATE the location based on 'oum_post_id'
+                    $post_id = ( isset( $data['oum_post_id'] ) && get_post_status( $data['oum_post_id'] ) !== false ? wp_update_post( array_merge( $new_post, [
+                        'ID' => $data['oum_post_id'],
+                    ] ) ) : wp_insert_post( $new_post ) );
+                    if ( $post_id ) {
+                        // update meta
+                        // Validation
+                        $lat_validated = floatval( str_replace( ',', '.', $data['oum_location_lat'] ) );
+                        if ( !$lat_validated ) {
+                            $lat_validated = '';
+                        }
+                        $lng_validated = floatval( str_replace( ',', '.', $data['oum_location_lng'] ) );
+                        if ( !$lng_validated ) {
+                            $lng_validated = '';
+                        }
+                        $data_meta = array(
+                            'address' => $data['oum_location_address'],
+                            'lat'     => $lat_validated,
+                            'lng'     => $lng_validated,
+                            'text'    => $data['oum_location_text'],
+                            'video'   => $data['oum_location_video'],
+                        );
+                        if ( isset( $data['oum_location_notification'] ) && isset( $data['oum_location_author_name'] ) && isset( $data['oum_location_author_email'] ) ) {
+                            $data_meta['notification'] = $data['oum_location_notification'];
+                            $data_meta['author_name'] = $data['oum_location_author_name'];
+                            $data_meta['author_email'] = $data['oum_location_author_email'];
+                        }
+                        if ( isset( $data['oum_location_custom_fields'] ) && is_array( $data['oum_location_custom_fields'] ) ) {
+                            $data_meta['custom_fields'] = $data['oum_location_custom_fields'];
+                        }
+                        update_post_meta( $post_id, '_oum_location_key', $data_meta );
+                        // IMAGE
+                        // remove the existing image
+                        if ( isset( $_POST['oum_remove_existing_image'] ) && $_POST['oum_remove_existing_image'] == '1' ) {
+                            delete_post_meta( $post_id, '_oum_location_image' );
+                            delete_post_meta( $post_id, '_oum_location_image_thumb' );
+                        }
+                        if ( isset( $data['oum_location_image_src'] ) && isset( $data['oum_location_image_ext'] ) ) {
+                            //set uploads dir
+                            $uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'oum-useruploads/';
+                            wp_mkdir_p( $uploads_dir );
+                            $file_name = $post_id . '.' . $data['oum_location_image_ext'];
+                            $file_fullpath = $uploads_dir . $file_name;
+                            // save file to wp-content/uploads/oum-useruploads/
+                            if ( move_uploaded_file( $data['oum_location_image_src'], $file_fullpath ) ) {
+                                $oum_location_image_url = wp_upload_dir()['baseurl'] . '/oum-useruploads/' . $file_name;
+                                $data_image = esc_url_raw( $oum_location_image_url );
+                                update_post_meta( $post_id, '_oum_location_image', $data_image );
+                                // create thumbnail
+                                $oum_location_image_path = wp_upload_dir()['basedir'] . '/oum-useruploads/' . $file_name;
+                                switch ( $data['oum_location_image_ext'] ) {
+                                    case 'png':
+                                        $img_thumb = imagescale( imagecreatefrompng( $oum_location_image_path ), 500 );
+                                        $img_thumb = $this->correctImageOrientation( $oum_location_image_path, $img_thumb );
+                                        imagepng( $img_thumb, $uploads_dir . $post_id . '_thumb.' . $data['oum_location_image_ext'] );
+                                        break;
+                                    case 'jpg':
+                                    case 'jpeg':
+                                        $img_thumb = imagescale( imagecreatefromjpeg( $oum_location_image_path ), 500 );
+                                        $img_thumb = $this->correctImageOrientation( $oum_location_image_path, $img_thumb );
+                                        imagejpeg( $img_thumb, $uploads_dir . $post_id . '_thumb.' . $data['oum_location_image_ext'] );
+                                        break;
+                                    case 'gif':
+                                        $img_thumb = imagescale( imagecreatefromgif( $oum_location_image_path ), 500 );
+                                        $img_thumb = $this->correctImageOrientation( $oum_location_image_path, $img_thumb );
+                                        imagegif( $img_thumb, $uploads_dir . $post_id . '_thumb.' . $data['oum_location_image_ext'] );
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                $oum_location_image_thumb_url = wp_upload_dir()['baseurl'] . '/oum-useruploads/' . $post_id . '_thumb.' . $data['oum_location_image_ext'];
+                                $data_image_thumb = esc_url_raw( $oum_location_image_thumb_url );
+                                update_post_meta( $post_id, '_oum_location_image_thumb', $data_image_thumb );
                             }
-                            $oum_location_image_thumb_url = wp_upload_dir()['baseurl'] . '/oum-useruploads/' . $post_id . '_thumb.' . $data['oum_location_image_ext'];
-                            $data_image_thumb = esc_url_raw( $oum_location_image_thumb_url );
-                            update_post_meta( $post_id, '_oum_location_image_thumb', $data_image_thumb );
+                        }
+                        // AUDIO
+                        // remove the existing audio
+                        if ( isset( $_POST['oum_remove_existing_audio'] ) && $_POST['oum_remove_existing_audio'] == '1' ) {
+                            delete_post_meta( $post_id, '_oum_location_audio' );
+                        }
+                        if ( isset( $data['oum_location_audio_src'] ) && isset( $data['oum_location_audio_ext'] ) ) {
+                            //set uploads dir
+                            $uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'oum-useruploads/';
+                            wp_mkdir_p( $uploads_dir );
+                            $file_name = $post_id . '.' . $data['oum_location_audio_ext'];
+                            $file_fullpath = $uploads_dir . $file_name;
+                            // save file to wp-content/uploads/oum-useruploads/
+                            if ( move_uploaded_file( $data['oum_location_audio_src'], $file_fullpath ) ) {
+                                $oum_location_audio_url = wp_upload_dir()['baseurl'] . '/oum-useruploads/' . $file_name;
+                                $data_audio = esc_url_raw( $oum_location_audio_url );
+                                update_post_meta( $post_id, '_oum_location_audio', $data_audio );
+                            }
                         }
                     }
-                    // AUDIO
-                    // remove the existing audio
-                    if ( isset( $_POST['oum_remove_existing_audio'] ) && $_POST['oum_remove_existing_audio'] == '1' ) {
-                        delete_post_meta( $post_id, '_oum_location_audio' );
-                    }
-                    if ( isset( $data['oum_location_audio_src'] ) && isset( $data['oum_location_audio_ext'] ) ) {
-                        //set uploads dir
-                        $uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'oum-useruploads/';
-                        wp_mkdir_p( $uploads_dir );
-                        $file_name = $post_id . '.' . $data['oum_location_audio_ext'];
-                        $file_fullpath = $uploads_dir . $file_name;
-                        // save file to wp-content/uploads/oum-useruploads/
-                        if ( move_uploaded_file( $data['oum_location_audio_src'], $file_fullpath ) ) {
-                            $oum_location_audio_url = wp_upload_dir()['baseurl'] . '/oum-useruploads/' . $file_name;
-                            $data_audio = esc_url_raw( $oum_location_audio_url );
-                            update_post_meta( $post_id, '_oum_location_audio', $data_audio );
-                        }
-                    }
+                    wp_send_json_success( array(
+                        'message' => 'Ok, the location is now pending review.',
+                        'post_id' => $post_id,
+                    ) );
                 }
-                wp_send_json_success( array(
-                    'message' => 'Ok, the location is now pending review.',
-                    'post_id' => $post_id,
-                ) );
             }
         }
         die;

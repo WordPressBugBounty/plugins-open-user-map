@@ -875,6 +875,12 @@
   margin-bottom: 16px;
   color: #333;
 }
+.open-user-map .add-location .location-overlay-content #oum_add_location h2.oum-add-location-headline {
+  display: block;
+}
+.open-user-map .add-location .location-overlay-content #oum_add_location h2.oum-edit-location-headline {
+  display: none;
+}
 @media screen and (max-width: 768px) {
   .open-user-map .add-location .location-overlay-content #oum_add_location h2 {
     text-align: left;
@@ -1197,6 +1203,20 @@
     width: 100%;
   }
 }
+.open-user-map .add-location .location-overlay-content #oum_add_location #oum_delete_location_btn {
+  display: none;
+  text-align: center;
+}
+.open-user-map .add-location .location-overlay-content #oum_add_location #oum_delete_location_btn span {
+  cursor: pointer;
+  color: #e02aaf;
+  display: inline-block;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  line-height: 1.2;
+  border-bottom: 1px solid;
+}
 .open-user-map .add-location .location-overlay-content #oum_add_location_error {
   color: red;
 }
@@ -1225,6 +1245,18 @@
 }
 .open-user-map .add-location.active {
   display: flex;
+}
+.open-user-map .add-location.edit-location .location-overlay-content #oum_add_location h2.oum-add-location-headline {
+  display: none;
+}
+.open-user-map .add-location.edit-location .location-overlay-content #oum_add_location h2.oum-edit-location-headline {
+  display: block;
+}
+.open-user-map .add-location.edit-location .location-overlay-content #oum_add_location #oum_delete_location_btn {
+  display: block;
+}
+.open-user-map .add-location.edit-location .location-overlay-content #oum_add_location_thankyou .oum-add-location-thankyou-text {
+  display: none;
 }
 .open-user-map .add-user-location .map-wrap {
   position: relative;

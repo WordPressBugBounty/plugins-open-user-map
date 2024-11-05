@@ -1,5 +1,8 @@
 window.addEventListener('load', function(e) {
 
+  // VARIABLES
+  const { __ } = wp.i18n;
+
   // FUNCTIONS
 
   function getParameterByName(name) {
@@ -37,6 +40,8 @@ window.addEventListener('load', function(e) {
   function editLocation(post_id) {
     // Trigger the Add Location button to open the form
     document.getElementById('open-add-location-overlay').click();
+
+    document.getElementById('add-location-overlay').classList.add('edit-location');
 
     // Wait for the form to be visible (use a small timeout if necessary)
     setTimeout(function() {
@@ -888,6 +893,15 @@ window.addEventListener('load', function(e) {
       // show overlay
       document.getElementById('add-location-overlay').classList.add('active');
 
+      // reset overlay
+      document.getElementById('oum_add_location').style.display = 'block';
+      document.getElementById('oum_add_location').reset(); // clear form (except marker lat/lng)
+      document.getElementById('add-location-overlay').classList.remove('edit-location'); // remove edit class
+      if (document.querySelector('input[name="oum_post_id"]') != null) document.querySelector('input[name="oum_post_id"]').value = ''; // clear post_id
+      if (document.querySelector('input[name="oum_delete_location"]') != null) document.querySelector('input[name="oum_delete_location"]').value = ''; // clear delete_location
+      if (document.getElementById('oum_remove_image') != null) document.getElementById('oum_remove_image').click(); // remove image
+      if (document.getElementById('oum_remove_audio') != null) document.getElementById('oum_remove_audio').click(); 
+
       // prevent body scrolling
       document.querySelector('body').classList.add('oum-add-location-opened');
 
@@ -983,28 +997,10 @@ window.addEventListener('load', function(e) {
     // Event: add another location
     if (document.getElementById('oum_add_another_location') != null) {
       document.getElementById('oum_add_another_location').addEventListener('click', function() {
-        document.getElementById('oum_add_location').style.display = 'block';
-        document.getElementById('oum_add_location_error').style.display = 'none';
-        document.getElementById('oum_add_location_thankyou').style.display = 'none';
-  
-        //reposition map
-        setTimeout(function() {
-          map2.invalidateSize();
-          map2.setView([start_lat, start_lng], start_zoom);
-        }, 0);
-  
-        //reset media previews
-        if(document.getElementById('oum_location_image')) {
-          document.getElementById('oum_location_image').value = '';
-          document.getElementById('oum_location_image').nextElementSibling.classList.remove('active');
-          document.getElementById('oum_location_image').nextElementSibling.querySelector('span').textContent = '';
-        }
-  
-        if(document.getElementById('oum_location_audio')) {
-          document.getElementById('oum_location_audio').value = '';
-          document.getElementById('oum_location_audio').nextElementSibling.classList.remove('active');
-          document.getElementById('oum_location_audio').nextElementSibling.querySelector('span').textContent = '';
-        }
+        document.getElementById('close-add-location-overlay').click(); // close current overlay
+        document.getElementById('oum_add_location_thankyou').style.display = 'none'; // hide thank you message
+
+        document.getElementById('open-add-location-overlay').click(); // open new overlay
       });
     }
 
@@ -1016,12 +1012,23 @@ window.addEventListener('load', function(e) {
       document.getElementById('oum_location_audio').addEventListener('change', updatePreview)
     }
 
-    // Event: Edit Location (using event delegation)
+    // Event delegation for Edit and Delete Location buttons
     document.addEventListener('click', function(event) {
-      // Check if the clicked element has the class 'edit-location-button'
+      // Edit Location button clicked
       if (event.target.classList.contains('edit-location-button')) {
-        let post_id = event.target.getAttribute('data-post-id');
-        editLocation(post_id);
+          let post_id = event.target.getAttribute('data-post-id');
+          editLocation(post_id); // Call edit function
+      }
+
+      // Delete Location button clicked
+      if (event.target.matches('#oum_delete_location_btn span')) {
+          const userConfirmed = confirm(__('Are you sure you want to delete this location?', 'open-user-map'));
+
+          if (userConfirmed) {
+              // Set delete flag to true and submit the form
+              document.querySelector('input[name="oum_delete_location"]').value = 'true';
+              document.getElementById('oum_submit_btn').click();
+          }
       }
     });
 

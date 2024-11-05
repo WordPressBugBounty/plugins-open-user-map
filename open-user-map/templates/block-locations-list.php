@@ -106,7 +106,7 @@ if ( $locations_query->have_posts() ) {
         // collect locations for JS use
         $location = array(
             'post_id'       => $post_id,
-            'date'          => get_the_date( '', $post_id ),
+            'date'          => get_the_modified_date( '', $post_id ),
             'name'          => $name,
             'address'       => $address,
             'lat'           => $geolocation['lat'],

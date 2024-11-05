@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-05T00:02:10+00:00\n"
+"POT-Creation-Date: 2024-11-05T20:19:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: open-user-map\n"
@@ -17,7 +17,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: elementor/includes/widgets/open-user-map-widget.php:10
 #: elementor/includes/widgets/open-user-map-widget.php:241
-#: inc/Base/LocationController.php:48
+#: inc/Base/LocationController.php:49
 #: blocks/build/index.js:1
 #: blocks/src/edit.js:156
 msgid "Open User Map"
@@ -64,14 +64,14 @@ msgstr ""
 #: elementor/includes/widgets/open-user-map-widget.php:80
 #: elementor/includes/widgets/open-user-map-widget.php:256
 #: templates/block-add-user-location.php:9
-#: templates/partial-map-add-location.php:19
+#: templates/partial-map-add-location.php:20
 msgid "Latitude"
 msgstr ""
 
 #: elementor/includes/widgets/open-user-map-widget.php:89
 #: elementor/includes/widgets/open-user-map-widget.php:262
 #: templates/block-add-user-location.php:10
-#: templates/partial-map-add-location.php:20
+#: templates/partial-map-add-location.php:21
 msgid "Longitude"
 msgstr ""
 
@@ -201,7 +201,7 @@ msgid "Upload media"
 msgstr ""
 
 #: inc/Base/BaseController.php:126
-#: inc/Base/LocationController.php:399
+#: inc/Base/LocationController.php:400
 #: templates/page-backend-location.php:73
 msgid "Subtitle"
 msgstr ""
@@ -226,80 +226,81 @@ msgstr ""
 msgid "Notify me when it is published"
 msgstr ""
 
-#: inc/Base/LocationController.php:36
+#: inc/Base/LocationController.php:37
 msgid "Locations"
 msgstr ""
 
-#: inc/Base/LocationController.php:37
-#: inc/Base/LocationController.php:54
+#: inc/Base/LocationController.php:38
+#: inc/Base/LocationController.php:55
 msgid "Location"
 msgstr ""
 
-#: inc/Base/LocationController.php:38
 #: inc/Base/LocationController.php:39
+#: inc/Base/LocationController.php:40
 msgid "Add new Location"
 msgstr ""
 
-#: inc/Base/LocationController.php:40
+#: inc/Base/LocationController.php:41
+#: templates/partial-map-add-location.php:6
 msgid "Edit Location"
 msgstr ""
 
-#: inc/Base/LocationController.php:41
+#: inc/Base/LocationController.php:42
 msgid "New Location"
 msgstr ""
 
-#: inc/Base/LocationController.php:42
+#: inc/Base/LocationController.php:43
 msgid "All Locations"
 msgstr ""
 
-#: inc/Base/LocationController.php:43
+#: inc/Base/LocationController.php:44
 msgid "View Location"
 msgstr ""
 
-#: inc/Base/LocationController.php:44
+#: inc/Base/LocationController.php:45
 msgid "Search Locations"
 msgstr ""
 
-#: inc/Base/LocationController.php:45
+#: inc/Base/LocationController.php:46
 msgid "No Locations found"
 msgstr ""
 
-#: inc/Base/LocationController.php:46
+#: inc/Base/LocationController.php:47
 msgid "No Location in trash"
 msgstr ""
 
-#: inc/Base/LocationController.php:133
+#: inc/Base/LocationController.php:134
 msgid "Open User Map Location Settings"
 msgstr ""
 
-#: inc/Base/LocationController.php:170
+#: inc/Base/LocationController.php:171
 #: templates/partial-map-init.php:25
 msgid "Your name"
 msgstr ""
 
-#: inc/Base/LocationController.php:171
+#: inc/Base/LocationController.php:172
 #: templates/partial-map-init.php:26
 msgid "Your email"
 msgstr ""
 
-#: inc/Base/LocationController.php:398
+#: inc/Base/LocationController.php:399
 msgid "Text"
 msgstr ""
 
-#: inc/Base/LocationController.php:400
+#: inc/Base/LocationController.php:401
 #: inc/Base/TaxController.php:276
 msgid "Coordinates"
 msgstr ""
 
-#: inc/Base/LocationController.php:405
+#: inc/Base/LocationController.php:406
 msgid "Notification"
 msgstr ""
 
-#: inc/Base/LocationController.php:562
+#: inc/Base/LocationController.php:633
 msgid "Route on Google Maps"
 msgstr ""
 
-#: inc/Base/LocationController.php:563
+#: inc/Base/LocationController.php:634
 #: templates/block-locations-list.php:212
 #: templates/partial-map-render.php:42
 msgid "go to Google Maps"
@@ -517,7 +518,7 @@ msgid "Image"
 msgstr ""
 
 #: templates/page-backend-location.php:85
-#: templates/partial-map-add-location.php:190
+#: templates/partial-map-add-location.php:192
 msgid "Upload Image"
 msgstr ""
 
@@ -531,7 +532,7 @@ msgid "Audio"
 msgstr ""
 
 #: templates/page-backend-location.php:117
-#: templates/partial-map-add-location.php:211
+#: templates/partial-map-add-location.php:213
 msgid "Upload Audio"
 msgstr ""
 
@@ -976,7 +977,7 @@ msgid "„Submit“-Button text"
 msgstr ""
 
 #: templates/page-backend-settings.php:1113
-#: templates/partial-map-add-location.php:240
+#: templates/partial-map-add-location.php:242
 msgid "Submit location for review"
 msgstr ""
 
@@ -997,12 +998,12 @@ msgid "Redirect"
 msgstr ""
 
 #: templates/page-backend-settings.php:1142
-#: templates/partial-map-add-location.php:246
+#: templates/partial-map-add-location.php:249
 msgid "Thank you!"
 msgstr ""
 
 #: templates/page-backend-settings.php:1143
-#: templates/partial-map-add-location.php:247
+#: templates/partial-map-add-location.php:250
 msgid "We will check your location suggestion and release it as soon as possible."
 msgstr ""
 
@@ -1381,8 +1382,12 @@ msgstr ""
 msgid "You can copy & paste this info and send it as email to our support in case we need to debug something:"
 msgstr ""
 
-#: templates/partial-map-add-location.php:203
+#: templates/partial-map-add-location.php:205
 msgid "YouTube or Vimeo Video"
+msgstr ""
+
+#: templates/partial-map-add-location.php:243
+msgid "Delete this location"
 msgstr ""
 
 #: templates/partial-map-render.php:135
@@ -1435,6 +1440,10 @@ msgstr ""
 #: blocks/build/index.js:1
 #: blocks/src/edit.js:160
 msgid "Manage Locations"
+msgstr ""
+
+#: src/js/frontend-block-map.js:1042
+msgid "Are you sure you want to delete this location?"
 msgstr ""
 
 #: blocks/block.json

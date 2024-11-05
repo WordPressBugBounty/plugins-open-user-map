@@ -23,6 +23,7 @@ class LocationController extends BaseController {
             2
         );
         // this method has 2 attributes
+        add_action( 'pre_get_posts', array($this, 'custom_search_oum_location') );
         add_action( 'admin_menu', array($this, 'add_pending_counter_to_menu') );
         add_filter(
             'post_thumbnail_html',
@@ -69,7 +70,9 @@ class LocationController extends BaseController {
                 'title',
                 'author',
                 'thumbnail',
-                'excerpt'
+                'excerpt',
+                'revisions',
+                'trash'
             ),
         );
         register_post_type( 'oum-location', $args );
@@ -362,6 +365,64 @@ class LocationController extends BaseController {
                 break;
             default:
                 break;
+        }
+    }
+
+    /**
+     * Custom search (backend) for locations (inlcuding meta and author)
+     */
+    public function custom_search_oum_location( $query ) {
+        // Ensure we're in the WordPress admin, it's a search query, and the right post type
+        if ( $query->is_search() && is_admin() && $query->is_main_query() && isset( $_GET['post_type'] ) && $_GET['post_type'] === 'oum-location' ) {
+            // Get the search term
+            $search_term = $query->query_vars['s'];
+            // Clear the default search query
+            $query->set( 's', '' );
+            // Join wp_users and wp_postmeta tables for author and meta field searches
+            add_filter( 'posts_join', function ( $join ) {
+                global $wpdb;
+                // Join wp_users for author search
+                if ( strpos( $join, "{$wpdb->users}" ) === false ) {
+                    $join .= " LEFT JOIN {$wpdb->users} AS u ON {$wpdb->posts}.post_author = u.ID ";
+                }
+                // Join wp_postmeta for meta field search
+                if ( strpos( $join, "{$wpdb->postmeta}" ) === false ) {
+                    $join .= " LEFT JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id ";
+                }
+                return $join;
+            } );
+            // Modify the search query to include user_login, user_email, post_title, and post_content search
+            add_filter(
+                'posts_search',
+                function ( $search, $query ) use($search_term) {
+                    global $wpdb;
+                    if ( $search_term ) {
+                        $escaped_term = '%' . $wpdb->esc_like( $search_term ) . '%';
+                        // Combine search conditions for post title, content, and author fields
+                        $search .= " AND ({$wpdb->posts}.post_title LIKE '{$escaped_term}' \n                                    OR {$wpdb->posts}.post_content LIKE '{$escaped_term}' \n                                    OR u.user_login LIKE '{$escaped_term}' \n                                    OR u.user_email LIKE '{$escaped_term}') ";
+                    }
+                    return $search;
+                },
+                10,
+                2
+            );
+            // Modify the WHERE clause to include the meta query for '_oum_location_key'
+            add_filter( 'posts_where', function ( $where ) use($search_term) {
+                global $wpdb;
+                // Search in the _oum_location_key meta field
+                $escaped_meta_value = '%' . $wpdb->esc_like( $search_term ) . '%';
+                $where .= $wpdb->prepare( " OR ({$wpdb->postmeta}.meta_key = '_oum_location_key' AND {$wpdb->postmeta}.meta_value LIKE %s)", $escaped_meta_value );
+                return $where;
+            } );
+            // Group results by post ID to avoid duplicates from multiple meta entries
+            add_filter( 'posts_groupby', function ( $groupby ) {
+                global $wpdb;
+                if ( !$groupby ) {
+                    $groupby = "{$wpdb->posts}.ID";
+                    // Group by post ID to ensure unique results
+                }
+                return $groupby;
+            } );
         }
     }
 

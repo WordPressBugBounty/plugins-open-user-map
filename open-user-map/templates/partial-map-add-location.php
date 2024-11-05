@@ -2,8 +2,11 @@
   <div class="location-overlay-content">
     <div id="close-add-location-overlay">&#x2715;</div>
     <form id="oum_add_location" enctype="multipart/form-data">
-      <h2><?php 
+      <h2 class="oum-add-location-headline"><?php 
 echo ( get_option( 'oum_form_headline' ) ? get_option( 'oum_form_headline' ) : __( 'Add a new location', 'open-user-map' ) );
+?></h2>
+      <h2 class="oum-edit-location-headline"><?php 
+echo __( 'Edit Location', 'open-user-map' );
 ?></h2>
       <?php 
 wp_nonce_field( 'oum_location', 'oum_location_nonce' );
@@ -47,6 +50,7 @@ echo __( 'Longitude', 'open-user-map' );
 ?>*" />
 
       <input type="hidden" name="oum_post_id" value="">
+      <input type="hidden" name="oum_delete_location" value="">
 
       <?php 
 ?>
@@ -371,6 +375,11 @@ echo $oum_ui_color;
 ?>" value="<?php 
 echo ( get_option( 'oum_submit_button_label' ) ? get_option( 'oum_submit_button_label' ) : __( 'Submit location for review', 'open-user-map' ) );
 ?>" />
+      <div id="oum_delete_location_btn"><span style="color: <?php 
+echo $oum_ui_color;
+?>"><?php 
+echo __( 'Delete this location', 'open-user-map' );
+?></span></div>
     </form>
 
     <div id="oum_add_location_error" style="display: none"></div>
@@ -379,7 +388,7 @@ echo ( get_option( 'oum_submit_button_label' ) ? get_option( 'oum_submit_button_
       <h3><?php 
 echo ( $thankyou_headline ? $thankyou_headline : __( 'Thank you!', 'open-user-map' ) );
 ?></h3>
-      <p><?php 
+      <p class="oum-add-location-thankyou-text"><?php 
 echo ( $thankyou_text ? $thankyou_text : __( 'We will check your location suggestion and release it as soon as possible.', 'open-user-map' ) );
 ?></p>
       <button id="oum_add_another_location" style="background: <?php 
