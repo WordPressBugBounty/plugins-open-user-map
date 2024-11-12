@@ -94,10 +94,12 @@ window.addEventListener('load', function(e) {
                 locationData.custom_fields.forEach(custom_field => {
                     if(custom_field.val.length > 0) {
                         if(custom_field.fieldtype == 'checkbox') {
-                            custom_field.val.forEach(val => {
-                                const checkbox = document.querySelector(`input[name="oum_location_custom_fields[${custom_field.index}][]"][value="${val}"]`);
-                                if (checkbox) checkbox.checked = true;
-                            });
+                            if(Array.isArray(custom_field.val)) {
+                              custom_field.val.forEach(val => {
+                                  const checkbox = document.querySelector(`input[name="oum_location_custom_fields[${custom_field.index}][]"][value="${val}"]`);
+                                  if (checkbox) checkbox.checked = true;
+                              });
+                            }
                         } else if(custom_field.fieldtype == 'radio') {
                             const radio = document.querySelector(`input[name="oum_location_custom_fields[${custom_field.index}]"][value="${custom_field.val}"]`);
                             if (radio) radio.checked = true;
@@ -126,6 +128,9 @@ window.addEventListener('load', function(e) {
                         label.querySelector('span').textContent = locationData.image.split('/').pop();
                     }
                 }
+
+                const oum_remove_existing_image = document.getElementById('oum_remove_existing_image');
+                if (oum_remove_existing_image) oum_remove_existing_image.value = '0';
             }
 
             // Audio
@@ -142,6 +147,9 @@ window.addEventListener('load', function(e) {
                         label.querySelector('span').textContent = locationData.audio.split('/').pop();
                     }
                 }
+
+                const oum_remove_existing_audio = document.getElementById('oum_remove_existing_audio');
+                if (oum_remove_existing_audio) oum_remove_existing_audio.value = '0';
             }
 
             // Video
@@ -155,29 +163,67 @@ window.addEventListener('load', function(e) {
     }, 500); // Adjust timeout as needed
   }
 
-  // Create leaflet markers based on "oum_all_locations" json
-  function addMarkers() {
-    oum_all_locations.forEach(location => {
-      let marker = L.marker([location.lat, location.lng], {
-        title: location.title,
-        post_id: location.post_id,
-        content: location.title + ' | ' + location.content.replace(/(<([^>]+)>)/gi, " ").replace(/\s\s+/g, " "),
-        icon: L.icon({
-          iconUrl: location.icon,
-          iconSize: [26, 41],
-          iconAnchor: [13, 41],
-          popupAnchor: [0, -25],
-          shadowUrl: marker_shadow_url,
-          shadowSize: [41, 41],
-          shadowAnchor: [13, 41]
-        }),
-        types: location.types || []
-      });
-      let popup = L.responsivePopup().setContent(location.content);
-      marker.bindPopup(popup);
-      oumAllMarkers.push(marker);
+  // Dynamic Filtering Function with Text and Category Filters
+  function filterMarkers() {
+    // Check if the text search input exists and get its value
+    const markerFilterInput = document.getElementById('oum_filter_markers');
+    const filter = markerFilterInput ? markerFilterInput.value.toLowerCase() : '';
+
+    // Check if category filters exist and get selected categories
+    const categoryInputs = document.querySelectorAll('.open-user-map .oum-filter-controls [name="type"]');
+    const checkedCategories = categoryInputs.length > 0
+        ? Array.from(categoryInputs).filter(input => input.checked).map(input => input.value)
+        : [];
+
+    // Clear existing markers from the map
+    oumMarkersLayer.clearLayers();
+
+    // Filter and re-add markers based on both text filter and selected categories
+    oumAllMarkers.forEach(marker => {
+        const contentText = marker.options.content.toLowerCase();
+        const markerTypes = marker.options.types || [];
+
+        // Check if marker matches the text filter
+        const matchesTextFilter = !filter || contentText.includes(filter);
+
+        // Check if marker should be shown based on selected categories
+        const matchesCategoryFilter = markerTypes.length === 0 // Always show markers without categories
+            || (checkedCategories.length === 0 && markerTypes.length === 0) // Show uncategorized markers when no categories are selected
+            || markerTypes.some(type => checkedCategories.includes(type)); // Show markers matching any selected category
+
+        // Only add marker if it matches both filters
+        if (matchesTextFilter && matchesCategoryFilter) {
+            oumMarkersLayer.addLayer(marker); // Add the marker back to the map if it matches both filters
+        }
     });
   }
+
+  // Create leaflet markers based on "oum_all_locations" json
+  function addMarkers() {
+      oum_all_locations.forEach(location => {
+          const contentText = (location.title + ' | ' + location.content.replace(/(<([^>]+)>)/gi, " ").replace(/\s\s+/g, " ")).toLowerCase();
+
+          let marker = L.marker([location.lat, location.lng], {
+              title: location.title,
+              post_id: location.post_id,
+              content: contentText,
+              icon: L.icon({
+                  iconUrl: location.icon,
+                  iconSize: [26, 41],
+                  iconAnchor: [13, 41],
+                  popupAnchor: [0, -25],
+                  shadowUrl: marker_shadow_url,
+                  shadowSize: [41, 41],
+                  shadowAnchor: [13, 41]
+              }),
+              types: location.types || []
+          });
+          let popup = L.responsivePopup().setContent(location.content);
+          marker.bindPopup(popup);
+          oumAllMarkers.push(marker); // Add to the array for future filtering
+      });
+  }
+
 
   // Use this to initialize markers and add them to the map initially
   function initializeMarkers() {
@@ -576,38 +622,19 @@ window.addEventListener('load', function(e) {
     }
   });
 
-  // Event: Filter Markers
-  document.querySelectorAll('.open-user-map .oum-filter-controls [name="type"]').forEach(input => {
-    input.addEventListener('change', function() {
+  // Event: Filter markers on text input change (only if it exists)
+  const markerFilterInput = document.getElementById('oum_filter_markers');
+  if (markerFilterInput) {
+      markerFilterInput.addEventListener('input', filterMarkers);
+  }
 
-      // Update function to control visibility based on filters
-
-      var checkedTypes = Array.from(document.querySelectorAll('.open-user-map .oum-filter-controls [name="type"]:checked')).map(input => input.value);
-      console.log('Checked Types:', checkedTypes);
-      
-      oumAllMarkers.forEach(marker => {
-        // Check if the marker has types defined and if it matches any of the checked types
-        const hasTypes = marker.options.types && marker.options.types.length > 0;
-        const matchesCheckedTypes = marker.options.types.some(type => checkedTypes.includes(type));
-  
-        if (hasTypes && matchesCheckedTypes) {
-          // Marker has types and matches one of the checked types, ensure it's visible
-          if (!map.hasLayer(marker)) {
-            oumMarkersLayer.addLayer(marker);
-          }
-        } else if (hasTypes && !matchesCheckedTypes) {
-          // Marker has types but does not match the checked types, hide it
-          oumMarkersLayer.removeLayer(marker);
-        } else {
-          // Marker does not have types defined, it should always remain visible
-          if (!map.hasLayer(marker)) {
-            oumMarkersLayer.addLayer(marker);
-          }
-        }
+  // Event: Filter markers on category change (only if categories exist)
+  const categoryInputs = document.querySelectorAll('.open-user-map .oum-filter-controls [name="type"]');
+  if (categoryInputs.length > 0) {
+      categoryInputs.forEach(input => {
+          input.addEventListener('change', filterMarkers);
       });
-  
-    });
-  });
+  }
 
   // Event: Toggle Filter List
   (function() {
@@ -894,6 +921,7 @@ window.addEventListener('load', function(e) {
       document.getElementById('add-location-overlay').classList.add('active');
 
       // reset overlay
+      document.getElementById('oum_add_location_thankyou').style.display = 'none'; // hide thank you message
       document.getElementById('oum_add_location').style.display = 'block';
       document.getElementById('oum_add_location').reset(); // clear form (except marker lat/lng)
       document.getElementById('add-location-overlay').classList.remove('edit-location'); // remove edit class
@@ -998,8 +1026,6 @@ window.addEventListener('load', function(e) {
     if (document.getElementById('oum_add_another_location') != null) {
       document.getElementById('oum_add_another_location').addEventListener('click', function() {
         document.getElementById('close-add-location-overlay').click(); // close current overlay
-        document.getElementById('oum_add_location_thankyou').style.display = 'none'; // hide thank you message
-
         document.getElementById('open-add-location-overlay').click(); // open new overlay
       });
     }

@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, mapbox, regions
 Requires at least: 5.5
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.3.49
+Stable tag: 1.3.50
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -94,6 +94,9 @@ The Open User Map plugin is also available in a professional version which inclu
 
 - **Filterable Marker Categories**
 Organize locations in multiple filterable marker groups. Each group (category) can have an individual marker icon and will be accessible to visitors.
+
+- **Live Marker Filter**
+Use the search bar to filter markers as you type. Instantly see relevant locations on the map.
 
 - **More custom field types**
 Add custom fields like links, radio buttons, checkboxes, dropdowns and even HTML. Social media links will automatically be rendered as icons.
@@ -216,18 +219,28 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.3.50 =
+* This release prioritzes feature requests regarding the flood disaster in Spain
+* 🎉 Feature Request: Searchbar to Live Filter Markers (PRO)
+* Feature Request: Allow template overrides
+* Bugfix: Editing a location loses the image/audio
+* Bugfix: Edit location button conditions
+* Improving oumConditionalField feature to accept multiple event listeners
+
 = 1.3.49 =
-* Users can delete their own locations
-* Backend search for locations now searches all fields
-* Date: show modified date instead of creation date
+* This release prioritzes feature requests regarding the flood disaster in Spain
+* Feature Request: Users can delete their own locations
+* Feature Request: Backend search for locations now searches all fields
+* Feature Request: show modified date instead of creation date
 * Edit Form: "Add a new location" --> "Edit Location"
 
 = 1.3.48 =
-* Ensure WordPress 6.7 compatibility
-* Add YouTube & Vimeo videos to a location (PRO Feature)
-* New Icons (Attention, In Progress, Done, House, Person)
+* This release prioritzes feature requests regarding the flood disaster in Spain
+* Feature Request: New Icons (Attention, In Progress, Done, House, Person)
+* Feature Request: Add YouTube & Vimeo videos to a location (PRO Feature)
 * Close-Button for Filterbox
 * Better responsive styles for Filterbox
+* Ensure WordPress 6.7 compatibility
 
 = 1.3.47 =
 * Freemius SDK update

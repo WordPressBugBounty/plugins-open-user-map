@@ -71,7 +71,7 @@ class TaxController extends BaseController {
     public function type_tax_add_custom_fields( $term ) {
         wp_nonce_field( 'oum_location', 'oum_location_nonce' );
         // render view
-        require_once "{$this->plugin_path}/templates/page-backend-add-type.php";
+        require_once oum_get_template( 'page-backend-add-type.php' );
         wp_enqueue_script(
             'oum_backend_type_js',
             $this->plugin_url . 'src/js/backend-type.js',
@@ -83,7 +83,7 @@ class TaxController extends BaseController {
     public function type_tax_edit_custom_fields( $tag, $taxonomy ) {
         wp_nonce_field( 'oum_location', 'oum_location_nonce' );
         // render view
-        require_once "{$this->plugin_path}/templates/page-backend-edit-type.php";
+        require_once oum_get_template( 'page-backend-edit-type.php' );
         wp_enqueue_script(
             'oum_backend_type_js',
             $this->plugin_url . 'src/js/backend-type.js',
@@ -169,13 +169,13 @@ class TaxController extends BaseController {
     public function region_tax_add_custom_fields( $term ) {
         wp_nonce_field( 'oum_location', 'oum_location_nonce' );
         // render view
-        require_once "{$this->plugin_path}/templates/page-backend-add-region.php";
+        require_once oum_get_template( 'page-backend-add-region.php' );
     }
 
     public function region_tax_edit_custom_fields( $tag, $taxonomy ) {
         wp_nonce_field( 'oum_location', 'oum_location_nonce' );
         // render view
-        require_once "{$this->plugin_path}/templates/page-backend-edit-region.php";
+        require_once oum_get_template( 'page-backend-edit-region.php' );
     }
 
     public function region_tax_save( $term_id ) {

@@ -1,4 +1,4 @@
-<?php require_once "$this->plugin_path/templates/partial-map-init.php"; ?>
+<?php require_once oum_get_template('partial-map-init.php'); ?>
 
 <div class="open-user-map">
   <div class="add-user-location">

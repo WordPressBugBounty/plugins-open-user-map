@@ -653,6 +653,24 @@
   margin-right: 5px;
   object-fit: contain;
 }
+.open-user-map .box-wrap .map-wrap #oum_filter_markers {
+  width: 320px;
+  max-width: calc(100% - 120px);
+  z-index: 400;
+  position: absolute !important;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 0.4rem 1rem;
+  background-image: url(images/ico_search_marker.png);
+  background-position: right 1px;
+  background-repeat: no-repeat;
+  background-size: 30px;
+  background-color: #fff;
+}
 .open-user-map .box-wrap .map-wrap .oum-filter-controls {
   position: absolute;
   z-index: 9999;

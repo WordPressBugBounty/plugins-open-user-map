@@ -49,8 +49,6 @@ class BlockController extends BaseController
      */
     public function set_elementor_widgets($widgets_manager)
     {
-        //require_once "$this->plugin_path/elementor/elementor-oum-addon.php";
-
         require_once "$this->plugin_path/elementor/includes/plugin.php";
 
         // Run the plugin

@@ -359,7 +359,7 @@ class Settings extends BaseController {
     }
 
     public function admin_index() {
-        require_once $this->plugin_path . 'templates/page-backend-settings.php';
+        require_once oum_get_template( 'page-backend-settings.php' );
     }
 
     public static function validate_geocoordinate( $input ) {

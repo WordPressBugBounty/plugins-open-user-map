@@ -184,7 +184,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Form Settings', 'open-user-map' );
     ?></a>
         <a href="#tab-3" class="nav-tab"><?php 
-    echo __( 'Filters', 'open-user-map' );
+    echo __( 'Filters & Categories', 'open-user-map' );
     ?></a>
         <a href="#tab-4" class="nav-tab"><?php 
     echo __( 'Regions', 'open-user-map' );
@@ -712,107 +712,6 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
             <?php 
     }
     ?>
-
-            <tr valign="top">
-              <th scope="row"><?php 
-    echo __( 'Searchbar', 'open-user-map' );
-    ?></th>
-              <td>
-                <?php 
-    $oum_enable_searchbar = get_option( 'oum_enable_searchbar', 'on' );
-    ?>
-                <input class="oum-switch" type="checkbox" name="oum_enable_searchbar" id="oum_enable_searchbar" <?php 
-    echo ( $oum_enable_searchbar === 'on' ? 'checked' : '' );
-    ?>>
-                <label for="oum_enable_searchbar"></label><br><br>
-                <div class="wrap-searchbar-settings">
-                  <strong><?php 
-    echo __( 'Type of search:', 'open-user-map' );
-    ?></strong><br>
-                  <select name="oum_searchbar_type" id="oum_searchbar_type">
-                    <?php 
-    $oum_searchbar_type = ( get_option( 'oum_searchbar_type' ) ? get_option( 'oum_searchbar_type' ) : 'address' );
-    $items = $this->oum_searchbar_types;
-    foreach ( $items as $val => $label ) {
-        $selected = ( $oum_searchbar_type == $val ? 'selected' : '' );
-        echo '<option value="' . esc_textarea( $val ) . '" ' . $selected . '>' . esc_textarea( $label ) . '</option>';
-    }
-    ?>
-                  </select><br><br>
-                  <span class="description"><?php 
-    echo __( 'If enabled this will automatically hide the button of the selected type and show a searchbar instead.', 'open-user-map' );
-    ?></span><br>
-                </div>
-              </td>
-            </tr>
-
-            <tr valign="top">
-              <th scope="row">
-                <?php 
-    echo __( 'Search for Address (Geosearch)', 'open-user-map' );
-    ?>
-              </th>
-              <td>
-                <?php 
-    $oum_enable_searchaddress_button = get_option( 'oum_enable_searchaddress_button', 'on' );
-    $oum_searchaddress_label = get_option( 'oum_searchaddress_label' );
-    ?>
-                <input class="oum-switch" type="checkbox" name="oum_enable_searchaddress_button" id="oum_enable_searchaddress_button" <?php 
-    echo ( $oum_enable_searchaddress_button === 'on' ? 'checked' : '' );
-    ?>>
-                <label for="oum_enable_searchaddress_button"><?php 
-    echo __( 'Button', 'open-user-map' );
-    ?></label><br><br>
-                <strong><?php 
-    echo __( 'Custom Label:', 'open-user-map' );
-    ?></strong><br>
-                <input class="regular-text" type="text" name="oum_searchaddress_label" id="oum_searchaddress_label" placeholder="<?php 
-    echo esc_attr( $this->oum_searchaddress_label_default );
-    ?>" value="<?php 
-    echo esc_attr( $oum_searchaddress_label );
-    ?>">
-              </td>
-            </tr>
-
-            <tr valign="top">
-              <th scope="row">
-                <?php 
-    echo __( 'Search for location markers', 'open-user-map' );
-    ?>
-              </th>
-              <td>
-                <?php 
-    $oum_enable_searchmarkers_button = get_option( 'oum_enable_searchmarkers_button', 'on' );
-    $oum_searchmarkers_label = get_option( 'oum_searchmarkers_label' );
-    $oum_searchmarkers_zoom = get_option( 'oum_searchmarkers_zoom' );
-    ?>
-                <input class="oum-switch" type="checkbox" name="oum_enable_searchmarkers_button" id="oum_enable_searchmarkers_button" <?php 
-    echo ( $oum_enable_searchmarkers_button === 'on' ? 'checked' : '' );
-    ?>>
-                <label for="oum_enable_searchmarkers_button"><?php 
-    echo __( 'Button', 'open-user-map' );
-    ?></label><br><br>
-                <strong><?php 
-    echo __( 'Custom Label:', 'open-user-map' );
-    ?></strong><br>
-                <input class="regular-text" type="text" name="oum_searchmarkers_label" id="oum_searchmarkers_label" placeholder="<?php 
-    echo esc_attr( $this->oum_searchmarkers_label_default );
-    ?>" value="<?php 
-    echo esc_attr( $oum_searchmarkers_label );
-    ?>"><br><br>
-                <strong><?php 
-    echo __( 'Zoom level:', 'open-user-map' );
-    ?></strong><br>
-                <input class="small-text" type="number" min="1" max="19" name="oum_searchmarkers_zoom" id="oum_searchmarkers_zoom" placeholder="<?php 
-    echo esc_attr( $this->oum_searchmarkers_zoom_default );
-    ?>" value="<?php 
-    echo esc_attr( $oum_searchmarkers_zoom );
-    ?>"></input><br><br>
-                <span class="description"><?php 
-    echo __( 'Set a value between 1 (far away) and 19 (very close).', 'open-user-map' );
-    ?></span><br>
-              </td>
-            </tr>
 
             <tr valign="top">
               <?php 
@@ -1487,6 +1386,154 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         <div id="tab-3" class="tab-pane">
           <table class="form-table">
 
+            <?php 
+    ?>
+
+            <?php 
+    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+        ?>
+
+                <tr valign="top">
+                  <th scope="row"><?php 
+        echo __( 'Searchbar', 'open-user-map' );
+        ?></th>
+                  <td>
+                    <?php 
+        $oum_enable_searchbar = get_option( 'oum_enable_searchbar', 'on' );
+        ?>
+                    <input class="oum-switch" type="checkbox" name="oum_enable_searchbar" id="oum_enable_searchbar" <?php 
+        echo ( $oum_enable_searchbar === 'on' ? 'checked' : '' );
+        ?>>
+                    <label for="oum_enable_searchbar"></label><br><br>
+                    <div class="wrap-searchbar-settings">
+                      <?php 
+        $oum_searchbar_type = ( get_option( 'oum_searchbar_type' ) ? get_option( 'oum_searchbar_type' ) : 'address' );
+        $items = $this->oum_searchbar_types;
+        ?>
+
+                      <div id="oum_searchbar_type_options">
+                          <?php 
+        foreach ( $items as $val => $label ) {
+            $checked = ( $oum_searchbar_type == $val ? 'checked' : '' );
+            ?>
+                              <label>
+                                  <input type="radio" name="oum_searchbar_type" value="<?php 
+            echo esc_attr( $val );
+            ?>" <?php 
+            echo $checked;
+            ?>>
+                                  <strong><?php 
+            echo esc_html( $label );
+            ?></strong><?php 
+            echo ( $val === 'live_filter' ? '&nbsp;&nbsp;<span class="oum-pro">PRO</span>' : '' );
+            ?><br>
+                                  <?php 
+            if ( $val === 'address' ) {
+                ?>
+                                      <small><?php 
+                echo __( 'Find a specific address – type to see matching suggestions below and locate them on the map.', 'open-user-map' );
+                ?></small>
+                                  <?php 
+            } elseif ( $val === 'markers' ) {
+                ?>
+                                      <small><?php 
+                echo __( 'Search for specific markers and see suggestions below as you type.', 'open-user-map' );
+                ?></small>
+                                  <?php 
+            } elseif ( $val === 'live_filter' ) {
+                ?>
+                                      <small><?php 
+                echo __( 'Filter markers live as you type to instantly refine the map view.', 'open-user-map' );
+                ?></small>
+                                  <?php 
+            }
+            ?>
+                              </label>
+                          <?php 
+        }
+        ?>
+                          <label class="oum-gopro-div">
+                            <input type="radio" disabled>
+                            <strong><?php 
+        echo __( 'Live Filter Markers', 'open-user-map' );
+        ?></strong>&nbsp;&nbsp;<span class="oum-pro">PRO</span><br>
+                            <small><?php 
+        echo __( 'Filter markers live as you type to instantly refine the map view.', 'open-user-map' );
+        ?></small>
+                          </label>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+            <?php 
+    }
+    ?>
+
+            <tr valign="top">
+              <th scope="row">
+                <?php 
+    echo __( '"Search for Address (Geosearch)" Button', 'open-user-map' );
+    ?>
+              </th>
+              <td>
+                <?php 
+    $oum_enable_searchaddress_button = get_option( 'oum_enable_searchaddress_button', 'on' );
+    $oum_searchaddress_label = get_option( 'oum_searchaddress_label' );
+    ?>
+                <input class="oum-switch" type="checkbox" name="oum_enable_searchaddress_button" id="oum_enable_searchaddress_button" <?php 
+    echo ( $oum_enable_searchaddress_button === 'on' ? 'checked' : '' );
+    ?>>
+                <label for="oum_enable_searchaddress_button"></label><br><br>
+                <strong><?php 
+    echo __( 'Custom Label:', 'open-user-map' );
+    ?></strong><br>
+                <input class="regular-text" type="text" name="oum_searchaddress_label" id="oum_searchaddress_label" placeholder="<?php 
+    echo esc_attr( $this->oum_searchaddress_label_default );
+    ?>" value="<?php 
+    echo esc_attr( $oum_searchaddress_label );
+    ?>">
+              </td>
+            </tr>
+
+            <tr valign="top">
+              <th scope="row">
+                <?php 
+    echo __( '"Search for location markers" Button', 'open-user-map' );
+    ?>
+              </th>
+              <td>
+                <?php 
+    $oum_enable_searchmarkers_button = get_option( 'oum_enable_searchmarkers_button', 'on' );
+    $oum_searchmarkers_label = get_option( 'oum_searchmarkers_label' );
+    $oum_searchmarkers_zoom = get_option( 'oum_searchmarkers_zoom' );
+    ?>
+                <input class="oum-switch" type="checkbox" name="oum_enable_searchmarkers_button" id="oum_enable_searchmarkers_button" <?php 
+    echo ( $oum_enable_searchmarkers_button === 'on' ? 'checked' : '' );
+    ?>>
+                <label for="oum_enable_searchmarkers_button"></label><br><br>
+                <strong><?php 
+    echo __( 'Custom Label:', 'open-user-map' );
+    ?></strong><br>
+                <input class="regular-text" type="text" name="oum_searchmarkers_label" id="oum_searchmarkers_label" placeholder="<?php 
+    echo esc_attr( $this->oum_searchmarkers_label_default );
+    ?>" value="<?php 
+    echo esc_attr( $oum_searchmarkers_label );
+    ?>"><br><br>
+                <strong><?php 
+    echo __( 'Zoom level:', 'open-user-map' );
+    ?></strong><br>
+                <input class="small-text" type="number" min="1" max="19" name="oum_searchmarkers_zoom" id="oum_searchmarkers_zoom" placeholder="<?php 
+    echo esc_attr( $this->oum_searchmarkers_zoom_default );
+    ?>" value="<?php 
+    echo esc_attr( $oum_searchmarkers_zoom );
+    ?>"></input><br><br>
+                <span class="description"><?php 
+    echo __( 'Set a value between 1 (far away) and 19 (very close).', 'open-user-map' );
+    ?></span><br>
+              </td>
+            </tr>
+
           <?php 
     ?>
 
@@ -1523,7 +1570,11 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <input class="oum-switch" type="checkbox" disabled>
                   <label><?php 
         echo __( 'Allow multiple selections', 'open-user-map' );
-        ?></label>
+        ?></label><br>
+                  <div class="description"><?php 
+        echo __( '<strong>Important:</strong> If enabled all locations will fallback to the <a href="edit.php?post_type=oum-location&page=open-user-map-settings">Default Marker Icon</a> instead of a specific category icon.', 'open-user-map' );
+        ?></div>
+                  <br>
                   <br>
                   <br>
                   <input class="oum-switch" type="checkbox" disabled>
@@ -1532,6 +1583,14 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         ?></label>
                   <br>
                   <br>
+                  <br>
+                  <input class="oum-switch" type="checkbox" disabled>
+                  <label for="oum_collapse_filter"><?php 
+        echo __( 'Collapsed Filterbox', 'open-user-map' );
+        ?></label><br>
+                  <div class="description"><?php 
+        echo __( 'If enabled the filterbox will take less space and just open on mouseover.', 'open-user-map' );
+        ?></div>
                 </td>
               </tr>
 
@@ -2200,7 +2259,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Example:', 'open-user-map' );
     ?></strong><br><br>
                 <code>
-                  oumConditionalField('[name="oum_marker_icon"]', '[name="oum_location_custom_fields[1645650268221]"]', ['30', '31'], ['']);
+                  oumConditionalField('[name="oum_marker_icon[]"]', '[name="oum_location_custom_fields[1645650268221]"]', ['1', '2'], ['3', '']);
                 </code>
               </td>
             </tr>

@@ -162,7 +162,7 @@ class LocationController extends BaseController {
         $meta_custom_fields = ( isset( $data['custom_fields'] ) ? $data['custom_fields'] : false );
         $active_custom_fields = get_option( 'oum_custom_fields' );
         // render view
-        require_once "{$this->plugin_path}/templates/page-backend-location.php";
+        require_once oum_get_template( 'page-backend-location.php' );
     }
 
     /**

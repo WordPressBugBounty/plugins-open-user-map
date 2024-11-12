@@ -1557,6 +1557,13 @@
   margin: 0;
   padding: 0;
 }
+.oum-location_page_open-user-map-settings #oum_searchbar_type_options,
+.toplevel_page_open-user-map #oum_searchbar_type_options {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+  margin-top: 15px;
+}
 
 .wp-block.wp-block-open-user-map-map,
 .elementor-editor-active .elementor-widget-open_user_map_widget .elementor-widget-container,

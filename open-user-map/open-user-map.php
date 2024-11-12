@@ -8,7 +8,7 @@ Plugin Name: Open User Map
 Plugin URI: https://wordpress.org/plugins/open-user-map/
 Description: Create a custom map featuring your own locations or an interactive map where anyone can add location pins without registering. The map is based on Leaflet JS and offers you many free map (incl. MapBox) and marker styles. So you do not need an API Key, Access Token or any other external registration.
 Author: 100plugins
-Version: 1.3.49
+Version: 1.3.50
 Author URI: https://www.open-user-map.com/
 License: GPLv3 or later
 Text Domain: open-user-map
@@ -161,6 +161,24 @@ if ( function_exists( 'oum_fs' ) ) {
      */
     function oum_get_location_value(  $attr, $post_id, $raw = false  ) {
         return OpenUserMapPlugin\Base\LocationController::get_location_value( $attr, $post_id, $raw );
+    }
+
+    /**
+     * Allow to get the template from the theme directory (template override)
+     * 
+     * Just add a folder "open-user-map" in your theme directory and copy the template file you want to override.
+     * Be aware that new features may then not be available or even break the functionality!
+     */
+    function oum_get_template(  $template_name  ) {
+        // Define the paths to the template locations
+        $theme_template = get_stylesheet_directory() . '/open-user-map/' . $template_name;
+        $plugin_template = plugin_dir_path( __FILE__ ) . 'templates/' . $template_name;
+        // Check if the template exists in the theme directory
+        if ( file_exists( $theme_template ) ) {
+            return $theme_template;
+        } else {
+            return $plugin_template;
+        }
     }
 
 }

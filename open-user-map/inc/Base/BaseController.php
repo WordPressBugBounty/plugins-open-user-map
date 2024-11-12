@@ -117,8 +117,12 @@ class BaseController {
     );
 
     public $oum_searchbar_types = array(
-        "address" => "Search for address (Geosearch)",
-        "markers" => "Search for location marker",
+        "address" => "Search for Address (Geosearch)",
+        "markers" => "Search for Location Marker",
+    );
+
+    public $pro_oum_searchbar_types = array(
+        "live_filter" => "Live Filter Markers",
     );
 
     public $oum_regions_layout_styles = array(
@@ -356,7 +360,7 @@ class BaseController {
             'ajaxurl' => admin_url( 'admin-ajax.php' ),
         ) );
         ob_start();
-        require_once "{$this->plugin_path}/templates/block-map.php";
+        require_once oum_get_template( 'block-map.php' );
         return ob_get_clean();
     }
 

@@ -84,10 +84,10 @@ foreach ( $locations_list as $location ) {
     } else {
         $link_tag = '';
     }
-    // Determine if the current user is the owner of the location
-    $is_owner = get_current_user_id() == $location['author_id'];
-    // Add Edit button if the user is the owner
-    if ( $is_owner ) {
+    // Determine if the current user can edit the location
+    $can_edit = ( current_user_can( 'edit_post', $location['post_id'] ) && current_user_can( 'edit_oum-locations' ) ? true : false );
+    // Add Edit button if the user is the owner or allowed to edit
+    if ( $can_edit ) {
         $edit_button = '<div title="' . __( 'Edit location', 'open-user-map' ) . '" class="edit-location-button" data-post-id="' . esc_attr( $location['post_id'] ) . '"></div>';
     } else {
         $edit_button = '';
@@ -199,6 +199,16 @@ echo esc_attr( $map_style );
 if ( $oum_enable_searchbar === 'true' && $oum_searchbar_type == 'markers' ) {
     ?>
       <div id="oum_search_marker"></div>
+    <?php 
+}
+?>
+
+    <?php 
+if ( $oum_enable_searchbar === 'true' && $oum_searchbar_type == 'live_filter' ) {
+    ?>
+      <input type="text" id="oum_filter_markers" placeholder="<?php 
+    echo esc_attr( $oum_searchmarkers_label );
+    ?>" />
     <?php 
 }
 ?>
@@ -388,27 +398,58 @@ echo ( $oum_enable_regions == 'on' && $regions && count( $regions ) > 0 ? 'true'
         var oumMap;
         var oumMap2;
 
+        /**
+         * Conditional Field Feature
+         * 
+         * @param {string} sourceField - The source field selector
+         * @param {string} targetField - The target field selector
+         * @param {array} condShow - The values that should show the target field
+         * @param {array} condHide - The values that should hide the target field
+         */
         var oumConditionalField = (sourceField, targetField, condShow, condHide) => {
-          const sourceElement = document.querySelector(sourceField);
-          const targetElement = document.querySelector(targetField).parentElement; /* works with custom fields only */
+            const sourceElements = document.querySelectorAll(sourceField); // Select all radios/checkboxes or single select
+            const targetElementWrapper = document.querySelector(targetField)?.parentElement; /* works with custom fields only */
 
-          /* trigger on change */
-          sourceElement.onchange = function(e) {
-            const val = this.value;
-            
-            console.log('OUM: run condition', {val, sourceField, targetField, condShow, condHide});
-            
-            if(condShow.includes(val)) {
-              targetElement.style.display = 'block';
-            }else if(condHide.includes(this.value)) {
-              targetElement.style.display = 'none';
+            // Check if both sourceElements and targetElementWrapper exist
+            if (!sourceElements.length) {
+                console.warn(`OUM: Source field(s) not found: ${sourceField}`);
+                return;
             }
-          }
 
-          /* trigger initially */
-          let changeEvent = new Event('change');
-          sourceElement.dispatchEvent(changeEvent);
+            if (!targetElementWrapper) {
+                console.warn(`OUM: Target field wrapper not found: ${targetField}`);
+                return;
+            }
+
+            /* Event listener for change */
+            const onChangeHandler = function() {
+                // Get selected values for checkboxes and single selected value for radios/select
+                const selectedValues = Array.from(sourceElements)
+                    .filter(element => element.checked || element.tagName === 'SELECT')
+                    .map(element => element.value);
+
+                const selectedValue = selectedValues[0]; // For radios and selects, we use only the first (and only) value
+
+                console.log('OUM: run condition', {selectedValue, sourceField, targetField, condShow, condHide});
+                
+                // Show or hide target field based on the selected value(s)
+                if (condShow.includes(selectedValue)) {
+                    targetElementWrapper.style.display = 'block';
+                } else if (condHide.includes(selectedValue)) {
+                    targetElementWrapper.style.display = 'none';
+                }
+            };
+
+            /* Attach the event listener to each radio/checkbox or select */
+            sourceElements.forEach(element => {
+                element.addEventListener('change', onChangeHandler);
+            });
+
+            /* Trigger initially */
+            onChangeHandler(); // Call it directly to set initial state
         };
+
+
 
         /* Transfer PHP array to JS json */
         var oum_all_locations = <?php 
