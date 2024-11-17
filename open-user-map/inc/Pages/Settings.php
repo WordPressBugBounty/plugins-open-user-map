@@ -227,6 +227,12 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_admin_notification_subject', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'open-user-map-settings-group', 'oum_enable_webhook_notification', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
+        register_setting( 'open-user-map-settings-group', 'oum_webhook_notification_url', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
         register_setting( 'open-user-map-settings-group', 'oum_enable_user_restriction', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );

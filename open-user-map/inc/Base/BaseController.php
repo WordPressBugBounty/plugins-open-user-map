@@ -524,7 +524,8 @@ class BaseController {
                     ) );
                 } else {
                     // INSERT or UPDATE the location based on 'oum_post_id'
-                    $post_id = ( isset( $data['oum_post_id'] ) && get_post_status( $data['oum_post_id'] ) !== false ? wp_update_post( array_merge( $new_post, [
+                    $is_update = isset( $data['oum_post_id'] ) && get_post_status( $data['oum_post_id'] ) !== false;
+                    $post_id = ( $is_update ? wp_update_post( array_merge( $new_post, [
                         'ID' => $data['oum_post_id'],
                     ] ) ) : wp_insert_post( $new_post ) );
                     if ( $post_id ) {
@@ -626,6 +627,50 @@ class BaseController {
         }
         die;
         //necessary for correct ajax return in WordPress plugins
+    }
+
+    /**
+     * PRO: Trigger webhook notification
+     */
+    public function trigger_webhook( $post_id, $event_type, $data_meta = null ) {
+        // Check if webhook notifications are enabled
+        if ( !get_option( 'oum_enable_webhook_notification' ) ) {
+            error_log( "Webhook notifications are disabled. Skipping trigger for Post ID: {$post_id}" );
+            return;
+        }
+        // Get the webhook URL from settings
+        $webhook_url = get_option( 'oum_webhook_notification_url' );
+        if ( !$webhook_url ) {
+            error_log( "No webhook URL configured for Post ID: {$post_id}" );
+            return;
+        }
+        // Prepare webhook payload
+        $webhook_data = array(
+            'title'             => get_the_title( $post_id ),
+            'content'           => get_post_field( 'post_content', $post_id ),
+            'website_url'       => get_site_url(),
+            'website_name'      => get_bloginfo( 'name' ),
+            'edit_location_url' => get_edit_post_link( $post_id ),
+            'taxonomy_terms'    => wp_get_post_terms( $post_id, 'oum-type', array(
+                'fields' => 'names',
+            ) ),
+            'meta_data'         => $data_meta ?? get_post_meta( $post_id, '_oum_location_key', true ),
+            'event'             => $event_type,
+            'timestamp'         => current_time( 'mysql' ),
+        );
+        // Send webhook
+        $response = wp_remote_post( $webhook_url, array(
+            'body'    => json_encode( $webhook_data ),
+            'headers' => array(
+                'Content-Type' => 'application/json; charset=utf-8',
+            ),
+        ) );
+        // Handle response
+        if ( is_wp_error( $response ) ) {
+            error_log( 'Webhook error: ' . $response->get_error_message() );
+        } else {
+            error_log( "Webhook successfully triggered for Post ID: {$post_id} - Event: {$event_type}" );
+        }
     }
 
     public function correctImageOrientation( $filename, $img ) {

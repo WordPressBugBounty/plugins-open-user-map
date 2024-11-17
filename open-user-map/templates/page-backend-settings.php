@@ -1919,6 +1919,40 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     }
     ?>
 
+            <?php 
+    ?>
+
+            <?php 
+    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+        ?>
+              
+              <tr valign="top" class="oum-gopro-tr">
+                <th scope="row">
+                  <?php 
+        echo __( 'Trigger Webhook on new or updated Locations', 'open-user-map' );
+        ?>
+                  <br><span class="oum-pro">PRO</span><br>
+                  <a class="oum-gopro-text" href="<?php 
+        echo oum_fs()->get_upgrade_url();
+        ?>"><?php 
+        echo __( 'Upgrade to PRO to trigger external web services (e.g. Zapier) on a new or updated Location.', 'open-user-map' );
+        ?></a>
+                </th>
+                <td>
+                  <input class="oum-switch" type="checkbox" disabled>
+                  <label></label><br><br>
+                  
+                  <strong><?php 
+        echo __( 'Webhook URL' );
+        ?>:</strong><br>
+                  <input disabled class="regular-text" type="text"></input>
+                </td>
+              </tr>
+
+            <?php 
+    }
+    ?>
+
             <tr valign="top" >
                 <?php 
     $oum_custom_js = get_option( 'oum_custom_js' );

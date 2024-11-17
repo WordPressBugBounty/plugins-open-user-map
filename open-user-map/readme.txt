@@ -4,11 +4,11 @@ Tags: map, interactive map, leaflet, mapbox, regions
 Requires at least: 5.5
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.3.50
+Stable tag: 1.3.51
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Create a custom map featuring your own locations or an interactive map where anyone can add location pins without registering. The map is based on Leaflet.js (no API keys - it's free!).
+Engage your visitors with an interactive map – let them add markers instantly or create a custom map showcasing your favorite spots.
 
 == Description ==
 
@@ -115,6 +115,9 @@ Users get notified by email after their location has been approved.
 - **Email Admin notification**
 Send notifications to an Admin email account on incoming location proposals.
 
+- **Zapier/Webhook Integration**
+Trigger an external webhook on new or updated locations.
+
 - **User restriction**
 Restrict "Add location" feature to registered users only. Redirect your visitors to the registration form.
 
@@ -219,6 +222,12 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.3.51 =
+* Bugfix: List View style
+* Bugfix: Marker Search input style
+* Bugfix: Video style
+* Feature Request: Trigger Webhook on new or updated Locations
+
 = 1.3.50 =
 * This release prioritzes feature requests regarding the flood disaster in Spain
 * 🎉 Feature Request: Searchbar to Live Filter Markers (PRO)

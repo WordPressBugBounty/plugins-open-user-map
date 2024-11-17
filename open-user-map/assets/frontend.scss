@@ -210,7 +210,7 @@
             .oum_location_video {
               background-color: #eee;
 
-              p {
+              > * {
                 margin: 0;
                 aspect-ratio: 16/9;
 
@@ -785,6 +785,7 @@
       #oum_filter_markers {
         width: $search_input_width;
         max-width: calc(100% - 120px);
+        height: auto;
         z-index: 400;
         position: absolute !important;
         top: 8px;
@@ -793,6 +794,7 @@
         border: 2px solid rgba(0, 0, 0, 0.2);
         border-radius: 4px;
         font-size: 12px;
+        line-height: 1;
         padding: 0.4rem 1rem;
         background-image: url(images/ico_search_marker.png);
         background-position: right 1px;
@@ -1694,7 +1696,7 @@
         .oum_location_video {
           background-color: #eee;
 
-          p {
+          > * {
             margin: 0;
             aspect-ratio: 16/9;
 
@@ -1966,7 +1968,7 @@
 
   .oum-locations-list-item {
     display: grid;
-    grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
+    grid-template-columns: minmax(0, 290px) 1fr;
     margin-bottom: 30px;
     background: #fff;
     box-shadow: 0 0 3px rgba(0,0,0,0.2);
@@ -2142,6 +2144,10 @@
       .oum_read_more {
         margin-top: 10px;
       }
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
     }
   }
 
