@@ -117,7 +117,6 @@ wp_enqueue_script(
     'oum_backend_location_js',
     esc_url( $this->plugin_url ) . 'src/js/backend-location.js',
     array(
-        'wp-polyfill',
         'oum_leaflet_providers_js',
         'oum_leaflet_markercluster_js',
         'oum_leaflet_subgroups_js',
@@ -125,7 +124,9 @@ wp_enqueue_script(
         'oum_leaflet_locate_js',
         'oum_leaflet_fullscreen_js',
         'oum_leaflet_search_js',
-        'oum_leaflet_gesture_js'
+        'oum_leaflet_gesture_js',
+        'wp-i18n',
+        'oum_global_leaflet_js'
     ),
     esc_attr( $this->plugin_version )
 );

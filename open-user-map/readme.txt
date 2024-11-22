@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, mapbox, regions
 Requires at least: 5.5
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.3.51
+Stable tag: 1.3.52
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -222,6 +222,9 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.3.52 =
+* Preserving the global Leaflet instance to prevent conflicts with other plugins
+
 = 1.3.51 =
 * Bugfix: List View style
 * Bugfix: Marker Search input style

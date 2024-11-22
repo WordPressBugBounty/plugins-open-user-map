@@ -626,7 +626,6 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         'oum_backend_settings_js',
         $this->plugin_url . 'src/js/backend-settings.js',
         array(
-            'wp-polyfill',
             'oum_leaflet_providers_js',
             'oum_leaflet_markercluster_js',
             'oum_leaflet_subgroups_js',
@@ -634,7 +633,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
             'oum_leaflet_locate_js',
             'oum_leaflet_fullscreen_js',
             'oum_leaflet_search_js',
-            'oum_leaflet_gesture_js'
+            'oum_leaflet_gesture_js',
+            'wp-i18n',
+            'oum_global_leaflet_js'
         ),
         $this->plugin_version
     );

@@ -1,5 +1,8 @@
 window.addEventListener('load', function(e) {
 
+  // Restore the extended L object (OUMLeaflet.L) to the global scope (prevents conflicts with other Leaflet instances)
+  window.L = window.OUMLeaflet.L;
+
   // VARIABLES
   const { __ } = wp.i18n;
 

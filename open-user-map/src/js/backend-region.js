@@ -1,4 +1,8 @@
 (function() {
+
+  // Restore the extended L object (OUMLeaflet.L) to the global scope (prevents conflicts with other Leaflet instances)
+  window.L = window.OUMLeaflet.L;
+
   const map = L.map('mapGetRegion', {
     scrollWheelZoom: false,
     zoomSnap: 0.5,

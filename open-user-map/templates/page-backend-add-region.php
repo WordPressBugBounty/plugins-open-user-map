@@ -60,7 +60,7 @@
         // load map base scripts
         $this->include_map_scripts();
         
-        wp_enqueue_script('oum_backend_region_js', $this->plugin_url . 'src/js/backend-region.js', array('wp-polyfill', 'oum_leaflet_providers_js', 'oum_leaflet_markercluster_js', 'oum_leaflet_subgroups_js', 'oum_leaflet_geosearch_js', 'oum_leaflet_locate_js', 'oum_leaflet_fullscreen_js', 'oum_leaflet_search_js', 'oum_leaflet_gesture_js'), $this->plugin_version); 
+        wp_enqueue_script('oum_backend_region_js', $this->plugin_url . 'src/js/backend-region.js', array('oum_leaflet_providers_js', 'oum_leaflet_markercluster_js', 'oum_leaflet_subgroups_js', 'oum_leaflet_geosearch_js', 'oum_leaflet_locate_js', 'oum_leaflet_fullscreen_js', 'oum_leaflet_search_js', 'oum_leaflet_gesture_js', 'wp-i18n', 'oum_global_leaflet_js'), $this->plugin_version); 
         ?>
         
     </div>

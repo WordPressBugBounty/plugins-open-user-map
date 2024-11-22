@@ -130,11 +130,7 @@ class BaseController {
         "layout-2" => "Sidebar",
     );
 
-    public $oum_incompatible_3rd_party_scripts = array(
-        "gsap",
-        //Bug: Avada scrolltrigger overwrites L
-        "mappress-leaflet",
-    );
+    public $oum_incompatible_3rd_party_scripts = array();
 
     public function __construct() {
         $this->plugin_path = plugin_dir_path( dirname( dirname( __FILE__ ) ) );
@@ -307,6 +303,13 @@ class BaseController {
         //https://github.com/yafred/leaflet-responsive-popup
         // enqueue WordPress i18n (for translations inside JS)
         wp_enqueue_script( 'wp-i18n' );
+        // Capture the fully extended L object after all Leaflet add-ons are loaded
+        wp_enqueue_script(
+            'oum_global_leaflet_js',
+            $this->plugin_url . 'src/leaflet/oum-global-leaflet.js',
+            array('oum_leaflet_js'),
+            $this->plugin_version
+        );
     }
 
     /**
@@ -342,7 +345,8 @@ class BaseController {
                 'oum_leaflet_fullscreen_js',
                 'oum_leaflet_search_js',
                 'oum_leaflet_gesture_js',
-                'wp-i18n'
+                'wp-i18n',
+                'oum_global_leaflet_js'
             ),
             $this->plugin_version
         );
