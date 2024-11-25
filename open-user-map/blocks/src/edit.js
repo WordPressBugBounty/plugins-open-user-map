@@ -92,20 +92,6 @@ export default function Edit(props) {
                         />
                     </PanelRow>
                     <PanelRow>
-                        <SelectControl 
-                            label="Size (mobile)"
-                            value={attributes.size_mobile}
-                            onChange={(val) =>
-                                setAttributes({ size_mobile: val })}
-                            options={ [
-                            { label: '', value: '' },
-                            { label: 'Square', value: 'square' },
-                            { label: 'Landscape', value: 'landscape' },
-                            { label: 'Portrait', value: 'portrait' },
-                            ] }
-                        />
-                    </PanelRow>
-                    <PanelRow>
                         <TextControl 
                             label="Height"
                             value={attributes.height}
@@ -157,8 +143,20 @@ export default function Edit(props) {
                     <p>
                         { __('This block will show your location markers on a map in the front end.', 'open-user-map') } 
                     </p>
-                    <Button icon="location-alt" variant="primary" href="edit.php?post_type=oum-location">{ __('Manage Locations', 'open-user-map') }</Button>
-                    <Button icon="admin-settings" variant="secondary" href="edit.php?post_type=oum-location&page=open-user-map-settings">{ __('Map Settings', 'open-user-map') }</Button>
+                    <Button
+                        icon="location-alt"
+                        variant="primary"
+                        onClick={() => window.location.href = 'edit.php?post_type=oum-location'}
+                    >
+                        { __('Manage Locations', 'open-user-map') }
+                    </Button>
+                    <Button
+                        icon="admin-settings"
+                        variant="secondary"
+                        onClick={() => window.location.href = 'edit.php?post_type=oum-location&page=open-user-map-settings'}
+                    >
+                        { __('Map Settings', 'open-user-map') }
+                    </Button>
                 </div>
             </div>
         </>

@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, mapbox, regions
 Requires at least: 5.5
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.3.52
+Stable tag: 1.3.53
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -16,7 +16,11 @@ Create a custom map featuring your own locations or an interactive map where any
 
 The map is based on [Leaflet Map JS](https://leafletjs.com/) and offers you many free map and marker styles. You do not need an API Key, Access Token or any other external registration (unlike Google Maps). Additionally you have access to awesome MapBox map styles. 
 
+
+
 [Demos](https://www.open-user-map.com/demo/) | [Start 7-day PRO trial (no credit card required)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free) | [More Info](https://www.open-user-map.com/) | [Help](https://www.open-user-map.com/support/knowledge-base/)
+
+
 
 https://www.youtube.com/watch?v=FRUkzKSZeL8&ab_channel=100plugins
 
@@ -222,6 +226,10 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.3.53 =
+* Bugfix: Gutenberg Block Buttons
+* Bugfix: Removing "Mobile Map Ratio" due to incompatibility with Elementors new "container" element
+
 = 1.3.52 =
 * Preserving the global Leaflet instance to prevent conflicts with other plugins
 

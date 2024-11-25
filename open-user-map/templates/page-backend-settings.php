@@ -454,18 +454,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>
               </th>
               <td>
-                <select name="oum_map_size_mobile" id="oum_map_size_mobile">
-                  <?php 
-    $map_size = ( get_option( 'oum_map_size_mobile' ) ? get_option( 'oum_map_size_mobile' ) : 'default' );
+                <?php 
     $oum_map_height_mobile = get_option( 'oum_map_height_mobile' );
-    $items = $this->oum_map_sizes_mobile;
-    foreach ( $items as $val => $label ) {
-        $selected = ( $map_size == $val ? 'selected' : '' );
-        echo '<option value="' . esc_textarea( $val ) . '" ' . $selected . '>' . esc_textarea( $label ) . '</option>';
-    }
     ?>
-                </select>
-                <br><br>
                 <strong><?php 
     echo __( 'Custom Height:', 'open-user-map' );
     ?></strong><br>

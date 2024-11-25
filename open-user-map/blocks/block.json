@@ -31,9 +31,6 @@
         "size": {
             "type": "string"
         },
-        "size_mobile": {
-            "type": "string"
-        },
         "height": {
             "type": "string"
         },

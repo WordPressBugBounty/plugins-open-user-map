@@ -32,6 +32,9 @@
   margin: 0;
   padding: 0;
 }
+.open-user-map .elementor-widget-open_user_map_widget {
+  width: 100%;
+}
 .open-user-map input.oum-switch[type=checkbox] {
   position: relative;
   left: 0;
@@ -822,13 +825,8 @@
 }
 @media screen and (max-width: 768px) {
   .open-user-map .box-wrap .map-wrap {
-    aspect-ratio: 1;
-  }
-  .open-user-map .box-wrap.map-size-mobile-landscape .map-wrap {
-    aspect-ratio: 1.53;
-  }
-  .open-user-map .box-wrap.map-size-mobile-portrait .map-wrap {
-    aspect-ratio: 0.54;
+    aspect-ratio: unset;
+    height: 400px;
   }
 }
 .open-user-map .add-location {

@@ -189,20 +189,6 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
-			'oum_map_size_mobile',
-			[
-				'label' => esc_html__( 'Map Size (Mobile)', 'open-user-map' ),
-				'type' => \Elementor\Controls_Manager::SELECT,
-				'options' => [
-					''  => '',
-					'square'  => esc_html__( 'Square', 'open-user-map' ),
-					'landscape' => esc_html__( 'Landscape', 'open-user-map' ),
-					'portrait' => esc_html__( 'Portrait', 'open-user-map' ),
-				],
-			]
-		);
-
-		$this->add_control(
 			'oum_map_height',
 			[
 				'label' => esc_html__( 'Height', 'open-user-map' ),
@@ -322,12 +308,11 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 			$ids = $settings['ids'] ? 'ids="'.$settings['ids'].'"' : '';
 			
 			$size = $settings['oum_map_size'] ? 'size="'.$settings['oum_map_size'].'"' : '';
-			$size_mobile = $settings['oum_map_size_mobile'] ? 'size_mobile="'.$settings['oum_map_size_mobile'].'"' : '';
 
 			$height = $settings['oum_map_height'] ? 'height="'.$settings['oum_map_height'].'px"' : '';
 			$height_mobile = $settings['oum_map_height_mobile'] ? 'height_mobile="'.$settings['oum_map_height_mobile'].'px"' : '';
 			
-			echo do_shortcode('[open-user-map '. $lat . ' ' . $long . ' ' . $zoom . ' ' . $region . ' '. $types . ' '. $ids . ' '. $size .' '. $size_mobile .' '. $height .' '. $height_mobile .']'); 
+			echo do_shortcode('[open-user-map '. $lat . ' ' . $long . ' ' . $zoom . ' ' . $region . ' '. $types . ' '. $ids . ' '. $size .' '. $height .' '. $height_mobile .']'); 
 			?>
 
 		<?php endif; ?>

@@ -81,12 +81,6 @@ class BaseController {
         "fullwidth" => "Full width",
     );
 
-    public $oum_map_sizes_mobile = array(
-        "square"    => "Square",
-        "landscape" => "Landscape",
-        "portrait"  => "Portrait",
-    );
-
     public $pro_marker_icons = array("user1");
 
     public $oum_ui_color_default = '#e02aaf';

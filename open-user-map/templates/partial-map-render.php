@@ -136,8 +136,6 @@ $oum_map_height_mobile = ( is_numeric( $oum_map_height_mobile ) ? $oum_map_heigh
 
 <div class="box-wrap map-size-<?php 
 echo esc_attr( $map_size );
-?> map-size-mobile-<?php 
-echo esc_attr( $map_size_mobile );
 ?> <?php 
 if ( $oum_enable_regions == 'on' && $regions && count( $regions ) > 0 ) {
     ?>oum-regions-<?php 

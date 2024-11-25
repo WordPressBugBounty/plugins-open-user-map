@@ -12,7 +12,6 @@ $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' )
 $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );
 $marker_user_icon = get_option( 'oum_marker_user_icon' );
 $map_size = get_option( 'oum_map_size' );
-$map_size_mobile = get_option( 'oum_map_size_mobile' );
 $oum_map_height = get_option( 'oum_map_height' );
 $oum_map_height_mobile = get_option( 'oum_map_height_mobile' );
 $oum_action_after_submit = get_option( 'oum_action_after_submit' );
@@ -57,10 +56,6 @@ if ( isset( $block_attributes['size'] ) && $block_attributes['size'] != '' ) {
 // Custom Attribute: Map Style
 if ( isset( $block_attributes['map_style'] ) && $block_attributes['map_style'] != '' ) {
     $map_style = $block_attributes['map_style'];
-}
-// Custom Attribute: Map Size (Mobile)
-if ( isset( $block_attributes['size_mobile'] ) && $block_attributes['size_mobile'] != '' ) {
-    $map_size_mobile = $block_attributes['size_mobile'];
 }
 // Custom Attribute: Height
 if ( isset( $block_attributes['height'] ) && $block_attributes['height'] != '' ) {

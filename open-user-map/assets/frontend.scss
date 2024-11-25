@@ -35,6 +35,10 @@
     margin: 0;
     padding: 0;
   }
+
+  .elementor-widget-open_user_map_widget {
+    width: 100%;
+  }
   /* end resets */
 
   $marker_size: 22px;
@@ -977,19 +981,8 @@
 
     @media screen and (max-width: 768px) {
       .map-wrap {
-        aspect-ratio: 1;
-      }
-
-      &.map-size-mobile-landscape {
-        .map-wrap {
-          aspect-ratio: 1.53; 
-        }
-      }
-  
-      &.map-size-mobile-portrait {
-        .map-wrap {
-          aspect-ratio: 0.54; 
-        }
+        aspect-ratio: unset;
+        height: 400px;
       }
     }
   }

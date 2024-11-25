@@ -50,9 +50,6 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_map_height', array(
             'sanitize_callback' => array($this, 'validate_size'),
         ) );
-        register_setting( 'open-user-map-settings-group', 'oum_map_size_mobile', array(
-            'sanitize_callback' => 'sanitize_text_field',
-        ) );
         register_setting( 'open-user-map-settings-group', 'oum_map_height_mobile', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
