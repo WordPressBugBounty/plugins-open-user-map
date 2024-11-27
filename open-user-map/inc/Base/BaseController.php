@@ -358,7 +358,7 @@ class BaseController {
             'ajaxurl' => admin_url( 'admin-ajax.php' ),
         ) );
         ob_start();
-        require_once oum_get_template( 'block-map.php' );
+        require oum_get_template( 'block-map.php' );
         return ob_get_clean();
     }
 
@@ -422,7 +422,11 @@ class BaseController {
                     $error->add( '008', 'The provided Post ID does not exist.' );
                 }
                 // Is the current user allowed to edit this post?
-                if ( !(current_user_can( 'edit_post', $data['oum_post_id'] ) || current_user_can( 'edit_oum-locations' )) ) {
+                $has_general_permission = current_user_can( 'edit_oum-locations' );
+                $is_author = get_current_user_id() == get_post_field( 'post_author', $data['oum_post_id'] );
+                $can_edit_specific_post = current_user_can( 'edit_post', $data['oum_post_id'] );
+                $allow_edit = ( $has_general_permission && ($is_author || $can_edit_specific_post) ? true : false );
+                if ( !$allow_edit ) {
                     $error->add( '009', 'You are not allowed to edit this location.' );
                 }
                 // Should the location be deleted?

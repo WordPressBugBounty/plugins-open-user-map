@@ -1689,8 +1689,22 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>>
                 <label for="oum_enable_location_date"></label><br><br>
                 <span class="description"><?php 
-    echo __( 'Displays the date when the location was published inside the location bubble.', 'open-user-map' );
+    echo __( 'Displays the date when the location was modified or published inside the location bubble.', 'open-user-map' );
     ?></span><br>
+                <br>
+                <?php 
+    $oum_location_date_type = get_option( 'oum_location_date_type', 'modified' );
+    $items = array(
+        'modified' => __( 'Date of Last Modification', 'open-user-map' ),
+        'created'  => __( 'Publishing Date', 'open-user-map' ),
+    );
+    echo "<select id='oum_location_date_type' name='oum_location_date_type'>";
+    foreach ( $items as $value => $label ) {
+        $selected = ( $oum_location_date_type == $value ? 'selected="selected"' : '' );
+        echo '<option value="' . esc_textarea( $value ) . '" ' . $selected . '>' . esc_textarea( $label ) . '</option>';
+    }
+    echo "</select>";
+    ?>
               </td>
             </tr>
 

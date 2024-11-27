@@ -2,6 +2,7 @@
 
 // Load settings
 $oum_enable_gmaps_link = get_option( 'oum_enable_gmaps_link', 'on' );
+$oum_location_date_type = get_option( 'oum_location_date_type', 'modified' );
 // Build query
 $count = get_option( 'posts_per_page', 10 );
 $paged = ( get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1 );
@@ -103,10 +104,16 @@ if ( $locations_query->have_posts() ) {
         } else {
             $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $current_marker_icon ) . '-2x.png';
         }
+        // Date: modified or published
+        if ( $oum_location_date_type == 'created' ) {
+            $date = get_the_date( '', $post_id );
+        } else {
+            $date = get_the_modified_date( '', $post_id );
+        }
         // collect locations for JS use
         $location = array(
             'post_id'       => $post_id,
-            'date'          => get_the_modified_date( '', $post_id ),
+            'date'          => $date,
             'name'          => $name,
             'address'       => $address,
             'lat'           => $geolocation['lat'],

@@ -49,6 +49,7 @@ $oum_geosearch_provider_mapbox_key = get_option( 'oum_geosearch_provider_mapbox_
 $oum_enable_searchaddress_button = ( get_option( 'oum_enable_searchaddress_button', 'on' ) === 'on' ? 'true' : 'false' );
 $oum_searchaddress_label = ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_searchaddress_label_default );
 $oum_custom_js = get_option( 'oum_custom_js' );
+$oum_location_date_type = get_option( 'oum_location_date_type', 'modified' );
 // Custom Attribute: Map Size
 if ( isset( $block_attributes['size'] ) && $block_attributes['size'] != '' ) {
     $map_size = $block_attributes['size'];
@@ -244,10 +245,16 @@ foreach ( $locations as $post_id ) {
     } else {
         $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $current_marker_icon ) . '-2x.png';
     }
+    // Date: modified or published
+    if ( $oum_location_date_type == 'created' ) {
+        $date = get_the_date( '', $post_id );
+    } else {
+        $date = get_the_modified_date( '', $post_id );
+    }
     // collect locations for JS use
     $location = array(
         'post_id'       => $post_id,
-        'date'          => get_the_modified_date( '', $post_id ),
+        'date'          => $date,
         'name'          => $name,
         'address'       => $address,
         'lat'           => $geolocation['lat'],

@@ -1,4 +1,4 @@
-<?php require_once oum_get_template('partial-map-init.php'); ?>
+<?php require oum_get_template('partial-map-init.php'); ?>
 
 <div class="open-user-map">
 
@@ -27,13 +27,11 @@
     $thankyou_headline, 
     $oum_addanother_label) { 
 
-    echo '<div class="open-user-map oum-container-for-fullscreen">';
-      require_once oum_get_template('partial-map-add-location.php');
-      echo '<div id="location-fullscreen-container"><div class="location-content-wrap"></div><div id="close-location-fullscreen" onClick="oumMap.closePopup()">✕</div></div>';
-    echo '</div>';
+    require_once oum_get_template('partial-map-add-location.php');
+
   });
   ?>
 
-  <?php require_once oum_get_template('partial-map-render.php'); ?>
+  <?php require oum_get_template('partial-map-render.php'); ?>
 
 </div>

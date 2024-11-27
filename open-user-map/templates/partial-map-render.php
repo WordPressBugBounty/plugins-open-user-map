@@ -84,10 +84,13 @@ foreach ( $locations_list as $location ) {
     } else {
         $link_tag = '';
     }
-    // Determine if the current user can edit the location
-    $can_edit = ( current_user_can( 'edit_post', $location['post_id'] ) && current_user_can( 'edit_oum-locations' ) ? true : false );
+    // Determine if the current user is allowed to edit the location
+    $has_general_permission = current_user_can( 'edit_oum-locations' );
+    $is_author = get_current_user_id() == $location['author_id'];
+    $can_edit_specific_post = current_user_can( 'edit_post', $location['post_id'] );
+    $allow_edit = ( $has_general_permission && ($is_author || $can_edit_specific_post) ? true : false );
     // Add Edit button if the user is the owner or allowed to edit
-    if ( $can_edit ) {
+    if ( $allow_edit ) {
         $edit_button = '<div title="' . __( 'Edit location', 'open-user-map' ) . '" class="edit-location-button" data-post-id="' . esc_attr( $location['post_id'] ) . '"></div>';
     } else {
         $edit_button = '';

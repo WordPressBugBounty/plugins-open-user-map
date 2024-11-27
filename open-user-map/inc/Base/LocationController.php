@@ -116,6 +116,12 @@ class LocationController extends BaseController {
             $role->add_cap( 'edit_oum-locations' );
             $role->add_cap( 'delete_oum-locations' );
         }
+        // Subscriber
+        $role = get_role( 'subscriber' );
+        if ( !is_null( $role ) ) {
+            $role->add_cap( 'edit_oum-locations' );
+            $role->add_cap( 'delete_oum-locations' );
+        }
     }
 
     public function add_meta_box() {
@@ -132,7 +138,7 @@ class LocationController extends BaseController {
     public function render_customfields_box( $post ) {
         wp_nonce_field( 'oum_location', 'oum_location_nonce' );
         $data = get_post_meta( $post->ID, '_oum_location_key', true );
-        error_log( print_r( $data, true ) );
+        //error_log(print_r($data, true));
         $address = ( isset( $data['address'] ) ? $data['address'] : '' );
         $lat = ( isset( $data['lat'] ) ? $data['lat'] : '' );
         $lng = ( isset( $data['lng'] ) ? $data['lng'] : '' );
@@ -186,7 +192,11 @@ class LocationController extends BaseController {
                 return $post_id;
             }
             // Dont save if user is not allowed to do
-            if ( !(current_user_can( 'edit_post', $post_id ) || current_user_can( 'edit_oum-locations' )) ) {
+            $has_general_permission = current_user_can( 'edit_oum-locations' );
+            $is_author = get_current_user_id() == get_post_field( 'post_author', $post_id );
+            $can_edit_specific_post = current_user_can( 'edit_post', $post_id );
+            $allow_edit = ( $has_general_permission && ($is_author || $can_edit_specific_post) ? true : false );
+            if ( !$allow_edit ) {
                 return $post_id;
             }
             // Set featured image if not set
@@ -251,7 +261,11 @@ class LocationController extends BaseController {
             return $post_id;
         }
         // Dont save if user is not allowed to do
-        if ( !(current_user_can( 'edit_post', $post_id ) || current_user_can( 'edit_oum-locations' )) ) {
+        $has_general_permission = current_user_can( 'edit_oum-locations' );
+        $is_author = get_current_user_id() == get_post_field( 'post_author', $post_id );
+        $can_edit_specific_post = current_user_can( 'edit_post', $post_id );
+        $allow_edit = ( $has_general_permission && ($is_author || $can_edit_specific_post) ? true : false );
+        if ( !$allow_edit ) {
             return $post_id;
         }
         // Validation

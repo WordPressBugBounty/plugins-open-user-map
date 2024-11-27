@@ -272,6 +272,9 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_enable_location_date', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'open-user-map-settings-group', 'oum_location_date_type', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
         register_setting( 'open-user-map-settings-group', 'oum_enable_regions', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
