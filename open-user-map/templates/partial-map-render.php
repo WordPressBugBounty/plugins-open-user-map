@@ -9,8 +9,17 @@ foreach ( $locations_list as $location ) {
     }
     $name_tag = ( get_option( 'oum_enable_title', 'on' ) == 'on' ? '<h3 class="oum_location_name">' . esc_attr( $location['name'] ) . '</h3>' : '' );
     $media_tag = '';
-    if ( $location['image'] ) {
-        $media_tag = '<div class="oum_location_image"><img class="skip-lazy" src="' . esc_url_raw( $location['image'] ) . '"></div>';
+    if ( isset( $location['images'] ) && !empty( $location['images'] ) ) {
+        $media_tag = '<div class="oum-carousel">';
+        $media_tag .= '<div class="oum-carousel-inner">';
+        foreach ( $location['images'] as $index => $image_url ) {
+            $active_class = ( $index === 0 ? ' active' : '' );
+            $media_tag .= '<div class="oum-carousel-item' . $active_class . '">';
+            $media_tag .= '<img class="skip-lazy" src="' . esc_url_raw( $image_url ) . '" alt="' . esc_attr( $location['name'] ) . '">';
+            $media_tag .= '</div>';
+        }
+        $media_tag .= '</div>';
+        $media_tag .= '</div>';
     }
     // HOOK: modify location image
     $media_tag = apply_filters( 'oum_location_bubble_image', $media_tag, $location );
@@ -30,54 +39,67 @@ foreach ( $locations_list as $location ) {
     }
     $custom_fields = '';
     if ( isset( $location['custom_fields'] ) && is_array( $location['custom_fields'] ) ) {
-        $custom_fields .= '<div class="oum_location_custom_fields">';
+        $fields_html = [];
         foreach ( $location['custom_fields'] as $custom_field ) {
-            if ( !$custom_field['val'] || $custom_field['val'] == '' ) {
+            if ( empty( $custom_field['val'] ) ) {
                 continue;
             }
+            $field_html = '<div class="oum_custom_field">';
+            // Handle array values (like multiple select)
             if ( is_array( $custom_field['val'] ) ) {
-                array_walk( $custom_field['val'], function ( &$x ) {
-                    $x = '<span data-value="' . $x . '">' . $x . '</span>';
-                } );
-                $custom_fields .= '<div class="oum_custom_field"><strong>' . $custom_field['label'] . ':</strong> ' . implode( '', $custom_field['val'] ) . '</div>';
-            } else {
-                if ( stristr( $custom_field['val'], '|' ) ) {
-                    // multiple entries separated with | symbol
-                    $custom_fields .= '<div class="oum_custom_field"><strong>' . $custom_field['label'] . ':</strong> ';
-                    foreach ( explode( '|', $custom_field['val'] ) as $entry ) {
-                        $entry = trim( $entry );
-                        if ( wp_http_validate_url( $entry ) ) {
-                            // URL
-                            $custom_fields .= '<a target="_blank" href="' . $entry . '">' . $entry . '</a> ';
-                        } elseif ( is_email( $entry ) && $custom_field['fieldtype'] == 'email' ) {
-                            // Email
-                            $custom_fields .= '<a target="_blank" href="mailto:' . $entry . '">' . $entry . '</a> ';
-                        } else {
-                            // Text
-                            $custom_fields .= '<span data-value="' . $entry . '">' . $entry . '</span>';
-                        }
-                    }
-                    $custom_fields .= '</div>';
-                } else {
-                    // single entry
-                    if ( wp_http_validate_url( $custom_field['val'] ) ) {
-                        // URL
-                        if ( isset( $custom_field['uselabelastextoption'] ) && $custom_field['uselabelastextoption'] == 'on' ) {
-                            $custom_fields .= '<div class="oum_custom_field"><a target="_blank" href="' . $custom_field['val'] . '">' . $custom_field['label'] . '</a></div>';
-                        } else {
-                            $custom_fields .= '<div class="oum_custom_field"><strong>' . $custom_field['label'] . ':</strong> <a target="_blank" href="' . $custom_field['val'] . '">' . $custom_field['val'] . '</a></div>';
-                        }
-                    } elseif ( is_email( $custom_field['val'] ) && $custom_field['fieldtype'] == 'email' ) {
-                        // Email
-                        $custom_fields .= '<div class="oum_custom_field"><strong>' . $custom_field['label'] . ':</strong> <a target="_blank" href="mailto:' . $custom_field['val'] . '">' . $custom_field['val'] . '</a></div>';
+                $values = array_map( function ( $x ) {
+                    return '<span data-value="' . esc_attr( $x ) . '">' . esc_html( $x ) . '</span>';
+                }, $custom_field['val'] );
+                $field_html .= '<strong>' . esc_html( $custom_field['label'] ) . ':</strong> ' . implode( ' ', $values );
+            } elseif ( strpos( $custom_field['val'], '|' ) !== false ) {
+                $field_html .= '<strong>' . esc_html( $custom_field['label'] ) . ':</strong> ';
+                $entries = array_map( 'trim', explode( '|', $custom_field['val'] ) );
+                $formatted_entries = [];
+                foreach ( $entries as $entry ) {
+                    if ( filter_var( $entry, FILTER_VALIDATE_URL ) ) {
+                        $formatted_entries[] = sprintf( '<a target="_blank" href="%s">%s</a>', esc_url( $entry ), esc_html( $entry ) );
+                    } elseif ( $custom_field['fieldtype'] == 'email' && is_email( $entry ) ) {
+                        $formatted_entries[] = sprintf( '<a target="_blank" href="mailto:%s">%s</a>', esc_attr( $entry ), esc_html( $entry ) );
                     } else {
-                        // Text
-                        $custom_fields .= '<div class="oum_custom_field"><strong>' . $custom_field['label'] . ':</strong> <span data-value="' . $custom_field['val'] . '">' . $custom_field['val'] . '</span></div>';
+                        $formatted_entries[] = sprintf( '<span data-value="%s">%s</span>', esc_attr( $entry ), esc_html( $entry ) );
                     }
                 }
+                $field_html .= implode( ' ', $formatted_entries );
+            } else {
+                $value = $custom_field['val'];
+                if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
+                    if ( !empty( $custom_field['uselabelastextoption'] ) ) {
+                        $field_html .= sprintf( '<a target="_blank" href="%s">%s</a>', esc_url( $value ), esc_html( $custom_field['label'] ) );
+                    } else {
+                        $field_html .= sprintf(
+                            '<strong>%s:</strong> <a target="_blank" href="%s">%s</a>',
+                            esc_html( $custom_field['label'] ),
+                            esc_url( $value ),
+                            esc_html( $value )
+                        );
+                    }
+                } elseif ( $custom_field['fieldtype'] == 'email' && is_email( $value ) ) {
+                    $field_html .= sprintf(
+                        '<strong>%s:</strong> <a target="_blank" href="mailto:%s">%s</a>',
+                        esc_html( $custom_field['label'] ),
+                        esc_attr( $value ),
+                        esc_html( $value )
+                    );
+                } else {
+                    $field_html .= sprintf(
+                        '<strong>%s:</strong> <span data-value="%s">%s</span>',
+                        esc_html( $custom_field['label'] ),
+                        esc_attr( $value ),
+                        esc_html( $value )
+                    );
+                }
             }
+            $field_html .= '</div>';
+            $fields_html[] = $field_html;
         }
-        $custom_fields .= '</div>';
+        if ( !empty( $fields_html ) ) {
+            $custom_fields = '<div class="oum_location_custom_fields">' . implode( '', $fields_html ) . '</div>';
+        }
     }
     if ( get_option( 'oum_enable_single_page' ) ) {
         $link_tag = '<div class="oum_read_more"><a href="' . get_the_permalink( $location['post_id'] ) . '">' . __( 'Read more', 'open-user-map' ) . '</a></div>';
@@ -125,7 +147,7 @@ foreach ( $locations_list as $location ) {
         'post_id'       => esc_attr( $location["post_id"] ),
         'address'       => esc_attr( $location["address"] ),
         'text'          => wp_kses_post( $location["text"] ),
-        'image'         => esc_url( $location["image"] ),
+        'image'         => ( isset( $location['images'] ) && !empty( $location['images'] ) ? implode( '|', array_map( 'esc_url', $location['images'] ) ) : esc_url( $location["image"] ) ),
         'audio'         => esc_url( $location["audio"] ),
         'video'         => esc_url( $location["video"] ),
         'custom_fields' => $location['custom_fields'],
@@ -176,7 +198,7 @@ if ( $oum_enable_regions == 'on' && $regions && count( $regions ) > 0 ) {
         echo esc_attr( $term_lng );
         ?>" data-zoom="<?php 
         echo esc_attr( $term_zoom );
-        ?>" data-toggle="tab"><?php 
+        ?>" data-toggle="tab" role="tab"><?php 
         echo esc_html( $name );
         ?></div>
 
@@ -190,6 +212,9 @@ if ( $oum_enable_regions == 'on' && $regions && count( $regions ) > 0 ) {
 ?>
 
   <div class="map-wrap">
+    <div class="oum-loading-overlay">
+      <div class="oum-loading-spinner"></div>
+    </div>
     <div id="map-<?php 
 echo $unique_id;
 ?>" class="leaflet-map map-style_<?php 
@@ -207,7 +232,7 @@ if ( $oum_enable_searchbar === 'true' && $oum_searchbar_type == 'markers' ) {
     <?php 
 if ( $oum_enable_searchbar === 'true' && $oum_searchbar_type == 'live_filter' ) {
     ?>
-      <input type="text" id="oum_filter_markers" placeholder="<?php 
+      <input type="text" id="oum_filter_markers" class="oum-hidden" placeholder="<?php 
     echo esc_attr( $oum_searchmarkers_label );
     ?>" />
     <?php 
@@ -225,7 +250,7 @@ if ( $oum_enable_add_location === 'on' ) {
     if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
         ?>
 
-        <div id="open-add-location-overlay" class="open-add-location-overlay" style="background-color: <?php 
+        <div id="open-add-location-overlay" class="open-add-location-overlay oum-hidden" style="background-color: <?php 
         echo $oum_ui_color;
         ?>"><span class="btn_icon">+</span><span class="btn_text"><?php 
         echo esc_attr( $oum_plus_button_label );
@@ -244,7 +269,7 @@ if ( $types ) {
     ?>
       <div class="oum-filter-controls <?php 
     echo $oum_collapse_filter;
-    ?>">
+    ?> oum-hidden">
         <div class="oum-filter-toggle"></div>
         <div class="oum-filter-list">
           <div class="close-filter-list">&#x2715;</div>
@@ -275,7 +300,7 @@ if ( $types ) {
         ?>" type="checkbox" name="type" value="<?php 
         echo esc_attr( $type->term_taxonomy_id );
         ?>" checked>
-              <img src="<?php 
+              <img alt="category icon" src="<?php 
         echo $icon;
         ?>">
               <span><?php 
@@ -301,6 +326,31 @@ echo $unique_id;
 ?>`;
 
       if(document.getElementById(map_el)) {
+        /* Transfer PHP array to JS json */
+        var oum_all_locations = <?php 
+echo json_encode( $oum_all_locations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES );
+?>;
+
+        // Wait for OUMLoader to be defined
+        function initializeMap() {
+          if (typeof OUMLoader !== 'undefined') {
+            // Initialize loader for this map
+            OUMLoader.initLoader(map_el);
+
+            // Add event listener for map initialization complete
+            document.addEventListener('oum:map_initialized', function(e) {
+              if (e.detail.mapId === map_el) {
+                OUMLoader.setMapInitialized(map_el);
+              }
+            });
+          } else {
+            // If OUMLoader is not yet defined, wait and try again
+            setTimeout(initializeMap, 100);
+          }
+        }
+
+        // Start initialization
+        initializeMap();
 
         var mapStyle = `<?php 
 echo esc_attr( $map_style );
@@ -371,20 +421,18 @@ echo $oum_action_after_submit;
         var thankyou_redirect = `<?php 
 echo $thankyou_redirect;
 ?>`;
-        var start_lat = `<?php 
+        var start_lat = Number(<?php 
 echo esc_attr( $start_lat );
-?>`;
-        var start_lng = `<?php 
+?>);
+        var start_lng = Number(<?php 
 echo esc_attr( $start_lng );
-?>`;
-        var start_zoom = `<?php 
+?>);
+        var start_zoom = Number(<?php 
 echo esc_attr( $start_zoom );
-?>`;
+?>);
+        
         var oum_enable_fixed_map_bounds = `<?php 
 echo $oum_enable_fixed_map_bounds;
-?>`;
-        var oum_minimum_zoom_level = `<?php 
-echo $oum_minimum_zoom_level;
 ?>`;
         var oum_use_settings_start_location = <?php 
 echo $oum_use_settings_start_location;
@@ -392,10 +440,16 @@ echo $oum_use_settings_start_location;
         var oum_has_regions = <?php 
 echo ( $oum_enable_regions == 'on' && $regions && count( $regions ) > 0 ? 'true' : 'false' );
 ?>;
+        var oum_enable_multiple_marker_types = `<?php 
+echo $oum_enable_multiple_marker_types;
+?>`;
 
         var oum_location = {};
         var oum_custom_css = '';
         var oum_custom_script = '';
+        var oum_max_image_filesize = <?php 
+echo esc_attr( $oum_max_image_filesize );
+?>;
         var oumMap;
         var oumMap2;
 
@@ -450,14 +504,6 @@ echo ( $oum_enable_regions == 'on' && $regions && count( $regions ) > 0 ? 'true'
             onChangeHandler(); // Call it directly to set initial state
         };
 
-
-
-        /* Transfer PHP array to JS json */
-        var oum_all_locations = <?php 
-echo json_encode( $oum_all_locations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES );
-?>;
-
-
         /**
          * Add Custom Styles
          */
@@ -498,7 +544,41 @@ if ( $oum_ui_color ) {
     ?> !important}
             .open-user-map .box-wrap .map-wrap .oum-attribution a {color: <?php 
     echo $oum_ui_color;
-    ?> !important;}`;
+    ?> !important;}
+            /* Message CTA Buttons */
+            .open-user-map .add-location .location-overlay-content #oum_add_location_thankyou button {background-color: <?php 
+    echo $oum_ui_color;
+    ?> !important; border-color: <?php 
+    echo $oum_ui_color;
+    ?> !important;}
+            .open-user-map .add-location .location-overlay-content .oum-delete-confirmation button {background-color: <?php 
+    echo $oum_ui_color;
+    ?> !important; border-color: <?php 
+    echo $oum_ui_color;
+    ?> !important;}
+            /* Media Section Colors */
+            .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .media-upload label {color: <?php 
+    echo $oum_ui_color;
+    ?> !important}
+            .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .oum-image-upload .media-upload-top label .multi-upload-indicator {background: <?php 
+    echo $oum_ui_color;
+    ?> !important}
+            .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .oum-video-upload input[type=text]:hover {border-color: <?php 
+    echo $oum_ui_color;
+    ?> !important}
+            .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .oum-video-upload input[type=text]:focus {border-color: <?php 
+    echo $oum_ui_color;
+    ?> !important; box-shadow: 0 0 0 2px <?php 
+    echo $oum_ui_color;
+    ?>1a !important}
+            .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .image-preview-placeholder {border-color: <?php 
+    echo $oum_ui_color;
+    ?> !important; background: <?php 
+    echo $oum_ui_color;
+    ?>0a !important}
+            .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .oum-image-preview-grid .image-preview-item.dragging {border-color: <?php 
+    echo $oum_ui_color;
+    ?> !important}`;
 
         <?php 
 }
@@ -541,6 +621,30 @@ if ( $oum_map_height_mobile ) {
         }
 
         document.getElementsByTagName('head')[0].appendChild(custom_style);
+
+        /* Add initial CSS to prevent flash of unstyled content */
+        var initialStyles = document.createElement('style');
+        initialStyles.textContent = `
+          .oum-hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+          }
+          .oum-filter-controls,
+          .open-add-location-overlay,
+          #oum_filter_markers {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+          }
+          .oum-filter-controls.visible,
+          .open-add-location-overlay.visible,
+          #oum_filter_markers.visible {
+            opacity: 1;
+            visibility: visible;
+          }
+        `;
+        document.head.appendChild(initialStyles);
 
       }
     </script>

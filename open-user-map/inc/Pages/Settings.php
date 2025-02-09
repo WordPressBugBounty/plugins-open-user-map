@@ -16,6 +16,12 @@ class Settings extends BaseController {
         add_action( 'wp_ajax_oum_dismiss_getting_started_notice', array($this, 'getting_started_dismiss_notice') );
         add_action( 'wp_ajax_oum_csv_export', array($this, 'csv_export') );
         add_action( 'wp_ajax_oum_csv_import', array($this, 'csv_import') );
+        add_action(
+            'update_option',
+            array($this, 'add_settings_updated_message'),
+            10,
+            3
+        );
     }
 
     public function add_admin_pages() {
@@ -63,9 +69,6 @@ class Settings extends BaseController {
             'sanitize_callback' => array($this, 'validate_zoom'),
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_enable_fixed_map_bounds', array(
-            'sanitize_callback' => 'sanitize_text_field',
-        ) );
-        register_setting( 'open-user-map-settings-group', 'oum_minimum_zoom_level', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_enable_title', array(
@@ -193,9 +196,6 @@ class Settings extends BaseController {
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_thankyou_text', array(
             'sanitize_callback' => 'wp_kses_post',
-        ) );
-        register_setting( 'open-user-map-settings-group', 'oum_addanother_label', array(
-            'sanitize_callback' => 'sanitize_text_field',
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_plus_button_label', array(
             'sanitize_callback' => 'sanitize_text_field',
@@ -479,7 +479,6 @@ class Settings extends BaseController {
                         'image'        => oum_get_location_value( 'image', $post_id, true ),
                         'audio'        => oum_get_location_value( 'audio', $post_id, true ),
                         'type'         => oum_get_location_value( 'type', $post_id ),
-                        'type'         => '[' . oum_get_location_value( 'type', $post_id ) . ']',
                         'address'      => oum_get_location_value( 'address', $post_id ),
                         'lat'          => oum_get_location_value( 'lat', $post_id ),
                         'lng'          => oum_get_location_value( 'lng', $post_id ),
@@ -494,9 +493,9 @@ class Settings extends BaseController {
                     // all available custom fields
                     foreach ( $available_custom_fields as $custom_field_id => $custom_field ) {
                         $value = oum_get_location_value( $custom_field['label'], $post_id, true );
-                        // transform array to [A|B|C] (also empty array)
+                        // transform array to pipe-separated string (also empty array)
                         if ( is_array( $value ) ) {
-                            $value = '[' . implode( '|', $value ) . ']';
+                            $value = implode( '|', $value );
                         }
                         $location_customfields['CUSTOMFIELD_' . $custom_field_id . '_' . $custom_field['label']] = $value;
                     }
@@ -510,8 +509,13 @@ class Settings extends BaseController {
                         $locations_list[$i][$j] = str_replace( '"', '""', $val );
                     }
                 }
-                echo json_encode( $locations_list );
-                die;
+                $datetime = date( 'Y-m-d_His' );
+                // Format: YYYY-MM-DD_HHMMSS
+                $response = array(
+                    'locations' => $locations_list,
+                    'datetime'  => $datetime,
+                );
+                wp_send_json_success( $response );
             }
         }
     }
@@ -521,7 +525,6 @@ class Settings extends BaseController {
             ';'  => 0,
             ','  => 0,
             "\t" => 0,
-            "|"  => 0,
         );
         $handle = fopen( $csvFile, "r" );
         $firstLine = fgets( $handle );
@@ -582,8 +585,7 @@ class Settings extends BaseController {
                 foreach ( $locations as $location ) {
                     // Marker categories
                     $types = $location['type'];
-                    if ( strpos( $types, '[', 0 ) !== false && strpos( $types, ']', -1 ) !== false ) {
-                        $types = substr( $types, 1, -1 );
+                    if ( $types ) {
                         $types = explode( '|', $types );
                     }
                     // update or insert post
@@ -622,9 +624,8 @@ class Settings extends BaseController {
                         }, ARRAY_FILTER_USE_BOTH );
                         foreach ( $customfields as $key => $val ) {
                             $id = explode( '_', $key )[1];
-                            // transform [A|B|C] to array
-                            if ( strpos( $val, '[', 0 ) !== false && strpos( $val, ']', -1 ) !== false ) {
-                                $val = substr( $val, 1, -1 );
+                            // transform pipe-separated string to array
+                            if ( $val && strpos( $val, '|' ) !== false ) {
                                 $val = explode( '|', $val );
                             }
                             $fields['oum_location_custom_fields'][$id] = $val;
@@ -637,6 +638,31 @@ class Settings extends BaseController {
                 // return success message
                 wp_send_json_success( $cnt_imported_locations . ' Locations have been imported successfully.' );
             }
+        }
+    }
+
+    /**
+     * Add settings updated message
+     */
+    public function add_settings_updated_message( $option, $old_value, $value ) {
+        // Only add message for our plugin settings and only if no message exists yet
+        if ( strpos( $option, 'oum_' ) === 0 ) {
+            global $wp_settings_errors;
+            // Check if we already added our message
+            if ( !empty( $wp_settings_errors ) ) {
+                foreach ( $wp_settings_errors as $error ) {
+                    if ( $error['setting'] === 'oum_messages' && $error['code'] === 'oum_message' ) {
+                        return;
+                        // Message already exists, don't add another one
+                    }
+                }
+            }
+            add_settings_error(
+                'oum_messages',
+                'oum_message',
+                __( 'Settings Saved', 'open-user-map' ),
+                'updated'
+            );
         }
     }
 

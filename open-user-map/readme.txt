@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, mapbox, regions
 Requires at least: 5.5
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.3.54
+Stable tag: 1.4.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -83,6 +83,7 @@ Use the **Gutenberg Block** or **Elementor Widget** to integrate your map or pla
 - "subtitle"-field links to google route
 - every text bit can be customized
 - locations with images & audio
+- multiple images (slider) per location 🆕
 - Shortcode with with custom settings
 - Gutenberg Block with custom settings
 - Elementor Widget with custom settings
@@ -226,6 +227,18 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.0 =
+* Feature Request: Multiple images (carousel) per location 🥳🥳🥳
+* Complete JS restructure for better performance and scalability
+* Performance Boost: Reduce number of db queries by 80%
+* Performance Boost: Better handling large number of custom fields
+* New Image Gallery Style
+* Optimized Settings UI
+* Optimized Single Location Template
+* Added ID column to OUM Locations table
+* ARIA-labels optimization
+* Freemius SDK update
+
 = 1.3.54 =
 * Add "Edit Location" capability for "subscriber" role
 * Bugfix: Compatibility issues when using shortcode with some page builders

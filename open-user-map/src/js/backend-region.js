@@ -10,7 +10,7 @@
   });
 
   // prevent moving/zoom outside main world bounds
-  let world_bounds = L.latLngBounds(L.latLng(-60, -190), L.latLng(80, 190));
+  let world_bounds = L.latLngBounds(L.latLng(-85, -200), L.latLng(85, 200));
   let world_min_zoom = map.getBoundsZoom(world_bounds);
   map.setMaxBounds(world_bounds);
   map.setMinZoom(Math.ceil(world_min_zoom));

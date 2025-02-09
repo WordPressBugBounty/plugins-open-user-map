@@ -10,30 +10,7 @@ jQuery(document).on('click', '.oum-getting-started-notice .notice-dismiss', func
 
 
 jQuery(function($){
-  // Media Uploader
-  $('body').on('click', '.oum_upload_image_button', function(e){
-      e.preventDefault();
-
-      const image_uploader = wp.media({
-          title: 'Custom image',
-          library : {
-              type : 'image'
-          },
-          button: {
-              text: 'Use this image'
-          },
-          multiple: false
-      }).on('select', function() {
-          const attachment = image_uploader.state().get('selection').first().toJSON();
-          const url = attachment.sizes.large ? attachment.sizes.large.url : attachment.sizes.full.url;
-          $('#oum_location_image').val(url);
-          $('#oum_location_image_preview').addClass('has-image');
-          $('#oum_location_image_preview').html('<img src="' +  url + '"><div onclick="oumRemoveImageUpload()" class="remove-upload">&times;</div>');
-      });
-
-      image_uploader.open();
-  });
-
+  // Audio Uploader
   $('body').on('click', '.oum_upload_audio_button', function(e){
     e.preventDefault();
 
@@ -57,6 +34,7 @@ jQuery(function($){
     audio_uploader.open();
   });
 
+  // Icon Uploader
   $('body').on('click', '.oum_upload_icon_button', function(e){
     e.preventDefault();
 
@@ -98,7 +76,8 @@ jQuery(function($){
             console.log(textStatus);
 
             // locations from PHP
-            var $locations_list = response;
+            var $locations_list = response.data.locations;
+            var datetime = response.data.datetime;
 
             // EXIT, if no locations
             if($locations_list.length === 0) {
@@ -108,72 +87,42 @@ jQuery(function($){
             } 
 
             const download = function (data) {
-
-              // Creating a Blob for having a csv file format
-              // and passing the data with type
               const blob = new Blob([data], { type: 'text/csv' });
-
-              // Creating an object for downloading url
               const url = window.URL.createObjectURL(blob)
-
-              // Creating an anchor(a) tag of HTML
               const a = document.createElement('a')
-
-              // Passing the blob downloading url
               a.setAttribute('href', url)
-
-              // Setting the anchor tag attribute for downloading
-              // and passing the download file name
-              a.setAttribute('download', 'download.csv');
-
-              // Performing a download with click
+              a.setAttribute('download', 'oum-locations_' + datetime + '.csv');
               a.click()
-
             }
 
             const csvmaker = function (data) {
-
               csvRows = [];
-
-              // Header row
               let headerValues = '';
               for (let col of data.header) { headerValues += '"' + col + '"' + ','; }
-              csvRows.push(headerValues.slice(0, -1)); //remove last comma
-
-              // Data rows
+              csvRows.push(headerValues.slice(0, -1));
               data.rows.forEach(row => {
                 let locationValues = '';
                 for (let col of row) { locationValues += '"' + col + '"' + ','; }
-                csvRows.push(locationValues.slice(0, -1)); //remove last comma
+                csvRows.push(locationValues.slice(0, -1));
               });
-
               return csvRows.join('\r\n')
             }
 
             const get = function () {
-
               const data = {};
-
               data.header = Object.keys($locations_list[0]);
-
               data.rows = [];
-
               $locations_list.forEach(location_row => {
                 data.rows.push(Object.values(location_row))
               });
-
               console.log(data);
-
               const csvdata = csvmaker(data);
-
               download(csvdata);
-
             }
             
             get();
         }
     });
-
   });
 
   // Import CSV
@@ -193,6 +142,13 @@ jQuery(function($){
     }).on('select', function() {
         var attachment = csv_uploader.state().get('selection').first().toJSON();
 
+        // Show loading spinner
+        if(!$('.oum-import-loading').length) {
+          button.after('<div class="oum-import-loading"><div class="oum-spinner"></div></div>');
+        }
+        $('.oum-import-loading').show();
+        button.prop('disabled', true);
+
         // Import CSV with PHP
         jQuery.ajax({
             url: ajaxurl,
@@ -204,6 +160,10 @@ jQuery(function($){
                 'url': attachment.url,
             },
             success: function (response, textStatus, XMLHttpRequest) {
+                // Hide loading spinner
+                $('.oum-import-loading').hide();
+                button.prop('disabled', false);
+
                 if(response.success) {
                     alert(response.data);
                 }else{
@@ -212,19 +172,18 @@ jQuery(function($){
                         console.error(error.code + ': ' + error.message);
                     });
                 }
+            },
+            error: function() {
+                // Hide loading spinner
+                $('.oum-import-loading').hide();
+                button.prop('disabled', false);
+                alert('Something went wrong. Please try again.');
             }
         });
-
     })
     .open();
   });
 });
-
-function oumRemoveImageUpload() {
-    document.getElementById('oum_location_image').value = '';
-    document.getElementById('oum_location_image_preview').classList.remove('has-image');
-    document.getElementById('oum_location_image_preview').textContent = '';
-}
 
 function oumRemoveVideoUpload() {
     document.getElementById('oum_location_video').value = '';

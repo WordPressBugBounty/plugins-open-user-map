@@ -185,6 +185,35 @@ class LocationController extends BaseController {
         if ( !isset( $location_data['post_type'] ) || $location_data['post_type'] != 'oum-location' ) {
             return $post_id;
         }
+        // Handle image uploads and updates
+        if ( isset( $location_data['oum_location_image'] ) ) {
+            $images = explode( '|', $location_data['oum_location_image'] );
+            // Validate image URLs
+            $valid_images = array();
+            foreach ( $images as $image_url ) {
+                if ( !empty( $image_url ) && strpos( $image_url, '|' ) === false ) {
+                    $valid_images[] = esc_url_raw( $image_url );
+                }
+            }
+            // Store images as pipe-separated string
+            update_post_meta( $post_id, '_oum_location_image', implode( '|', $valid_images ) );
+            // Set first image as featured image if available
+            if ( !empty( $valid_images[0] ) ) {
+                // Download image from URL and set as featured image
+                $upload = media_sideload_image(
+                    $valid_images[0],
+                    $post_id,
+                    null,
+                    'src'
+                );
+                if ( !is_wp_error( $upload ) ) {
+                    $attachment_id = attachment_url_to_postid( $upload );
+                    if ( $attachment_id ) {
+                        set_post_thumbnail( $post_id, $attachment_id );
+                    }
+                }
+            }
+        }
         // Set post thumbnail and excerpt when saving inline (Quick Edit) and exit
         if ( isset( $location_data['action'] ) && in_array( $location_data['action'], array('edit', 'inline-save') ) ) {
             // Dont save if wordpress just auto-saves
@@ -198,30 +227,6 @@ class LocationController extends BaseController {
             $allow_edit = ( $has_general_permission && ($is_author || $can_edit_specific_post) ? true : false );
             if ( !$allow_edit ) {
                 return $post_id;
-            }
-            // Set featured image if not set
-            if ( !has_post_thumbnail( $post_id ) ) {
-                // Set location image as post thumbnail
-                $post_image = oum_get_location_value( 'image', $post_id, true );
-                if ( $post_image ) {
-                    // Download image from the specified URL and upload it to the WordPress media library
-                    $upload = media_sideload_image(
-                        $post_image,
-                        $post_id,
-                        null,
-                        'src'
-                    );
-                    // Check if upload was successful
-                    if ( !is_wp_error( $upload ) ) {
-                        // Find the uploaded image in the database
-                        $attachment_id = attachment_url_to_postid( $upload );
-                        // Check if the image was found
-                        if ( $attachment_id ) {
-                            // Set the image as the featured image for the post
-                            set_post_thumbnail( $post_id, $attachment_id );
-                        }
-                    }
-                }
             }
             // Set excerpt if not set
             if ( get_the_excerpt( $post_id ) == '' ) {
@@ -287,35 +292,6 @@ class LocationController extends BaseController {
             $data['custom_fields'] = $location_data['oum_location_custom_fields'];
         }
         update_post_meta( $post_id, '_oum_location_key', $data );
-        if ( isset( $location_data['oum_location_image'] ) ) {
-            // validate & store image seperately (to avoid serialized URLs [bad for search & replace due to domain change])
-            $data_image = esc_url_raw( $location_data['oum_location_image'] );
-            update_post_meta( $post_id, '_oum_location_image', $data_image );
-            // Set featured image if not set
-            if ( !has_post_thumbnail( $post_id ) ) {
-                // Set location image as post thumbnail
-                $post_image = oum_get_location_value( 'image', $post_id, true );
-                if ( $post_image ) {
-                    // Download image from the specified URL and upload it to the WordPress media library
-                    $upload = media_sideload_image(
-                        $post_image,
-                        $post_id,
-                        null,
-                        'src'
-                    );
-                    // Check if upload was successful
-                    if ( !is_wp_error( $upload ) ) {
-                        // Find the uploaded image in the database
-                        $attachment_id = attachment_url_to_postid( $upload );
-                        // Check if the image was found
-                        if ( $attachment_id ) {
-                            // Set the image as the featured image for the post
-                            set_post_thumbnail( $post_id, $attachment_id );
-                        }
-                    }
-                }
-            }
-        }
         if ( isset( $location_data['oum_location_audio'] ) ) {
             // validate & store audio seperately (to avoid serialized URLs [bad for search & replace due to domain change])
             $data_audio = esc_url_raw( $location_data['oum_location_audio'] );
@@ -346,15 +322,36 @@ class LocationController extends BaseController {
     }
 
     public function set_custom_location_columns( $columns ) {
-        // preserve default columns
-        $title = $columns['title'];
-        $date = $columns['date'];
-        unset($columns['title'], $columns['date']);
+        // Get all default columns we want to preserve
+        $cb = ( isset( $columns['cb'] ) ? $columns['cb'] : '' );
+        $title = ( isset( $columns['title'] ) ? $columns['title'] : '' );
+        $author = ( isset( $columns['author'] ) ? $columns['author'] : '' );
+        $categories = ( isset( $columns['taxonomy-oum-type'] ) ? $columns['taxonomy-oum-type'] : '' );
+        $comments = ( isset( $columns['comments'] ) ? $columns['comments'] : '' );
+        $date = ( isset( $columns['date'] ) ? $columns['date'] : '' );
+        // Remove all columns
+        $columns = array();
+        // Add columns in desired order
+        if ( $cb ) {
+            $columns['cb'] = $cb;
+        }
+        $columns['post_id'] = 'ID';
         $columns['title'] = $title;
-        $columns['text'] = __( 'Text', 'open-user-map' );
         $columns['address'] = __( 'Subtitle', 'open-user-map' );
+        if ( $categories ) {
+            $columns['taxonomy-oum-type'] = $categories;
+        }
+        $columns['text'] = __( 'Text', 'open-user-map' );
         $columns['geocoordinates'] = __( 'Coordinates', 'open-user-map' );
-        $columns['date'] = $date;
+        if ( $comments ) {
+            $columns['comments'] = $comments;
+        }
+        if ( $author ) {
+            $columns['author'] = $author;
+        }
+        if ( $date ) {
+            $columns['date'] = $date;
+        }
         return $columns;
     }
 
@@ -365,6 +362,9 @@ class LocationController extends BaseController {
         $lat = ( isset( $data['lat'] ) ? $data['lat'] : '' );
         $lng = ( isset( $data['lng'] ) ? $data['lng'] : '' );
         switch ( $column ) {
+            case 'post_id':
+                echo esc_html( $post_id );
+                break;
             case 'text':
                 echo esc_html( $text );
                 break;
@@ -373,9 +373,6 @@ class LocationController extends BaseController {
                 break;
             case 'geocoordinates':
                 echo esc_attr( $lat ) . ', ' . esc_attr( $lng );
-                break;
-            case 'notification':
-                echo esc_attr( $notification );
                 break;
             default:
                 break;
@@ -461,7 +458,7 @@ class LocationController extends BaseController {
     /**
      * Get a value from a location
      */
-    public static function get_location_value( $attr, $post_id, $raw = false ) {
+    public function get_location_value( $attr, $post_id, $raw = false ) {
         $location = get_post_meta( $post_id, '_oum_location_key', true );
         $custom_field_ids = get_option( 'oum_custom_fields', array() );
         // get all available custom fields
@@ -478,10 +475,45 @@ class LocationController extends BaseController {
             // GET IMAGE
             $image = get_post_meta( $post_id, '_oum_location_image', true );
             $has_image = ( isset( $image ) && $image != '' ? 'has-image' : '' );
-            if ( !$raw ) {
-                $value = ( $has_image ? '<img src="' . esc_attr( $image ) . '">' : '' );
+            if ( $has_image ) {
+                $images = explode( '|', $image );
+                if ( count( $images ) > 1 && !$raw ) {
+                    // Enqueue carousel script and styles
+                    wp_enqueue_style(
+                        'oum_frontend_css',
+                        plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'assets/frontend.css',
+                        array(),
+                        $this->plugin_version
+                    );
+                    wp_enqueue_script(
+                        'oum_frontend_carousel_js',
+                        plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'src/js/frontend-carousel.js',
+                        array(),
+                        $this->plugin_version
+                    );
+                    // Multiple images - use carousel
+                    $value = '<div class="oum-carousel">';
+                    $value .= '<div class="oum-carousel-inner">';
+                    foreach ( $images as $index => $image_url ) {
+                        if ( !empty( $image_url ) ) {
+                            $active_class = ( $index === 0 ? ' active' : '' );
+                            $value .= '<div class="oum-carousel-item' . $active_class . '">';
+                            $value .= '<img class="skip-lazy" src="' . esc_url_raw( $image_url ) . '">';
+                            $value .= '</div>';
+                        }
+                    }
+                    $value .= '</div>';
+                    $value .= '</div>';
+                } else {
+                    // Single image or raw output
+                    if ( !$raw ) {
+                        $value = '<img src="' . esc_attr( $images[0] ) . '">';
+                    } else {
+                        $value = esc_attr( $image );
+                    }
+                }
             } else {
-                $value = ( $has_image ? esc_attr( $image ) : '' );
+                $value = '';
             }
         } elseif ( $attr == 'audio' ) {
             // GET AUDIO
@@ -583,42 +615,46 @@ class LocationController extends BaseController {
             if ( empty( trim( $content ) ) ) {
                 // Custom content to display if the original content is empty
                 $custom_content = '
-                <!-- wp:group {"className":"open-user-map-single-default-template alignwide","layout":{"type":"default"}} -->
-                <div class="wp-block-group alignwide open-user-map-single-default-template">
+                <!-- wp:group {"className":"open-user-map-single-default-template","layout":{"type":"default"}} -->
+                <div class="wp-block-group open-user-map-single-default-template">
                 
-                <!-- wp:columns -->
-                <div class="wp-block-columns">
-                
-                    <!-- wp:column {"width":"66.66%"} -->
-                    <div class="wp-block-column" style="flex-basis:66.66%">
+                    <!-- wp:columns -->
+                    <div class="wp-block-columns">
+                    
+                        <!-- wp:column {"width":"66.66%"} -->
+                        <div class="wp-block-column" style="flex-basis:66.66%">
 
-                    <!-- wp:shortcode -->
-                    [open-user-map-location value="text"]
-                    <!-- /wp:shortcode -->
-                
-                </div>
+                            <!-- wp:shortcode -->
+                            [open-user-map-location value="image"]
+                            <!-- /wp:shortcode -->
 
-                <!-- /wp:column -->
+                            <!-- wp:shortcode -->
+                            [open-user-map-location value="text"]
+                            <!-- /wp:shortcode -->
+                        
+                        </div>
 
-                <!-- wp:column {"width":"33.33%"} -->
-                <div class="wp-block-column" style="flex-basis:33.33%">
+                        <!-- /wp:column -->
 
-                    <!-- wp:shortcode -->
-                    [open-user-map-location value="map"]
-                    <!-- /wp:shortcode -->
+                        <!-- wp:column {"width":"33.33%"} -->
+                        <div class="wp-block-column" style="flex-basis:33.33%">
 
-                    <!-- wp:shortcode -->
-                    [open-user-map-location value="route"]
-                    <!-- /wp:shortcode -->
+                            <!-- wp:shortcode -->
+                            [open-user-map-location value="map"]
+                            <!-- /wp:shortcode -->
 
-                    <!-- wp:shortcode -->
-                    [open-user-map-location value="type"]
-                    <!-- /wp:shortcode -->
+                            <!-- wp:shortcode -->
+                            [open-user-map-location value="route"]
+                            <!-- /wp:shortcode -->
 
-                </div>
-                <!-- /wp:column -->
-                </div>
-                <!-- /wp:columns -->
+                            <!-- wp:shortcode -->
+                            [open-user-map-location value="type"]
+                            <!-- /wp:shortcode -->
+
+                        </div>
+                        <!-- /wp:column -->
+                    </div>
+                    <!-- /wp:columns -->
                 </div>
                 <!-- /wp:group -->
                 ';

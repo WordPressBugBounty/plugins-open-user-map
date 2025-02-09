@@ -1,3 +1,133 @@
+// Variables
+$colors: (
+  primary: #e02aaf,
+  highlight: red
+);
+
+$search_input_width: 300px;
+
+// Mixins
+@mixin oum-carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+
+  &:hover {
+    .oum-carousel-prev,
+    .oum-carousel-next {
+      opacity: 1;
+    }
+  }
+
+  .oum-carousel-inner {
+    display: flex;
+    width: 100%;
+    height: 100%;
+
+    .oum-carousel-item {
+      flex: 0 0 100%;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: none;
+      background-color: #eee;
+
+      &.active {
+        display: block;
+        animation: carouselFadeIn 0.3s ease-in-out;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        max-width: 100%;
+        object-fit: cover;
+        object-position: top center;
+      }
+    }
+  }
+
+  .oum-carousel-prev,
+  .oum-carousel-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    margin: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    box-shadow: none;
+    border-radius: 50%;
+    color: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0;
+    z-index: 1;
+    font-size: 0;
+    text-indent: -9999px;
+
+    // Always show controls on mobile
+    @media (max-width: 768px) {
+      opacity: 1;
+    }
+
+    &::before {
+      content: '';
+      display: block;
+      width: 10px;
+      height: 10px;
+      border-style: solid;
+      border-width: 2px 2px 0 0;
+      border-color: #fff;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .oum-carousel-prev {
+    left: 10px;
+
+    &::before {
+      transform: rotate(-135deg);
+      margin-left: 4px;
+    }
+  }
+
+  .oum-carousel-next {
+    right: 10px;
+
+    &::before {
+      transform: rotate(45deg);
+      margin-right: 4px;
+    }
+  }
+
+  .oum-carousel-counter {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    z-index: 1;
+  }
+}
+
 .open-user-map {
   position: relative;
   z-index: 1;
@@ -43,9 +173,6 @@
 
   $marker_size: 22px;
   $info_width: 320px;
-
-  $colors: (primary : #e02aaf,
-      highlight: red);
 
   $search_input_width: 320px;
 
@@ -141,7 +268,52 @@
     .map-wrap {
       position: relative;
       aspect-ratio: 1.53;
-  
+
+      // Loading overlay styles
+      .oum-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.3s ease-out;
+
+        &.hidden {
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .oum-loading-spinner {
+          width: 50px;
+          height: 50px;
+          border: 3px solid #f3f3f3;
+          border-top: 3px solid #e02aaf;
+          border-radius: 50%;
+          animation: oum-spin 1s linear infinite;
+        }
+      }
+
+      @keyframes oum-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      // Initially hide controls until map is loaded
+      .oum-filter-controls,
+      .open-add-location-overlay {
+        opacity: 0;
+        transition: opacity 0.3s ease-out;
+
+        &.visible {
+          opacity: 1;
+        }
+      }
+
       .leaflet-map {
         position: absolute;
         top: 0;
@@ -213,16 +385,24 @@
 
             .oum_location_video {
               background-color: #eee;
+              aspect-ratio: 4/3;
 
               > * {
                 margin: 0;
-                aspect-ratio: 16/9;
+                width: 100%;
+                height: 100%;
 
-                iframe {
+                > p {
                   width: 100%;
                   height: 100%;
                   margin: 0 auto;
                 }
+              }
+
+              iframe {
+                width: 100%;
+                height: 100%;
+                margin: 0 auto;
               }
             }
   
@@ -373,6 +553,10 @@
               .oum_read_more {
                 margin-top: 10px;
               }
+            }
+
+            .oum-carousel {
+              @include oum-carousel;
             }
           }
         }
@@ -1282,7 +1466,7 @@
               .leaflet-tile-pane .leaflet-layer:first-of-type .leaflet-tile {
                 filter: sepia(1) invert(1) saturate(100) brightness(1) hue-rotate(-300deg);
               }
-      
+  
               // label tiles
               .leaflet-tile-pane .leaflet-layer:nth-child(2) .leaflet-tile {
                 filter: sepia(0) contrast(1) invert(1) brightness(2);
@@ -1316,43 +1500,42 @@
 
         .oum_media {
           display: flex;
-          margin-bottom: 15px;
+          margin-bottom: 35px;
           flex-direction: column;
-          gap: 10px;
+          gap: 25px;
 
           .media-upload {
             position: relative;
             display: flex;
             align-items: center;
             gap: 10px;
+            padding: 5px 0;
 
             label {
               display: flex;
+              align-items: center;
               gap: 3px;
-              font-size: 20px;
-              padding: 5px;
+              padding: 0;
               margin: 0;
               line-height: 1;
               color: map-get($colors, "primary");
               cursor: pointer;
+              position: relative;
+              flex-shrink: 0;
+              transition: transform 0.1s ease;
 
               &:hover {
-                color: darken(map-get($colors, "primary"), 10%);
+                transform: scale(1.05);
               }
               
               .dashicons {
-                width: 25px;
-                height: 25px;
-                font-size: 25px;
+                width: 32px;
+                height: 32px;
+                font-size: 32px;
               }
             }
 
-            input[type=text] {
-              margin: 0;
-            }
-  
             input[type=file] {
-              // display: none;
               position: absolute;
               z-index: -1;
               bottom: 0;
@@ -1368,11 +1551,8 @@
             .preview {
               display: flex;
               gap: 5px;
-
-              span {
-                color: map-get($colors, "primary");
-                font-size: 14px;
-              }
+              align-items: center;
+              position: relative;
 
               .remove-upload {
                 display: none;
@@ -1387,6 +1567,10 @@
                 color: #fff;
                 font-family: sans-serif;
                 font-size: 17px;
+                position: absolute;
+                right: -25px;
+                top: 50%;
+                transform: translateY(-50%);
 
                 &:hover {
                   opacity: 1;
@@ -1399,6 +1583,204 @@
                 }
               }
             }
+          }
+
+          // Image upload specific styles
+          .oum-image-upload {
+            .media-upload-top {
+              display: flex;
+              align-items: center;
+              gap: 15px;
+              width: 100%;
+
+              label {
+                .multi-upload-indicator {
+                  position: absolute;
+                  top: -3px;
+                  right: -8px;
+                  font-size: 14px;
+                  font-weight: bold;
+                  font-family: math;
+                  color: #fff;
+                  background: map-get($colors, "primary");
+                  width: 18px;
+                  height: 18px;
+                  line-height: 18px;
+                  text-align: center;
+                  border-radius: 50%;
+                  transition: transform 0.2s ease;
+                }
+              }
+
+              .oum-image-upload-description {
+                font-family: sans-serif;
+                font-size: 16px;
+                margin: 0;
+                line-height: 1.3;
+                color: #333;
+                opacity: 1;
+              }
+            }
+          }
+
+          // Video upload specific styles
+          .oum-video-upload {
+            input[type=text] {
+              margin: 0;
+              flex: 1;
+              height: 35px;
+              transition: border-color 0.2s ease;
+
+              &:hover {
+                border-color: map-get($colors, "primary");
+              }
+
+              &:focus {
+                border-color: map-get($colors, "primary");
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(224, 42, 175, 0.1);
+              }
+            }
+          }
+
+          // Audio upload specific styles
+          .oum-audio-upload {
+            input[type=file] {
+              position: absolute;
+              z-index: -1;
+              opacity: 0;
+              width: 0;
+              height: 0;
+              overflow: hidden;
+            }
+
+            .preview {
+              flex: 1;
+              min-width: 0;
+              display: flex;
+              align-items: center;
+              gap: 15px;
+
+              .audio-preview {
+                width: 70%;  // Limit width to prevent x-button from going off-screen
+                margin-top: 2px;  // Slight adjustment to align with x-button
+
+                audio {
+                  width: 100%;
+                  height: 40px;  // Increased height for better visibility
+                  margin: 0;  // Reset margin
+                  vertical-align: middle;  // Help with alignment
+                }
+              }
+
+              .remove-upload {
+                position: static;  // Remove absolute positioning
+                transform: none;  // Remove transform
+                margin-top: 2px;  // Match audio player adjustment
+              }
+
+              &.active {
+                .remove-upload {
+                  display: block;
+                }
+              }
+            }
+          }
+
+          .oum-image-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+            width: 100%;
+            min-height: 50px;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 4px;
+            position: relative;
+
+            &.dragover {
+              background: #f5f5f5;
+              border-color: #999;
+            }
+
+            &:empty {
+              display: none;
+              margin: 0;
+            }
+
+            .image-preview-item {
+              position: relative;
+              aspect-ratio: 1;
+              border-radius: 4px;
+              overflow: hidden;
+              cursor: grab;
+              border: 2px solid #ddd;
+              background: #fff;
+              will-change: transform;
+              user-select: none;
+              
+              &.dragging {
+                cursor: grabbing;
+                background: #fff;
+                border-color: map-get($colors, "primary");
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+              }
+
+              img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+                pointer-events: none;
+              }
+
+              .remove-image {
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                width: 20px;
+                height: 20px;
+                background: rgba(255, 255, 255, 0.8);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                font-size: 14px;
+                line-height: 1;
+                color: #666;
+                transition: all 0.2s ease;
+
+                &:hover {
+                  background: #fff;
+                  color: #000;
+                }
+              }
+
+              .drag-handle {
+                position: absolute;
+                bottom: 5px;
+                right: 5px;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: grab;
+                font-size: 14px;
+                line-height: 1;
+                color: rgba(255, 255, 255, 0.8);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+              }
+            }
+          }
+
+          .image-preview-placeholder {
+            border: 2px dashed map-get($colors, "primary");
+            border-radius: 4px;
+            background: rgba(224, 42, 175, 0.05);
+            transition: all 0.15s ease-in-out;
           }
         }
 
@@ -1525,7 +1907,7 @@
         
         #oum_add_location_thankyou {
           .oum-add-location-thankyou-text {
-            display: none;
+            // Remove the display: none rule
           }
         }
       }
@@ -1600,7 +1982,7 @@
                   font-size: 16px;
                 }
               }
-
+        
               button.reset {
                 right: 25px;
                 background-color: #fff;
@@ -1675,6 +2057,11 @@
         height: 100%;
         overflow: auto;
   
+        // Add carousel styles for fullscreen container
+        .oum-carousel {
+          @include oum-carousel;
+        }
+  
         .oum_location_image {
           background-color: #eee;
   
@@ -1691,7 +2078,13 @@
 
           > * {
             margin: 0;
-            aspect-ratio: 16/9;
+            aspect-ratio: 4/3;
+
+            > p {
+              width: 100%;
+              height: 100%;
+              margin: 0 auto;
+            }
 
             iframe {
               width: 100%;
@@ -1908,18 +2301,112 @@
   }
   /* end resets */
 
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 5px;
+  position: relative;
+  opacity: 0; // Start hidden, will be shown when masonry is initialized
+  margin-bottom: 40px;
 
   .oum-gallery-item {
-    aspect-ratio: 4/3;
+    width: calc(25% - 15px); // Default to 4 columns with gap
+    margin-bottom: 20px;
+    break-inside: avoid;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    transition: box-shadow 0.2s ease-in-out;
+
+    &:hover {
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+
+      img {
+        transform: scale(1.02);
+      }
+    }
+
+    a {
+      display: block;
+      width: 100%;
+    }
 
     img {
-      object-fit: cover;
-      object-position: center;
+      display: block;
       width: 100%;
-      height: 100%;
+      height: auto;
+      transition: transform 0.2s ease-in-out;
+    }
+  }
+
+  // Pagination styles
+  .oum-gallery-pagination {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px; // Increased margin to separate from masonry items
+    padding-top: 20px; // Added padding to ensure space after last masonry items
+    gap: 5px;
+    clear: both;
+    border-top: 1px solid #eee; // Added separator line
+
+    .page-numbers {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      height: 36px;
+      padding: 0 12px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      color: #333;
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #f5f5f5;
+        border-color: #ccc;
+      }
+
+      &.current {
+        background: #e02aaf;
+        border-color: #e02aaf;
+        color: #fff;
+      }
+
+      &.prev,
+      &.next {
+        font-size: 13px;
+      }
+
+      &.dots {
+        border: none;
+        padding: 0 8px;
+
+        &:hover {
+          background: transparent;
+        }
+      }
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 1200px) {
+    .oum-gallery-item {
+      width: calc(33.333% - 14px); // 3 columns
+    }
+  }
+
+  @media (max-width: 768px) {
+    .oum-gallery-item {
+      width: calc(50% - 10px); // 2 columns
+    }
+  }
+
+  @media (max-width: 480px) {
+    .oum-gallery-item {
+      width: 100%; // 1 column
     }
   }
 }
@@ -1957,6 +2444,34 @@
     border-radius: 0;
     max-width: inherit;
   }
+
+  input[type="radio"], 
+  input[type="checkbox"] {
+    margin: inherit;
+    padding: inherit;
+  }
+
+  input[type=text] {
+    background-color: #fff;
+    color: #333;
+    border-radius: 0;
+    font-size: 16px;
+  }
+
+  h1, h2, h3, h4 {
+    margin: 0;
+    padding: 0;
+    display: inherit;
+  }
+
+  button {
+    margin: 0;
+    padding: 0;
+  }
+
+  .elementor-widget-open_user_map_widget {
+    width: 100%;
+  }
   /* end resets */
 
   .oum-locations-list-item {
@@ -1964,11 +2479,18 @@
     grid-template-columns: minmax(0, 290px) 1fr;
     margin-bottom: 30px;
     background: #fff;
-    box-shadow: 0 0 3px rgba(0,0,0,0.2);
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+
+    // Use the carousel mixin for list view
+    .oum-carousel {
+      @include oum-carousel;
+    }
+
+    .oum_location_media {
+      padding: 15px;
+    }
 
     .oum_location_image {
-      padding: 15px;
-
       img {
         width: 100%;
         margin: 0 auto;
@@ -1976,10 +2498,15 @@
     }
 
     .oum_location_video {
-      padding: 15px;
 
       > div {
-        aspect-ratio: 16/9;
+        aspect-ratio: 4/3;
+
+        > p {
+          width: 100%;
+          height: 100%;
+          margin: 0 auto;
+        }
       }
 
       iframe {
@@ -2153,12 +2680,6 @@
   }
 }
 
-.oum-location-template-default {
-  .wp-block-post-featured-image {
-    aspect-ratio: auto !important;
-  }
-}
-
 .open-user-map-single-default-template-media {
   &.has-video {
     aspect-ratio: 16/9;
@@ -2176,21 +2697,25 @@
   }
 }
 
-.open-user-map-single-default-template {
-  .oum-location-value {
-    margin-bottom: 1rem;
-  }
+.oum-location-value {
+  margin-bottom: 1rem;
 
-  .oum-location-value[data-value=type] {
-    display: inline-block;
-    border-radius: 99px;
-    padding: 0 0.8rem;
-    border: 1px solid;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  // Add carousel styles
+  .oum-carousel {
+      @include oum-carousel;
   }
 }
+
+.oum-location-value[data-value=type] {
+  display: inline-block;
+  border-radius: 99px;
+  padding: 0 0.8rem;
+  border: 1px solid;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 
 body.oum-location-opened {
   @media (max-width: 768px) {
@@ -2200,4 +2725,75 @@ body.oum-location-opened {
 
 body.oum-add-location-opened {
   overflow: hidden;
+}
+
+@keyframes carouselFadeIn {
+  from {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Delete confirmation styles
+.oum-delete-confirmation {
+  text-align: center;
+  padding: 40px 20px;
+
+  h3 {
+    color: #333;
+    margin-bottom: 20px;
+  }
+
+  p {
+    margin-bottom: 30px;
+  }
+
+  button {
+    display: inline-block !important;
+    margin: 0 auto !important;
+    padding: 12px 24px !important;
+    background-color: #e02aaf !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-size: 16px !important;
+    transition: background-color 0.3s ease !important;
+
+    &:hover {
+      background-color: darken(#e02aaf, 10%) !important;
+    }
+  }
+}
+
+// Single Location Template Styles
+.open-user-map-single-default-template {
+  .wp-block-post-featured-image {
+    aspect-ratio: auto !important;
+  }
+
+  // Use WordPress block gap variable for column spacing
+  .wp-block-columns {
+    gap: var(--wp--style--block-gap, 2em);
+  }
+  
+  // Add vertical spacing between elements
+  .wp-block-shortcode {
+    margin-bottom: 1.5em;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  // Basic responsive adjustment
+  @media (max-width: 781px) {
+    .wp-block-columns {
+      gap: 1.5em;
+    }
+  }
 }

@@ -50,8 +50,8 @@ echo __( 'Latitude', 'open-user-map' );
 echo __( 'Longitude', 'open-user-map' );
 ?>*" />
 
-        <input type="hidden" name="oum_post_id" value="">
-        <input type="hidden" name="oum_delete_location" value="">
+        <input type="hidden" id="oum_post_id" name="oum_post_id" value="">
+        <input type="hidden" id="oum_delete_location" name="oum_delete_location" value="">
 
         <?php 
 ?>
@@ -308,65 +308,74 @@ if ( get_option( 'oum_enable_description', 'on' ) === 'on' ) {
 }
 ?>
         
-        <?php 
-if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_video', false ) === 'on' || get_option( 'oum_enable_audio', 'on' ) === 'on' ) {
+        <div class="oum_media">
+          <?php 
+if ( get_option( 'oum_enable_image', 'on' ) === 'on' ) {
     ?>
-          <label class="oum-label"><?php 
-    echo $oum_upload_media_label;
-    ?></label>
-          <div class="oum_media">
-            <?php 
-    if ( get_option( 'oum_enable_image', 'on' ) === 'on' ) {
-        ?>
-              <div class="media-upload">
-                <label style="color: <?php 
-        echo $oum_ui_color;
-        ?>" for="oum_location_image" title="<?php 
-        echo __( 'Upload Image', 'open-user-map' );
-        ?>"><span class="dashicons dashicons-format-image"></span><?php 
-        echo ( get_option( 'oum_image_required' ) ? '*' : '' );
-        ?></label>
-                <input type="file" id="oum_location_image" name="oum_location_image" accept="image/*" multiple="false" <?php 
-        echo ( get_option( 'oum_image_required' ) ? 'required' : '' );
-        ?> />
-                <div class="preview">
-                  <span></span>
-                  <div id="oum_remove_image" class="remove-upload">&times;</div>
-                </div>
-                <input type="hidden" id="oum_remove_existing_image" name="oum_remove_existing_image" value="0">
+            <div class="media-upload oum-image-upload">
+              <div class="media-upload-top">
+                <label for="oum_location_images" title="<?php 
+    echo __( 'Upload Images', 'open-user-map' );
+    ?>">
+                  <span class="dashicons dashicons-format-image"></span>
+                  <span class="multi-upload-indicator">+</span>
+                </label>
+                <p class="oum-image-upload-description"><?php 
+    echo __( 'Add up to 5 images to create a gallery for this location.', 'open-user-map' );
+    ?></p>
               </div>
-            <?php 
+              <input type="file" 
+                id="oum_location_images" 
+                name="oum_location_images[]" 
+                accept="image/*" 
+                multiple 
+                <?php 
+    if ( get_option( 'oum_image_required' ) ) {
+        ?>required<?php 
     }
-    ?>
-            <?php 
-    ?>
-            <?php 
-    if ( get_option( 'oum_enable_audio', 'on' ) === 'on' ) {
-        ?>
-              <div class="media-upload">
-                <label style="color: <?php 
-        echo $oum_ui_color;
-        ?>" for="oum_location_audio" title="<?php 
-        echo __( 'Upload Audio', 'open-user-map' );
-        ?>"><span class="dashicons dashicons-format-audio"></span><?php 
-        echo ( get_option( 'oum_audio_required' ) ? '*' : '' );
-        ?></label>
-                <input type="file" id="oum_location_audio" name="oum_location_audio" accept="audio/mp3,audio/mpeg3,audio/wav,audio/mp4,audio/mpeg,audio/x-m4a" multiple="false" <?php 
-        echo ( get_option( 'oum_audio_required' ) ? 'required' : '' );
-        ?> />
-                <div class="preview">
-                  <span></span>
-                  <div id="oum_remove_audio" class="remove-upload">&times;</div>
-                </div>
-                <input type="hidden" id="oum_remove_existing_audio" name="oum_remove_existing_audio" value="0">
+    ?> 
+                data-max-files="5"
+              />
+              <div class="preview">
+                <span></span>
+                <div id="oum_remove_image" class="remove-upload">×</div>
               </div>
-            <?php 
-    }
-    ?>
-          </div>
-        <?php 
+              <input type="hidden" id="oum_remove_existing_image" name="oum_remove_existing_image" value="0" />
+            </div>
+
+            <div class="oum-image-preview-grid" id="oum_location_images_preview"></div>
+          <?php 
 }
 ?>
+
+          <?php 
+?>
+
+          <?php 
+if ( get_option( 'oum_enable_audio', 'on' ) === 'on' ) {
+    ?>
+            <div class="media-upload oum-audio-upload">
+              <label style="color: #e02aaf" for="oum_location_audio" title="<?php 
+    echo __( 'Upload Audio', 'open-user-map' );
+    ?>">
+                <span class="dashicons dashicons-format-audio"></span>
+              </label>
+              <input type="file" 
+                id="oum_location_audio" 
+                name="oum_location_audio" 
+                accept="audio/mp3,audio/mpeg3,audio/wav,audio/mp4,audio/mpeg,audio/x-m4a" 
+                multiple="false"
+              />
+              <div class="preview">
+                <div class="audio-preview"></div>
+                <div id="oum_remove_audio" class="remove-upload">×</div>
+              </div>
+              <input type="hidden" id="oum_remove_existing_audio" name="oum_remove_existing_audio" value="1" />
+            </div>
+          <?php 
+}
+?>
+        </div>
 
         <?php 
 ?>
@@ -392,11 +401,6 @@ echo ( $thankyou_headline ? $thankyou_headline : __( 'Thank you!', 'open-user-ma
         <p class="oum-add-location-thankyou-text"><?php 
 echo ( $thankyou_text ? $thankyou_text : __( 'We will check your location suggestion and release it as soon as possible.', 'open-user-map' ) );
 ?></p>
-        <button id="oum_add_another_location" style="background: <?php 
-echo $oum_ui_color;
-?>" type="button"><?php 
-echo $oum_addanother_label;
-?></button>
       </div>
     </div>
   </div>

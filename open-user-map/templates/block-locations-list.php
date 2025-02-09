@@ -42,8 +42,8 @@ if ( $locations_query->have_posts() ) {
         $image = get_post_meta( $post_id, '_oum_location_image', true );
         $image_thumb = null;
         if ( stristr( $image, 'oum-useruploads' ) ) {
-            //image uploaded from frontend
-            $image_thumb = get_post_meta( $post_id, '_oum_location_image_thumb', true );
+            //image uploaded from frontend - always use original image
+            $image_thumb = $image;
         } else {
             //image uploaded from backend
             $image_id = attachment_url_to_postid( $image );
@@ -152,7 +152,26 @@ foreach ( $locations_list as $location ) {
     //error_log(print_r($location, true));
     $media_tag = '';
     if ( $location['image'] ) {
-        $media_tag = '<div class="oum_location_image"><img class="skip-lazy" src="' . esc_url_raw( $location['image'] ) . '"></div>';
+        // Split image URLs if multiple images exist
+        $images = explode( '|', $location['image'] );
+        if ( count( $images ) > 1 ) {
+            // Multiple images - use carousel
+            $media_tag = '<div class="oum-carousel">';
+            $media_tag .= '<div class="oum-carousel-inner">';
+            foreach ( $images as $index => $image_url ) {
+                if ( !empty( $image_url ) ) {
+                    $active_class = ( $index === 0 ? ' active' : '' );
+                    $media_tag .= '<div class="oum-carousel-item' . $active_class . '">';
+                    $media_tag .= '<img class="skip-lazy" src="' . esc_url_raw( $image_url ) . '" alt="' . esc_attr( $location['name'] ) . '">';
+                    $media_tag .= '</div>';
+                }
+            }
+            $media_tag .= '</div>';
+            $media_tag .= '</div>';
+        } else {
+            // Single image - use regular image display
+            $media_tag = '<div class="oum_location_image"><img class="skip-lazy" src="' . esc_url_raw( $location['image'] ) . '"></div>';
+        }
     }
     //HOOK: modify location image
     $media_tag = apply_filters( 'oum_location_bubble_image', $media_tag, $location );
@@ -223,7 +242,7 @@ foreach ( $locations_list as $location ) {
         $link_tag = '';
     }
     // building bubble block content
-    $content = $media_tag;
+    $content = '<div class="oum_location_media">' . $media_tag . '</div>';
     $content .= '<div class="oum_location_text">';
     $content .= $date_tag;
     $content .= $address_tag;

@@ -1,6 +1,10 @@
 <div class="wrap">
 <h1>Open User Map</h1>
 
+<?php 
+settings_errors( 'oum_messages' );
+?>
+
 <form method="post" action="options.php">
     
 
@@ -484,7 +488,6 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $start_lng = get_option( 'oum_start_lng' );
     $start_zoom = get_option( 'oum_start_zoom' );
     $oum_enable_fixed_map_bounds = get_option( 'oum_enable_fixed_map_bounds' );
-    $oum_minimum_zoom_level = get_option( 'oum_minimum_zoom_level' );
     $oum_searchaddress_label = ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_searchaddress_label_default );
     ?>
                 <div class="form-field geo-coordinates-wrap">
@@ -559,26 +562,12 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'This does not work when using Custom Map Positions (e.g. Regions).', 'open-user-map' );
     ?></span>
 
-                          <br><br><br>
-                          
-                          <strong><?php 
-    echo __( 'Minimum zoom level', 'open-user-map' );
-    ?></strong><br>
-                          <input class="small-text" type="number" min="1" max="19" name="oum_minimum_zoom_level" id="oum_minimum_zoom_level" value="<?php 
-    echo esc_attr( $oum_minimum_zoom_level );
-    ?>"></input><br><br>
-                          <span class="description"><?php 
-    echo __( 'Set a value between 1 (far away) and 19 (very close).', 'open-user-map' );
-    ?> <?php 
-    echo __( 'This does not work when using Custom Map Positions (e.g. Regions).', 'open-user-map' );
-    ?></span><br>
-
                         </div>
                     </div>
 
                     <script type="text/javascript" data-category="functional" class="cmplz-native" id="oum-inline-js">
                     const lat = '<?php 
-    echo ( esc_attr( $start_lat ) ? esc_attr( $start_lat ) : '0' );
+    echo ( esc_attr( $start_lat ) ? esc_attr( $start_lat ) : '28' );
     ?>';
                     const lng = '<?php 
     echo ( esc_attr( $start_lng ) ? esc_attr( $start_lng ) : '0' );
@@ -783,7 +772,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $oum_title_maxlength = get_option( 'oum_title_maxlength' );
     ?>
               <th scope="row"><?php 
-    echo __( '„Title“ field', 'open-user-map' );
+    echo __( '"Title" field', 'open-user-map' );
     ?></th>
               <td>
                 <div class="oum_2cols">
@@ -830,7 +819,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $oum_map_label = get_option( 'oum_map_label' );
     ?>
               <th scope="row"><?php 
-    echo __( '„Map“ field', 'open-user-map' );
+    echo __( '"Map" field', 'open-user-map' );
     ?></th>
               <td>
                 <strong><?php 
@@ -1037,7 +1026,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $oum_address_label = get_option( 'oum_address_label' );
     ?>
               <th scope="row"><?php 
-    echo __( '„Subtitle“ field', 'open-user-map' );
+    echo __( '"Subtitle" field', 'open-user-map' );
     ?></th>
               <td>
                 <input class="oum-switch" type="checkbox" name="oum_enable_address" id="oum_enable_address" <?php 
@@ -1080,7 +1069,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $oum_description_label = get_option( 'oum_description_label' );
     ?>
               <th scope="row"><?php 
-    echo __( '„Description“ field', 'open-user-map' );
+    echo __( '"Description" field', 'open-user-map' );
     ?></th>
               <td>
                 <div class="oum_2cols">
@@ -1125,7 +1114,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $oum_upload_media_label = get_option( 'oum_upload_media_label' );
     ?>
               <th scope="row"><?php 
-    echo __( '„Media upload“ fields', 'open-user-map' );
+    echo __( '"Media upload" fields', 'open-user-map' );
     ?></th>
               <td>
 
@@ -1300,12 +1289,12 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     }
     ?>
 
-            <tr valign="top">
-              <?php 
+            <?php 
     $oum_submit_button_label = get_option( 'oum_submit_button_label' );
     ?>
+            <tr valign="top">
               <th scope="row"><?php 
-    echo __( '„Submit“-Button text', 'open-user-map' );
+    echo __( '"Submit" Button text', 'open-user-map' );
     ?></th>
               <td>
                 <input class="regular-text" type="text" name="oum_submit_button_label" id="oum_submit_button_label" placeholder="<?php 
@@ -1340,7 +1329,6 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <?php 
     $oum_thankyou_headline = get_option( 'oum_thankyou_headline' );
     $oum_thankyou_text = get_option( 'oum_thankyou_text' );
-    $oum_addanother_label = get_option( 'oum_addanother_label' );
     ?>
                   <input class="regular-text" type="text" name="oum_thankyou_headline" id="oum_thankyou_headline" placeholder="<?php 
     echo __( 'Thank you!', 'open-user-map' );
@@ -1352,11 +1340,6 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>"><?php 
     echo esc_textarea( $oum_thankyou_text );
     ?></textarea><br><br>
-                  <input class="regular-text" type="text" name="oum_addanother_label" id="oum_addanother_label" placeholder="<?php 
-    echo esc_attr( $this->oum_addanother_label_default );
-    ?>" value="<?php 
-    echo esc_textarea( $oum_addanother_label );
-    ?>">
                 </div>
                 <div id="oum_action_after_submit_redirect">
                   <?php 
@@ -1536,7 +1519,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               <tr valign="top" class="oum-gopro-tr">
                 <th scope="row">
                   <?php 
-        echo __( '„Marker Categories“ field', 'open-user-map' );
+        echo __( '"Marker Categories" field', 'open-user-map' );
         ?>
                   <br><span class="oum-pro">PRO</span><br>
                   <a class="oum-gopro-text" href="<?php 
@@ -1753,13 +1736,13 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               <tr valign="top" class="oum-gopro-tr">
                 <th scope="row">
                   <?php 
-        echo __( 'Restrict „Add location“ to logged in users only', 'open-user-map' );
+        echo __( 'Restrict "Add location" to logged in users only', 'open-user-map' );
         ?>
                   <br><span class="oum-pro">PRO</span><br>
                   <a class="oum-gopro-text" href="<?php 
         echo oum_fs()->get_upgrade_url();
         ?>"><?php 
-        echo __( 'Upgrade to PRO to enable the „Add location“ feature only to logged in users!', 'open-user-map' );
+        echo __( 'Upgrade to PRO to enable the "Add location" feature only to logged in users!', 'open-user-map' );
         ?></a>
                 </th>
                 <td>
@@ -1767,7 +1750,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <label></label><br><br>
                   <input class="oum-switch" type="checkbox" disabled>
                   <label><?php 
-        echo __( 'Redirect „Add location“-Button to registration page' );
+        echo __( 'Redirect "Add location"-Button to registration page' );
         ?></label><br><br>
                 </td>
               </tr>
@@ -1852,7 +1835,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               <tr valign="top" class="oum-gopro-tr">
                 <th scope="row">
                   <?php 
-        echo __( 'Extend WordPress user registration form with „Add location“ map', 'open-user-map' );
+        echo __( 'Extend WordPress user registration form with "Add location" map', 'open-user-map' );
         ?>
                   <br><span class="oum-pro">PRO</span><br>
                   <a class="oum-gopro-text" href="<?php 
@@ -2057,12 +2040,13 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                     <div class="description">
                       <strong>This is important to make the import work:</strong><br>
                       <ul>
+                        <li>Be patient, this can take a while.</li>
                         <li>Be aware that every location with matching POST ID will be overwritten. <span style="color: red">Consider creating a DB Backup before!</span></li>
                         <li>To import new locations leave values in the post_id column empty</li>
                         <li>Download an Export file first and use it as template for your import</li>
                         <li>Comma or Semicolon work as delimiter</li>
                         <li>Non-existing Marker Categories will be created automatically</li>
-                        <li>Multiselect values need to be written like so: [Red|Green|Blue]</li>
+                        <li>Multiselect values need to be written like so: Red|Green|Blue</li>
                         <li>All imported locations will have status "Draft". You need to publish them yourself.</li>
                       </ul>
                     </div>
@@ -2103,7 +2087,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               </th>
               <td class="top-padding-20">
                 <?php 
-    echo __( 'Use the “Open User Map” block to integrate the map inside your page. <br>You can set custom map position and filter for categories and locations inside the block settings.', 'open-user-map' );
+    echo __( 'Use the "Open User Map" block to integrate the map inside your page. <br>You can set custom map position and filter for categories and locations inside the block settings.', 'open-user-map' );
     ?>
               </td>
             </tr>
@@ -2116,7 +2100,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               </th>
               <td class="top-padding-20">
                 <?php 
-    echo __( 'Use the Elementor Widget “Open User Map” to integrate the map inside your page. <br>You can set custom map position and filter for categories and locations inside the widget settings.', 'open-user-map' );
+    echo __( 'Use the Elementor Widget "Open User Map" to integrate the map inside your page. <br>You can set custom map position and filter for categories and locations inside the widget settings.', 'open-user-map' );
     ?>
               </td>
             </tr>

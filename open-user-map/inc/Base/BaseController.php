@@ -34,8 +34,6 @@ class BaseController {
 
     public $oum_searchaddress_label_default;
 
-    public $oum_addanother_label_default;
-
     public $oum_user_notification_label_default;
 
     public $map_styles = array(
@@ -143,7 +141,6 @@ class BaseController {
         $this->oum_searchaddress_label_default = __( 'Search for address', 'open-user-map' );
         $this->oum_searchmarkers_label_default = __( 'Find marker', 'open-user-map' );
         $this->oum_searchmarkers_zoom_default = 8;
-        $this->oum_addanother_label_default = __( 'Add another location', 'open-user-map' );
         $this->oum_user_notification_label_default = __( 'Notify me when it is published', 'open-user-map' );
         add_action( 'init', array($this, 'oum_init') );
     }
@@ -194,116 +191,126 @@ class BaseController {
             array(),
             $this->plugin_version
         );
-        //https://unpkg.com/leaflet-geosearch@3.9.0/
         wp_enqueue_style(
             'oum_leaflet_fullscreen_css',
             $this->plugin_url . 'src/leaflet/control.fullscreen.css',
             array(),
             $this->plugin_version
         );
-        //https://github.com/brunob/leaflet.fullscreen
         wp_enqueue_style(
             'oum_leaflet_locate_css',
             $this->plugin_url . 'src/leaflet/leaflet-locate.min.css',
             array(),
             $this->plugin_version
         );
-        //https://github.com/domoritz/leaflet-locatecontrol
         wp_enqueue_style(
             'oum_leaflet_search_css',
             $this->plugin_url . 'src/leaflet/leaflet-search.css',
             array(),
             $this->plugin_version
         );
-        //https://github.com/stefanocudini/leaflet-search
         wp_enqueue_style(
             'oum_leaflet_responsivepopup_css',
             $this->plugin_url . 'src/leaflet/leaflet-responsive-popup.css',
             array(),
             $this->plugin_version
         );
-        //https://github.com/yafred/leaflet-responsive-popup
+        // Add map loader script first (before any other scripts)
+        wp_enqueue_script(
+            'oum_map_loader_js',
+            $this->plugin_url . 'src/js/frontend-map-loader.js',
+            array(),
+            $this->plugin_version,
+            true
+        );
         // enqueue Leaflet javascripts
         wp_enqueue_script(
             'oum_leaflet_polyfill_unfetch_js',
             $this->plugin_url . 'src/js/polyfills/unfetch.js',
             array(),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
         wp_enqueue_script(
             'oum_leaflet_js',
             $this->plugin_url . 'src/leaflet/leaflet.js',
             array('oum_leaflet_polyfill_unfetch_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
         wp_enqueue_script(
             'oum_leaflet_providers_js',
             $this->plugin_url . 'src/leaflet/leaflet-providers.js',
             array('oum_leaflet_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
         wp_enqueue_script(
             'oum_leaflet_markercluster_js',
             $this->plugin_url . 'src/leaflet/leaflet-markercluster.js',
             array('oum_leaflet_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
         wp_enqueue_script(
             'oum_leaflet_subgroups_js',
             $this->plugin_url . 'src/leaflet/leaflet.featuregroup.subgroup.js',
             array('oum_leaflet_js', 'oum_leaflet_markercluster_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
-        //https://github.com/ghybs/Leaflet.FeatureGroup.SubGroup
         wp_enqueue_script(
             'oum_leaflet_geosearch_js',
             $this->plugin_url . 'src/leaflet/geosearch.js',
             array('oum_leaflet_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
-        //https://unpkg.com/leaflet-geosearch@3.9.0/dist/bundle.min.js
         wp_enqueue_script(
             'oum_leaflet_locate_js',
             $this->plugin_url . 'src/leaflet/leaflet-locate.min.js',
             array('oum_leaflet_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
-        //https://github.com/domoritz/leaflet-locatecontrol
         wp_enqueue_script(
             'oum_leaflet_fullscreen_js',
             $this->plugin_url . 'src/leaflet/control.fullscreen.js',
             array('oum_leaflet_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
         wp_enqueue_script(
             'oum_leaflet_search_js',
             $this->plugin_url . 'src/leaflet/leaflet-search.js',
             array('oum_leaflet_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
-        //https://github.com/stefanocudini/leaflet-search
         wp_enqueue_script(
             'oum_leaflet_gesture_js',
             $this->plugin_url . 'src/leaflet/leaflet-gesture-handling.min.js',
             array('oum_leaflet_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
         wp_enqueue_script(
             'oum_leaflet_responsivepopup_js',
             $this->plugin_url . 'src/leaflet/leaflet-responsive-popup.js',
             array('oum_leaflet_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
-        //https://github.com/yafred/leaflet-responsive-popup
-        // enqueue WordPress i18n (for translations inside JS)
-        wp_enqueue_script( 'wp-i18n' );
         // Capture the fully extended L object after all Leaflet add-ons are loaded
         wp_enqueue_script(
             'oum_global_leaflet_js',
             $this->plugin_url . 'src/leaflet/oum-global-leaflet.js',
             array('oum_leaflet_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
+        // enqueue WordPress i18n (for translations inside JS)
+        wp_enqueue_script( 'wp-i18n' );
     }
 
     /**
@@ -342,7 +349,8 @@ class BaseController {
                 'wp-i18n',
                 'oum_global_leaflet_js'
             ),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
         // add custom js to frontend-block-map.js
         wp_localize_script( 'oum_frontend_block_map_js', 'custom_js', array(
@@ -352,11 +360,20 @@ class BaseController {
             'oum_frontend_ajax_js',
             $this->plugin_url . 'src/js/frontend-ajax.js',
             array('jquery', 'oum_frontend_block_map_js'),
-            $this->plugin_version
+            $this->plugin_version,
+            true
         );
         wp_localize_script( 'oum_frontend_ajax_js', 'oum_ajax', array(
             'ajaxurl' => admin_url( 'admin-ajax.php' ),
         ) );
+        // Enqueue carousel script
+        wp_enqueue_script(
+            'oum_frontend_carousel_js',
+            $this->plugin_url . 'src/js/frontend-carousel.js',
+            array(),
+            $this->plugin_version,
+            true
+        );
         ob_start();
         require oum_get_template( 'block-map.php' );
         return ob_get_clean();
@@ -440,33 +457,6 @@ class BaseController {
             if ( !$data['oum_location_lat'] || !$data['oum_location_lng'] ) {
                 $error->add( '002', 'Missing or incorrect location. Click on the map to set a marker.' );
             }
-            if ( isset( $_FILES['oum_location_image']['name'] ) && $_FILES['oum_location_image']['name'] != '' ) {
-                $valid_extensions = array('jpeg', 'jpg', 'png');
-                // valid extensions
-                $img = sanitize_file_name( $_FILES['oum_location_image']['name'] );
-                $tmp = sanitize_text_field( $_FILES['oum_location_image']['tmp_name'] );
-                // get uploaded file's extension
-                $ext = strtolower( pathinfo( $img, PATHINFO_EXTENSION ) );
-                //error_log(print_r($_FILES, true));
-                // check internal upload handling
-                if ( $tmp == '' ) {
-                    $error->add( '003', 'Something went wrong with file upload. Use a valid image file.' );
-                }
-                // check's valid format
-                if ( in_array( $ext, $valid_extensions ) ) {
-                    $data['oum_location_image_src'] = $tmp;
-                    $data['oum_location_image_ext'] = $ext;
-                } else {
-                    $error->add( '004', 'Invalid Image file extension. Please use .jpg, .jpeg or .png.' );
-                }
-                // check maximum filesize
-                // default 10MB
-                $oum_max_image_filesize = ( get_option( 'oum_max_image_filesize' ) ? get_option( 'oum_max_image_filesize' ) : 10 );
-                $max_filesize = (int) $oum_max_image_filesize * 1048576;
-                if ( $_FILES['oum_location_image']['size'] > $max_filesize ) {
-                    $error->add( '005', 'The image file exceeds maximum size of ' . $oum_max_image_filesize . 'MB.' );
-                }
-            }
             if ( isset( $_FILES['oum_location_audio']['name'] ) && $_FILES['oum_location_audio']['name'] != '' ) {
                 $valid_extensions = array(
                     'mp3',
@@ -531,8 +521,77 @@ class BaseController {
                         'ID' => $data['oum_post_id'],
                     ] ) ) : wp_insert_post( $new_post ) );
                     if ( $post_id ) {
+                        // Handle multiple images
+                        $final_image_urls = array();
+                        $image_order = ( isset( $_POST['image_order'] ) ? json_decode( stripslashes( $_POST['image_order'] ), true ) : array() );
+                        $new_image_mapping = array();
+                        // Store mapping of original filename to new URL
+                        // First, handle new uploaded images to create the mapping
+                        if ( isset( $_FILES['oum_location_images'] ) ) {
+                            $valid_extensions = array(
+                                'jpeg',
+                                'jpg',
+                                'png',
+                                'webp'
+                            );
+                            $oum_max_image_filesize = ( get_option( 'oum_max_image_filesize' ) ? get_option( 'oum_max_image_filesize' ) : 10 );
+                            $max_filesize = (int) $oum_max_image_filesize * 1048576;
+                            if ( is_array( $_FILES['oum_location_images']['name'] ) ) {
+                                foreach ( $_FILES['oum_location_images']['name'] as $key => $name ) {
+                                    if ( empty( $name ) ) {
+                                        continue;
+                                    }
+                                    $tmp = $_FILES['oum_location_images']['tmp_name'][$key];
+                                    $ext = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
+                                    $size = $_FILES['oum_location_images']['size'][$key];
+                                    // Validate file
+                                    if ( $tmp == '' || !is_uploaded_file( $tmp ) ) {
+                                        error_log( "File {$key}: Invalid upload" );
+                                        continue;
+                                    }
+                                    if ( !in_array( $ext, $valid_extensions ) ) {
+                                        error_log( "File {$key}: Invalid extension" );
+                                        continue;
+                                    }
+                                    if ( $size > $max_filesize ) {
+                                        error_log( "File {$key}: File too large" );
+                                        $error->add( '005', sprintf( __( 'Image "%s" is too large. Maximum file size is %d MB.', 'open-user-map' ), $name, $oum_max_image_filesize ) );
+                                        continue;
+                                    }
+                                    // Process the upload
+                                    $uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'oum-useruploads/';
+                                    wp_mkdir_p( $uploads_dir );
+                                    $unique_filename = uniqid() . '.' . $ext;
+                                    $file_fullpath = $uploads_dir . $unique_filename;
+                                    if ( move_uploaded_file( $tmp, $file_fullpath ) ) {
+                                        // Store relative path in the mapping with original filename as key
+                                        $relative_url = '/wp-content/uploads/oum-useruploads/' . $unique_filename;
+                                        $new_image_mapping[$name] = $relative_url;
+                                    }
+                                }
+                            }
+                        }
+                        // Now build the final array based on image_order
+                        if ( !empty( $image_order ) ) {
+                            foreach ( $image_order as $item ) {
+                                list( $type, $identifier ) = explode( ':', $item );
+                                if ( $type === 'existing' ) {
+                                    // Convert absolute URL to relative if needed
+                                    $relative_url = str_replace( site_url(), '', $identifier );
+                                    $final_image_urls[] = $relative_url;
+                                } else {
+                                    // For new images, get URL from our mapping
+                                    if ( isset( $new_image_mapping[$identifier] ) ) {
+                                        $final_image_urls[] = $new_image_mapping[$identifier];
+                                    }
+                                }
+                            }
+                        }
+                        // Save the final list of images
+                        if ( !empty( $final_image_urls ) ) {
+                            update_post_meta( $post_id, '_oum_location_image', implode( '|', $final_image_urls ) );
+                        }
                         // update meta
-                        // Validation
                         $lat_validated = floatval( str_replace( ',', '.', $data['oum_location_lat'] ) );
                         if ( !$lat_validated ) {
                             $lat_validated = '';
@@ -561,45 +620,6 @@ class BaseController {
                         // remove the existing image
                         if ( isset( $_POST['oum_remove_existing_image'] ) && $_POST['oum_remove_existing_image'] == '1' ) {
                             delete_post_meta( $post_id, '_oum_location_image' );
-                            delete_post_meta( $post_id, '_oum_location_image_thumb' );
-                        }
-                        if ( isset( $data['oum_location_image_src'] ) && isset( $data['oum_location_image_ext'] ) ) {
-                            //set uploads dir
-                            $uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'oum-useruploads/';
-                            wp_mkdir_p( $uploads_dir );
-                            $file_name = $post_id . '.' . $data['oum_location_image_ext'];
-                            $file_fullpath = $uploads_dir . $file_name;
-                            // save file to wp-content/uploads/oum-useruploads/
-                            if ( move_uploaded_file( $data['oum_location_image_src'], $file_fullpath ) ) {
-                                $oum_location_image_url = wp_upload_dir()['baseurl'] . '/oum-useruploads/' . $file_name;
-                                $data_image = esc_url_raw( $oum_location_image_url );
-                                update_post_meta( $post_id, '_oum_location_image', $data_image );
-                                // create thumbnail
-                                $oum_location_image_path = wp_upload_dir()['basedir'] . '/oum-useruploads/' . $file_name;
-                                switch ( $data['oum_location_image_ext'] ) {
-                                    case 'png':
-                                        $img_thumb = imagescale( imagecreatefrompng( $oum_location_image_path ), 500 );
-                                        $img_thumb = $this->correctImageOrientation( $oum_location_image_path, $img_thumb );
-                                        imagepng( $img_thumb, $uploads_dir . $post_id . '_thumb.' . $data['oum_location_image_ext'] );
-                                        break;
-                                    case 'jpg':
-                                    case 'jpeg':
-                                        $img_thumb = imagescale( imagecreatefromjpeg( $oum_location_image_path ), 500 );
-                                        $img_thumb = $this->correctImageOrientation( $oum_location_image_path, $img_thumb );
-                                        imagejpeg( $img_thumb, $uploads_dir . $post_id . '_thumb.' . $data['oum_location_image_ext'] );
-                                        break;
-                                    case 'gif':
-                                        $img_thumb = imagescale( imagecreatefromgif( $oum_location_image_path ), 500 );
-                                        $img_thumb = $this->correctImageOrientation( $oum_location_image_path, $img_thumb );
-                                        imagegif( $img_thumb, $uploads_dir . $post_id . '_thumb.' . $data['oum_location_image_ext'] );
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                $oum_location_image_thumb_url = wp_upload_dir()['baseurl'] . '/oum-useruploads/' . $post_id . '_thumb.' . $data['oum_location_image_ext'];
-                                $data_image_thumb = esc_url_raw( $oum_location_image_thumb_url );
-                                update_post_meta( $post_id, '_oum_location_image_thumb', $data_image_thumb );
-                            }
                         }
                         // AUDIO
                         // remove the existing audio

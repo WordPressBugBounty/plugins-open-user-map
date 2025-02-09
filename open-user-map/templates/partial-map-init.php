@@ -7,6 +7,7 @@ $oum_regions_layout_style = get_option( 'oum_regions_layout_style', 'layout-1' )
 $oum_enable_cluster = ( get_option( 'oum_enable_cluster', 'on' ) === 'on' ? 'true' : 'false' );
 $oum_enable_fullscreen = ( get_option( 'oum_enable_fullscreen', 'on' ) === 'on' ? 'true' : 'false' );
 $oum_enable_gmaps_link = get_option( 'oum_enable_gmaps_link', 'on' );
+$oum_max_image_filesize = ( !empty( get_option( 'oum_max_image_filesize' ) ) ? get_option( 'oum_max_image_filesize' ) : 10 );
 $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'Esri.WorldStreetMap' );
 $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
 $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );
@@ -34,9 +35,8 @@ $oum_map_label = ( get_option( 'oum_map_label' ) ? get_option( 'oum_map_label' )
 $oum_address_label = ( get_option( 'oum_address_label' ) ? get_option( 'oum_address_label' ) : $this->oum_address_label_default );
 $oum_description_label = ( get_option( 'oum_description_label' ) ? get_option( 'oum_description_label' ) : $this->oum_description_label_default );
 $oum_upload_media_label = ( get_option( 'oum_upload_media_label' ) ? get_option( 'oum_upload_media_label' ) : $this->oum_upload_media_label_default );
-$oum_addanother_label = ( get_option( 'oum_addanother_label' ) ? get_option( 'oum_addanother_label' ) : $this->oum_addanother_label_default );
 $oum_enable_fixed_map_bounds = get_option( 'oum_enable_fixed_map_bounds' );
-$oum_minimum_zoom_level = get_option( 'oum_minimum_zoom_level' );
+$oum_enable_multiple_marker_types = ( get_option( 'oum_enable_multiple_marker_types', false ) ? 'true' : 'false' );
 $oum_enable_searchbar = ( get_option( 'oum_enable_searchbar', 'on' ) === 'on' ? 'true' : 'false' );
 $oum_searchbar_type = ( get_option( 'oum_searchbar_type' ) ? get_option( 'oum_searchbar_type' ) : 'address' );
 $oum_enable_searchmarkers_button = ( get_option( 'oum_enable_searchmarkers_button', 'on' ) === 'on' ? 'true' : 'false' );
@@ -131,7 +131,6 @@ if ( is_wp_error( $types ) || empty( $types ) ) {
 $query = array(
     'post_type'        => 'oum-location',
     'posts_per_page'   => -1,
-    'fields'           => 'ids',
     'suppress_filters' => false,
 );
 // Custom Attribute: Filter for types
@@ -163,67 +162,83 @@ if ( isset( $regions ) && isset( $block_attributes['region'] ) && $block_attribu
         $oum_start_region = current( $regions_filtered );
     }
 }
-$locations = get_posts( $query );
+// Instead of get_posts(), use WP_Query to get all post data at once
+$locations_query = new WP_Query($query);
+$posts = $locations_query->posts;
+// Get all post meta in a single query
+$post_ids = wp_list_pluck( $posts, 'ID' );
+global $wpdb;
+$all_meta = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_key, meta_value \n    FROM {$wpdb->postmeta} \n    WHERE post_id IN (" . implode( ',', array_fill( 0, count( $post_ids ), '%d' ) ) . ")\n    AND meta_key IN ('_oum_location_key', '_oum_location_image', '_oum_location_audio')", $post_ids ) );
+// Index meta values by post_id and meta_key for faster lookup
+$indexed_meta = array();
+foreach ( $all_meta as $meta ) {
+    if ( !isset( $indexed_meta[$meta->post_id] ) ) {
+        $indexed_meta[$meta->post_id] = array();
+    }
+    $indexed_meta[$meta->post_id][$meta->meta_key] = $meta->meta_value;
+}
+// Move this outside the loop - get active custom fields once
+$active_custom_fields = get_option( 'oum_custom_fields' );
 $locations_list = array();
-foreach ( $locations as $post_id ) {
-    // Prepare data
-    $location_meta = get_post_meta( $post_id, '_oum_location_key', true );
-    $name = str_replace( "'", "\\'", strip_tags( get_the_title( $post_id ) ) );
+foreach ( $posts as $post ) {
+    $post_id = $post->ID;
+    // Get all meta values for this post from our indexed array
+    $location_meta = ( isset( $indexed_meta[$post_id]['_oum_location_key'] ) ? maybe_unserialize( $indexed_meta[$post_id]['_oum_location_key'] ) : array() );
+    if ( !isset( $location_meta['lat'] ) || !isset( $location_meta['lng'] ) ) {
+        continue;
+    }
+    $name = str_replace( "'", "\\'", strip_tags( $post->post_title ) );
     $address = ( isset( $location_meta['address'] ) ? str_replace( "'", "\\'", preg_replace( '/\\r|\\n/', '', $location_meta['address'] ) ) : '' );
     $text = ( isset( $location_meta["text"] ) ? str_replace( "'", "\\'", str_replace( array("\r\n", "\r", "\n"), "<br>", $location_meta["text"] ) ) : '' );
     $video = ( isset( $location_meta["video"] ) ? $location_meta["video"] : '' );
-    $image = get_post_meta( $post_id, '_oum_location_image', true );
+    $image = ( isset( $indexed_meta[$post_id]['_oum_location_image'] ) ? $indexed_meta[$post_id]['_oum_location_image'] : '' );
     $image_thumb = null;
-    if ( stristr( $image, 'oum-useruploads' ) ) {
-        //image uploaded from frontend
-        $image_thumb = get_post_meta( $post_id, '_oum_location_image_thumb', true );
-    } else {
-        //image uploaded from backend
-        $image_id = attachment_url_to_postid( $image );
-        if ( $image_id > 0 ) {
-            $image_thumb = wp_get_attachment_image_url( $image_id, 'medium' );
+    // Handle multiple images
+    $images = array();
+    if ( $image ) {
+        $image_urls = explode( '|', $image );
+        foreach ( $image_urls as $url ) {
+            if ( stristr( $url, 'oum-useruploads' ) ) {
+                // Handle user uploads - always use original image
+                $images[] = $url;
+            } else {
+                // Handle media library images
+                $image_id = attachment_url_to_postid( $url );
+                if ( $image_id > 0 ) {
+                    $thumb = wp_get_attachment_image_url( $image_id, 'medium' );
+                    $images[] = ( $thumb ? $thumb : $url );
+                } else {
+                    $images[] = $url;
+                }
+            }
         }
     }
-    if ( isset( $image_thumb ) && $image_thumb != '' ) {
-        //use thumbnail if available
-        $image = $image_thumb;
-    }
-    //make image url relative
+    // Make image URLs relative
     $site_url = 'http://';
     if ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] === 'on' ) {
         $site_url = 'https://';
     }
     $site_url .= $_SERVER['SERVER_NAME'];
-    $image = str_replace( $site_url, '', $image );
-    $audio = get_post_meta( $post_id, '_oum_location_audio', true );
-    // custom fields
+    $images = array_map( function ( $url ) use($site_url) {
+        return str_replace( $site_url, '', $url );
+    }, $images );
+    $audio = ( isset( $indexed_meta[$post_id]['_oum_location_audio'] ) ? $indexed_meta[$post_id]['_oum_location_audio'] : '' );
+    // Optimized custom fields processing
     $custom_fields = [];
     $meta_custom_fields = ( isset( $location_meta['custom_fields'] ) ? $location_meta['custom_fields'] : false );
-    $active_custom_fields = get_option( 'oum_custom_fields' );
     if ( is_array( $meta_custom_fields ) && is_array( $active_custom_fields ) ) {
-        foreach ( $active_custom_fields as $index => $active_custom_field ) {
-            //don't add if private
-            if ( isset( $active_custom_field['private'] ) ) {
-                continue;
-            }
-            if ( isset( $meta_custom_fields[$index] ) ) {
-                array_push( $custom_fields, array(
+        foreach ( $meta_custom_fields as $index => $field_value ) {
+            if ( isset( $active_custom_fields[$index] ) && !isset( $active_custom_fields[$index]['private'] ) ) {
+                $custom_fields[] = [
                     'index'                => $index,
-                    'label'                => $active_custom_field['label'],
-                    'val'                  => $meta_custom_fields[$index],
-                    'fieldtype'            => $active_custom_field['fieldtype'],
-                    'uselabelastextoption' => ( isset( $active_custom_field['uselabelastextoption'] ) ? $active_custom_field['uselabelastextoption'] : false ),
-                ) );
+                    'label'                => $active_custom_fields[$index]['label'],
+                    'val'                  => $field_value,
+                    'fieldtype'            => $active_custom_fields[$index]['fieldtype'],
+                    'uselabelastextoption' => ( isset( $active_custom_fields[$index]['uselabelastextoption'] ) ? $active_custom_fields[$index]['uselabelastextoption'] : false ),
+                ];
             }
         }
     }
-    if ( !isset( $location_meta['lat'] ) && !isset( $location_meta['lng'] ) ) {
-        continue;
-    }
-    $geolocation = array(
-        'lat' => $location_meta['lat'],
-        'lng' => $location_meta['lng'],
-    );
     if ( isset( $location_types ) && is_array( $location_types ) && count( $location_types ) == 1 && !get_option( 'oum_enable_multiple_marker_types' ) ) {
         $type = $location_types[0];
         if ( $type->term_id && get_term_meta( $type->term_id, 'oum_marker_icon', true ) ) {
@@ -257,10 +272,11 @@ foreach ( $locations as $post_id ) {
         'date'          => $date,
         'name'          => $name,
         'address'       => $address,
-        'lat'           => $geolocation['lat'],
-        'lng'           => $geolocation['lng'],
+        'lat'           => $location_meta['lat'],
+        'lng'           => $location_meta['lng'],
         'text'          => $text,
-        'image'         => $image,
+        'images'        => $images,
+        'image'         => ( !empty( $images ) ? $images[0] : '' ),
         'audio'         => $audio,
         'video'         => $video,
         'icon'          => $icon,
@@ -299,7 +315,7 @@ if ( isset( $block_attributes['lat'] ) && $block_attributes['lat'] != '' && isse
     $start_zoom = '8';
 } else {
     //default worldview
-    $start_lat = '0';
+    $start_lat = '28';
     $start_lng = '0';
     $start_zoom = '1';
 }

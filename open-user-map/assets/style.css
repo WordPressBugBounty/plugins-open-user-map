@@ -168,44 +168,107 @@
     padding: 0;
   }
 }
-.post-php.post-type-oum-location #oum_location_image_preview .remove-upload,
-.post-new-php.post-type-oum-location #oum_location_image_preview .remove-upload {
-  display: none;
-}
-.post-php.post-type-oum-location #oum_location_image_preview.has-image,
-.post-new-php.post-type-oum-location #oum_location_image_preview.has-image {
-  width: 400px;
-  max-width: 100%;
-  position: relative;
-}
-.post-php.post-type-oum-location #oum_location_image_preview.has-image img,
-.post-new-php.post-type-oum-location #oum_location_image_preview.has-image img {
-  position: relative;
+.post-php.post-type-oum-location #oum_location_image_preview .image-preview-grid,
+.post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin: 10px 0;
   width: 100%;
-  max-width: 100%;
+  min-height: 50px;
+  padding: 10px;
+  border: 2px dashed #ddd;
+  border-radius: 4px;
+  position: relative;
 }
-.post-php.post-type-oum-location #oum_location_image_preview.has-image .remove-upload,
-.post-new-php.post-type-oum-location #oum_location_image_preview.has-image .remove-upload {
-  position: absolute;
+.post-php.post-type-oum-location #oum_location_image_preview .image-preview-grid.dragover,
+.post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-grid.dragover {
+  background: #f5f5f5;
+  border-color: #999;
+}
+.post-php.post-type-oum-location #oum_location_image_preview .image-preview-grid:empty,
+.post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-grid:empty {
+  display: none;
+  margin: 0;
+}
+.post-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item,
+.post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: grab;
+  border: 2px solid #ddd;
+  background: #fff;
+  will-change: transform;
+  user-select: none;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+.post-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item.dragging,
+.post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item.dragging {
+  cursor: grabbing;
+  background: #fff;
+  border-color: #e02aaf;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  opacity: 0.9;
+  transform: scale(1.05) rotate(1deg);
+  z-index: 1000;
+}
+.post-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item img,
+.post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
-  z-index: 10;
-  top: 15px;
-  right: 15px;
-  cursor: pointer;
-  opacity: 0.8;
+  pointer-events: none;
+}
+.post-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item .remove-image,
+.post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item .remove-image {
+  position: absolute;
+  top: 5px;
+  right: 5px;
   width: 20px;
   height: 20px;
-  border-radius: 100px;
-  line-height: 18px;
-  text-align: center;
-  background: indianred;
-  color: #fff;
-  font-family: sans-serif;
-  font-size: 17px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  color: #666;
+  transition: all 0.2s ease;
+  z-index: 2;
 }
-.post-php.post-type-oum-location #oum_location_image_preview.has-image .remove-upload:hover,
-.post-new-php.post-type-oum-location #oum_location_image_preview.has-image .remove-upload:hover {
-  opacity: 1;
+.post-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item .remove-image:hover,
+.post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item .remove-image:hover {
+  background: #fff;
+  color: #000;
+}
+.post-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item .drag-handle,
+.post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item .drag-handle {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  font-size: 14px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+.post-php.post-type-oum-location #oum_location_image_preview .image-preview-placeholder,
+.post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-placeholder {
+  border: 2px dashed #e02aaf;
+  border-radius: 4px;
+  background: rgba(224, 42, 175, 0.05);
+  transition: all 0.15s ease-in-out;
 }
 .post-php.post-type-oum-location #oum_location_video_preview .remove-upload,
 .post-new-php.post-type-oum-location #oum_location_video_preview .remove-upload {
@@ -1533,6 +1596,41 @@
 .toplevel_page_open-user-map input.oum-switch[type=checkbox]:checked + label::after {
   margin: 0 0 0 20px;
 }
+.oum-location_page_open-user-map-settings .csv_upload,
+.toplevel_page_open-user-map .csv_upload {
+  position: relative;
+}
+.oum-location_page_open-user-map-settings .csv_upload .oum-import-loading,
+.toplevel_page_open-user-map .csv_upload .oum-import-loading {
+  display: none;
+  position: relative;
+  margin-left: 10px;
+  vertical-align: middle;
+  display: inline-block;
+}
+.oum-location_page_open-user-map-settings .csv_upload .oum-import-loading .oum-spinner,
+.toplevel_page_open-user-map .csv_upload .oum-import-loading .oum-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(34, 113, 177, 0.1);
+  border-top: 2px solid #2271b1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  vertical-align: middle;
+}
+.oum-location_page_open-user-map-settings .csv_upload .oum-import-loading .message,
+.toplevel_page_open-user-map .csv_upload .oum-import-loading .message {
+  display: none;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 .oum-location_page_open-user-map-settings .oum-pro,
 .toplevel_page_open-user-map .oum-pro {
   display: inline-block;
@@ -1618,4 +1716,64 @@
 .elementor-editor-active .elementor-widget-open_user_map_widget .elementor-widget-container .hint .components-button.is-primary,
 .elementor-editor-preview .elementor-widget-open_user_map_widget .elementor-widget-container .hint .components-button.is-primary {
   color: #fff;
+}
+
+.oum-image-upload-wrap {
+  margin-bottom: 20px;
+}
+.oum-image-upload-wrap .oum-image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+  min-height: 50px;
+  padding: 10px;
+  border: 2px dashed #ddd;
+  border-radius: 4px;
+}
+.oum-image-upload-wrap .oum-image-preview-grid.dragover {
+  background: #f5f5f5;
+  border-color: #999;
+}
+.oum-image-upload-wrap .oum-image-preview-grid .image-preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  background-size: cover;
+  background-position: center;
+  border-radius: 4px;
+  cursor: grab;
+}
+.oum-image-upload-wrap .oum-image-preview-grid .image-preview-item.dragging {
+  opacity: 0.5;
+}
+.oum-image-upload-wrap .oum-image-preview-grid .image-preview-item .remove-image {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  color: #666;
+}
+.oum-image-upload-wrap .oum-image-preview-grid .image-preview-item .remove-image:hover {
+  background: #fff;
+  color: #000;
+}
+.oum-image-upload-wrap input[type=file] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+.oum-image-upload-wrap .oum-image-upload-description {
+  font-size: 12px;
+  color: #666;
 }/*# sourceMappingURL=style.css.map */

@@ -36,7 +36,6 @@
       var start_lng = `<?php echo esc_attr($start_lng); ?>`;
       var start_zoom = `<?php echo esc_attr($start_zoom); ?>`;
       var oum_enable_fixed_map_bounds = `<?php echo $oum_enable_fixed_map_bounds; ?>`;
-      var oum_minimum_zoom_level = `<?php echo $oum_minimum_zoom_level; ?>`;
     </script>
   </div>
 </div>

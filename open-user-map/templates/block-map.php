@@ -24,8 +24,7 @@
     $map_style,
     $text_notify_me_on_publish_name, 
     $text_notify_me_on_publish_email, 
-    $thankyou_headline, 
-    $oum_addanother_label) { 
+    $thankyou_headline) { 
 
     require_once oum_get_template('partial-map-add-location.php');
 

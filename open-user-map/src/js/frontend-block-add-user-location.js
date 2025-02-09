@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function(e) {
     const map = L.map('mapGetLocation', {
       attributionControl: true,
       gestureHandling: true,
-      minZoom: (oum_minimum_zoom_level) ? oum_minimum_zoom_level : '',
     });
 
     map.attributionControl.setPrefix(false);
@@ -185,8 +184,8 @@ document.addEventListener('DOMContentLoaded', function(e) {
       function setLocationLatLng(markerLatLng) {
           console.log(markerLatLng);
     
-          jQuery('#oum_location_lat').val(markerLatLng.lat);
-          jQuery('#oum_location_lng').val(markerLatLng.lng);
+          document.getElementById('oum_location_lat').value = markerLatLng.lat;
+          document.getElementById('oum_location_lng').value = markerLatLng.lng;
       }  
     
     })();

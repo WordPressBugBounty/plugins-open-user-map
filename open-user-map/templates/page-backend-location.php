@@ -162,11 +162,10 @@ echo __( 'Upload Image', 'open-user-map' );
 echo esc_attr( $image );
 ?>"></input>
                 <br><br>
-                <div id="oum_location_image_preview" class="<?php 
-echo $has_image;
-?>"><?php 
-echo $image_tag;
-?><div onclick="oumRemoveImageUpload()" class="remove-upload">&times;</div></div>
+                <div id="oum_location_image_preview"></div>
+                <p class="description"><?php 
+echo __( 'Maximum 5 images. Images will be shown in a gallery.', 'open-user-map' );
+?></p>
             </td>
         </tr>
 
