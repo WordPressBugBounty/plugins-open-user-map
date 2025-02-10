@@ -1899,7 +1899,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         ?>"></textarea><br><br>
                   <span class="description"><?php 
         echo __( 'Available tags' );
-        ?>: %title%, %website_url%, %website_name%, %edit_location_url%</span>
+        ?>: %title%, %website_url%, %website_name%, %edit_location_url%, %user_name%, %user_email%</span>
                   <br><br>
                 </td>
               </tr>

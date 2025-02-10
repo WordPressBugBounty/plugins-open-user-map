@@ -1982,6 +1982,7 @@ const OUMMedia = (function () {
       "oum_location_images_preview"
     );
     const maxFiles = parseInt(imageInput.dataset.maxFiles) || 5;
+    const maxFileSize = OUMConfig.defaults.media.maxImageSize; // in bytes
     
     // Convert FileList to Array and store in a variable
     const files = Array.prototype.slice.call(e.target.files);
@@ -1990,21 +1991,49 @@ const OUMMedia = (function () {
     
     if (totalFiles > maxFiles) {
       alert(
-        `Maximum ${maxFiles} images allowed. Only the first ${
+        wp.i18n.sprintf(
+          /* translators: %1$d: maximum number of files, %2$d: number of files that will be used */
+          wp.i18n.__('Maximum %1$d images allowed. Only the first %2$d new images will be used.', 'open-user-map'),
+          maxFiles,
           maxFiles - existingCount
-        } new images will be used.`
+        )
       );
     }
     
     // Process only up to remaining slots
     const remainingSlots = maxFiles - existingCount;
-    const filesToAdd = files.slice(0, remainingSlots);
+    const filesToProcess = files.slice(0, remainingSlots);
     
-    // Create a new array with both existing and new files
-    selectedFiles = [...selectedFiles, ...filesToAdd];
+    // Validate file sizes and collect valid files
+    const validFiles = [];
+    const invalidFiles = [];
     
-    // Create previews for new files
-    createImagePreviews(filesToAdd, previewContainer);
+    filesToProcess.forEach(file => {
+      if (file.size > maxFileSize) {
+        invalidFiles.push(file.name);
+      } else {
+        validFiles.push(file);
+      }
+    });
+    
+    // Show error message for invalid files
+    if (invalidFiles.length > 0) {
+      const maxSizeMB = Math.round(maxFileSize / (1024 * 1024));
+      alert(
+        wp.i18n.sprintf(
+          /* translators: %1$d: maximum file size in MB, %2$s: list of files */
+          wp.i18n.__('The following images exceed the maximum file size of %1$dMB:\n%2$s', 'open-user-map'),
+          maxSizeMB,
+          invalidFiles.join('\n')
+        )
+      );
+    }
+    
+    // Update selected files with only valid ones
+    selectedFiles = [...selectedFiles, ...validFiles];
+    
+    // Create previews for valid files only
+    createImagePreviews(validFiles, previewContainer);
 
     // Make selectedFiles available globally for the form submission
     window.oumSelectedFiles = selectedFiles;

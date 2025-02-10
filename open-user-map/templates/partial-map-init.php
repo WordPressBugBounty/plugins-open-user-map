@@ -150,7 +150,7 @@ if ( isset( $block_attributes['types'] ) && $block_attributes['types'] != '' ) {
 // Custom Attribute: Filter for ids
 if ( isset( $block_attributes['ids'] ) && $block_attributes['ids'] != '' ) {
     $selected_ids = explode( '|', $block_attributes['ids'] );
-    $query['include'] = $selected_ids;
+    $query['post__in'] = $selected_ids;
 }
 // Custom Attribute: Pre-select region
 if ( isset( $regions ) && isset( $block_attributes['region'] ) && $block_attributes['region'] != '' ) {
@@ -227,16 +227,23 @@ foreach ( $posts as $post ) {
     $custom_fields = [];
     $meta_custom_fields = ( isset( $location_meta['custom_fields'] ) ? $location_meta['custom_fields'] : false );
     if ( is_array( $meta_custom_fields ) && is_array( $active_custom_fields ) ) {
-        foreach ( $meta_custom_fields as $index => $field_value ) {
-            if ( isset( $active_custom_fields[$index] ) && !isset( $active_custom_fields[$index]['private'] ) ) {
-                $custom_fields[] = [
-                    'index'                => $index,
-                    'label'                => $active_custom_fields[$index]['label'],
-                    'val'                  => $field_value,
-                    'fieldtype'            => $active_custom_fields[$index]['fieldtype'],
-                    'uselabelastextoption' => ( isset( $active_custom_fields[$index]['uselabelastextoption'] ) ? $active_custom_fields[$index]['uselabelastextoption'] : false ),
-                ];
+        // Iterate over active_custom_fields to maintain order
+        foreach ( $active_custom_fields as $index => $custom_field ) {
+            // Skip if field is marked as private
+            if ( isset( $custom_field['private'] ) ) {
+                continue;
             }
+            // Skip if no value exists for this field
+            if ( !isset( $meta_custom_fields[$index] ) ) {
+                continue;
+            }
+            $custom_fields[] = [
+                'index'                => $index,
+                'label'                => $custom_field['label'],
+                'val'                  => $meta_custom_fields[$index],
+                'fieldtype'            => ( isset( $custom_field['fieldtype'] ) ? $custom_field['fieldtype'] : 'text' ),
+                'uselabelastextoption' => ( isset( $custom_field['uselabelastextoption'] ) ? $custom_field['uselabelastextoption'] : false ),
+            ];
         }
     }
     if ( isset( $location_types ) && is_array( $location_types ) && count( $location_types ) == 1 && !get_option( 'oum_enable_multiple_marker_types' ) ) {

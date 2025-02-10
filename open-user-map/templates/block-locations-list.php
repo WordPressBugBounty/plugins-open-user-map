@@ -24,7 +24,7 @@ if ( isset( $block_attributes['types'] ) && $block_attributes['types'] != '' ) {
 // Custom Attribute: Filter for ids
 if ( isset( $block_attributes['ids'] ) && $block_attributes['ids'] != '' ) {
     $selected_ids = explode( '|', $block_attributes['ids'] );
-    $query['include'] = $selected_ids;
+    $query['post__in'] = $selected_ids;
 }
 // Init WP_Query
 $locations_query = new WP_Query($query);
