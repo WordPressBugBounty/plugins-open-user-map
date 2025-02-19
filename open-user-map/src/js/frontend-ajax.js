@@ -8,29 +8,33 @@ document.addEventListener('DOMContentLoaded', function(e) {
 
     // Get all images (both existing and new) in their current order
     const previewContainer = document.getElementById('oum_location_images_preview');
-    const previewItems = previewContainer.querySelectorAll('.image-preview-item');
-    const imageOrder = [];
+    let imageOrder = [];
 
-    // Add existing and new images to formData in their current order
-    previewItems.forEach((item, index) => {
-      if (item.classList.contains('existing-image')) {
-        // For existing images, get the URL from the hidden input
-        const imgUrl = item.querySelector('[name="existing_images[]"]').value;
-        formData.append('existing_images[]', imgUrl);
-        imageOrder.push('existing:' + imgUrl);
-      } else {
-        // For new images, get the file from selectedFiles using the filename
-        const fileName = item.dataset.fileName;
-        const file = window.oumSelectedFiles.find(f => f.name === fileName);
-        if (file) {
-          formData.append('oum_location_images[]', file);
-          imageOrder.push('new:' + fileName);
+    // Only process images if the preview container exists
+    if (previewContainer) {
+      const previewItems = previewContainer.querySelectorAll('.image-preview-item');
+
+      // Add existing and new images to formData in their current order
+      previewItems.forEach((item, index) => {
+        if (item.classList.contains('existing-image')) {
+          // For existing images, get the URL from the hidden input
+          const imgUrl = item.querySelector('[name="existing_images[]"]').value;
+          formData.append('existing_images[]', imgUrl);
+          imageOrder.push('existing:' + imgUrl);
+        } else {
+          // For new images, get the file from selectedFiles using the filename
+          const fileName = item.dataset.fileName;
+          const file = window.oumSelectedFiles.find(f => f.name === fileName);
+          if (file) {
+            formData.append('oum_location_images[]', file);
+            imageOrder.push('new:' + fileName);
+          }
         }
-      }
-    });
+      });
 
-    // Add the complete image order
-    formData.append('image_order', JSON.stringify(imageOrder));
+      // Add the complete image order
+      formData.append('image_order', JSON.stringify(imageOrder));
+    }
 
     formData.append('action', 'oum_add_location_from_frontend');
 

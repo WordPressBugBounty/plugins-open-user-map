@@ -460,6 +460,10 @@ class LocationController extends BaseController {
      */
     public function get_location_value( $attr, $post_id, $raw = false ) {
         $location = get_post_meta( $post_id, '_oum_location_key', true );
+        // Early return if no valid location data
+        if ( !is_array( $location ) ) {
+            return '';
+        }
         $custom_field_ids = get_option( 'oum_custom_fields', array() );
         // get all available custom fields
         $types = get_terms( array(

@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, mapbox, regions
 Requires at least: 5.5
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -227,6 +227,12 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.2 =
+* Bugfix: "Add Location" without image upload field failed
+* Bugfix: "Upload Media" label was missing
+* Bugfix: "use label as link text" did not work in list view
+* Prevent inline JS from being processed by Caching and Pagespeed plugins
+
 = 1.4.1 =
 * Bugfix: Filter by Post IDs
 * Bugfix: Custom Field order not correct (Frontend)

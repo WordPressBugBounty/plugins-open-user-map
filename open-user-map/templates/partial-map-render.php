@@ -320,7 +320,16 @@ if ( $types ) {
     <?php 
 ?>
 
-    <script type="text/javascript" data-category="functional" class="cmplz-native" id="oum-inline-js">
+    <script type="text/javascript" id="oum-inline-js" 
+      data-category="functional" 
+      class="cmplz-native" 
+      data-minify="0"
+      data-no-optimize="1"
+      data-no-defer="1"
+      data-no-combine="1"
+      data-cfasync="false"
+      data-pagespeed-no-defer
+      data-boot="1">
       var map_el = `map-<?php 
 echo $unique_id;
 ?>`;

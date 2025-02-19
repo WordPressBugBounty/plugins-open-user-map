@@ -308,21 +308,28 @@ if ( get_option( 'oum_enable_description', 'on' ) === 'on' ) {
 }
 ?>
         
-        <div class="oum_media">
-          <?php 
-if ( get_option( 'oum_enable_image', 'on' ) === 'on' ) {
+        <?php 
+if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_audio', 'on' ) === 'on' || oum_fs()->is__premium_only() && oum_fs()->can_use_premium_code() && get_option( 'oum_enable_video' ) === 'on' ) {
     ?>
+          <label class="oum-label"><?php 
+    echo $oum_upload_media_label;
+    ?></label>
+          <div class="oum_media">
+
+          <?php 
+    if ( get_option( 'oum_enable_image', 'on' ) === 'on' ) {
+        ?>
             <div class="media-upload oum-image-upload">
               <div class="media-upload-top">
                 <label for="oum_location_images" title="<?php 
-    echo __( 'Upload Images', 'open-user-map' );
-    ?>">
+        echo __( 'Upload Images', 'open-user-map' );
+        ?>">
                   <span class="dashicons dashicons-format-image"></span>
                   <span class="multi-upload-indicator">+</span>
                 </label>
                 <p class="oum-image-upload-description"><?php 
-    echo __( 'Add up to 5 images to create a gallery for this location.', 'open-user-map' );
-    ?></p>
+        echo __( 'Add up to 5 images to create a gallery for this location.', 'open-user-map' );
+        ?></p>
               </div>
               <input type="file" 
                 id="oum_location_images" 
@@ -330,10 +337,10 @@ if ( get_option( 'oum_enable_image', 'on' ) === 'on' ) {
                 accept="image/*" 
                 multiple 
                 <?php 
-    if ( get_option( 'oum_image_required' ) ) {
-        ?>required<?php 
-    }
-    ?> 
+        if ( get_option( 'oum_image_required' ) ) {
+            ?>required<?php 
+        }
+        ?> 
                 data-max-files="5"
               />
               <div class="preview">
@@ -345,19 +352,19 @@ if ( get_option( 'oum_enable_image', 'on' ) === 'on' ) {
 
             <div class="oum-image-preview-grid" id="oum_location_images_preview"></div>
           <?php 
-}
-?>
-
-          <?php 
-?>
-
-          <?php 
-if ( get_option( 'oum_enable_audio', 'on' ) === 'on' ) {
+    }
     ?>
+
+          <?php 
+    ?>
+
+          <?php 
+    if ( get_option( 'oum_enable_audio', 'on' ) === 'on' ) {
+        ?>
             <div class="media-upload oum-audio-upload">
               <label style="color: #e02aaf" for="oum_location_audio" title="<?php 
-    echo __( 'Upload Audio', 'open-user-map' );
-    ?>">
+        echo __( 'Upload Audio', 'open-user-map' );
+        ?>">
                 <span class="dashicons dashicons-format-audio"></span>
               </label>
               <input type="file" 
@@ -373,9 +380,12 @@ if ( get_option( 'oum_enable_audio', 'on' ) === 'on' ) {
               <input type="hidden" id="oum_remove_existing_audio" name="oum_remove_existing_audio" value="1" />
             </div>
           <?php 
+    }
+    ?>
+          </div>
+        <?php 
 }
 ?>
-        </div>
 
         <?php 
 ?>

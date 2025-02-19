@@ -75,9 +75,10 @@ if ( $locations_query->have_posts() ) {
                 }
                 if ( isset( $meta_custom_fields[$index] ) ) {
                     array_push( $custom_fields, array(
-                        'label'     => $active_custom_field['label'],
-                        'val'       => $meta_custom_fields[$index],
-                        'fieldtype' => $active_custom_field['fieldtype'],
+                        'label'                => $active_custom_field['label'],
+                        'val'                  => $meta_custom_fields[$index],
+                        'fieldtype'            => $active_custom_field['fieldtype'],
+                        'uselabelastextoption' => ( isset( $active_custom_field['uselabelastextoption'] ) ? $active_custom_field['uselabelastextoption'] : false ),
                     ) );
                 }
             }
@@ -223,7 +224,13 @@ foreach ( $locations_list as $location ) {
                     //single entry
                     if ( wp_http_validate_url( $custom_field['val'] ) ) {
                         //URL
-                        $custom_fields .= '<div class="oum_custom_field"><strong>' . $custom_field['label'] . ':</strong> <a target="_blank" href="' . $custom_field['val'] . '">' . $custom_field['val'] . '</a></div>';
+                        if ( isset( $custom_field['uselabelastextoption'] ) && $custom_field['uselabelastextoption'] ) {
+                            // Use label as link text
+                            $custom_fields .= '<div class="oum_custom_field"><a target="_blank" href="' . $custom_field['val'] . '">' . $custom_field['label'] . '</a></div>';
+                        } else {
+                            // Show label and use URL as link text
+                            $custom_fields .= '<div class="oum_custom_field"><strong>' . $custom_field['label'] . ':</strong> <a target="_blank" href="' . $custom_field['val'] . '">' . $custom_field['val'] . '</a></div>';
+                        }
                     } elseif ( is_email( $custom_field['val'] ) && $custom_field['fieldtype'] == 'email' ) {
                         //Email
                         $custom_fields .= '<div class="oum_custom_field"><strong>' . $custom_field['label'] . ':</strong> <a target="_blank" href="mailto:' . $custom_field['val'] . '">' . $custom_field['val'] . '</a></div>';
