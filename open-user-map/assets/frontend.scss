@@ -12,6 +12,7 @@ $search_input_width: 300px;
   width: 100%;
   overflow: hidden;
   aspect-ratio: 4/3;
+  pointer-events: none;
 
   &:hover {
     .oum-carousel-prev,
@@ -72,6 +73,7 @@ $search_input_width: 300px;
     z-index: 1;
     font-size: 0;
     text-indent: -9999px;
+    pointer-events: auto;
 
     // Always show controls on mobile
     @media (max-width: 768px) {
@@ -747,16 +749,24 @@ $search_input_width: 300px;
               }
 
               button.reset {
-                background-color: #fff;
+                background-color: #ddd;
                 color: black;
                 margin: 0;
-                padding: 0 8px;
+                padding: 0;
                 border: none;
                 box-shadow: none;
                 margin: 0;
                 outline: none;
-                font-size: 14px;
+                font-size: 18px;
+                line-height: 1;
+                width: 20px;
+                height: 20px;
+                text-align: center;
+                border-radius: 99px;
+                font-family: monospace;
+                top: 5px;
                 opacity: 0.5;
+                text-align: center;
 
                 &:hover {
                   opacity: 1;
@@ -765,6 +775,10 @@ $search_input_width: 300px;
 
               .results {
                 color: #333;
+
+                > * {
+                  font-size: 12px;
+                }
               }
     
               .results.active {
@@ -805,6 +819,18 @@ $search_input_width: 300px;
 
               .results {
                 color: #333;
+
+                > * {
+                  font-size: 12px;
+                }
+              }
+    
+              .results.active {
+                color: #333;
+                
+                &::after {
+                  display: none;
+                }
               }
   
               input[type=text] {
@@ -825,17 +851,25 @@ $search_input_width: 300px;
               }
     
               button.reset {
-                right: 25px;
-                background-color: #fff;
+                right: 30px;
+                background-color: #ddd;
                 color: black;
                 margin: 0;
-                padding: 0 8px;
+                padding: 0;
                 border: none;
                 box-shadow: none;
                 margin: 0;
                 outline: none;
-                font-size: 14px;
+                font-size: 18px;
+                line-height: 1;
+                width: 20px;
+                height: 20px;
+                text-align: center;
+                border-radius: 99px;
+                font-family: monospace;
+                top: 5px;
                 opacity: 0.5;
+                text-align: center;
 
                 &:hover {
                   opacity: 1;
@@ -973,7 +1007,7 @@ $search_input_width: 300px;
       #oum_filter_markers {
         width: $search_input_width;
         max-width: calc(100% - 120px);
-        height: auto;
+        height: 34px;
         z-index: 400;
         position: absolute !important;
         top: 8px;
@@ -981,7 +1015,8 @@ $search_input_width: 300px;
         transform: translateX(-50%);
         border: 2px solid rgba(0, 0, 0, 0.2);
         border-radius: 4px;
-        font-size: 12px;
+        background-clip: padding-box;
+        font-size: 14px;
         line-height: 1;
         padding: 0.4rem 1rem;
         background-image: url(images/ico_search_marker.png);
@@ -2074,21 +2109,19 @@ $search_input_width: 300px;
         }
 
         .oum_location_video {
-          background-color: #eee;
-
           > * {
             margin: 0;
-            aspect-ratio: 4/3;
+            padding-top: 60px;
+            line-height: 1;
 
             > p {
               width: 100%;
-              height: 100%;
+              line-height: 1;
               margin: 0 auto;
             }
 
             iframe {
               width: 100%;
-              height: 100%;
               margin: 0 auto;
             }
           }
@@ -2246,14 +2279,14 @@ $search_input_width: 300px;
       }
 
       .edit-location-button {
-        background: url(images/ico_pen.png) no-repeat 62% 29% #fff;
-        background-size: 66%;
+        background: url(images/ico_pen.png) no-repeat 58% 36% #eee;
+        background-size: 60%;
         border-radius: 99px;
-        height: 24px;
-        width: 24px;
+        height: 30px;
+        width: 30px;
         text-align: center;
         top: 16px;
-        right: 47px;
+        right: 57px;
         z-index: 2;
         position: absolute;
         cursor: pointer;
@@ -2265,13 +2298,13 @@ $search_input_width: 300px;
         top: 16px;
         right: 16px;
         font-size: 18px;
-        line-height: 24px;
+        line-height: 30px;
         display: inline-block;
         color: #333;
-        background: #fff;
+        background: #eee;
         border-radius: 99px;
-        width: 24px;
-        height: 24px;
+        width: 30px;
+        height: 30px;
         text-align: center;
         cursor: pointer;
   

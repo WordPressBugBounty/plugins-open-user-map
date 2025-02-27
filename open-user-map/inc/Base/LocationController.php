@@ -154,7 +154,18 @@ class LocationController extends BaseController {
             foreach ( $image_urls as $url ) {
                 if ( !empty( $url ) ) {
                     // Convert relative path to absolute URL if needed
-                    $absolute_urls[] = ( strpos( $url, 'http' ) !== 0 ? site_url() . $url : $url );
+                    if ( strpos( $url, 'http' ) !== 0 ) {
+                        // Get the site path from site_url
+                        $site_path = parse_url( site_url(), PHP_URL_PATH );
+                        // Check if the URL already starts with the site path
+                        if ( $site_path && strpos( $url, $site_path ) === 0 ) {
+                            // URL already has the site path, remove it to avoid duplication
+                            $url = substr( $url, strlen( $site_path ) );
+                        }
+                        $absolute_urls[] = site_url() . $url;
+                    } else {
+                        $absolute_urls[] = $url;
+                    }
                 }
             }
             $image = implode( '|', $absolute_urls );
@@ -163,6 +174,13 @@ class LocationController extends BaseController {
         $has_audio = ( isset( $audio ) && $audio != '' ? 'has-audio' : '' );
         // Convert relative audio path to absolute URL if needed
         if ( $audio && strpos( $audio, 'http' ) !== 0 ) {
+            // Get the site path from site_url
+            $site_path = parse_url( site_url(), PHP_URL_PATH );
+            // Check if the URL already starts with the site path
+            if ( $site_path && strpos( $audio, $site_path ) === 0 ) {
+                // URL already has the site path, remove it to avoid duplication
+                $audio = substr( $audio, strlen( $site_path ) );
+            }
             $audio_url = site_url() . $audio;
             $audio_tag = ( $has_audio ? '<audio controls="controls" style="width:100%"><source type="audio/mp4" src="' . esc_attr( $audio_url ) . '"><source type="audio/mpeg" src="' . esc_attr( $audio_url ) . '"><source type="audio/wav" src="' . esc_attr( $audio_url ) . '"></audio>' : '' );
             $audio = $audio_url;

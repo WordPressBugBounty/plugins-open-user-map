@@ -583,14 +583,29 @@ class BaseController {
                                         // Parse URL to handle different domain formats (with/without www, etc.)
                                         $url_parts = parse_url( $identifier );
                                         if ( isset( $url_parts['path'] ) ) {
-                                            // Only keep the path part
-                                            $final_image_urls[] = $url_parts['path'];
+                                            // Get the site path
+                                            $site_path = parse_url( site_url(), PHP_URL_PATH );
+                                            // Check if the URL path already starts with the site path
+                                            if ( $site_path && strpos( $url_parts['path'], $site_path ) === 0 ) {
+                                                // URL already has the site path, remove the duplicate
+                                                $path = substr( $url_parts['path'], strlen( $site_path ) );
+                                                $final_image_urls[] = $path;
+                                            } else {
+                                                // Only keep the path part
+                                                $final_image_urls[] = $url_parts['path'];
+                                            }
                                         } else {
                                             // Fallback to old method
                                             $relative_url = str_replace( site_url(), '', $identifier );
                                             $final_image_urls[] = $relative_url;
                                         }
                                     } else {
+                                        // Check if this is a relative path that already includes the site path
+                                        $site_path = parse_url( site_url(), PHP_URL_PATH );
+                                        if ( $site_path && strpos( $identifier, $site_path ) === 0 ) {
+                                            // URL already has the site path, remove the duplicate
+                                            $identifier = substr( $identifier, strlen( $site_path ) );
+                                        }
                                         // Already a relative path or other format
                                         $final_image_urls[] = $identifier;
                                     }

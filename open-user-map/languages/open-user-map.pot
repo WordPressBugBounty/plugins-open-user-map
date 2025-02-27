@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Open User Map 1.4.3\n"
+"Project-Id-Version: Open User Map 1.4.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/open-user-map\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-02-25T23:48:14+00:00\n"
+"POT-Creation-Date: 2025-02-27T18:10:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: open-user-map\n"
@@ -189,7 +189,7 @@ msgid "Upload media"
 msgstr ""
 
 #: inc/Base/BaseController.php:123
-#: inc/Base/LocationController.php:450
+#: inc/Base/LocationController.php:468
 #: templates/page-backend-location.php:73
 msgid "Subtitle"
 msgstr ""
@@ -261,30 +261,30 @@ msgstr ""
 msgid "Open User Map Location Settings"
 msgstr ""
 
-#: inc/Base/LocationController.php:199
+#: inc/Base/LocationController.php:217
 #: templates/partial-map-init.php:25
 msgid "Your name"
 msgstr ""
 
-#: inc/Base/LocationController.php:200
+#: inc/Base/LocationController.php:218
 #: templates/partial-map-init.php:26
 msgid "Your email"
 msgstr ""
 
-#: inc/Base/LocationController.php:452
+#: inc/Base/LocationController.php:470
 msgid "Text"
 msgstr ""
 
-#: inc/Base/LocationController.php:453
+#: inc/Base/LocationController.php:471
 #: inc/Base/TaxController.php:276
 msgid "Coordinates"
 msgstr ""
 
-#: inc/Base/LocationController.php:741
+#: inc/Base/LocationController.php:759
 msgid "Route on Google Maps"
 msgstr ""
 
-#: inc/Base/LocationController.php:742
+#: inc/Base/LocationController.php:760
 #: templates/block-locations-list.php:280
 #: templates/partial-map-render.php:53
 msgid "go to Google Maps"
@@ -956,14 +956,14 @@ msgid "Redirect"
 msgstr ""
 
 #: templates/page-backend-settings.php:1064
-#: templates/partial-map-add-location.php:273
+#: templates/partial-map-add-location.php:277
 #: src/js/frontend-ajax.js:103
 #: src/js/frontend-ajax.js:119
 msgid "Thank you!"
 msgstr ""
 
 #: templates/page-backend-settings.php:1065
-#: templates/partial-map-add-location.php:274
+#: templates/partial-map-add-location.php:278
 #: src/js/frontend-ajax.js:104
 #: src/js/frontend-ajax.js:120
 msgid "We will check your location suggestion and release it as soon as possible."
@@ -1521,7 +1521,7 @@ msgstr ""
 msgid "YouTube or Vimeo URL"
 msgstr ""
 
-#: templates/partial-map-add-location.php:267
+#: templates/partial-map-add-location.php:269
 msgid "Delete this location"
 msgstr ""
 
@@ -1578,12 +1578,12 @@ msgid "Manage Locations"
 msgstr ""
 
 #: src/js/frontend-ajax.js:75
-#: src/js/frontend-block-map.js:1398
+#: src/js/frontend-block-map.js:1401
 msgid "Location deleted"
 msgstr ""
 
 #: src/js/frontend-ajax.js:76
-#: src/js/frontend-block-map.js:1399
+#: src/js/frontend-block-map.js:1402
 msgid "The location has been successfully removed from the map."
 msgstr ""
 
@@ -1591,7 +1591,7 @@ msgstr ""
 #: src/js/frontend-ajax.js:88
 #: src/js/frontend-ajax.js:110
 #: src/js/frontend-ajax.js:126
-#: src/js/frontend-block-map.js:1400
+#: src/js/frontend-block-map.js:1403
 msgid "Close and refresh map"
 msgstr ""
 
@@ -1603,29 +1603,29 @@ msgstr ""
 msgid "Your changes have been saved and will be visible after we reviewed them."
 msgstr ""
 
-#: src/js/frontend-block-map.js:1374
+#: src/js/frontend-block-map.js:1377
 msgid "Delete this location?"
 msgstr ""
 
-#: src/js/frontend-block-map.js:1375
+#: src/js/frontend-block-map.js:1378
 msgid "This action cannot be undone. The location will be permanently removed from the map."
 msgstr ""
 
-#: src/js/frontend-block-map.js:1376
+#: src/js/frontend-block-map.js:1379
 msgid "Yes, delete location"
 msgstr ""
 
-#: src/js/frontend-block-map.js:1411
+#: src/js/frontend-block-map.js:1414
 msgid "An error occurred while deleting the location. Please try again."
 msgstr ""
 
 #. translators: %1$d: maximum number of files, %2$d: number of files that will be used
-#: src/js/frontend-block-map.js:1995
+#: src/js/frontend-block-map.js:1998
 msgid "Maximum %1$d images allowed. Only the first %2$d new images will be used."
 msgstr ""
 
 #. translators: %1$d: maximum file size in MB, %2$s: list of files
-#: src/js/frontend-block-map.js:2024
+#: src/js/frontend-block-map.js:2027
 msgid ""
 "The following images exceed the maximum file size of %1$dMB:\n"
 "%2$s"

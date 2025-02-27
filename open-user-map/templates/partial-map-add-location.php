@@ -391,11 +391,19 @@ echo $oum_ui_color;
 ?>" value="<?php 
 echo ( get_option( 'oum_submit_button_label' ) ? get_option( 'oum_submit_button_label' ) : __( 'Submit location for review', 'open-user-map' ) );
 ?>" />
-        <div id="oum_delete_location_btn"><span style="color: <?php 
-echo $oum_ui_color;
-?>"><?php 
-echo __( 'Delete this location', 'open-user-map' );
-?></span></div>
+
+        <?php 
+if ( current_user_can( 'delete_oum-locations' ) ) {
+    ?>
+          <div id="oum_delete_location_btn"><span style="color: <?php 
+    echo $oum_ui_color;
+    ?>"><?php 
+    echo __( 'Delete this location', 'open-user-map' );
+    ?></span></div>
+        <?php 
+}
+?>
+
       </form>
 
       <div id="oum_add_location_error" style="display: none"></div>

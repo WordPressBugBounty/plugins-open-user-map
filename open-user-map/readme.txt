@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, mapbox, regions
 Requires at least: 5.5
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.4.3
+Stable tag: 1.4.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -230,6 +230,12 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.4 =
+* Restrict "Delete Location" button by "delete_oum-locations" capability
+* Bugfix: Doubled site path in image urls (only on Multisite with folder)
+* Bugfix: Youtube Video continues playing after closing the location (on mobile)
+* Bugfix: Edit icon not clickable on iPhone
+
 = 1.4.3 =
 * Bugfix: Automatic creation of featured image and excerpt
 * Remove _blank target from custom field link

@@ -865,6 +865,9 @@ const OUMMarkers = (function () {
       const el = document.querySelector(
         ".open-user-map #location-fullscreen-container"
       );
+      // Clear the content to stop any media playback (YouTube, Vimeo, etc.)
+      el.querySelector(".location-content-wrap").innerHTML = '';
+      
       el.classList.remove("visible");
       document.querySelector("body").classList.remove("oum-location-opened");
     });
