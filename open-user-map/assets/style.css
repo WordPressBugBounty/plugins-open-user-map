@@ -1662,6 +1662,82 @@
   gap: 35px;
   margin-top: 15px;
 }
+.oum-location_page_open-user-map-settings .oum-shortcode-docs h4,
+.toplevel_page_open-user-map .oum-shortcode-docs h4 {
+  margin-top: 25px;
+  margin-bottom: 15px;
+  padding: 10px 15px;
+  background: #f1f1f1;
+  border-left: 4px solid #2271b1;
+  font-size: 14px;
+  font-weight: 600;
+}
+.oum-location_page_open-user-map-settings .oum-shortcode-docs .oum-attribute-table,
+.toplevel_page_open-user-map .oum-shortcode-docs .oum-attribute-table {
+  margin-bottom: 30px;
+  border-collapse: collapse;
+  border: 1px solid #e5e5e5;
+}
+.oum-location_page_open-user-map-settings .oum-shortcode-docs .oum-attribute-table th,
+.toplevel_page_open-user-map .oum-shortcode-docs .oum-attribute-table th {
+  background: #f8f8f8;
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+}
+.oum-location_page_open-user-map-settings .oum-shortcode-docs .oum-attribute-table td,
+.toplevel_page_open-user-map .oum-shortcode-docs .oum-attribute-table td {
+  vertical-align: top;
+  padding: 15px;
+  border-bottom: 1px solid #e5e5e5;
+}
+.oum-location_page_open-user-map-settings .oum-shortcode-docs .oum-attribute-table td:first-child,
+.toplevel_page_open-user-map .oum-shortcode-docs .oum-attribute-table td:first-child {
+  width: 25%;
+}
+.oum-location_page_open-user-map-settings .oum-shortcode-docs .oum-attribute-table td:nth-child(2),
+.toplevel_page_open-user-map .oum-shortcode-docs .oum-attribute-table td:nth-child(2) {
+  width: 35%;
+}
+.oum-location_page_open-user-map-settings .oum-shortcode-docs .oum-attribute-table tr:last-child td,
+.toplevel_page_open-user-map .oum-shortcode-docs .oum-attribute-table tr:last-child td {
+  border-bottom: none;
+}
+.oum-location_page_open-user-map-settings .oum-shortcode-docs .oum-attribute-table code,
+.toplevel_page_open-user-map .oum-shortcode-docs .oum-attribute-table code {
+  display: inline-block;
+  margin: 3px 0;
+  padding: 4px 8px;
+  background: #f7f7f7;
+  font-size: 12px;
+}
+.oum-location_page_open-user-map-settings .oum-shortcode-docs .oum-examples,
+.toplevel_page_open-user-map .oum-shortcode-docs .oum-examples {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 4px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+.oum-location_page_open-user-map-settings .oum-shortcode-docs .oum-examples p,
+.toplevel_page_open-user-map .oum-shortcode-docs .oum-examples p {
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+.oum-location_page_open-user-map-settings .oum-shortcode-docs .oum-examples p:first-child,
+.toplevel_page_open-user-map .oum-shortcode-docs .oum-examples p:first-child {
+  margin-top: 0;
+}
+.oum-location_page_open-user-map-settings .oum-shortcode-docs .oum-examples code,
+.toplevel_page_open-user-map .oum-shortcode-docs .oum-examples code {
+  display: block;
+  padding: 12px 15px;
+  background: #fff;
+  margin-bottom: 15px;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  word-break: break-all;
+}
 
 .wp-block.wp-block-open-user-map-map,
 .elementor-editor-active .elementor-widget-open_user_map_widget .elementor-widget-container,

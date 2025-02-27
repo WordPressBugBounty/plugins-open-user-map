@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, mapbox, regions
 Requires at least: 5.5
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -102,6 +102,9 @@ Organize locations in multiple filterable marker groups. Each group (category) c
 
 - **Live Marker Filter**
 Use the search bar to filter markers as you type. Instantly see relevant locations on the map.
+
+- **Pre-Filter locations by user or role**
+Shortcode Attribute to filter locations by current user, user_id or a role. Works for map, list and gallery.
 
 - **More custom field types**
 Add custom fields like links, radio buttons, checkboxes, dropdowns and even HTML. Social media links will automatically be rendered as icons.
@@ -227,6 +230,13 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.3 =
+* Bugfix: Automatic creation of featured image and excerpt
+* Remove _blank target from custom field link
+* Storing images always as relative paths
+* Make sure site_urls with folder do work with relative images
+* PRO: Shortcode Attribute to filter locations by current user, user_id or a role
+
 = 1.4.2 =
 * Bugfix: "Add Location" without image upload field failed
 * Bugfix: "Upload Media" label was missing

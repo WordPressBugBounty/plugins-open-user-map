@@ -343,10 +343,6 @@ if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_
         ?> 
                 data-max-files="5"
               />
-              <div class="preview">
-                <span></span>
-                <div id="oum_remove_image" class="remove-upload">×</div>
-              </div>
               <input type="hidden" id="oum_remove_existing_image" name="oum_remove_existing_image" value="0" />
             </div>
 

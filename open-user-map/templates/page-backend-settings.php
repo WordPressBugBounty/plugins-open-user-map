@@ -2115,82 +2115,297 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                 <p class="hint"><?php 
     echo __( 'Displays the Map with all locations.', 'open-user-map' );
     ?></p>
-                <br><br>
+              </td>
+            </tr>
 
-                <strong><?php 
-    echo __( 'Shortcode attributes:', 'open-user-map' );
-    ?></strong><br>
+            <tr valign="top">
+              <th scope="row"><?php 
+    echo __( 'Shortcode attributes', 'open-user-map' );
+    ?></th>
+              <td class="top-padding-20">
                 <p class="hint"><?php 
     echo __( 'You can use shortcode attributes to override the <a href="edit.php?post_type=oum-location&page=open-user-map-settings">global settings</a>. This allows for custom individual maps.', 'open-user-map' );
-    ?></p><br><br>
+    ?></p>
 
-                <code>lat="51.50665732176545" long="-0.12752251529432854" zoom="13"</code><br>
-                <p class="hint"><?php 
-    echo __( 'Set an individual map position with lat, long and zoom.', 'open-user-map' );
-    ?></p><br><br>
-                
-                <code>types="food|drinks" ids="123"</code><br>
-                <p class="hint"><?php 
-    echo __( 'Filter locations by types (Marker Categories) or <a href="https://gigapress.net/how-to-find-a-page-id-or-post-id-in-wordpress/" target="_blank">Post ID</a>. Separate multiple Types or Post IDs with a | symbol.', 'open-user-map' );
-    ?></p><br><br>
-                
-                <code>size="default|fullwidth" size_mobile="square|landscape|portrait"</code><br>
-                <p class="hint"><?php 
-    echo __( 'Set a custom size.', 'open-user-map' );
-    ?></p><br><br>
-                
-                <code>height="400px" height_mobile="300px"</code><br>
-                <p class="hint"><?php 
-    echo __( 'Set a custom height. Don\'t forget to add a unit like <b>px</b>.', 'open-user-map' );
-    ?></p><br><br>
-
-                <code>region="Europe"</code><br>
-                <p class="hint"><?php 
+                <div class="oum-shortcode-docs">
+                    <!-- Group 1: Map Position & View -->
+                    <h4><?php 
+    echo __( 'Map Position & View', 'open-user-map' );
+    ?></h4>
+                    <table class="widefat oum-attribute-table">
+                        <thead>
+                            <tr>
+                                <th><?php 
+    echo __( 'Attribute', 'open-user-map' );
+    ?></th>
+                                <th><?php 
+    echo __( 'Values/Example', 'open-user-map' );
+    ?></th>
+                                <th><?php 
+    echo __( 'Description', 'open-user-map' );
+    ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>lat</code>, <code>long</code>, <code>zoom</code></td>
+                                <td><code>lat="51.50665" long="-0.12752" zoom="13"</code></td>
+                                <td><?php 
+    echo __( 'Set an individual map position with latitude, longitude and zoom level.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>region</code></td>
+                                <td><code>region="Europe"</code></td>
+                                <td><?php 
     echo __( 'Pre-select a region.', 'open-user-map' );
     ?> <?php 
     echo __( 'This works only if you enabled the regions feature in the settings.', 'open-user-map' );
-    ?></p><br><br>
-
-                <code>map_type="interactive|simple"</code><br>
-                <p class="hint"><?php 
+    ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Group 2: Content Filtering -->
+                    <h4><?php 
+    echo __( 'Content Filtering', 'open-user-map' );
+    ?></h4>
+                    <table class="widefat oum-attribute-table">
+                        <thead>
+                            <tr>
+                                <th><?php 
+    echo __( 'Attribute', 'open-user-map' );
+    ?></th>
+                                <th><?php 
+    echo __( 'Values/Example', 'open-user-map' );
+    ?></th>
+                                <th><?php 
+    echo __( 'Description', 'open-user-map' );
+    ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>types</code></td>
+                                <td>
+                                    <code>types="food"</code><br>
+                                    <code>types="food|drinks|hotel"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Filter locations by types (Marker Categories). Separate multiple types with a | symbol.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>ids</code></td>
+                                <td>
+                                    <code>ids="123"</code><br>
+                                    <code>ids="123|456|789"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Filter locations by Post ID. Separate multiple IDs with a | symbol.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>user</code> <span class="oum-pro">PRO</span></td>
+                                <td>
+                                    <code>user="current"</code><br>
+                                    <code>user="123"</code><br>
+                                    <code>user="role:subscriber"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Filter locations by user. Use "current" to show only locations from the currently logged-in user, a specific user ID, or "role:rolename" to show locations from users with a specific role.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Group 3: Display & Appearance -->
+                    <h4><?php 
+    echo __( 'Display & Appearance', 'open-user-map' );
+    ?></h4>
+                    <table class="widefat oum-attribute-table">
+                        <thead>
+                            <tr>
+                                <th><?php 
+    echo __( 'Attribute', 'open-user-map' );
+    ?></th>
+                                <th><?php 
+    echo __( 'Values/Example', 'open-user-map' );
+    ?></th>
+                                <th><?php 
+    echo __( 'Description', 'open-user-map' );
+    ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>size</code></td>
+                                <td>
+                                    <code>size="default"</code><br>
+                                    <code>size="fullwidth"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Set a custom size for desktop view.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>size_mobile</code></td>
+                                <td>
+                                    <code>size_mobile="square"</code><br>
+                                    <code>size_mobile="landscape"</code><br>
+                                    <code>size_mobile="portrait"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Set a custom size for mobile view.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>height</code></td>
+                                <td><code>height="400px"</code></td>
+                                <td><?php 
+    echo __( 'Set a custom height for desktop view. Don\'t forget to add a unit like <b>px</b>.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>height_mobile</code></td>
+                                <td><code>height_mobile="300px"</code></td>
+                                <td><?php 
+    echo __( 'Set a custom height for mobile view. Don\'t forget to add a unit like <b>px</b>.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>map_type</code></td>
+                                <td>
+                                    <code>map_type="interactive"</code><br>
+                                    <code>map_type="simple"</code>
+                                </td>
+                                <td><?php 
     echo __( 'Enable or disable the "Add location" button.', 'open-user-map' );
-    ?></p><br><br>
-
-                <code>disable_regions="true|false"</code><br>
-                <p class="hint"><?php 
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>map_style</code></td>
+                                <td><code>map_style="Esri.WorldStreetMap"</code></td>
+                                <td><?php 
+    echo __( 'Override the map style.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Group 4: Features & Controls -->
+                    <h4><?php 
+    echo __( 'Features & Controls', 'open-user-map' );
+    ?></h4>
+                    <table class="widefat oum-attribute-table">
+                        <thead>
+                            <tr>
+                                <th><?php 
+    echo __( 'Attribute', 'open-user-map' );
+    ?></th>
+                                <th><?php 
+    echo __( 'Values/Example', 'open-user-map' );
+    ?></th>
+                                <th><?php 
+    echo __( 'Description', 'open-user-map' );
+    ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>disable_regions</code></td>
+                                <td>
+                                    <code>disable_regions="true"</code><br>
+                                    <code>disable_regions="false"</code>
+                                </td>
+                                <td><?php 
     echo __( 'Enable or disable Regions.', 'open-user-map' );
-    ?></p><br><br>
-
-                <code>enable_cluster="true|false"</code><br>
-                <p class="hint"><?php 
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>enable_cluster</code></td>
+                                <td>
+                                    <code>enable_cluster="true"</code><br>
+                                    <code>enable_cluster="false"</code>
+                                </td>
+                                <td><?php 
     echo __( 'Enable or disable Marker Clustering.', 'open-user-map' );
-    ?></p><br><br>
-
-                <code>enable_searchbar="true|false"</code><br>
-                <p class="hint"><?php 
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>enable_searchbar</code></td>
+                                <td>
+                                    <code>enable_searchbar="true"</code><br>
+                                    <code>enable_searchbar="false"</code>
+                                </td>
+                                <td><?php 
     echo __( 'Enable or disable the searchbar.', 'open-user-map' );
-    ?></p><br><br>
-
-                <code>enable_searchaddress_button="true|false"</code><br>
-                <p class="hint"><?php 
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>enable_searchaddress_button</code></td>
+                                <td>
+                                    <code>enable_searchaddress_button="true"</code><br>
+                                    <code>enable_searchaddress_button="false"</code>
+                                </td>
+                                <td><?php 
     echo __( 'Enable or disable the "Search for Address (Geosearch)" button.', 'open-user-map' );
-    ?></p><br><br>
-
-                <code>enable_searchmarkers_button="true|false"</code><br>
-                <p class="hint"><?php 
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>enable_searchmarkers_button</code></td>
+                                <td>
+                                    <code>enable_searchmarkers_button="true"</code><br>
+                                    <code>enable_searchmarkers_button="false"</code>
+                                </td>
+                                <td><?php 
     echo __( 'Enable or disable the "Search for Markers" button.', 'open-user-map' );
-    ?></p><br><br>
-
-                <code>enable_currentlocation="true|false"</code><br>
-                <p class="hint"><?php 
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>enable_currentlocation</code></td>
+                                <td>
+                                    <code>enable_currentlocation="true"</code><br>
+                                    <code>enable_currentlocation="false"</code>
+                                </td>
+                                <td><?php 
     echo __( 'Enable or disable the "Show me where I am" button.', 'open-user-map' );
-    ?></p><br><br>
-
-                <code>enable_fullscreen="true|false"</code><br>
-                <p class="hint"><?php 
-    echo __( 'Enable or disable the fullscreen button', 'open-user-map' );
-    ?></p><br><br>
-                
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>enable_fullscreen</code></td>
+                                <td>
+                                    <code>enable_fullscreen="true"</code><br>
+                                    <code>enable_fullscreen="false"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Enable or disable the fullscreen button.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Complete Examples -->
+                    <h4><?php 
+    echo __( 'Complete Examples', 'open-user-map' );
+    ?></h4>
+                    <div class="oum-examples">
+                        <p><strong><?php 
+    echo __( 'Example 1: Map of London with food locations only', 'open-user-map' );
+    ?></strong></p>
+                        <code>[open-user-map lat="51.50665" long="-0.12752" zoom="13" types="food" size="fullwidth" height="500px"]</code>
+                        
+                        <p><strong><?php 
+    echo __( 'Example 2: Simple map showing only locations from the current user', 'open-user-map' );
+    ?></strong> <span class="oum-pro">PRO</span></p>
+                        <code>[open-user-map map_type="simple" user="current" enable_fullscreen="true" enable_searchbar="false"]</code>
+                        
+                        <p><strong><?php 
+    echo __( 'Example 3: Interactive map for a specific region with custom appearance', 'open-user-map' );
+    ?></strong></p>
+                        <code>[open-user-map region="Europe" map_type="interactive" height="600px" enable_cluster="false" enable_currentlocation="true"]</code>
+                    </div>
+                </div>
               </td>
             </tr>
 
@@ -2226,18 +2441,50 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <li>wp_author_id</li>
                   <li>CUSTOM FIELD LABEL</li>
                 </ul>
-                <br><br><br>
-                <span class="oum-pro">PRO</span> <code>[open-user-map-gallery url="https://mysite.com/" number="10"]</code> 
+                <br><br>
+
+                <span class="oum-pro">PRO</span> <code>[open-user-map-gallery]</code> 
                 <br><br>
                 <span class="hint"><?php 
-    echo __( 'Get a nice gallery view of all the location images. Each image is linked to the location marker on the map. Use the URL attribute to link the images to another page. Use the NUMBER attribute to limit the number of images. Both attributes are optional.', 'open-user-map' );
+    echo __( 'Get a nice gallery view of all the location images. Each image is linked to the location marker on the map.', 'open-user-map' );
     ?></span>
-                <br><br><br>
+                <br><br>
+                <strong><?php 
+    echo __( 'Available attributes:', 'open-user-map' );
+    ?></strong>
+                <ul>
+                  <li><code>url="https://mysite.com/"</code> - <?php 
+    echo __( 'Link the images to another page.', 'open-user-map' );
+    ?></li>
+                  <li><code>number="10"</code> - <?php 
+    echo __( 'Limit the number of images displayed.', 'open-user-map' );
+    ?></li>
+                  <li><code>user="current"</code> - <?php 
+    echo __( 'Filter images by user. Accepts "current", a user ID, or "role:rolename".', 'open-user-map' );
+    ?></li>
+                </ul>
+                <br><br>
+
                 <span class="oum-pro">PRO</span> <code>[open-user-map-list]</code> 
                 <br><br>
                 <span class="hint"><?php 
     echo __( 'Get a list view of all the locations. The list view is paginated. This number of items per page can be adjusted under <i>Settings > Reading</i>.', 'open-user-map' );
     ?></span>
+                <br><br>
+                <strong><?php 
+    echo __( 'Available attributes:', 'open-user-map' );
+    ?></strong>
+                <ul>
+                  <li><code>user="current"</code> - <?php 
+    echo __( 'Filter locations by user. Accepts "current", a user ID, or "role:rolename".', 'open-user-map' );
+    ?></li>
+                  <li><code>types="food|drinks"</code> - <?php 
+    echo __( 'Filter by marker categories. Separate multiple types with a | symbol.', 'open-user-map' );
+    ?></li>
+                  <li><code>ids="123|456"</code> - <?php 
+    echo __( 'Filter by location IDs. Separate multiple IDs with a | symbol.', 'open-user-map' );
+    ?></li>
+                </ul>
                 <br><br>
               </td>
             </tr>

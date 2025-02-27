@@ -213,16 +213,14 @@ foreach ( $posts as $post ) {
             }
         }
     }
-    // Make image URLs relative
-    $site_url = 'http://';
-    if ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] === 'on' ) {
-        $site_url = 'https://';
-    }
-    $site_url .= $_SERVER['SERVER_NAME'];
-    $images = array_map( function ( $url ) use($site_url) {
-        return str_replace( $site_url, '', $url );
+    // Convert to absolute URLs for JavaScript display
+    $absolute_images = array_map( function ( $url ) {
+        // Convert relative path to absolute URL if needed
+        return ( strpos( $url, 'http' ) !== 0 ? site_url() . $url : $url );
     }, $images );
     $audio = ( isset( $indexed_meta[$post_id]['_oum_location_audio'] ) ? $indexed_meta[$post_id]['_oum_location_audio'] : '' );
+    // Convert audio to absolute URL if needed
+    $absolute_audio = ( isset( $audio ) && $audio != '' && strpos( $audio, 'http' ) !== 0 ? site_url() . $audio : $audio );
     // Optimized custom fields processing
     $custom_fields = [];
     $meta_custom_fields = ( isset( $location_meta['custom_fields'] ) ? $location_meta['custom_fields'] : false );
@@ -282,9 +280,8 @@ foreach ( $posts as $post ) {
         'lat'           => $location_meta['lat'],
         'lng'           => $location_meta['lng'],
         'text'          => $text,
-        'images'        => $images,
-        'image'         => ( !empty( $images ) ? $images[0] : '' ),
-        'audio'         => $audio,
+        'images'        => $absolute_images,
+        'audio'         => $absolute_audio,
         'video'         => $video,
         'icon'          => $icon,
         'custom_fields' => $custom_fields,

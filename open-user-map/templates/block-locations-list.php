@@ -55,13 +55,6 @@ if ( $locations_query->have_posts() ) {
             //use thumbnail if available
             $image = $image_thumb;
         }
-        //make image url relative
-        $site_url = 'http://';
-        if ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] === 'on' ) {
-            $site_url = 'https://';
-        }
-        $site_url .= $_SERVER['SERVER_NAME'];
-        $image = str_replace( $site_url, '', $image );
         $audio = get_post_meta( $post_id, '_oum_location_audio', true );
         // custom fields
         $custom_fields = [];
@@ -161,9 +154,11 @@ foreach ( $locations_list as $location ) {
             $media_tag .= '<div class="oum-carousel-inner">';
             foreach ( $images as $index => $image_url ) {
                 if ( !empty( $image_url ) ) {
+                    // Convert relative path to absolute URL if needed
+                    $absolute_image_url = ( strpos( $image_url, 'http' ) !== 0 ? site_url() . $image_url : $image_url );
                     $active_class = ( $index === 0 ? ' active' : '' );
                     $media_tag .= '<div class="oum-carousel-item' . $active_class . '">';
-                    $media_tag .= '<img class="skip-lazy" src="' . esc_url_raw( $image_url ) . '" alt="' . esc_attr( $location['name'] ) . '">';
+                    $media_tag .= '<img class="skip-lazy" src="' . esc_url_raw( $absolute_image_url ) . '" alt="' . esc_attr( $location['name'] ) . '">';
                     $media_tag .= '</div>';
                 }
             }
@@ -171,12 +166,16 @@ foreach ( $locations_list as $location ) {
             $media_tag .= '</div>';
         } else {
             // Single image - use regular image display
-            $media_tag = '<div class="oum_location_image"><img class="skip-lazy" src="' . esc_url_raw( $location['image'] ) . '"></div>';
+            // Convert relative path to absolute URL if needed
+            $absolute_image_url = ( strpos( $location['image'], 'http' ) !== 0 ? site_url() . $location['image'] : $location['image'] );
+            $media_tag = '<div class="oum_location_image"><img class="skip-lazy" src="' . esc_url_raw( $absolute_image_url ) . '"></div>';
         }
     }
     //HOOK: modify location image
     $media_tag = apply_filters( 'oum_location_bubble_image', $media_tag, $location );
-    $audio_tag = ( $location['audio'] ? '<audio controls="controls" style="width:100%"><source type="audio/mp4" src="' . $location['audio'] . '"><source type="audio/mpeg" src="' . $location['audio'] . '"><source type="audio/wav" src="' . $location['audio'] . '"></audio>' : '' );
+    // Convert relative audio path to absolute URL if needed
+    $audio_url = ( $location['audio'] && strpos( $location['audio'], 'http' ) !== 0 ? site_url() . $location['audio'] : $location['audio'] );
+    $audio_tag = ( $audio_url ? '<audio controls="controls" style="width:100%"><source type="audio/mp4" src="' . esc_attr( $audio_url ) . '"><source type="audio/mpeg" src="' . esc_attr( $audio_url ) . '"><source type="audio/wav" src="' . esc_attr( $audio_url ) . '"></audio>' : '' );
     $address_tag = '';
     if ( get_option( 'oum_enable_address', 'on' ) === 'on' ) {
         $address_tag = ( $location['address'] && !get_option( 'oum_hide_address' ) ? esc_attr( $location['address'] ) : '' );

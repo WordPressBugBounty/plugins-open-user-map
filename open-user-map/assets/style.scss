@@ -1803,6 +1803,85 @@
     gap: 35px;
     margin-top: 15px;
   }
+
+  // Shortcode documentation styles
+  .oum-shortcode-docs {
+    h4 {
+      margin-top: 25px;
+      margin-bottom: 15px;
+      padding: 10px 15px;
+      background: #f1f1f1;
+      border-left: 4px solid #2271b1;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .oum-attribute-table {
+      margin-bottom: 30px;
+      border-collapse: collapse;
+      border: 1px solid #e5e5e5;
+
+      th {
+        background: #f8f8f8;
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 600;
+      }
+
+      td {
+        vertical-align: top;
+        padding: 15px;
+        border-bottom: 1px solid #e5e5e5;
+
+        &:first-child {
+          width: 25%;
+        }
+
+        &:nth-child(2) {
+          width: 35%;
+        }
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      code {
+        display: inline-block;
+        margin: 3px 0;
+        padding: 4px 8px;
+        background: #f7f7f7;
+        font-size: 12px;
+      }
+    }
+
+    .oum-examples {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 4px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+
+      p {
+        margin-top: 20px;
+        margin-bottom: 8px;
+
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+
+      code {
+        display: block;
+        padding: 12px 15px;
+        background: #fff;
+        margin-bottom: 15px;
+        border: 1px solid #e5e5e5;
+        border-radius: 3px;
+        word-break: break-all;
+      }
+    }
+  }
 }
 
 // Pagebuilder: Gutenberg & Elementor

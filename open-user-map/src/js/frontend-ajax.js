@@ -18,7 +18,20 @@ document.addEventListener('DOMContentLoaded', function(e) {
       previewItems.forEach((item, index) => {
         if (item.classList.contains('existing-image')) {
           // For existing images, get the URL from the hidden input
-          const imgUrl = item.querySelector('[name="existing_images[]"]').value;
+          let imgUrl = item.querySelector('[name="existing_images[]"]').value;
+          
+          // Fix for handling URLs - extract just the path portion if it's a full URL
+          if (imgUrl.startsWith('http')) {
+            try {
+              // Create a URL object to extract just the pathname
+              const urlObj = new URL(imgUrl);
+              imgUrl = urlObj.pathname; // This gives us just the path portion
+            } catch (e) {
+              // If URL parsing fails, keep the original value
+              console.log('Could not parse URL:', imgUrl);
+            }
+          }
+          
           formData.append('existing_images[]', imgUrl);
           imageOrder.push('existing:' + imgUrl);
         } else {

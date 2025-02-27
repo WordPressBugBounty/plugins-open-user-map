@@ -57,7 +57,7 @@ foreach ( $locations_list as $location ) {
                 $formatted_entries = [];
                 foreach ( $entries as $entry ) {
                     if ( filter_var( $entry, FILTER_VALIDATE_URL ) ) {
-                        $formatted_entries[] = sprintf( '<a target="_blank" href="%s">%s</a>', esc_url( $entry ), esc_html( $entry ) );
+                        $formatted_entries[] = sprintf( '<a href="%s">%s</a>', esc_url( $entry ), esc_html( $entry ) );
                     } elseif ( $custom_field['fieldtype'] == 'email' && is_email( $entry ) ) {
                         $formatted_entries[] = sprintf( '<a target="_blank" href="mailto:%s">%s</a>', esc_attr( $entry ), esc_html( $entry ) );
                     } else {
@@ -69,10 +69,10 @@ foreach ( $locations_list as $location ) {
                 $value = $custom_field['val'];
                 if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
                     if ( !empty( $custom_field['uselabelastextoption'] ) ) {
-                        $field_html .= sprintf( '<a target="_blank" href="%s">%s</a>', esc_url( $value ), esc_html( $custom_field['label'] ) );
+                        $field_html .= sprintf( '<a href="%s">%s</a>', esc_url( $value ), esc_html( $custom_field['label'] ) );
                     } else {
                         $field_html .= sprintf(
-                            '<strong>%s:</strong> <a target="_blank" href="%s">%s</a>',
+                            '<strong>%s:</strong> <a href="%s">%s</a>',
                             esc_html( $custom_field['label'] ),
                             esc_url( $value ),
                             esc_html( $value )
@@ -147,7 +147,7 @@ foreach ( $locations_list as $location ) {
         'post_id'       => esc_attr( $location["post_id"] ),
         'address'       => esc_attr( $location["address"] ),
         'text'          => wp_kses_post( $location["text"] ),
-        'image'         => ( isset( $location['images'] ) && !empty( $location['images'] ) ? implode( '|', array_map( 'esc_url', $location['images'] ) ) : esc_url( $location["image"] ) ),
+        'image'         => ( isset( $location['images'] ) && !empty( $location['images'] ) ? implode( '|', array_map( 'esc_url', $location['images'] ) ) : '' ),
         'audio'         => esc_url( $location["audio"] ),
         'video'         => esc_url( $location["video"] ),
         'custom_fields' => $location['custom_fields'],

@@ -147,11 +147,29 @@ class LocationController extends BaseController {
         $has_video = ( isset( $video ) && $video != '' ? 'has-video' : '' );
         $video_tag = ( $has_video ? apply_filters( 'the_content', esc_attr( $video ) ) : '' );
         $image = get_post_meta( $post->ID, '_oum_location_image', true );
-        $has_image = ( isset( $image ) && $image != '' ? 'has-image' : '' );
-        $image_tag = ( $has_image ? '<img src="' . esc_attr( $image ) . '" style="width: 100%;">' : '' );
+        // Convert relative paths to absolute URLs for preview
+        if ( $image ) {
+            $image_urls = explode( '|', $image );
+            $absolute_urls = array();
+            foreach ( $image_urls as $url ) {
+                if ( !empty( $url ) ) {
+                    // Convert relative path to absolute URL if needed
+                    $absolute_urls[] = ( strpos( $url, 'http' ) !== 0 ? site_url() . $url : $url );
+                }
+            }
+            $image = implode( '|', $absolute_urls );
+        }
         $audio = get_post_meta( $post->ID, '_oum_location_audio', true );
         $has_audio = ( isset( $audio ) && $audio != '' ? 'has-audio' : '' );
-        $audio_tag = ( $has_audio ? '<audio controls="controls" style="width:100%"><source type="audio/mp4" src="' . esc_attr( $audio ) . '"><source type="audio/mpeg" src="' . esc_attr( $audio ) . '"><source type="audio/wav" src="' . esc_attr( $audio ) . '"></audio>' : '' );
+        // Convert relative audio path to absolute URL if needed
+        if ( $audio && strpos( $audio, 'http' ) !== 0 ) {
+            $audio_url = site_url() . $audio;
+            $audio_tag = ( $has_audio ? '<audio controls="controls" style="width:100%"><source type="audio/mp4" src="' . esc_attr( $audio_url ) . '"><source type="audio/mpeg" src="' . esc_attr( $audio_url ) . '"><source type="audio/wav" src="' . esc_attr( $audio_url ) . '"></audio>' : '' );
+            $audio = $audio_url;
+            // Update audio variable with the absolute URL
+        } else {
+            $audio_tag = ( $has_audio ? '<audio controls="controls" style="width:100%"><source type="audio/mp4" src="' . esc_attr( $audio ) . '"><source type="audio/mpeg" src="' . esc_attr( $audio ) . '"><source type="audio/wav" src="' . esc_attr( $audio ) . '"></audio>' : '' );
+        }
         $notification = ( isset( $data['notification'] ) ? $data['notification'] : '' );
         $author_name = ( isset( $data['author_name'] ) ? $data['author_name'] : '' );
         $author_email = ( isset( $data['author_email'] ) ? $data['author_email'] : '' );
@@ -185,82 +203,6 @@ class LocationController extends BaseController {
         if ( !isset( $location_data['post_type'] ) || $location_data['post_type'] != 'oum-location' ) {
             return $post_id;
         }
-        // Handle image uploads and updates
-        if ( isset( $location_data['oum_location_image'] ) ) {
-            $images = explode( '|', $location_data['oum_location_image'] );
-            // Validate image URLs
-            $valid_images = array();
-            foreach ( $images as $image_url ) {
-                if ( !empty( $image_url ) && strpos( $image_url, '|' ) === false ) {
-                    $valid_images[] = esc_url_raw( $image_url );
-                }
-            }
-            // Store images as pipe-separated string
-            update_post_meta( $post_id, '_oum_location_image', implode( '|', $valid_images ) );
-            // Set first image as featured image if available
-            if ( !empty( $valid_images[0] ) ) {
-                // Download image from URL and set as featured image
-                $upload = media_sideload_image(
-                    $valid_images[0],
-                    $post_id,
-                    null,
-                    'src'
-                );
-                if ( !is_wp_error( $upload ) ) {
-                    $attachment_id = attachment_url_to_postid( $upload );
-                    if ( $attachment_id ) {
-                        set_post_thumbnail( $post_id, $attachment_id );
-                    }
-                }
-            }
-        }
-        // Set post thumbnail and excerpt when saving inline (Quick Edit) and exit
-        if ( isset( $location_data['action'] ) && in_array( $location_data['action'], array('edit', 'inline-save') ) ) {
-            // Dont save if wordpress just auto-saves
-            if ( defined( 'DOING AUTOSAVE' ) && DOING_AUTOSAVE ) {
-                return $post_id;
-            }
-            // Dont save if user is not allowed to do
-            $has_general_permission = current_user_can( 'edit_oum-locations' );
-            $is_author = get_current_user_id() == get_post_field( 'post_author', $post_id );
-            $can_edit_specific_post = current_user_can( 'edit_post', $post_id );
-            $allow_edit = ( $has_general_permission && ($is_author || $can_edit_specific_post) ? true : false );
-            if ( !$allow_edit ) {
-                return $post_id;
-            }
-            // Set excerpt if not set
-            if ( get_the_excerpt( $post_id ) == '' ) {
-                // Set location text as post excerpt
-                $max_length = 400;
-                $post_text = oum_get_location_value( 'text', $post_id, true );
-                $text = wp_strip_all_tags( $post_text );
-                if ( $text ) {
-                    if ( strlen( $text ) > $max_length ) {
-                        $text = substr( $text, 0, $max_length );
-                        $last_space = strrpos( $text, ' ' );
-                        if ( $last_space !== false ) {
-                            $text = substr( $text, 0, $last_space );
-                        }
-                        $text .= '...';
-                    }
-                    $post = array(
-                        'ID'           => $post_id,
-                        'post_excerpt' => sanitize_text_field( $text ),
-                    );
-                    wp_update_post( $post );
-                }
-            }
-            return $post_id;
-        }
-        // Dont save without nonce
-        if ( !isset( $location_data['oum_location_nonce'] ) ) {
-            return $post_id;
-        }
-        // Dont save if nonce is incorrect
-        $nonce = $location_data['oum_location_nonce'];
-        if ( !wp_verify_nonce( $nonce, 'oum_location' ) ) {
-            return $post_id;
-        }
         // Dont save if wordpress just auto-saves
         if ( defined( 'DOING AUTOSAVE' ) && DOING_AUTOSAVE ) {
             return $post_id;
@@ -273,7 +215,75 @@ class LocationController extends BaseController {
         if ( !$allow_edit ) {
             return $post_id;
         }
-        // Validation
+        // Check if this is a Quick Edit operation
+        $is_quick_edit = isset( $location_data['action'] ) && in_array( $location_data['action'], array('edit', 'inline-save') );
+        // For regular save operations, verify nonce
+        if ( !$is_quick_edit ) {
+            if ( !isset( $location_data['oum_location_nonce'] ) ) {
+                return $post_id;
+            }
+            $nonce = $location_data['oum_location_nonce'];
+            if ( !wp_verify_nonce( $nonce, 'oum_location' ) ) {
+                return $post_id;
+            }
+        }
+        // Handle image uploads and updates (for regular save)
+        if ( isset( $location_data['oum_location_image'] ) ) {
+            $images = explode( '|', $location_data['oum_location_image'] );
+            // Validate image URLs and convert to relative paths
+            $valid_images = array();
+            foreach ( $images as $image_url ) {
+                if ( !empty( $image_url ) && strpos( $image_url, '|' ) === false ) {
+                    // Convert absolute URLs to relative paths if they're from our site
+                    if ( strpos( $image_url, site_url() ) === 0 ) {
+                        $valid_images[] = str_replace( site_url(), '', $image_url );
+                    } else {
+                        if ( strpos( $image_url, '/wp-content' ) === 0 ) {
+                            // Already relative, use as is
+                            $valid_images[] = $image_url;
+                        } else {
+                            // External URL or unexpected format, store as is
+                            $valid_images[] = esc_url_raw( $image_url );
+                        }
+                    }
+                }
+            }
+            // Store images as pipe-separated string
+            update_post_meta( $post_id, '_oum_location_image', implode( '|', $valid_images ) );
+            // Set first image as featured image (needs full URL)
+            if ( !empty( $valid_images[0] ) ) {
+                if ( strpos( $valid_images[0], '/wp-content' ) === 0 ) {
+                    // Convert relative path to full URL for featured image
+                    self::set_featured_image( $post_id, site_url() . $valid_images[0] );
+                } else {
+                    // Use as is if it's already a full URL
+                    self::set_featured_image( $post_id, $valid_images[0] );
+                }
+            }
+        } elseif ( $is_quick_edit ) {
+            $old_images = get_post_meta( $post_id, '_oum_location_image', true );
+            if ( !empty( $old_images ) ) {
+                $images = explode( '|', $old_images );
+                if ( !empty( $images[0] ) ) {
+                    if ( strpos( $images[0], '/wp-content' ) === 0 ) {
+                        // Convert relative path to full URL for featured image
+                        self::set_featured_image( $post_id, site_url() . $images[0] );
+                    } else {
+                        // Use as is if it's already a full URL
+                        self::set_featured_image( $post_id, $images[0] );
+                    }
+                }
+            }
+        }
+        // Set excerpt if not set (for both regular and quick edit)
+        if ( get_the_excerpt( $post_id ) == '' ) {
+            self::set_excerpt( $post_id );
+        }
+        // If this is a Quick Edit operation, we're done
+        if ( $is_quick_edit ) {
+            return $post_id;
+        }
+        // Continue with regular save operation
         $lat_validated = ( isset( $location_data['oum_location_lat'] ) ? floatval( str_replace( ',', '.', sanitize_text_field( $location_data['oum_location_lat'] ) ) ) : '' );
         $lng_validated = ( isset( $location_data['oum_location_lng'] ) ? floatval( str_replace( ',', '.', sanitize_text_field( $location_data['oum_location_lng'] ) ) ) : '' );
         $data = array(
@@ -294,30 +304,81 @@ class LocationController extends BaseController {
         update_post_meta( $post_id, '_oum_location_key', $data );
         if ( isset( $location_data['oum_location_audio'] ) ) {
             // validate & store audio seperately (to avoid serialized URLs [bad for search & replace due to domain change])
-            $data_audio = esc_url_raw( $location_data['oum_location_audio'] );
+            $audio_url = esc_url_raw( $location_data['oum_location_audio'] );
+            // Convert absolute URLs to relative paths
+            $data_audio = str_replace( site_url(), '', $audio_url );
             update_post_meta( $post_id, '_oum_location_audio', $data_audio );
         }
-        // Set excerpt if not set
-        if ( get_the_excerpt( $post_id ) == '' ) {
-            // Set location text as post excerpt
-            $max_length = 400;
-            $post_text = oum_get_location_value( 'text', $post_id, true );
-            $text = wp_strip_all_tags( $post_text );
-            if ( $text ) {
-                if ( strlen( $text ) > $max_length ) {
-                    $text = substr( $text, 0, $max_length );
-                    $last_space = strrpos( $text, ' ' );
-                    if ( $last_space !== false ) {
-                        $text = substr( $text, 0, $last_space );
-                    }
-                    $text .= '...';
-                }
-                $post = array(
-                    'ID'           => $post_id,
-                    'post_excerpt' => sanitize_text_field( $text ),
-                );
-                wp_update_post( $post );
+    }
+
+    /**
+     * Helper function to set the featured image
+     */
+    public static function set_featured_image( $post_id, $image_url ) {
+        // Get current featured image filename
+        $current_thumbnail_id = get_post_thumbnail_id( $post_id );
+        if ( $current_thumbnail_id ) {
+            // Get the original filename from attachment metadata
+            $current_thumbnail_meta = wp_get_attachment_metadata( $current_thumbnail_id );
+            if ( isset( $current_thumbnail_meta['original_image'] ) ) {
+                $current_thumbnail_filename = pathinfo( $current_thumbnail_meta['original_image'], PATHINFO_FILENAME );
+            } else {
+                $current_thumbnail_filename = pathinfo( $current_thumbnail_meta['file'], PATHINFO_FILENAME );
             }
+            // Remove any suffixes
+            $current_thumbnail_filename = preg_replace( '/-(?:scaled|[0-9]+)$/', '', $current_thumbnail_filename );
+        }
+        // Get new image filename, handling both relative and absolute paths
+        $new_image_filename = '';
+        if ( strpos( $image_url, '/wp-content' ) === 0 || strpos( $image_url, '/uploads' ) === 0 ) {
+            // Relative path
+            $new_image_filename = pathinfo( $image_url, PATHINFO_FILENAME );
+        } else {
+            // Absolute path or external URL
+            $new_image_filename = pathinfo( parse_url( $image_url, PHP_URL_PATH ), PATHINFO_FILENAME );
+        }
+        $new_image_filename = preg_replace( '/-(?:scaled|[0-9]+)$/', '', $new_image_filename );
+        // Compare base filenames
+        if ( empty( $current_thumbnail_id ) || $new_image_filename !== $current_thumbnail_filename ) {
+            // Convert relative URL to absolute URL if needed
+            $absolute_url = ( strpos( $image_url, 'http' ) !== 0 ? site_url() . $image_url : $image_url );
+            // Download image from URL and set as featured image
+            $upload = media_sideload_image(
+                $absolute_url,
+                $post_id,
+                null,
+                'src'
+            );
+            if ( !is_wp_error( $upload ) ) {
+                $attachment_id = attachment_url_to_postid( $upload );
+                if ( $attachment_id ) {
+                    set_post_thumbnail( $post_id, $attachment_id );
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper function to set the excerpt (if not set)
+     */
+    public static function set_excerpt( $post_id ) {
+        $max_length = 400;
+        $post_text = oum_get_location_value( 'text', $post_id, true );
+        $text = wp_strip_all_tags( $post_text );
+        if ( $text ) {
+            if ( strlen( $text ) > $max_length ) {
+                $text = substr( $text, 0, $max_length );
+                $last_space = strrpos( $text, ' ' );
+                if ( $last_space !== false ) {
+                    $text = substr( $text, 0, $last_space );
+                }
+                $text .= '...';
+            }
+            $post = array(
+                'ID'           => $post_id,
+                'post_excerpt' => sanitize_text_field( $text ),
+            );
+            wp_update_post( $post );
         }
     }
 
@@ -500,9 +561,11 @@ class LocationController extends BaseController {
                     $value .= '<div class="oum-carousel-inner">';
                     foreach ( $images as $index => $image_url ) {
                         if ( !empty( $image_url ) ) {
+                            // Convert relative path to absolute URL if needed
+                            $absolute_image_url = ( strpos( $image_url, 'http' ) !== 0 ? site_url() . $image_url : $image_url );
                             $active_class = ( $index === 0 ? ' active' : '' );
                             $value .= '<div class="oum-carousel-item' . $active_class . '">';
-                            $value .= '<img class="skip-lazy" src="' . esc_url_raw( $image_url ) . '">';
+                            $value .= '<img class="skip-lazy" src="' . esc_url_raw( $absolute_image_url ) . '">';
                             $value .= '</div>';
                         }
                     }
@@ -511,9 +574,26 @@ class LocationController extends BaseController {
                 } else {
                     // Single image or raw output
                     if ( !$raw ) {
-                        $value = '<img src="' . esc_attr( $images[0] ) . '">';
+                        // Convert relative path to absolute URL if needed
+                        $absolute_image_url = ( strpos( $images[0], 'http' ) !== 0 ? site_url() . $images[0] : $images[0] );
+                        $value = '<img src="' . esc_attr( $absolute_image_url ) . '">';
                     } else {
-                        $value = esc_attr( $image );
+                        // For raw output (like CSV export), ensure all URLs are relative
+                        $relative_urls = array();
+                        foreach ( $images as $url ) {
+                            if ( !empty( $url ) ) {
+                                // If it's an absolute URL from this site, convert to relative
+                                if ( strpos( $url, 'http' ) === 0 ) {
+                                    // Convert absolute URL to relative path
+                                    $site_url = site_url();
+                                    if ( strpos( $url, $site_url ) === 0 ) {
+                                        $url = str_replace( $site_url, '', $url );
+                                    }
+                                }
+                                $relative_urls[] = $url;
+                            }
+                        }
+                        $value = implode( '|', $relative_urls );
                     }
                 }
             } else {
@@ -524,9 +604,24 @@ class LocationController extends BaseController {
             $audio = get_post_meta( $post_id, '_oum_location_audio', true );
             $has_audio = ( isset( $audio ) && $audio != '' ? 'has-audio' : '' );
             if ( !$raw ) {
-                $value = ( $has_audio ? '<audio controls="controls" style="width:100%"><source type="audio/mp4" src="' . esc_attr( $audio ) . '"><source type="audio/mpeg" src="' . esc_attr( $audio ) . '"><source type="audio/wav" src="' . esc_attr( $audio ) . '"></audio>' : '' );
+                // Convert relative path to absolute URL if needed for display
+                $audio_url = ( isset( $audio ) && $audio != '' && strpos( $audio, 'http' ) !== 0 ? site_url() . $audio : $audio );
+                $value = ( $has_audio ? '<audio controls="controls" style="width:100%"><source type="audio/mp4" src="' . esc_attr( $audio_url ) . '"><source type="audio/mpeg" src="' . esc_attr( $audio_url ) . '"><source type="audio/wav" src="' . esc_attr( $audio_url ) . '"></audio>' : '' );
             } else {
-                $value = ( $has_audio ? esc_attr( $audio ) : '' );
+                // For raw output (like CSV export), ensure the URL is relative
+                if ( $has_audio ) {
+                    // If it's an absolute URL from this site, convert to relative
+                    if ( strpos( $audio, 'http' ) === 0 ) {
+                        // Convert absolute URL to relative path
+                        $site_url = site_url();
+                        if ( strpos( $audio, $site_url ) === 0 ) {
+                            $audio = str_replace( $site_url, '', $audio );
+                        }
+                    }
+                    $value = esc_attr( $audio );
+                } else {
+                    $value = '';
+                }
             }
         } elseif ( $attr == 'video' ) {
             // GET VIDEO

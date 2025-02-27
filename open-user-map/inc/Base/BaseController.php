@@ -565,7 +565,9 @@ class BaseController {
                                     $file_fullpath = $uploads_dir . $unique_filename;
                                     if ( move_uploaded_file( $tmp, $file_fullpath ) ) {
                                         // Store relative path in the mapping with original filename as key
-                                        $relative_url = '/wp-content/uploads/oum-useruploads/' . $unique_filename;
+                                        $upload_dir = wp_upload_dir();
+                                        $relative_upload_path = str_replace( site_url(), '', $upload_dir['baseurl'] );
+                                        $relative_url = $relative_upload_path . '/oum-useruploads/' . $unique_filename;
                                         $new_image_mapping[$name] = $relative_url;
                                     }
                                 }
@@ -576,9 +578,22 @@ class BaseController {
                             foreach ( $image_order as $item ) {
                                 list( $type, $identifier ) = explode( ':', $item );
                                 if ( $type === 'existing' ) {
-                                    // Convert absolute URL to relative if needed
-                                    $relative_url = str_replace( site_url(), '', $identifier );
-                                    $final_image_urls[] = $relative_url;
+                                    // Improved URL handling to properly convert absolute URLs to relative paths
+                                    if ( filter_var( $identifier, FILTER_VALIDATE_URL ) ) {
+                                        // Parse URL to handle different domain formats (with/without www, etc.)
+                                        $url_parts = parse_url( $identifier );
+                                        if ( isset( $url_parts['path'] ) ) {
+                                            // Only keep the path part
+                                            $final_image_urls[] = $url_parts['path'];
+                                        } else {
+                                            // Fallback to old method
+                                            $relative_url = str_replace( site_url(), '', $identifier );
+                                            $final_image_urls[] = $relative_url;
+                                        }
+                                    } else {
+                                        // Already a relative path or other format
+                                        $final_image_urls[] = $identifier;
+                                    }
                                 } else {
                                     // For new images, get URL from our mapping
                                     if ( isset( $new_image_mapping[$identifier] ) ) {
@@ -590,6 +605,14 @@ class BaseController {
                         // Save the final list of images
                         if ( !empty( $final_image_urls ) ) {
                             update_post_meta( $post_id, '_oum_location_image', implode( '|', $final_image_urls ) );
+                            // Set first image as featured image
+                            if ( !empty( $final_image_urls[0] ) ) {
+                                \OpenUserMapPlugin\Base\LocationController::set_featured_image( $post_id, $final_image_urls[0] );
+                            }
+                        } else {
+                            // If no images are set, remove both the location image meta and featured image
+                            delete_post_meta( $post_id, '_oum_location_image' );
+                            delete_post_thumbnail( $post_id );
                         }
                         // update meta
                         $lat_validated = floatval( str_replace( ',', '.', $data['oum_location_lat'] ) );
@@ -616,11 +639,6 @@ class BaseController {
                             $data_meta['custom_fields'] = $data['oum_location_custom_fields'];
                         }
                         update_post_meta( $post_id, '_oum_location_key', $data_meta );
-                        // IMAGE
-                        // remove the existing image
-                        if ( isset( $_POST['oum_remove_existing_image'] ) && $_POST['oum_remove_existing_image'] == '1' ) {
-                            delete_post_meta( $post_id, '_oum_location_image' );
-                        }
                         // AUDIO
                         // remove the existing audio
                         if ( isset( $_POST['oum_remove_existing_audio'] ) && $_POST['oum_remove_existing_audio'] == '1' ) {
@@ -634,10 +652,16 @@ class BaseController {
                             $file_fullpath = $uploads_dir . $file_name;
                             // save file to wp-content/uploads/oum-useruploads/
                             if ( move_uploaded_file( $data['oum_location_audio_src'], $file_fullpath ) ) {
-                                $oum_location_audio_url = wp_upload_dir()['baseurl'] . '/oum-useruploads/' . $file_name;
-                                $data_audio = esc_url_raw( $oum_location_audio_url );
+                                $upload_dir = wp_upload_dir();
+                                $relative_upload_path = str_replace( site_url(), '', $upload_dir['baseurl'] );
+                                $relative_url = $relative_upload_path . '/oum-useruploads/' . $file_name;
+                                $data_audio = esc_url_raw( $relative_url );
                                 update_post_meta( $post_id, '_oum_location_audio', $data_audio );
                             }
+                        }
+                        // Set excerpt if not set
+                        if ( get_the_excerpt( $post_id ) == '' ) {
+                            \OpenUserMapPlugin\Base\LocationController::set_excerpt( $post_id );
                         }
                     }
                     wp_send_json_success( array(

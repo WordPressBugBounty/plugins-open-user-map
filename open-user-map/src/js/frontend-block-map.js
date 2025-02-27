@@ -1553,7 +1553,6 @@ const OUMFormController = (function () {
     if (removeImageBtn) {
       removeImageBtn.addEventListener("click", function() {
         document.getElementById("oum_location_images_preview").innerHTML = "";
-        document.getElementById("oum_remove_existing_image").value = "1";
       });
     }
 
