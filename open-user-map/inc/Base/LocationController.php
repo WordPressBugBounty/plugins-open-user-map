@@ -142,6 +142,7 @@ class LocationController extends BaseController {
         $address = ( isset( $data['address'] ) ? $data['address'] : '' );
         $lat = ( isset( $data['lat'] ) ? $data['lat'] : '' );
         $lng = ( isset( $data['lng'] ) ? $data['lng'] : '' );
+        $zoom = ( isset( $data['zoom'] ) ? $data['zoom'] : '16' );
         $text = ( isset( $data['text'] ) ? $data['text'] : '' );
         $video = ( isset( $data['video'] ) ? $data['video'] : '' );
         $has_video = ( isset( $video ) && $video != '' ? 'has-video' : '' );
@@ -304,10 +305,12 @@ class LocationController extends BaseController {
         // Continue with regular save operation
         $lat_validated = ( isset( $location_data['oum_location_lat'] ) ? floatval( str_replace( ',', '.', sanitize_text_field( $location_data['oum_location_lat'] ) ) ) : '' );
         $lng_validated = ( isset( $location_data['oum_location_lng'] ) ? floatval( str_replace( ',', '.', sanitize_text_field( $location_data['oum_location_lng'] ) ) ) : '' );
+        $zoom_validated = ( isset( $location_data['oum_location_zoom'] ) ? intval( sanitize_text_field( $location_data['oum_location_zoom'] ) ) : 13 );
         $data = array(
             'address'      => ( isset( $location_data['oum_location_address'] ) ? sanitize_text_field( $location_data['oum_location_address'] ) : '' ),
             'lat'          => $lat_validated,
             'lng'          => $lng_validated,
+            'zoom'         => $zoom_validated,
             'text'         => ( isset( $location_data['oum_location_text'] ) ? wp_kses_post( $location_data['oum_location_text'] ) : '' ),
             'author_name'  => ( isset( $location_data['oum_location_author_name'] ) ? sanitize_text_field( $location_data['oum_location_author_name'] ) : '' ),
             'author_email' => ( isset( $location_data['oum_location_author_email'] ) ? sanitize_text_field( $location_data['oum_location_author_email'] ) : '' ),
@@ -669,9 +672,27 @@ class LocationController extends BaseController {
             $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
             $lat = $location['lat'];
             $lng = $location['lng'];
-            $zoom = '13';
-            $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );
-            $marker_user_icon = get_option( 'oum_marker_user_icon' );
+            $zoom = ( isset( $location['zoom'] ) ? $location['zoom'] : '16' );
+            // Get location types
+            $location_types = ( get_the_terms( $post_id, 'oum-type' ) && !is_wp_error( get_the_terms( $post_id, 'oum-type' ) ) ? get_the_terms( $post_id, 'oum-type' ) : false );
+            // Determine marker icon based on location type or settings
+            if ( isset( $location_types ) && is_array( $location_types ) && count( $location_types ) == 1 && !get_option( 'oum_enable_multiple_marker_types' ) ) {
+                $type = $location_types[0];
+                if ( $type->term_id && get_term_meta( $type->term_id, 'oum_marker_icon', true ) ) {
+                    // Get marker icon from location type
+                    $marker_icon = get_term_meta( $type->term_id, 'oum_marker_icon', true );
+                    $marker_user_icon = get_term_meta( $type->term_id, 'oum_marker_user_icon', true );
+                } else {
+                    // Get marker icon from settings
+                    $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );
+                    $marker_user_icon = get_option( 'oum_marker_user_icon' );
+                }
+            } else {
+                // Get marker icon from settings
+                $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );
+                $marker_user_icon = get_option( 'oum_marker_user_icon' );
+            }
+            // Set marker icon URL
             $marker_icon_url = ( $marker_icon == 'user1' && $marker_user_icon ? esc_url( $marker_user_icon ) : esc_url( $plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $marker_icon ) . '-2x.png' );
             $marker_shadow_url = esc_url( $plugin_url ) . 'src/leaflet/images/marker-shadow.png';
             $value = '<div id="mapRenderLocation" data-lat="' . $lat . '" data-lng="' . $lng . '" data-zoom="' . $zoom . '" data-mapstyle="' . $map_style . '" data-tile_provider_mapbox_key="' . $oum_tile_provider_mapbox_key . '" data-marker_icon_url="' . $marker_icon_url . '" data-marker_shadow_url="' . $marker_shadow_url . '" class="open-user-map-location-map leaflet-map map-style_' . $map_style . '"></div>';

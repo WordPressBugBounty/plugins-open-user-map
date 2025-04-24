@@ -45,6 +45,16 @@ echo __( 'Lng', 'open-user-map' );
 echo esc_attr( $lng );
 ?>"></input>
                                     </div>
+                                    <div>
+                                        <label class="meta-label" for="oum_location_zoom">
+                                            <?php 
+echo __( 'Zoom Level', 'open-user-map' );
+?>
+                                        </label>
+                                        <input type="number" class="widefat" id="oum_location_zoom" name="oum_location_zoom" min="0" max="20" value="<?php 
+echo esc_attr( $zoom );
+?>"></input>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -58,7 +68,7 @@ echo esc_attr( $lat );
 echo esc_attr( $lng );
 ?>';
                     const zoom = '<?php 
-echo ( get_option( 'oum_searchmarkers_zoom' ) ? get_option( 'oum_searchmarkers_zoom' ) : $this->oum_searchmarkers_zoom_default );
+echo esc_attr( $zoom );
 ?>';
                     const mapStyle = '<?php 
 echo esc_attr( $map_style );

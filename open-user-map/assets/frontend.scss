@@ -11,7 +11,6 @@ $search_input_width: 300px;
   position: relative;
   width: 100%;
   overflow: hidden;
-  aspect-ratio: 4/3;
   pointer-events: none;
 
   &:hover {
@@ -44,8 +43,60 @@ $search_input_width: 300px;
         height: 100%;
         display: block;
         max-width: 100%;
-        object-fit: cover;
-        object-position: top center;
+      }
+    }
+  }
+
+  // Different aspect ratios for cover modes
+  &.popup-image-size-cover-4-3 {
+    aspect-ratio: 4/3;
+
+    .oum-carousel-inner {
+      .oum-carousel-item {
+        img {
+          object-fit: cover;
+          object-position: top center;
+        }
+      }
+    }
+  }
+
+  &.popup-image-size-cover-16-9 {
+    aspect-ratio: 16/9;
+
+    .oum-carousel-inner {
+      .oum-carousel-item {
+        img {
+          object-fit: cover;
+          object-position: top center;
+        }
+      }
+    }
+  }
+
+  &.popup-image-size-cover-1-1 {
+    aspect-ratio: 1/1;
+
+    .oum-carousel-inner {
+      .oum-carousel-item {
+        img {
+          object-fit: cover;
+          object-position: top center;
+        }
+      }
+    }
+  }
+
+  // Original size mode
+  &.popup-image-size-original {
+    aspect-ratio: auto;
+    
+    .oum-carousel-inner {
+      .oum-carousel-item {
+        img {
+          width: 100%;
+          height: auto;
+        }
       }
     }
   }
@@ -371,23 +422,10 @@ $search_input_width: 300px;
             width: 250px;
             max-height: 400px;
             overflow: auto;
-  
-            .oum_location_image {
-              background-color: #eee;
-      
-              img {
-                width: 100%;
-                aspect-ratio: 1.77;
-                object-fit: cover;
-                object-position: top center;
-                margin: 0 auto;
-                pointer-events: none;
-              }
-            }
 
             .oum_location_video {
               background-color: #eee;
-              aspect-ratio: 4/3;
+              aspect-ratio: 16/9;
 
               > * {
                 margin: 0;
@@ -1018,7 +1056,7 @@ $search_input_width: 300px;
         background-clip: padding-box;
         font-size: 14px;
         line-height: 1;
-        padding: 0.4rem 1rem;
+        padding: 0 1rem;
         background-image: url(images/ico_search_marker.png);
         background-position: right 1px;
         background-repeat: no-repeat;
@@ -2095,17 +2133,6 @@ $search_input_width: 300px;
         // Add carousel styles for fullscreen container
         .oum-carousel {
           @include oum-carousel;
-        }
-  
-        .oum_location_image {
-          background-color: #eee;
-  
-          img {
-            max-height: 70vw;
-            max-width: 100%;
-            margin: 0 auto;
-            pointer-events: none;
-          }
         }
 
         .oum_location_video {

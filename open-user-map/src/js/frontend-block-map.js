@@ -558,6 +558,7 @@ const OUMMap = (function () {
           propertyName: "content",
           initial: false,
           buildTip: OUMUtils.customAutoSuggestText,
+          autoType: false,
           firstTipSubmit: true,
           autoCollapse: true,
           zoom: oum_searchmarkers_zoom,
@@ -574,6 +575,7 @@ const OUMMap = (function () {
           propertyName: "content",
           initial: false,
           buildTip: OUMUtils.customAutoSuggestText,
+          autoType: false,
           firstTipSubmit: true,
           autoCollapse: false,
           collapsed: false,
@@ -830,6 +832,7 @@ const OUMMarkers = (function () {
       title: location.title,
       post_id: location.post_id,
       content: contentText,
+      zoom: location.zoom,
       icon: L.icon({
         iconUrl: location.icon,
         iconSize: [26, 41],
@@ -946,12 +949,11 @@ const OUMMarkers = (function () {
   function handleAutoOpenMarker(markerId) {
     const targetMarker = allMarkers.find((m) => m.options.post_id === markerId);
     if (targetMarker) {
-      if (oum_enable_cluster) {
-        // For clustered markers:
-        // First zoom to the marker's location
-        map.setView(targetMarker.getLatLng(), oum_searchmarkers_zoom - 1);
 
-        // Then wait a bit for the clustering to update
+      if (oum_enable_cluster) {
+
+        // Wait a bit for the clustering to update
+
         setTimeout(() => {
           // Try to zoom to the specific marker and show it
           markersLayer.zoomToShowLayer(targetMarker, () => {
@@ -959,8 +961,8 @@ const OUMMarkers = (function () {
           });
         }, 500);
       } else {
-        // For non-clustered markers, we can open the popup directly
-        map.setView(targetMarker.getLatLng(), oum_searchmarkers_zoom);
+        // For non-clustered markers, we can open the popup directly and use the zoom level from the marker data
+        map.setView(targetMarker.getLatLng(), targetMarker.options.zoom);
         targetMarker.openPopup();
       }
     }
@@ -1156,7 +1158,7 @@ const OUMFormMap = (function () {
 
     // Add control: get current location
     if (oum_enable_currentlocation) {
-      window.map2_locate_process = L.control.locate({
+      window.formMap_locate_process = L.control.locate({
         flyTo: true,
         showPopup: false,
       }).addTo(formMap);
@@ -1510,8 +1512,8 @@ const OUMFormController = (function () {
     }
 
     // Stop locate process
-    if (window.map2_locate_process) {
-      window.map2_locate_process.stop();
+    if (window.formMap_locate_process) {
+      window.formMap_locate_process.stop();
     }
 
     // Allow body scrolling
@@ -1761,6 +1763,11 @@ const OUMFormController = (function () {
     if (form) {
       form.reset();
       form.style.display = 'block';
+    }
+
+    // Stop locate process
+    if (window.map_locate_process) {
+      window.map_locate_process.stop();
     }
 
     // Reset custom fields

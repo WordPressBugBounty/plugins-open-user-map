@@ -10,7 +10,9 @@ foreach ( $locations_list as $location ) {
     $name_tag = ( get_option( 'oum_enable_title', 'on' ) == 'on' ? '<h3 class="oum_location_name">' . esc_attr( $location['name'] ) . '</h3>' : '' );
     $media_tag = '';
     if ( isset( $location['images'] ) && !empty( $location['images'] ) ) {
-        $media_tag = '<div class="oum-carousel">';
+        // Get the image size setting
+        $oum_popup_image_size = ( get_option( 'oum_popup_image_size' ) ? get_option( 'oum_popup_image_size' ) : 'original' );
+        $media_tag = '<div class="oum-carousel popup-image-size-' . esc_attr( $oum_popup_image_size ) . '">';
         $media_tag .= '<div class="oum-carousel-inner">';
         foreach ( $location['images'] as $index => $image_url ) {
             $active_class = ( $index === 0 ? ' active' : '' );
@@ -141,6 +143,7 @@ foreach ( $locations_list as $location ) {
         'title'         => html_entity_decode( esc_attr( $location['name'] ) ),
         'lat'           => esc_attr( $location["lat"] ),
         'lng'           => esc_attr( $location["lng"] ),
+        'zoom'          => esc_attr( $location["zoom"] ),
         'content'       => $content,
         'icon'          => esc_attr( $location["icon"] ),
         'types'         => ( isset( $location["types"] ) ? $location["types"] : [] ),
@@ -586,6 +589,10 @@ if ( $oum_ui_color ) {
     echo $oum_ui_color;
     ?>0a !important}
             .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .oum-image-preview-grid .image-preview-item.dragging {border-color: <?php 
+    echo $oum_ui_color;
+    ?> !important}
+            /* List Styles */
+            .open-user-map-locations-list .oum-locations-list-item .oum_location_text a {color: <?php 
     echo $oum_ui_color;
     ?> !important}`;
 

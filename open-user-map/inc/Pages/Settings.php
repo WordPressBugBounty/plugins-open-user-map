@@ -50,6 +50,9 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_marker_user_icon', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'open-user-map-settings-group', 'oum_popup_image_size', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
         register_setting( 'open-user-map-settings-group', 'oum_map_size', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
@@ -422,7 +425,7 @@ class Settings extends BaseController {
         }
         // Render the notice's HTML.
         echo '<div class="notice oum-getting-started-notice notice-success is-dismissible">';
-        echo sprintf( __( '<h3>🚀 Getting started with Open User Map</h3><ol><li>Use the page editor or Elementor to insert the <b>"Open User Map"</b> block onto a page. Alternatively, you can use the shortcode <code>[open-user-map]</code></li><li>You can <a href="%s">manage Locations</a> under <i>Open User Map > All Locations</i></li><li><a href="%s">Customize</a> styles and features under <i>Open User Map > Settings</i></li></ol>', 'open-user-map' ), 'edit.php?post_type=oum-location', 'edit.php?post_type=oum-location&page=open-user-map-settings' );
+        echo sprintf( __( '<h3>🚀 Get started with Open User Map</h3><ol><li>Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page. Alternatively, you can use the shortcode <code>[open-user-map]</code>.</li><li>You can <a href="%s">Manage Markers</a> under <i>Open User Map > All Locations</i></li><li><a href="%s">Customize</a> map styles, enable features, or get help via <i>Open User Map > Settings</i></li></ol>', 'open-user-map' ), 'edit.php?post_type=oum-location', 'edit.php?post_type=oum-location&page=open-user-map-settings' );
         echo '</div>';
     }
 

@@ -279,6 +279,7 @@ foreach ( $posts as $post ) {
         'address'       => $address,
         'lat'           => $location_meta['lat'],
         'lng'           => $location_meta['lng'],
+        'zoom'          => ( isset( $location_meta['zoom'] ) ? $location_meta['zoom'] : '16' ),
         'text'          => $text,
         'images'        => $absolute_images,
         'audio'         => $absolute_audio,

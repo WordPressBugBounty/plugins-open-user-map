@@ -1,10 +1,10 @@
 === Open User Map ===
 Contributors: 100plugins
-Tags: map, interactive map, leaflet, mapbox, regions
+Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.4.4
+Stable tag: 1.4.5
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -17,14 +17,31 @@ Create a custom map featuring your own locations or an interactive map where any
 The map is based on [Leaflet Map JS](https://leafletjs.com/) and offers you many free map and marker styles. You do not need an API Key, Access Token or any other external registration (unlike Google Maps). Additionally you have access to awesome MapBox map styles. 
 
 
+🔥 [See Live Demos](https://www.open-user-map.com/demo/) | 🚀 [Start 7-day PRO Trial (No Credit Card)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free) | 📖 [More Info](https://www.open-user-map.com/) | ❓ [Help](https://www.open-user-map.com/support/knowledge-base/)
 
-[Demos](https://www.open-user-map.com/demo/) | [Start 7-day PRO trial (no credit card required)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free) | [More Info](https://www.open-user-map.com/) | [Help](https://www.open-user-map.com/support/knowledge-base/)
 
+= Why Choose Open User Map? =
 
+✅ **Fully interactive** – let visitors add pins instantly!
+✅ **No API keys required** – avoid Google Maps restrictions.
+✅ **Supports multiple map styles** – including MapBox, and GDPR-friendly OpenStreetMap.
+✅ **Powerful search options** – live search, address search & category filtering.
+✅ **Customizable forms & fields** – add multiple images, videos, custom descriptions, and more!
+✅ **Works with Gutenberg, Elementor & Shortcodes** – easily embed maps anywhere.
+✅ **Perfect for directories, community maps, travel blogs, and business locations.**
 
 https://www.youtube.com/watch?v=FRUkzKSZeL8&ab_channel=100plugins
 
 🍿 Watch Video on YouTube: [What is Open User Map?](https://www.youtube.com/watch?v=FRUkzKSZeL8&ab_channel=100plugins)
+
+
+= With Open User Map, you can easily create: =
+
+📍 **A Simple Custom Map** – Show only your own marker pins (no user submissions).
+👥 **A Crowdsourced Interactive Map** – Let visitors add new locations with names, descriptions, images and videos.
+📡 **A Store Locator** – Showcase business locations and allow users to search for nearby places.
+🔎 **A Filterable Map** – Add categories & custom fields to organize locations.
+😎 **Personalized Maps** – Offer individual maps to your signed in users
 
 
 = 🌏 How to create a Simple Map =
@@ -168,23 +185,37 @@ Use the shortcode [open-user-map-list] to get a list view of all the locations. 
 - **Allow registered users to edit their locations**
 Open User Map PRO extends WordPress capabilities to allow backend access. If assigned to the user role registered users get access to read, edit and delete their locations from within the map.
 
-[Get a 7-day PRO trial (no credit card)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free)
+🔥 [Start 7-day PRO Trial (No Credit Card)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free)
 
 === Use Cases ===
 
-= 🍕 Bar and restaurant guide =
+= 🍕 Restaurant & Food Guides =
 You want to build a collaborative map service where your visitors can add locations on their own. This could be a travel blog or a something like a bar and restaurtant guide. Where are the top locations for food and drinks in your city? Ask your audience for their recommendations! Prepare some categories like food, drinks, music etc. and let them drop the markers right in the frontend. Watch your map grow fast!
 
-= 👭👬 Community building =
+= 👭👬 Community Building =
 Extend the WordPress user registration form with an "Add location" input. Your new users can drop a marker on the map to share their location. Use it to build an awesome user map and help your audience connecting.
 
-= 📺 Video tour map =
+= 📺 Video Tour Map =
 Bring locations to life with video! Let your visitors enhance location markers by embedding YouTube or Vimeo videos directly on the map. This could be a video tour of a neighborhood, a restaurant walkthrough, or a cultural event highlight. Perfect for travel bloggers, city guides, or virtual tours—give your audience a dynamic, interactive experience by combining video with location markers.
 
-= 🎤🎸 Sound map =
+= 🎤🎸 Sound Map =
 Get your audience a soundmap. Your visitors can not only upload text and images to their locations but audio as well! This way e.g urban (or remote) areas can be discovered by its specific soundscape.
 
-**The possibilities are endless. We are very curious about what you are building with the help of our plugin. Please don't hesitate to let us know or ask for feature requests in the support forum. As this plugin is under constant development we are keen to know what are the features that you need? Contact us!**
+= 🎯 Business Directory =
+List businesses on a map with categories & filters.
+
+= 🗺️ Event or Travel Maps =
+Show tour locations, landmarks & routes.
+
+= 🏠 Real Estate Listings =
+Display properties with images, videos & descriptions.
+
+= 📍 Store Locator =
+Make it easy for customers to find physical store locations.
+
+📖 [View More Examples & Live Demos](https://www.open-user-map.com/)
+
+**The possibilities are endless. We are very curious about what you are building with the help of our plugin. Please don't hesitate to let us know or ask for feature requests. As this plugin is under constant development we are keen to know what are the features that you need? Contact us!**
 
 == Installation ==
 From your WordPress dashboard
@@ -230,6 +261,16 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.5 =
+* WordPress 6.8 compatibility
+* Set Individual Map Zoom for each Location
+* UI Elements color setting is now available in free version
+* Add "post_id" to webhook payload
+* New option: Image Size in Popup (Original or Cover with Aspect Ratio)
+* Bugfix: Marker Search auto suggest
+* Bugfix: Use assigned Marker Category Icon for [open-user-map-location value="map"]
+* Bugfix: Current Location
+
 = 1.4.4 =
 * Restrict "Delete Location" button by "delete_oum-locations" capability
 * Bugfix: Doubled site path in image urls (only on Multisite with folder)

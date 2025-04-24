@@ -707,6 +707,7 @@ class BaseController {
         }
         // Prepare webhook payload
         $webhook_data = array(
+            'post_id'           => $post_id,
             'title'             => get_the_title( $post_id ),
             'content'           => get_post_field( 'post_content', $post_id ),
             'website_url'       => get_site_url(),

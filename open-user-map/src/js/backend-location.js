@@ -18,6 +18,11 @@ window.addEventListener('load', function(e) {
     jQuery('#oum_location_lng').val(markerLatLng.lng);
   }
 
+  //set zoom level
+  function setLocationZoom(zoomLevel) {
+    jQuery('#oum_location_zoom').val(zoomLevel);
+  }
+
   //set address field
   function setAddress(label) {
     jQuery('#oum_location_address').val(label);
@@ -217,6 +222,12 @@ window.addEventListener('load', function(e) {
     }
 
     setLocationLatLng(coords);
+    setLocationZoom(map.getZoom());
+  });
+
+  //Event: map zoom change
+  map.on('zoomend', function(e) {
+    setLocationZoom(map.getZoom());
   });
 
   //Event: geosearch success
@@ -246,6 +257,26 @@ window.addEventListener('load', function(e) {
       e.preventDefault();
       jQuery(this).parent('.hint').hide();
       latLngInputs.fadeIn();
+  });
+
+  // Event: Update map when coordinates or zoom change
+  jQuery('#oum_location_lat, #oum_location_lng, #oum_location_zoom').on('change', function() {
+    const lat = parseFloat(jQuery('#oum_location_lat').val());
+    const lng = parseFloat(jQuery('#oum_location_lng').val());
+    const zoom = parseInt(jQuery('#oum_location_zoom').val());
+
+    // Only update if we have valid coordinates
+    if (!isNaN(lat) && !isNaN(lng)) {
+      // Update marker position
+      locationMarker.setLatLng([lat, lng]);
+      if (!markerIsVisible) {
+        locationMarker.addTo(map);
+        markerIsVisible = true;
+      }
+
+      // Update map view
+      map.setView([lat, lng], zoom);
+    }
   });
 
   // Media Uploader

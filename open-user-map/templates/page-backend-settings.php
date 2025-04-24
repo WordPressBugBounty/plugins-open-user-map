@@ -125,13 +125,13 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
           
             <ol class="next-steps">
               <li><?php 
-        echo __( 'Use the page editor or Elementor to insert the <b>"Open User Map"</b> block onto a page.<br>Alternatively, you can use the shortcode <code>[open-user-map]</code>.', 'open-user-map' );
+        echo __( 'Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page.<br>Alternatively, you can use the shortcode <code>[open-user-map]</code>.', 'open-user-map' );
         ?></li>
               <li><?php 
-        echo __( 'Your website visitors will see a <div class="oum-inline-plus">+</div> button in the upper right corner of the map, which they can use to propose their own location markers. New location proposals will have status "pending" to wait for your approval in the <i>Open User Map > All Locations</i> menu.', 'open-user-map' );
+        echo __( 'Your website visitors will see a <div class="oum-inline-plus">+</div> button in the upper right corner of the map, which they can use to propose their own location markers. New location proposals will appear with the status <b>Pending</b> until you review and approve them in the <i>Open User Map > All Locations</i> menu.', 'open-user-map' );
         ?></li>
               <li><?php 
-        echo __( 'Customize styles, activate features and find help under <i>Open User Map > Settings</i>', 'open-user-map' );
+        echo __( 'To customize styles, enable features, or get help, go to <i>Open User Map > Settings</i>', 'open-user-map' );
         ?></li>
             </ol>
 
@@ -144,10 +144,10 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         echo sprintf( __( 'Add your first Location under <a href="%s">Open User Map > Add Location</a>', 'open-user-map' ), 'post-new.php?post_type=oum-location' );
         ?></li>
               <li><?php 
-        echo __( 'Use the page editor or Elementor to insert the <b>"Open User Map"</b> block onto a page.<br>Alternatively, you can use the shortcode <code>[open-user-map]</code>.', 'open-user-map' );
+        echo __( 'Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page.<br>Alternatively, you can use the shortcode <code>[open-user-map]</code>.', 'open-user-map' );
         ?></li>
               <li><?php 
-        echo __( 'Customize styles, activate features and find help under <i>Open User Map > Settings</i>', 'open-user-map' );
+        echo __( 'To customize styles, enable features, or get help, go to <i>Open User Map > Settings</i>', 'open-user-map' );
         ?></li>
             </ol>
 
@@ -383,42 +383,54 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               </td>
             </tr>
 
-            <?php 
+            <tr valign="top">
+              <?php 
+    $oum_ui_color = ( get_option( 'oum_ui_color' ) ? get_option( 'oum_ui_color' ) : $this->oum_ui_color_default );
     ?>
-
-            <?php 
-    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
-        ?>
-
-              <tr valign="top" class="oum-gopro-tr">
+              <th scope="row">
                 <?php 
-        $oum_ui_color = $this->oum_ui_color_default;
-        ?>
-                <th scope="row">
-                  <?php 
-        echo __( 'UI Elements color', 'open-user-map' );
-        ?>
-                  <br><span class="oum-pro">PRO</span><br>
-                  <a class="oum-gopro-text" href="<?php 
-        echo oum_fs()->get_upgrade_url();
-        ?>"><?php 
-        echo __( 'Upgrade to PRO to set a custom color for buttons and icons.', 'open-user-map' );
-        ?></a>
-                </th>
-                <td>
-                  <div id="oum_ui_color_wrap">
-                    <input disabled type="text" class="oum_colorpicker" value="<?php 
-        echo esc_attr( $oum_ui_color );
-        ?>" placeholder="<?php 
-        echo esc_attr( $oum_ui_color );
-        ?>"></input>
-                  </div>
-                </td>
-              </tr>
+    echo __( 'UI Elements color', 'open-user-map' );
+    ?>
+              </th>
+              <td>
+                <div id="oum_ui_color_wrap">
+                  <input type="text" class="oum_colorpicker" name="oum_ui_color" value="<?php 
+    echo esc_attr( $oum_ui_color );
+    ?>" placeholder="<?php 
+    echo esc_attr( $oum_ui_color );
+    ?>"></input>
+                </div>
+              </td>
+            </tr>
 
-            <?php 
+            <tr valign="top">
+              <th scope="row">
+                <?php 
+    echo __( 'Image Size in Popup', 'open-user-map' );
+    ?>
+              </th>
+              <td>
+                <select name="oum_popup_image_size" id="oum_popup_image_size">
+                  <?php 
+    $oum_popup_image_size = ( get_option( 'oum_popup_image_size' ) ? get_option( 'oum_popup_image_size' ) : 'original' );
+    $items = array(
+        'original'   => __( 'Original Size (default)', 'open-user-map' ),
+        'cover-4-3'  => __( 'Cover 4:3', 'open-user-map' ),
+        'cover-16-9' => __( 'Cover 16:9', 'open-user-map' ),
+        'cover-1-1'  => __( 'Cover 1:1', 'open-user-map' ),
+    );
+    foreach ( $items as $val => $label ) {
+        $selected = ( $oum_popup_image_size == $val ? 'selected' : '' );
+        echo '<option value="' . esc_textarea( $val ) . '" ' . $selected . '>' . esc_textarea( $label ) . '</option>';
     }
     ?>
+                </select>
+                <br><br>
+                <span class="description"><?php 
+    echo __( 'Choose how images are displayed in the location popup.', 'open-user-map' );
+    ?></span>
+              </td>
+            </tr>
 
             <tr valign="top">
               <th scope="row">
@@ -2069,12 +2081,12 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
             <tr valign="top">
               <th scope="row">
                 <?php 
-    echo __( '🚀 Getting started', 'open-user-map' );
+    echo __( '🚀 Get started with Open User Map', 'open-user-map' );
     ?>
               </th>
               <td class="top-padding-20">
                 <?php 
-    echo sprintf( __( '<ol><li>Use the page editor or Elementor to insert the <b>"Open User Map"</b> block onto a page. Alternatively, you can use the shortcode <code>[open-user-map]</code></li><li>You can <a href="%s">manage Locations</a> under <i>Open User Map > All Locations</i></li><li><a href="%s">Customize</a> styles and features under <i>Open User Map > Settings</i></li></ol>', 'open-user-map' ), 'edit.php?post_type=oum-location', 'edit.php?post_type=oum-location&page=open-user-map-settings' );
+    echo sprintf( __( '<ol><li>Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page. Alternatively, you can use the shortcode <code>[open-user-map]</code>.</li><li>You can <a href="%s">Manage Markers</a> under <i>Open User Map > All Locations</i></li><li><a href="%s">Customize</a> map styles, enable features, or get help via <i>Open User Map > Settings</i></li></ol>', 'open-user-map' ), 'edit.php?post_type=oum-location', 'edit.php?post_type=oum-location&page=open-user-map-settings' );
     ?>
               </td>
             </tr>
