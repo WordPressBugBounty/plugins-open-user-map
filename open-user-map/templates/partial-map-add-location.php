@@ -325,11 +325,24 @@ if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_
         echo __( 'Upload Images', 'open-user-map' );
         ?>">
                   <span class="dashicons dashicons-format-image"></span>
-                  <span class="multi-upload-indicator">+</span>
+                  <?php 
+        $max_images = get_option( 'oum_max_image_uploads', 5 );
+        if ( $max_images > 1 ) {
+            ?>
+                    <span class="multi-upload-indicator">+</span>
+                  <?php 
+        }
+        ?>
                 </label>
-                <p class="oum-image-upload-description"><?php 
-        echo __( 'Add up to 5 images to create a gallery for this location.', 'open-user-map' );
-        ?></p>
+                <?php 
+        if ( $max_images > 1 ) {
+            ?>
+                  <p class="oum-image-upload-description"><?php 
+            echo sprintf( __( 'Add up to %d images to create a gallery for this location.', 'open-user-map' ), $max_images );
+            ?></p>
+                <?php 
+        }
+        ?>
               </div>
               <input type="file" 
                 id="oum_location_images" 
@@ -341,7 +354,9 @@ if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_
             ?>required<?php 
         }
         ?> 
-                data-max-files="5"
+                data-max-files="<?php 
+        echo esc_attr( $max_images );
+        ?>"
               />
               <input type="hidden" id="oum_remove_existing_image" name="oum_remove_existing_image" value="0" />
             </div>

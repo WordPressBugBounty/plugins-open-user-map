@@ -50,6 +50,9 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_marker_user_icon', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'open-user-map-settings-group', 'oum_max_image_uploads', array(
+            'sanitize_callback' => array($this, 'validate_max_image_uploads'),
+        ) );
         register_setting( 'open-user-map-settings-group', 'oum_popup_image_size', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
@@ -410,6 +413,18 @@ class Settings extends BaseController {
             }
         }
         return $array;
+    }
+
+    public function validate_max_image_uploads( $input ) {
+        // Convert to integer
+        $value = intval( $input );
+        // Validate range
+        if ( $value < 1 ) {
+            $value = 1;
+        } elseif ( $value > 5 ) {
+            $value = 5;
+        }
+        return $value;
     }
 
     public static function show_getting_started_notice() {

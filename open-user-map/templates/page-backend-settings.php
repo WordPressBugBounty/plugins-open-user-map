@@ -500,7 +500,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $start_lng = get_option( 'oum_start_lng' );
     $start_zoom = get_option( 'oum_start_zoom' );
     $oum_enable_fixed_map_bounds = get_option( 'oum_enable_fixed_map_bounds' );
-    $oum_searchaddress_label = ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_searchaddress_label_default );
+    $oum_searchaddress_label = ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_get_default_label( 'searchaddress' ) );
     ?>
                 <div class="form-field geo-coordinates-wrap">
                     <div class="map-wrap">
@@ -818,7 +818,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Custom Label:', 'open-user-map' );
     ?></strong><br>
                 <input class="regular-text" type="text" name="oum_title_label" id="oum_title_label" placeholder="<?php 
-    echo esc_attr( $this->oum_title_label_default );
+    echo esc_attr( $this->oum_get_default_label( 'title' ) );
     ?>" value="<?php 
     echo esc_attr( $oum_title_label );
     ?>">
@@ -838,7 +838,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Custom Label:', 'open-user-map' );
     ?></strong><br>
                 <input class="regular-text" type="text" name="oum_map_label" id="oum_map_label" placeholder="<?php 
-    echo esc_attr( $this->oum_map_label_default );
+    echo esc_attr( $this->oum_get_default_label( 'map' ) );
     ?>" value="<?php 
     echo esc_attr( $oum_map_label );
     ?>">
@@ -1066,7 +1066,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Custom Label:', 'open-user-map' );
     ?></strong><br>
                 <input class="regular-text" type="text" name="oum_address_label" id="oum_address_label" placeholder="<?php 
-    echo esc_attr( $this->oum_address_label_default );
+    echo esc_attr( $this->oum_get_default_label( 'address' ) );
     ?>" value="<?php 
     echo esc_attr( $oum_address_label );
     ?>">
@@ -1107,7 +1107,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Custom Label:', 'open-user-map' );
     ?></strong><br>
                 <input class="regular-text" type="text" name="oum_description_label" id="oum_description_label" placeholder="<?php 
-    echo esc_attr( $this->oum_description_label_default );
+    echo esc_attr( $this->oum_get_default_label( 'description' ) );
     ?>" value="<?php 
     echo esc_attr( $oum_description_label );
     ?>">
@@ -1119,6 +1119,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               <?php 
     $oum_enable_image = get_option( 'oum_enable_image', 'on' );
     $oum_image_required = get_option( 'oum_image_required' );
+    $oum_max_image_uploads = get_option( 'oum_max_image_uploads', 5 );
     $oum_enable_audio = get_option( 'oum_enable_audio', 'on' );
     $oum_audio_required = get_option( 'oum_audio_required' );
     $oum_enable_video = get_option( 'oum_enable_video', false );
@@ -1130,7 +1131,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></th>
               <td>
 
-                <div class="oum_2cols">
+                <div class="oum_3cols">
                   <div>
                     <input class="oum-switch" type="checkbox" name="oum_enable_image" id="oum_enable_image" <?php 
     echo ( $oum_enable_image === 'on' ? 'checked' : '' );
@@ -1148,6 +1149,18 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></label>
                   </div>
                 </div>
+                <br>
+                <div>
+                    <strong><?php 
+    echo __( 'Max number of images:', 'open-user-map' );
+    ?></strong><br>
+                    <input class="small-text" type="number" min="1" max="5" name="oum_max_image_uploads" id="oum_max_image_uploads" value="<?php 
+    echo esc_attr( $oum_max_image_uploads );
+    ?>"></input>
+                    <span class="description"><?php 
+    echo __( 'Set the maximum number of images users can upload per location (1-5). Default: 5', 'open-user-map' );
+    ?></span>
+                  </div>
                 <br><br>
 
                 <?php 
@@ -1204,7 +1217,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Custom Label:', 'open-user-map' );
     ?></strong><br>
                 <input class="regular-text" type="text" name="oum_upload_media_label" id="oum_upload_media_label" placeholder="<?php 
-    echo esc_attr( $this->oum_upload_media_label_default );
+    echo esc_attr( $this->oum_get_default_label( 'upload_media' ) );
     ?>" value="<?php 
     echo esc_attr( $oum_upload_media_label );
     ?>">
@@ -1476,7 +1489,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Custom Label:', 'open-user-map' );
     ?></strong><br>
                 <input class="regular-text" type="text" name="oum_searchaddress_label" id="oum_searchaddress_label" placeholder="<?php 
-    echo esc_attr( $this->oum_searchaddress_label_default );
+    echo esc_attr( $this->oum_get_default_label( 'searchaddress' ) );
     ?>" value="<?php 
     echo esc_attr( $oum_searchaddress_label );
     ?>">
@@ -1503,7 +1516,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Custom Label:', 'open-user-map' );
     ?></strong><br>
                 <input class="regular-text" type="text" name="oum_searchmarkers_label" id="oum_searchmarkers_label" placeholder="<?php 
-    echo esc_attr( $this->oum_searchmarkers_label_default );
+    echo esc_attr( $this->oum_get_default_label( 'searchmarkers' ) );
     ?>" value="<?php 
     echo esc_attr( $oum_searchmarkers_label );
     ?>"><br><br>
@@ -1551,7 +1564,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         echo __( 'Custom Label:', 'open-user-map' );
         ?></strong><br>
                   <input disabled class="regular-text" type="text" value="" placeholder="<?php 
-        echo esc_attr( $this->oum_marker_types_label_default );
+        echo esc_attr( $this->oum_get_default_label( 'marker_types' ) );
         ?>">
                   <br><br>
                   <input class="oum-switch" type="checkbox" disabled>

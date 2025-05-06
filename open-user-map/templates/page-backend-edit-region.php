@@ -58,7 +58,7 @@
             const oum_geosearch_provider_geoapify_key = `<?php echo get_option('oum_geosearch_provider_geoapify_key', ''); ?>`;
             const oum_geosearch_provider_here_key = `<?php echo get_option('oum_geosearch_provider_here_key', ''); ?>`;
             const oum_geosearch_provider_mapbox_key = `<?php echo get_option('oum_geosearch_provider_mapbox_key', ''); ?>`;
-            const oum_searchaddress_label = `<?php echo esc_attr(get_option('oum_searchaddress_label') ? get_option('oum_searchaddress_label') : $this->oum_searchaddress_label_default); ?>`;
+            const oum_searchaddress_label = `<?php echo esc_attr(get_option('oum_searchaddress_label') ? get_option('oum_searchaddress_label') : $this->oum_get_default_label('searchaddress')); ?>`;
             </script>
 
             <?php 

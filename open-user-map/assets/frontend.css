@@ -356,6 +356,7 @@
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_read_more {
   margin-top: 10px;
+  font-size: 14px;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel {
   position: relative;

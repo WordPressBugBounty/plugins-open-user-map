@@ -974,6 +974,12 @@
   align-items: center;
   gap: 15px;
 }
+.oum-location_page_open-user-map-settings .oum_3cols,
+.toplevel_page_open-user-map .oum_3cols {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
 .oum-location_page_open-user-map-settings code.block,
 .toplevel_page_open-user-map code.block {
   white-space: pre-line;

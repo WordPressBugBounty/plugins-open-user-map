@@ -94,7 +94,7 @@ echo get_option( 'oum_geosearch_provider_here_key', '' );
 echo get_option( 'oum_geosearch_provider_mapbox_key', '' );
 ?>`;
                     const oum_searchaddress_label = `<?php 
-echo esc_attr( ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_searchaddress_label_default ) );
+echo esc_attr( ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_get_default_label( 'searchaddress' ) ) );
 ?>`;
 
                     <?php 

@@ -16,25 +16,7 @@ class BaseController {
 
     public $post_status;
 
-    public $oum_title_label_default;
-
-    public $oum_map_label_default;
-
-    public $oum_address_label_default;
-
-    public $oum_description_label_default;
-
-    public $oum_upload_media_label_default;
-
-    public $oum_marker_types_label_default;
-
-    public $oum_searchmarkers_label_default;
-
     public $oum_searchmarkers_zoom_default;
-
-    public $oum_searchaddress_label_default;
-
-    public $oum_user_notification_label_default;
 
     public $map_styles = array(
         "Esri.WorldStreetMap"  => "Esri WorldStreetMap",
@@ -122,6 +104,21 @@ class BaseController {
         "layout-2" => "Sidebar",
     );
 
+    public function oum_get_default_label( $key ) {
+        $labels = [
+            'title'             => __( 'Title', 'open-user-map' ),
+            'map'               => __( 'Click on the map to set a marker', 'open-user-map' ),
+            'description'       => __( 'Description', 'open-user-map' ),
+            'upload_media'      => __( 'Upload media', 'open-user-map' ),
+            'address'           => __( 'Subtitle', 'open-user-map' ),
+            'marker_types'      => __( 'Type', 'open-user-map' ),
+            'searchaddress'     => __( 'Search for address', 'open-user-map' ),
+            'searchmarkers'     => __( 'Find marker', 'open-user-map' ),
+            'user_notification' => __( 'Notify me when it is published', 'open-user-map' ),
+        ];
+        return ( isset( $labels[$key] ) ? $labels[$key] : '' );
+    }
+
     public $oum_incompatible_3rd_party_scripts = array();
 
     public function __construct() {
@@ -131,18 +128,14 @@ class BaseController {
             'Version' => 'Version',
         ) )['Version'];
         $this->plugin = plugin_basename( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/open-user-map.php';
-        //Default labels
-        $this->oum_title_label_default = __( 'Title', 'open-user-map' );
-        $this->oum_map_label_default = __( 'Click on the map to set a marker', 'open-user-map' );
-        $this->oum_description_label_default = __( 'Description', 'open-user-map' );
-        $this->oum_upload_media_label_default = __( 'Upload media', 'open-user-map' );
-        $this->oum_address_label_default = __( 'Subtitle', 'open-user-map' );
-        $this->oum_marker_types_label_default = __( 'Type', 'open-user-map' );
-        $this->oum_searchaddress_label_default = __( 'Search for address', 'open-user-map' );
-        $this->oum_searchmarkers_label_default = __( 'Find marker', 'open-user-map' );
         $this->oum_searchmarkers_zoom_default = 8;
-        $this->oum_user_notification_label_default = __( 'Notify me when it is published', 'open-user-map' );
         add_action( 'init', array($this, 'oum_init') );
+        add_action(
+            'transition_post_status',
+            array($this, 'assign_user_on_approval'),
+            10,
+            3
+        );
     }
 
     public function oum_init() {
@@ -762,6 +755,23 @@ class BaseController {
             }
         }
         return $img;
+    }
+
+    /**
+     * Assign current user to locations without user id on approval
+     */
+    public function assign_user_on_approval( $new_status, $old_status, $post ) {
+        // Only proceed if:
+        // 1. It's a location post type
+        // 2. Status is changing to publish
+        // 3. Post has no author assigned
+        if ( $post->post_type === 'oum-location' && 'publish' === $new_status && 'publish' !== $old_status && $post->post_author == 0 ) {
+            wp_update_post( array(
+                'ID'          => $post->ID,
+                'post_author' => get_current_user_id(),
+            ) );
+            error_log( 'Open User Map: Assigned user ID ' . get_current_user_id() . ' to location ' . $post->ID . ' on approval' );
+        }
     }
 
 }

@@ -192,7 +192,7 @@ class LocationController extends BaseController {
         $notification = ( isset( $data['notification'] ) ? $data['notification'] : '' );
         $author_name = ( isset( $data['author_name'] ) ? $data['author_name'] : '' );
         $author_email = ( isset( $data['author_email'] ) ? $data['author_email'] : '' );
-        $text_notify_me_on_publish_label = ( get_option( 'oum_user_notification_label' ) ? get_option( 'oum_user_notification_label' ) : $this->oum_user_notification_label_default );
+        $text_notify_me_on_publish_label = ( get_option( 'oum_user_notification_label' ) ? get_option( 'oum_user_notification_label' ) : $this->oum_get_default_label( 'user_notification' ) );
         $text_notify_me_on_publish_name = __( 'Your name', 'open-user-map' );
         $text_notify_me_on_publish_email = __( 'Your email', 'open-user-map' );
         $notified = get_post_meta( $post->ID, '_oum_location_notified', true );

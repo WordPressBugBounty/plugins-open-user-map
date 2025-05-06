@@ -21,7 +21,7 @@ $thankyou_text = get_option( 'oum_thankyou_text' );
 $thankyou_redirect = get_option( 'oum_thankyou_redirect' );
 $oum_enable_add_location = get_option( 'oum_enable_add_location', 'on' );
 $oum_enable_user_notification = get_option( 'oum_enable_user_notification' );
-$text_notify_me_on_publish_label = ( get_option( 'oum_user_notification_label' ) ? get_option( 'oum_user_notification_label' ) : $this->oum_user_notification_label_default );
+$text_notify_me_on_publish_label = ( get_option( 'oum_user_notification_label' ) ? get_option( 'oum_user_notification_label' ) : $this->oum_get_default_label( 'user_notification' ) );
 $text_notify_me_on_publish_name = __( 'Your name', 'open-user-map' );
 $text_notify_me_on_publish_email = __( 'Your email', 'open-user-map' );
 $oum_enable_currentlocation = ( get_option( 'oum_enable_currentlocation' ) ? 'true' : 'false' );
@@ -29,25 +29,25 @@ $oum_disable_oum_attribution = get_option( 'oum_disable_oum_attribution' );
 $oum_collapse_filter = ( get_option( 'oum_collapse_filter' ) ? 'use-collapse' : 'active' );
 $oum_ui_color = ( get_option( 'oum_ui_color' ) ? get_option( 'oum_ui_color' ) : $this->oum_ui_color_default );
 $oum_plus_button_label = ( get_option( 'oum_plus_button_label' ) ? get_option( 'oum_plus_button_label' ) : __( 'Add location', 'open-user-map' ) );
-$oum_marker_types_label = ( get_option( 'oum_marker_types_label' ) ? get_option( 'oum_marker_types_label' ) : $this->oum_marker_types_label_default );
-$oum_title_label = ( get_option( 'oum_title_label' ) ? get_option( 'oum_title_label' ) : $this->oum_title_label_default );
-$oum_map_label = ( get_option( 'oum_map_label' ) ? get_option( 'oum_map_label' ) : $this->oum_map_label_default );
-$oum_address_label = ( get_option( 'oum_address_label' ) ? get_option( 'oum_address_label' ) : $this->oum_address_label_default );
-$oum_description_label = ( get_option( 'oum_description_label' ) ? get_option( 'oum_description_label' ) : $this->oum_description_label_default );
-$oum_upload_media_label = ( get_option( 'oum_upload_media_label' ) ? get_option( 'oum_upload_media_label' ) : $this->oum_upload_media_label_default );
+$oum_marker_types_label = ( get_option( 'oum_marker_types_label' ) ? get_option( 'oum_marker_types_label' ) : $this->oum_get_default_label( 'marker_types' ) );
+$oum_title_label = ( get_option( 'oum_title_label' ) ? get_option( 'oum_title_label' ) : $this->oum_get_default_label( 'title' ) );
+$oum_map_label = ( get_option( 'oum_map_label' ) ? get_option( 'oum_map_label' ) : $this->oum_get_default_label( 'map' ) );
+$oum_address_label = ( get_option( 'oum_address_label' ) ? get_option( 'oum_address_label' ) : $this->oum_get_default_label( 'address' ) );
+$oum_description_label = ( get_option( 'oum_description_label' ) ? get_option( 'oum_description_label' ) : $this->oum_get_default_label( 'description' ) );
+$oum_upload_media_label = ( get_option( 'oum_upload_media_label' ) ? get_option( 'oum_upload_media_label' ) : $this->oum_get_default_label( 'upload_media' ) );
 $oum_enable_fixed_map_bounds = get_option( 'oum_enable_fixed_map_bounds' );
 $oum_enable_multiple_marker_types = ( get_option( 'oum_enable_multiple_marker_types', false ) ? 'true' : 'false' );
 $oum_enable_searchbar = ( get_option( 'oum_enable_searchbar', 'on' ) === 'on' ? 'true' : 'false' );
 $oum_searchbar_type = ( get_option( 'oum_searchbar_type' ) ? get_option( 'oum_searchbar_type' ) : 'address' );
 $oum_enable_searchmarkers_button = ( get_option( 'oum_enable_searchmarkers_button', 'on' ) === 'on' ? 'true' : 'false' );
-$oum_searchmarkers_label = ( get_option( 'oum_searchmarkers_label' ) ? get_option( 'oum_searchmarkers_label' ) : $this->oum_searchmarkers_label_default );
+$oum_searchmarkers_label = ( get_option( 'oum_searchmarkers_label' ) ? get_option( 'oum_searchmarkers_label' ) : $this->oum_get_default_label( 'searchmarkers' ) );
 $oum_searchmarkers_zoom = ( get_option( 'oum_searchmarkers_zoom' ) ? get_option( 'oum_searchmarkers_zoom' ) : $this->oum_searchmarkers_zoom_default );
 $oum_geosearch_provider = ( get_option( 'oum_geosearch_provider' ) ? get_option( 'oum_geosearch_provider' ) : 'osm' );
 $oum_geosearch_provider_geoapify_key = get_option( 'oum_geosearch_provider_geoapify_key', '' );
 $oum_geosearch_provider_here_key = get_option( 'oum_geosearch_provider_here_key', '' );
 $oum_geosearch_provider_mapbox_key = get_option( 'oum_geosearch_provider_mapbox_key', '' );
 $oum_enable_searchaddress_button = ( get_option( 'oum_enable_searchaddress_button', 'on' ) === 'on' ? 'true' : 'false' );
-$oum_searchaddress_label = ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_searchaddress_label_default );
+$oum_searchaddress_label = ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_get_default_label( 'searchaddress' ) );
 $oum_custom_js = get_option( 'oum_custom_js' );
 $oum_location_date_type = get_option( 'oum_location_date_type', 'modified' );
 // Custom Attribute: Map Size
@@ -167,8 +167,11 @@ $locations_query = new WP_Query($query);
 $posts = $locations_query->posts;
 // Get all post meta in a single query
 $post_ids = wp_list_pluck( $posts, 'ID' );
-global $wpdb;
-$all_meta = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_key, meta_value \n    FROM {$wpdb->postmeta} \n    WHERE post_id IN (" . implode( ',', array_fill( 0, count( $post_ids ), '%d' ) ) . ")\n    AND meta_key IN ('_oum_location_key', '_oum_location_image', '_oum_location_audio')", $post_ids ) );
+$all_meta = array();
+if ( !empty( $post_ids ) ) {
+    global $wpdb;
+    $all_meta = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_key, meta_value \n      FROM {$wpdb->postmeta} \n      WHERE post_id IN (" . implode( ',', array_fill( 0, count( $post_ids ), '%d' ) ) . ")\n      AND meta_key IN ('_oum_location_key', '_oum_location_image', '_oum_location_audio')", $post_ids ) );
+}
 // Index meta values by post_id and meta_key for faster lookup
 $indexed_meta = array();
 foreach ( $all_meta as $meta ) {
