@@ -2,19 +2,20 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Open User Map 1.4.5\n"
+"Project-Id-Version: Open User Map 1.4.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/open-user-map\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-05-06T17:47:14+00:00\n"
+"POT-Creation-Date: 2025-05-25T21:56:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.5.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: open-user-map\n"
 
 #. Plugin Name of the plugin
+#: open-user-map.php
 #: elementor/includes/widgets/open-user-map-widget.php:10
 #: elementor/includes/widgets/open-user-map-widget.php:227
 #: inc/Base/LocationController.php:49
@@ -24,18 +25,22 @@ msgid "Open User Map"
 msgstr ""
 
 #. Plugin URI of the plugin
+#: open-user-map.php
 msgid "https://wordpress.org/plugins/open-user-map/"
 msgstr ""
 
 #. Description of the plugin
+#: open-user-map.php
 msgid "Engage your visitors with an interactive map – let them add markers instantly or create a custom map showcasing your favorite spots."
 msgstr ""
 
 #. Author of the plugin
+#: open-user-map.php
 msgid "100plugins"
 msgstr ""
 
 #. Author URI of the plugin
+#: open-user-map.php
 msgid "https://www.open-user-map.com/"
 msgstr ""
 
@@ -167,14 +172,72 @@ msgid "Filter by POST IDs"
 msgstr ""
 
 #: inc/Base/BaseController.php:99
-msgid "Title"
+msgid "Delete this location?"
 msgstr ""
 
 #: inc/Base/BaseController.php:100
-msgid "Click on the map to set a marker"
+msgid "This action cannot be undone. The location will be permanently removed from the map."
 msgstr ""
 
 #: inc/Base/BaseController.php:101
+msgid "Yes, delete location"
+msgstr ""
+
+#: inc/Base/BaseController.php:102
+msgid "Location deleted"
+msgstr ""
+
+#: inc/Base/BaseController.php:103
+msgid "The location has been successfully removed from the map."
+msgstr ""
+
+#: inc/Base/BaseController.php:104
+msgid "An error occurred while deleting the location. Please try again."
+msgstr ""
+
+#: inc/Base/BaseController.php:105
+msgid "Close and refresh map"
+msgstr ""
+
+#: inc/Base/BaseController.php:106
+msgid "Changes saved"
+msgstr ""
+
+#: inc/Base/BaseController.php:107
+msgid "Your changes have been saved and will be visible after we reviewed them."
+msgstr ""
+
+#: inc/Base/BaseController.php:108
+#: templates/page-backend-settings.php:1070
+#: templates/partial-map-add-location.php:284
+msgid "Thank you!"
+msgstr ""
+
+#: inc/Base/BaseController.php:109
+#: templates/page-backend-settings.php:1071
+#: templates/partial-map-add-location.php:285
+msgid "We will check your location suggestion and release it as soon as possible."
+msgstr ""
+
+#: inc/Base/BaseController.php:110
+#, php-format
+msgid "Maximum %1$d images allowed. Only the first %2$d new images will be used."
+msgstr ""
+
+#: inc/Base/BaseController.php:111
+#, php-format
+msgid "The following images exceed the maximum file size of %1$dMB:\\n%2$s"
+msgstr ""
+
+#: inc/Base/BaseController.php:117
+msgid "Title"
+msgstr ""
+
+#: inc/Base/BaseController.php:118
+msgid "Click on the map to set a marker"
+msgstr ""
+
+#: inc/Base/BaseController.php:119
 #: templates/page-backend-location.php:136
 #: templates/page-backend-settings.php:709
 #: templates/page-backend-settings.php:1880
@@ -184,33 +247,34 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: inc/Base/BaseController.php:102
+#: inc/Base/BaseController.php:120
 msgid "Upload media"
 msgstr ""
 
-#: inc/Base/BaseController.php:103
+#: inc/Base/BaseController.php:121
 #: inc/Base/LocationController.php:471
 #: templates/page-backend-location.php:79
 msgid "Subtitle"
 msgstr ""
 
-#: inc/Base/BaseController.php:104
+#: inc/Base/BaseController.php:122
 msgid "Type"
 msgstr ""
 
-#: inc/Base/BaseController.php:105
+#: inc/Base/BaseController.php:123
 msgid "Search for address"
 msgstr ""
 
-#: inc/Base/BaseController.php:106
+#: inc/Base/BaseController.php:124
 msgid "Find marker"
 msgstr ""
 
-#: inc/Base/BaseController.php:107
+#: inc/Base/BaseController.php:125
 msgid "Notify me when it is published"
 msgstr ""
 
-#: inc/Base/BaseController.php:491
+#: inc/Base/BaseController.php:559
+#, php-format
 msgid "Image \"%s\" is too large. Maximum file size is %d MB."
 msgstr ""
 
@@ -404,6 +468,7 @@ msgid "Back to Regions"
 msgstr ""
 
 #: inc/Pages/Settings.php:309
+#, php-format
 msgid "<h3>🚀 Get started with Open User Map</h3><ol><li>Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page. Alternatively, you can use the shortcode <code>[open-user-map]</code>.</li><li>You can <a href=\"%s\">Manage Markers</a> under <i>Open User Map > All Locations</i></li><li><a href=\"%s\">Customize</a> map styles, enable features, or get help via <i>Open User Map > Settings</i></li></ol>"
 msgstr ""
 
@@ -612,6 +677,7 @@ msgid "To customize styles, enable features, or get help, go to <i>Open User Map
 msgstr ""
 
 #: templates/page-backend-settings.php:90
+#, php-format
 msgid "Add your first Location under <a href=\"%s\">Open User Map > Add Location</a>"
 msgstr ""
 
@@ -676,6 +742,7 @@ msgid "MapBox API Key:"
 msgstr ""
 
 #: templates/page-backend-settings.php:218
+#, php-format
 msgid "You can get a MapBox API key <a href=\"%s\">here</a>. It is free to use with up to 200,000 map tile requests per month. Please attribute MapBox service if you use their free plan."
 msgstr ""
 
@@ -775,6 +842,7 @@ msgid "Geoapify API Key:"
 msgstr ""
 
 #: templates/page-backend-settings.php:512
+#, php-format
 msgid "You can get a Geoapify API key <a href=\"%s\">here</a>. It is free to use with up to 3000 requests per day. Please attribute Geoapify service if you use their free plan."
 msgstr ""
 
@@ -783,10 +851,12 @@ msgid "Here API Key:"
 msgstr ""
 
 #: templates/page-backend-settings.php:518
+#, php-format
 msgid "You can get a Here API key <a href=\"%s\">here</a>. It is free to use with up to 30,000 requests per month. Please attribute Here service if you use their free plan."
 msgstr ""
 
 #: templates/page-backend-settings.php:524
+#, php-format
 msgid "You can get a MapBox API key <a href=\"%s\">here</a>. It is free to use with up to 100,000 geocoding requests per month. Please attribute MapBox service if you use their free plan."
 msgstr ""
 
@@ -984,20 +1054,6 @@ msgstr ""
 
 #: templates/page-backend-settings.php:1055
 msgid "Redirect"
-msgstr ""
-
-#: templates/page-backend-settings.php:1070
-#: templates/partial-map-add-location.php:284
-#: src/js/frontend-ajax.js:103
-#: src/js/frontend-ajax.js:119
-msgid "Thank you!"
-msgstr ""
-
-#: templates/page-backend-settings.php:1071
-#: templates/partial-map-add-location.php:285
-#: src/js/frontend-ajax.js:104
-#: src/js/frontend-ajax.js:120
-msgid "We will check your location suggestion and release it as soon as possible."
 msgstr ""
 
 #: templates/page-backend-settings.php:1093
@@ -1211,6 +1267,7 @@ msgid "john@doe.com"
 msgstr ""
 
 #: templates/page-backend-settings.php:1637
+#, php-format
 msgid "A new location with the title \"%title%\" on %website_url% has been added! Please verify and publish or use the \"auto-publish\" feature. \\n\\n %edit_location_url%"
 msgstr ""
 
@@ -1264,6 +1321,7 @@ msgid "🚀 Get started with Open User Map"
 msgstr ""
 
 #: templates/page-backend-settings.php:1836
+#, php-format
 msgid "<ol><li>Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page. Alternatively, you can use the shortcode <code>[open-user-map]</code>.</li><li>You can <a href=\"%s\">Manage Markers</a> under <i>Open User Map > All Locations</i></li><li><a href=\"%s\">Customize</a> map styles, enable features, or get help via <i>Open User Map > Settings</i></li></ol>"
 msgstr ""
 
@@ -1541,6 +1599,7 @@ msgid "Upload Images"
 msgstr ""
 
 #: templates/partial-map-add-location.php:205
+#, php-format
 msgid "Add up to %d images to create a gallery for this location."
 msgstr ""
 
@@ -1606,60 +1665,6 @@ msgstr ""
 #: blocks/build/index.js:1
 #: blocks/src/edit.js:151
 msgid "Manage Locations"
-msgstr ""
-
-#: src/js/frontend-ajax.js:75
-#: src/js/frontend-block-map.js:1403
-msgid "Location deleted"
-msgstr ""
-
-#: src/js/frontend-ajax.js:76
-#: src/js/frontend-block-map.js:1404
-msgid "The location has been successfully removed from the map."
-msgstr ""
-
-#: src/js/frontend-ajax.js:77
-#: src/js/frontend-ajax.js:88
-#: src/js/frontend-ajax.js:110
-#: src/js/frontend-ajax.js:126
-#: src/js/frontend-block-map.js:1405
-msgid "Close and refresh map"
-msgstr ""
-
-#: src/js/frontend-ajax.js:86
-msgid "Changes saved"
-msgstr ""
-
-#: src/js/frontend-ajax.js:87
-msgid "Your changes have been saved and will be visible after we reviewed them."
-msgstr ""
-
-#: src/js/frontend-block-map.js:1379
-msgid "Delete this location?"
-msgstr ""
-
-#: src/js/frontend-block-map.js:1380
-msgid "This action cannot be undone. The location will be permanently removed from the map."
-msgstr ""
-
-#: src/js/frontend-block-map.js:1381
-msgid "Yes, delete location"
-msgstr ""
-
-#: src/js/frontend-block-map.js:1416
-msgid "An error occurred while deleting the location. Please try again."
-msgstr ""
-
-#. translators: %1$d: maximum number of files, %2$d: number of files that will be used
-#: src/js/frontend-block-map.js:2005
-msgid "Maximum %1$d images allowed. Only the first %2$d new images will be used."
-msgstr ""
-
-#. translators: %1$d: maximum file size in MB, %2$s: list of files
-#: src/js/frontend-block-map.js:2034
-msgid ""
-"The following images exceed the maximum file size of %1$dMB:\n"
-"%2$s"
 msgstr ""
 
 #: blocks/block.json

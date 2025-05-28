@@ -19,7 +19,7 @@ window.addEventListener('load', function(e) {
   });
 
   // Tabs
-  const tabs = document.querySelectorAll(".nav-tab-wrapper > .nav-tab");
+  const tabs = document.querySelectorAll(".oum-nav-tab-wrapper > .nav-tab");
 
   for(i = 0; i < tabs.length; i++) {
     tabs[i].addEventListener("click", switchTab);
@@ -27,8 +27,8 @@ window.addEventListener('load', function(e) {
 
   function switchTab(event) {
     event.preventDefault();
-    document.querySelector(".nav-tab-wrapper > .nav-tab.nav-tab-active").classList.remove("nav-tab-active");
-    document.querySelector(".tab-pane.active").classList.remove("active");
+    document.querySelector(".oum-nav-tab-wrapper > .nav-tab.nav-tab-active").classList.remove("nav-tab-active");
+    document.querySelector(".oum-tab-pane.active").classList.remove("active");
 
     let clickedTab = event.currentTarget;
     let anchor = event.target;

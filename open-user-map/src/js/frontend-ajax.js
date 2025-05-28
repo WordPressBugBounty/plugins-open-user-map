@@ -72,9 +72,9 @@ document.addEventListener('DOMContentLoaded', function(e) {
               // For deletion
               OUMFormController.showFormMessage(
                   'success',
-                  wp.i18n.__('Location deleted', 'open-user-map'),
-                  wp.i18n.__('The location has been successfully removed from the map.', 'open-user-map'),
-                  wp.i18n.__('Close and refresh map', 'open-user-map'),
+                  oum_custom_strings.location_deleted,
+                  oum_custom_strings.delete_success,
+                  oum_custom_strings.close_and_refresh,
                   function() {
                       window.location.reload();
                   }
@@ -83,9 +83,9 @@ document.addEventListener('DOMContentLoaded', function(e) {
               // For edits
               OUMFormController.showFormMessage(
                   'success',
-                  wp.i18n.__('Changes saved', 'open-user-map'),
-                  wp.i18n.__('Your changes have been saved and will be visible after we reviewed them.', 'open-user-map'),
-                  wp.i18n.__('Close and refresh map', 'open-user-map'),
+                  oum_custom_strings.changes_saved,
+                  oum_custom_strings.changes_saved_message,
+                  oum_custom_strings.close_and_refresh,
                   function() {
                       window.location.reload();
                   }
@@ -100,14 +100,14 @@ document.addEventListener('DOMContentLoaded', function(e) {
                   } else {
                       // Show thank you message with refresh button (default)
                       const thankyouDiv = document.getElementById('oum_add_location_thankyou');
-                      const thankyouHeadline = thankyouDiv?.querySelector('h3')?.textContent || wp.i18n.__('Thank you!', 'open-user-map');
-                      const thankyouText = thankyouDiv?.querySelector('.oum-add-location-thankyou-text')?.textContent || wp.i18n.__('We will check your location suggestion and release it as soon as possible.', 'open-user-map');
+                      const thankyouHeadline = thankyouDiv?.querySelector('h3')?.textContent || oum_custom_strings.thank_you;
+                      const thankyouText = thankyouDiv?.querySelector('.oum-add-location-thankyou-text')?.textContent || oum_custom_strings.thank_you_message;
                       
                       OUMFormController.showFormMessage(
                           'success',
                           thankyouHeadline,
                           thankyouText,
-                          wp.i18n.__('Close and refresh map', 'open-user-map'),
+                          oum_custom_strings.close_and_refresh,
                           function() {
                               window.location.reload();
                           }
@@ -116,14 +116,14 @@ document.addEventListener('DOMContentLoaded', function(e) {
               } else {
                   // Fallback to thank you message with refresh button
                   const thankyouDiv = document.getElementById('oum_add_location_thankyou');
-                  const thankyouHeadline = thankyouDiv?.querySelector('h3')?.textContent || wp.i18n.__('Thank you!', 'open-user-map');
-                  const thankyouText = thankyouDiv?.querySelector('.oum-add-location-thankyou-text')?.textContent || wp.i18n.__('We will check your location suggestion and release it as soon as possible.', 'open-user-map');
+                  const thankyouHeadline = thankyouDiv?.querySelector('h3')?.textContent || oum_custom_strings.thank_you;
+                  const thankyouText = thankyouDiv?.querySelector('.oum-add-location-thankyou-text')?.textContent || oum_custom_strings.thank_you_message;
                   
                   OUMFormController.showFormMessage(
                       'success',
                       thankyouHeadline,
                       thankyouText,
-                      wp.i18n.__('Close and refresh map', 'open-user-map'),
+                      oum_custom_strings.close_and_refresh,
                       function() {
                           window.location.reload();
                       }

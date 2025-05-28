@@ -578,6 +578,13 @@ class Settings extends BaseController {
                 // IMPORT
                 $path_1 = wp_get_upload_dir()['basedir'];
                 $path_2 = explode( '/uploads/', $_POST['url'] )['1'];
+                // Handle paths for both single and multisite installations
+                if ( is_multisite() ) {
+                    // For multisite, remove the duplicate sites/[blog_id] from path_2
+                    // as it's already included in wp_get_upload_dir()['basedir']
+                    $blog_id = get_current_blog_id();
+                    $path_2 = preg_replace( "#^sites/{$blog_id}/#", '', $path_2 );
+                }
                 $csv_file = $path_1 . '/' . $path_2;
                 $delimiter = $this->detectDelimiter( $csv_file );
                 // parse csv file to array

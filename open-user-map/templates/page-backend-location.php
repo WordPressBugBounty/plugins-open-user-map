@@ -135,7 +135,6 @@ wp_enqueue_script(
         'oum_leaflet_fullscreen_js',
         'oum_leaflet_search_js',
         'oum_leaflet_gesture_js',
-        'wp-i18n',
         'oum_global_leaflet_js'
     ),
     esc_attr( $this->plugin_version )

@@ -27,10 +27,13 @@
 
   .geo-coordinates-wrap {
     display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
 
     .map-wrap {
       position: relative;
       width: 50%;
+      min-width: 340px;
       padding-top: 30%;
   
       #mapGetLocation {
@@ -147,12 +150,10 @@
     }
 
     .input-wrap {
-      width: 50%;
-      padding: 0 50px;
+      width: 330px;
 
       .geo-coordinates-hint {
         box-sizing: border-box;
-        padding: 7%;
         margin-bottom: 30px;
 
         div.hint {
@@ -163,10 +164,10 @@
         .latlng-wrap {
           >div:not(.hint) {
             display: flex;
-            justify-content: space-between;
+            gap: 15px;
 
             >div {
-              width: 49%;
+              width: 100px;
             }
           }
         }
@@ -179,10 +180,6 @@
       .map-wrap,
       .input-wrap {
         width: 100%;
-      }
-
-      .input-wrap {
-        padding: 0;
       }
     }
   }
@@ -1045,15 +1042,15 @@
     font-size: 12px;
   }
 
-  .nav-tab-wrapper {
+  .oum-nav-tab-wrapper {
     .nav-tab {
       outline: none;
       box-shadow: none;
     }
   }
 
-  .tab-content {
-    .tab-pane {
+  .oum-tab-content {
+    .oum-tab-pane {
       display: none;
       padding: 1rem;
 
@@ -1472,10 +1469,12 @@
 
   .geo-coordinates-wrap {
     display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
 
     .map-wrap {
       position: relative;
-      flex: 0 0 570px;
+      flex: 0 0 440px;
       aspect-ratio: 1.53;
       margin-bottom: auto;
 
@@ -1582,20 +1581,17 @@
     }
 
     .input-wrap {
-      width: 50%;
-      padding: 0 50px;
+      width: 440px;
 
       .latlng-wrap {
         display: flex;
-        justify-content: space-between;
+        gap: 15px;
 
         >div {
+          width: 100px;
+
           input {
             width: 100%;
-          }
-
-          &.zoom-wrap {
-            width: 100px;
           }
         }
       }

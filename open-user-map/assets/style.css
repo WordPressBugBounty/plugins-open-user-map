@@ -22,11 +22,14 @@
 .post-php.post-type-oum-location .geo-coordinates-wrap,
 .post-new-php.post-type-oum-location .geo-coordinates-wrap {
   display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
 }
 .post-php.post-type-oum-location .geo-coordinates-wrap .map-wrap,
 .post-new-php.post-type-oum-location .geo-coordinates-wrap .map-wrap {
   position: relative;
   width: 50%;
+  min-width: 340px;
   padding-top: 30%;
 }
 .post-php.post-type-oum-location .geo-coordinates-wrap .map-wrap #mapGetLocation,
@@ -129,13 +132,11 @@
 }
 .post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap,
 .post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap {
-  width: 50%;
-  padding: 0 50px;
+  width: 330px;
 }
 .post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint,
 .post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint {
   box-sizing: border-box;
-  padding: 7%;
   margin-bottom: 30px;
 }
 .post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint div.hint,
@@ -146,11 +147,11 @@
 .post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap > div:not(.hint),
 .post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap > div:not(.hint) {
   display: flex;
-  justify-content: space-between;
+  gap: 15px;
 }
 .post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap > div:not(.hint) > div,
 .post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap > div:not(.hint) > div {
-  width: 49%;
+  width: 100px;
 }
 @media (max-width: 768px) {
   .post-php.post-type-oum-location .geo-coordinates-wrap,
@@ -162,10 +163,6 @@
   .post-new-php.post-type-oum-location .geo-coordinates-wrap .map-wrap,
   .post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap {
     width: 100%;
-  }
-  .post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap,
-  .post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap {
-    padding: 0;
   }
 }
 .post-php.post-type-oum-location #oum_location_image_preview .image-preview-grid,
@@ -935,18 +932,18 @@
   padding: 0px 4px;
   font-size: 12px;
 }
-.oum-location_page_open-user-map-settings .nav-tab-wrapper .nav-tab,
-.toplevel_page_open-user-map .nav-tab-wrapper .nav-tab {
+.oum-location_page_open-user-map-settings .oum-nav-tab-wrapper .nav-tab,
+.toplevel_page_open-user-map .oum-nav-tab-wrapper .nav-tab {
   outline: none;
   box-shadow: none;
 }
-.oum-location_page_open-user-map-settings .tab-content .tab-pane,
-.toplevel_page_open-user-map .tab-content .tab-pane {
+.oum-location_page_open-user-map-settings .oum-tab-content .oum-tab-pane,
+.toplevel_page_open-user-map .oum-tab-content .oum-tab-pane {
   display: none;
   padding: 1rem;
 }
-.oum-location_page_open-user-map-settings .tab-content .tab-pane.active,
-.toplevel_page_open-user-map .tab-content .tab-pane.active {
+.oum-location_page_open-user-map-settings .oum-tab-content .oum-tab-pane.active,
+.toplevel_page_open-user-map .oum-tab-content .oum-tab-pane.active {
   display: block;
 }
 .oum-location_page_open-user-map-settings .oum_support_hint,
@@ -1356,11 +1353,13 @@
 .oum-location_page_open-user-map-settings .geo-coordinates-wrap,
 .toplevel_page_open-user-map .geo-coordinates-wrap {
   display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
 }
 .oum-location_page_open-user-map-settings .geo-coordinates-wrap .map-wrap,
 .toplevel_page_open-user-map .geo-coordinates-wrap .map-wrap {
   position: relative;
-  flex: 0 0 570px;
+  flex: 0 0 440px;
   aspect-ratio: 1.53;
   margin-bottom: auto;
 }
@@ -1453,21 +1452,20 @@
 }
 .oum-location_page_open-user-map-settings .geo-coordinates-wrap .input-wrap,
 .toplevel_page_open-user-map .geo-coordinates-wrap .input-wrap {
-  width: 50%;
-  padding: 0 50px;
+  width: 440px;
 }
 .oum-location_page_open-user-map-settings .geo-coordinates-wrap .input-wrap .latlng-wrap,
 .toplevel_page_open-user-map .geo-coordinates-wrap .input-wrap .latlng-wrap {
   display: flex;
-  justify-content: space-between;
+  gap: 15px;
+}
+.oum-location_page_open-user-map-settings .geo-coordinates-wrap .input-wrap .latlng-wrap > div,
+.toplevel_page_open-user-map .geo-coordinates-wrap .input-wrap .latlng-wrap > div {
+  width: 100px;
 }
 .oum-location_page_open-user-map-settings .geo-coordinates-wrap .input-wrap .latlng-wrap > div input,
 .toplevel_page_open-user-map .geo-coordinates-wrap .input-wrap .latlng-wrap > div input {
   width: 100%;
-}
-.oum-location_page_open-user-map-settings .geo-coordinates-wrap .input-wrap .latlng-wrap > div.zoom-wrap,
-.toplevel_page_open-user-map .geo-coordinates-wrap .input-wrap .latlng-wrap > div.zoom-wrap {
-  width: 100px;
 }
 .oum-location_page_open-user-map-settings .geo-coordinates-wrap .input-wrap .geo-coordinates-hint,
 .toplevel_page_open-user-map .geo-coordinates-wrap .input-wrap .geo-coordinates-hint {

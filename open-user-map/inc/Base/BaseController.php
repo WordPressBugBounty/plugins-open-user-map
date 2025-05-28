@@ -104,6 +104,24 @@ class BaseController {
         "layout-2" => "Sidebar",
     );
 
+    public function oum_custom_strings() {
+        return array(
+            'delete_location'         => __( 'Delete this location?', 'open-user-map' ),
+            'delete_location_message' => __( 'This action cannot be undone. The location will be permanently removed from the map.', 'open-user-map' ),
+            'delete_location_button'  => __( 'Yes, delete location', 'open-user-map' ),
+            'location_deleted'        => __( 'Location deleted', 'open-user-map' ),
+            'delete_success'          => __( 'The location has been successfully removed from the map.', 'open-user-map' ),
+            'delete_error'            => __( 'An error occurred while deleting the location. Please try again.', 'open-user-map' ),
+            'close_and_refresh'       => __( 'Close and refresh map', 'open-user-map' ),
+            'changes_saved'           => __( 'Changes saved', 'open-user-map' ),
+            'changes_saved_message'   => __( 'Your changes have been saved and will be visible after we reviewed them.', 'open-user-map' ),
+            'thank_you'               => __( 'Thank you!', 'open-user-map' ),
+            'thank_you_message'       => __( 'We will check your location suggestion and release it as soon as possible.', 'open-user-map' ),
+            'max_files_exceeded'      => __( 'Maximum %1$d images allowed. Only the first %2$d new images will be used.', 'open-user-map' ),
+            'max_filesize_exceeded'   => __( 'The following images exceed the maximum file size of %1$dMB:\\n%2$s', 'open-user-map' ),
+        );
+    }
+
     public function oum_get_default_label( $key ) {
         $labels = [
             'title'             => __( 'Title', 'open-user-map' ),
@@ -302,8 +320,6 @@ class BaseController {
             $this->plugin_version,
             true
         );
-        // enqueue WordPress i18n (for translations inside JS)
-        wp_enqueue_script( 'wp-i18n' );
     }
 
     /**
@@ -339,12 +355,13 @@ class BaseController {
                 'oum_leaflet_fullscreen_js',
                 'oum_leaflet_search_js',
                 'oum_leaflet_gesture_js',
-                'wp-i18n',
                 'oum_global_leaflet_js'
             ),
             $this->plugin_version,
             true
         );
+        // Localize custom strings
+        wp_localize_script( 'oum_frontend_block_map_js', 'oum_custom_strings', $this->oum_custom_strings() );
         // add custom js to frontend-block-map.js
         wp_localize_script( 'oum_frontend_block_map_js', 'custom_js', array(
             'snippet' => get_option( 'oum_custom_js' ),
@@ -356,6 +373,8 @@ class BaseController {
             $this->plugin_version,
             true
         );
+        // Localize custom strings
+        wp_localize_script( 'oum_frontend_ajax_js', 'oum_custom_strings', $this->oum_custom_strings() );
         wp_localize_script( 'oum_frontend_ajax_js', 'oum_ajax', array(
             'ajaxurl' => admin_url( 'admin-ajax.php' ),
         ) );

@@ -203,6 +203,16 @@ const OUMUtils = (function () {
     };
   }
 
+  /**
+   * Simple sprintf implementation for string formatting
+   * @param {string} str - String with placeholders (%1$d, %2$d, etc)
+   * @param {...any} args - Values to replace placeholders
+   * @returns {string}
+   */
+  function sprintf(str, ...args) {
+    return str.replace(/%(\d+)\$d/g, (match, num) => args[num - 1] || match);
+  }
+
   // Public interface
   return {
     getParameterByName,
@@ -212,6 +222,7 @@ const OUMUtils = (function () {
     validateCoordinates,
     safeJSONParse,
     debounce,
+    sprintf
   };
 })();
 
@@ -281,12 +292,12 @@ const OUMConfig = (function () {
     media: {
       maxFiles: 5,
       validImageExtensions: ["jpeg", "jpg", "png", "webp"],
-      maxImageSize: (oum_max_image_filesize || 10) * 1048576, // Convert MB to bytes
+      maxImageSize: (window.oum_max_image_filesize || 10) * 1048576, // Convert MB to bytes
     },
     search: {
-      zoomLevel: oum_searchmarkers_zoom || 8,
-      addressLabel: oum_searchaddress_label || "Search for address",
-      markersLabel: oum_searchmarkers_label || "Find marker",
+      zoomLevel: window.oum_searchmarkers_zoom || 8,
+      addressLabel: window.oum_searchaddress_label || "Search for address",
+      markersLabel: window.oum_searchmarkers_label || "Find marker",
     },
   };
 
@@ -1376,9 +1387,9 @@ const OUMFormController = (function () {
         // Show confirmation using the message system
         showFormMessage(
           'confirm-delete',
-          wp.i18n.__('Delete this location?', 'open-user-map'),
-          wp.i18n.__('This action cannot be undone. The location will be permanently removed from the map.', 'open-user-map'),
-          wp.i18n.__('Yes, delete location', 'open-user-map'),
+          oum_custom_strings.delete_location,
+          oum_custom_strings.delete_location_message,
+          oum_custom_strings.delete_location_button,
           function() {
             // Set delete flag
             document.getElementById('oum_delete_location').value = 'true';
@@ -1400,9 +1411,9 @@ const OUMFormController = (function () {
                 if (response.success) {
                   showFormMessage(
                     'success',
-                    wp.i18n.__('Location deleted', 'open-user-map'),
-                    wp.i18n.__('The location has been successfully removed from the map.', 'open-user-map'),
-                    wp.i18n.__('Close and refresh map', 'open-user-map'),
+                    oum_custom_strings.location_deleted,
+                    oum_custom_strings.delete_success,
+                    oum_custom_strings.close_and_refresh,
                     function() {
                       window.location.reload();
                     }
@@ -1413,7 +1424,7 @@ const OUMFormController = (function () {
               },
               error: function(XMLHttpRequest, textStatus, errorThrown) {
                 console.log(errorThrown);
-                oumShowError([{message: wp.i18n.__('An error occurred while deleting the location. Please try again.', 'open-user-map')}]);
+                oumShowError([{message: oum_custom_strings.delete_error}]);
               }
             });
           }
@@ -2000,9 +2011,8 @@ const OUMMedia = (function () {
     
     if (totalFiles > maxFiles) {
       alert(
-        wp.i18n.sprintf(
-          /* translators: %1$d: maximum number of files, %2$d: number of files that will be used */
-          wp.i18n.__('Maximum %1$d images allowed. Only the first %2$d new images will be used.', 'open-user-map'),
+        OUMUtils.sprintf(
+          oum_custom_strings.max_files_exceeded,
           maxFiles,
           maxFiles - existingCount
         )
@@ -2029,9 +2039,8 @@ const OUMMedia = (function () {
     if (invalidFiles.length > 0) {
       const maxSizeMB = Math.round(maxFileSize / (1024 * 1024));
       alert(
-        wp.i18n.sprintf(
-          /* translators: %1$d: maximum file size in MB, %2$s: list of files */
-          wp.i18n.__('The following images exceed the maximum file size of %1$dMB:\n%2$s', 'open-user-map'),
+        OUMUtils.sprintf(
+          oum_custom_strings.max_filesize_exceeded,
           maxSizeMB,
           invalidFiles.join('\n')
         )
@@ -2327,7 +2336,8 @@ const OUMMedia = (function () {
 // Main initialization
 window.addEventListener("load", function () {
   // Only proceed if we have a map element
-  if (!document.getElementById(map_el)) {
+  if (!document.getElementById(window.map_el)) {
+    console.warn('‼️ Open User Map: Map container missing. Initialization aborted. Disable page caching if applicable, or contact support@open-user-map.com for help.');
     return;
   }
 

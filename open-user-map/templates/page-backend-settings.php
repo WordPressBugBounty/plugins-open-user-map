@@ -180,7 +180,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>
 
       <!-- NAV -->
-      <nav class="nav-tab-wrapper">
+      <nav class="oum-nav-tab-wrapper nav-tab-wrapper">
         <a href="#tab-1" class="nav-tab nav-tab-active"><?php 
     echo __( 'Map Settings', 'open-user-map' );
     ?></a>
@@ -206,9 +206,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
 
 
       <!-- TABS -->
-      <div class="tab-content">
+      <div class="oum-tab-content">
         
-        <div id="tab-1" class="tab-pane active">
+        <div id="tab-1" class="oum-tab-pane active">
           <table class="form-table">
 
             <tr valign="top">
@@ -626,7 +626,6 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
             'oum_leaflet_fullscreen_js',
             'oum_leaflet_search_js',
             'oum_leaflet_gesture_js',
-            'wp-i18n',
             'oum_global_leaflet_js'
         ),
         $this->plugin_version
@@ -756,7 +755,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
           </table>
         </div>
 
-        <div id="tab-2" class="tab-pane">
+        <div id="tab-2" class="oum-tab-pane">
 
           <table class="form-table">
 
@@ -1383,7 +1382,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
 
         </div>
 
-        <div id="tab-3" class="tab-pane">
+        <div id="tab-3" class="oum-tab-pane">
           <table class="form-table">
 
             <?php 
@@ -1623,7 +1622,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
           </table>
         </div>
 
-        <div id="tab-4" class="tab-pane">
+        <div id="tab-4" class="oum-tab-pane">
           <table class="form-table">
 
             <tr valign="top">
@@ -1678,7 +1677,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
           </table>
         </div>
 
-        <div id="tab-5" class="tab-pane">
+        <div id="tab-5" class="oum-tab-pane">
 
           <table class="form-table">
 
@@ -1994,7 +1993,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
 
         </div>
 
-        <div id="tab-6" class="tab-pane">
+        <div id="tab-6" class="oum-tab-pane">
 
           <table class="form-table">
 
@@ -2087,7 +2086,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
 
         </div>
         
-        <div id="tab-7" class="tab-pane">
+        <div id="tab-7" class="oum-tab-pane">
 
           <table class="form-table">
 

@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
 Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.4.6
+Stable tag: 1.4.7
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -261,6 +261,13 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.7 =
+* Attaching German translations to the PRO version
+* Bugfix: Prevent JS error on failed map initialization
+* Bugfix: CSV import for multisite setups
+* Backend style fixes
+* Freemius SDK update
+
 = 1.4.6 =
 * New Setting: Number of possible image uploads (1-5)
 * Assign the current user to locations that are not assigned already (on approval)

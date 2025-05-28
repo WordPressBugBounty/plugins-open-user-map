@@ -32,7 +32,7 @@ class Enqueue extends BaseController
         wp_enqueue_script(
             'oum_script', 
             $this->plugin_url . 'src/js/backend.js',
-            array('wp-i18n', 'jquery', 'wp-color-picker'),
+            array('jquery', 'wp-color-picker'),
             $this->plugin_version,
             true
         );
