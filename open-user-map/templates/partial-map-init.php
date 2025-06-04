@@ -180,7 +180,66 @@ foreach ( $all_meta as $meta ) {
     }
     $indexed_meta[$meta->post_id][$meta->meta_key] = $meta->meta_value;
 }
-// Move this outside the loop - get active custom fields once
+/**
+ * Preload all attachment IDs and their URLs at once (for media library images)
+ *  */
+global $wpdb;
+// 1. Collect all image URLs from locations
+$image_urls_needed = [];
+foreach ( $posts as $post ) {
+    $post_id = $post->ID;
+    $image = ( isset( $indexed_meta[$post_id]['_oum_location_image'] ) ? $indexed_meta[$post_id]['_oum_location_image'] : '' );
+    if ( $image ) {
+        $image_urls_needed = array_merge( $image_urls_needed, explode( '|', $image ) );
+    }
+}
+$image_urls_needed = array_unique( $image_urls_needed );
+// 2. Filter out only media library images, ignore 'oum-useruploads'
+$uploads_info = wp_upload_dir();
+$uploads_baseurl = $uploads_info['baseurl'];
+// Array of image URLs (input) — build the filenames we need
+$filenames_needed = [];
+foreach ( $image_urls_needed as $url ) {
+    // Skip if it's a frontend user upload (not a media library attachment)
+    if ( strpos( $url, 'oum-useruploads' ) !== false ) {
+        continue;
+    }
+    // Check if the URL is a relative upload or an absolute upload from this site
+    if ( strpos( $url, '/wp-content/uploads/' ) === 0 || strpos( $url, $uploads_baseurl ) === 0 ) {
+        // Extract just the filename
+        $filename = basename( $url );
+        // Extract the filename without extension
+        $filename_stem = pathinfo( $filename, PATHINFO_FILENAME );
+        if ( $filename_stem ) {
+            $filenames_needed[] = $filename_stem;
+        }
+    }
+}
+// If we have filenames to look for
+if ( !empty( $filenames_needed ) ) {
+    global $wpdb;
+    // Build dynamic WHERE clause with safe prepared LIKE statements
+    $likes = array_map( function ( $stem ) use($wpdb) {
+        // Each LIKE: e.g., pm.meta_value LIKE '%683d9b1b1e7fd-1024x765%'
+        return $wpdb->prepare( "pm.meta_value LIKE %s", '%' . $stem . '%' );
+    }, $filenames_needed );
+    // Build the SQL query
+    $query = "\n        SELECT p.ID, pm.meta_value\n        FROM {$wpdb->posts} p\n        INNER JOIN {$wpdb->postmeta} pm ON (p.ID = pm.post_id)\n        WHERE p.post_type = 'attachment'\n        AND pm.meta_key = '_wp_attached_file'\n        AND (" . implode( ' OR ', $likes ) . ")\n    ";
+    // Execute query and fetch results
+    $attachments = $wpdb->get_results( $query );
+    // Build lookup map: URL (relative and absolute) => attachment ID
+    $image_url_to_id = [];
+    foreach ( $attachments as $attachment ) {
+        // Build relative URL (e.g., /wp-content/uploads/2025/06/file.jpg)
+        $relative_url = '/wp-content/uploads/' . ltrim( $attachment->meta_value, '/' );
+        // Build absolute URL (e.g., https://yoursite.com/wp-content/uploads/2025/06/file.jpg)
+        $absolute_url = $uploads_baseurl . '/' . ltrim( $attachment->meta_value, '/' );
+        // Map both relative and absolute URL to the attachment ID
+        $image_url_to_id[$relative_url] = (int) $attachment->ID;
+        $image_url_to_id[$absolute_url] = (int) $attachment->ID;
+    }
+}
+// Get active custom fields once
 $active_custom_fields = get_option( 'oum_custom_fields' );
 $locations_list = array();
 foreach ( $posts as $post ) {
@@ -206,9 +265,9 @@ foreach ( $posts as $post ) {
                 $images[] = $url;
             } else {
                 // Handle media library images
-                $image_id = attachment_url_to_postid( $url );
+                $image_id = ( isset( $image_url_to_id[$url] ) ? $image_url_to_id[$url] : 0 );
                 if ( $image_id > 0 ) {
-                    $thumb = wp_get_attachment_image_url( $image_id, 'medium' );
+                    $thumb = wp_get_attachment_image_url( $image_id, 'medium_large' );
                     $images[] = ( $thumb ? $thumb : $url );
                 } else {
                     $images[] = $url;
