@@ -557,8 +557,8 @@ class LocationController extends BaseController {
         if ( $attr == 'title' ) {
             // GET TITLE
             $value = get_the_title( $post_id );
-        } elseif ( $attr == 'image' ) {
-            // GET IMAGE
+        } elseif ( $attr == 'image' || $attr == 'images' ) {
+            // GET IMAGES
             $image = get_post_meta( $post_id, '_oum_location_image', true );
             $has_image = ( isset( $image ) && $image != '' ? 'has-image' : '' );
             if ( $has_image ) {

@@ -1,6 +1,22 @@
 <?php
 
 $oum_all_locations = [];
+/**
+ * Clean UTF-8 encoding for location data
+ */
+if ( !function_exists( 'clean_utf8' ) ) {
+    function clean_utf8(  $value  ) {
+        if ( is_array( $value ) ) {
+            return array_map( 'clean_utf8', $value );
+        } elseif ( is_string( $value ) ) {
+            return mb_convert_encoding( $value, 'UTF-8', 'UTF-8' );
+            // Re-encode to valid UTF-8
+        } else {
+            return $value;
+        }
+    }
+
+}
 foreach ( $locations_list as $location ) {
     if ( get_option( 'oum_enable_location_date' ) === 'on' ) {
         $date_tag = '<div class="oum_location_date">' . wp_kses_post( $location['date'] ) . '</div>';
@@ -157,6 +173,8 @@ foreach ( $locations_list as $location ) {
     ];
     $oum_all_locations[] = $oum_location;
 }
+// Clean UTF-8 encoding for location data (Repair if needed)
+$oum_all_locations_clean = clean_utf8( $oum_all_locations );
 // Fixing height without unit
 $oum_map_height = ( is_numeric( $oum_map_height ) ? $oum_map_height . 'px' : $oum_map_height );
 $oum_map_height_mobile = ( is_numeric( $oum_map_height_mobile ) ? $oum_map_height_mobile . 'px' : $oum_map_height_mobile );
@@ -340,7 +358,7 @@ echo $unique_id;
       if(document.getElementById(map_el)) {
         /* Transfer PHP array to JS json */
         var oum_all_locations = <?php 
-echo json_encode( $oum_all_locations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES );
+echo json_encode( $oum_all_locations_clean, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 ?>;
 
         // Wait for OUMLoader to be defined

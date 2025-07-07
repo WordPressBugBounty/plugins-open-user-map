@@ -8,7 +8,7 @@ Plugin Name: Open User Map
 Plugin URI: https://wordpress.org/plugins/open-user-map/
 Description: Engage your visitors with an interactive map – let them add markers instantly or create a custom map showcasing your favorite spots.
 Author: 100plugins
-Version: 1.4.8
+Version: 1.4.9
 Author URI: https://www.open-user-map.com/
 License: GPLv3 or later
 Text Domain: open-user-map
@@ -76,6 +76,8 @@ if ( function_exists( 'oum_fs' ) ) {
         // Signal that SDK was initiated.
         do_action( 'oum_fs_loaded' );
     }
+    // Always show annual pricing instead of monthly pricing
+    oum_fs()->add_filter( 'pricing/show_annual_in_monthly', '__return_false' );
     // Special uninstall routine with Freemius
     function oum_fs_uninstall_cleanup() {
         global $wpdb;
@@ -144,7 +146,7 @@ if ( function_exists( 'oum_fs' ) ) {
      * 
      * possible attributes: 
      * - title
-     * - image
+     * - images
      * - audio
      * - video
      * - type
@@ -187,5 +189,16 @@ if ( function_exists( 'oum_fs' ) ) {
         load_plugin_textdomain( 'open-user-map', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
     }
 
-    add_action( 'plugins_loaded', 'oum_load_textdomain' );
+    add_action( 'init', 'oum_load_textdomain', 1 );
+    // Redirect ?page=open-user-map to ?page=open-user-map-settings (for compatibility with Freemius Trial URL)
+    // This is necessary because the Freemius trial URL uses the plugin slug as default page
+    add_action( 'admin_menu', function () {
+        if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'open-user-map' && strpos( $_SERVER['PHP_SELF'], 'edit.php' ) !== false ) {
+            $query_args = $_GET;
+            $query_args['page'] = 'open-user-map-settings';
+            $new_url = add_query_arg( $query_args, admin_url( 'edit.php' ) );
+            wp_redirect( $new_url );
+            exit;
+        }
+    } );
 }

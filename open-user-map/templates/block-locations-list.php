@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * Clean UTF-8 encoding for location data
+ */
+if ( !function_exists( 'clean_utf8' ) ) {
+    function clean_utf8(  $value  ) {
+        if ( is_array( $value ) ) {
+            return array_map( 'clean_utf8', $value );
+        } elseif ( is_string( $value ) ) {
+            return mb_convert_encoding( $value, 'UTF-8', 'UTF-8' );
+            // Re-encode to valid UTF-8
+        } else {
+            return $value;
+        }
+    }
+
+}
 // Load settings
 $oum_enable_gmaps_link = get_option( 'oum_enable_gmaps_link', 'on' );
 $oum_location_date_type = get_option( 'oum_location_date_type', 'modified' );
@@ -127,13 +143,15 @@ if ( $locations_query->have_posts() ) {
         $locations_list[] = $location;
     }
 }
+// Clean UTF-8 encoding for location data (Repair if needed)
+$locations_list_clean = clean_utf8( $locations_list );
 ?>
 
 <div class="open-user-map-locations-list">
 
   <div class="oum-locations-list-items">
     <?php 
-foreach ( $locations_list as $location ) {
+foreach ( $locations_list_clean as $location ) {
     ?>
 
       <?php 

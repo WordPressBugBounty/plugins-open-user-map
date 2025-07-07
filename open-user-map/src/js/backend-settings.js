@@ -449,4 +449,28 @@ window.addEventListener('load', function(e) {
     }
   }
 
+  // Setting: Toggle PRO Feature List
+  if (jQuery('#toggle-pro-feature-list').length > 0) {
+    const featuresList = jQuery('#oum-pro-features-list');
+    const toggleLink = jQuery('#toggle-pro-feature-list');
+    const hiddenItems = jQuery('#oum-pro-features-list .hidden-feature');
+
+    toggleLink.on('click', function (e) {
+      e.preventDefault();
+      toggleProFeatureList(!hiddenItems.first().is(':visible'));
+    });
+
+    function toggleProFeatureList(show) {
+      if (show) {
+        featuresList.addClass('open');
+        hiddenItems.slideDown(200);
+        toggleLink.html('↑ Hide PRO features');
+      } else {
+        featuresList.removeClass('open');
+        hiddenItems.slideUp(200);
+        toggleLink.html('↓ Show all PRO features');
+      }
+    }
+  }
+
 }, false);

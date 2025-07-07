@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
 Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.4.8
+Stable tag: 1.4.9
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -261,6 +261,13 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.9 =
+* Clean UTF-8 encoding for location data (Repairs data if needed)
+* Update Help Section: Use oum_get_location_value('images') instead of oum_get_location_value('image')
+* Advertise Trial in the Settings (New Tab "Start Free Trial")
+* Load Textdomain earlier (init with Prio 1)
+* Freemius SDK update
+
 = 1.4.8 =
 * 🚀 Performance Boost: Preload media library attachment IDs
 

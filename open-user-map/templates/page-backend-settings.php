@@ -202,6 +202,18 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         <a href="#tab-7" class="nav-tab"><?php 
     echo __( 'Help & Getting Started', 'open-user-map' );
     ?></a>
+        <?php 
+    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+        ?>
+          <!-- PRO Trial Tab -->
+          <a href="#tab-pro-trial" class="nav-tab oum-pro-trial-tab">
+            ✨ <?php 
+        echo __( 'Try PRO 7 Days Free!', 'open-user-map' );
+        ?>
+          </a>
+        <?php 
+    }
+    ?>
       </nav>
 
 
@@ -2449,7 +2461,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></strong>
                 <ul>
                   <li>title</li>
-                  <li>image</li>
+                  <li>images</li>
                   <li>audio</li>
                   <li>video</li>
                   <li>type</li>
@@ -2683,7 +2695,261 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
           </table>
 
         </div>
+        <?php 
+    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+        ?>
+        <!-- PRO Trial Tab Pane -->
+        <div id="tab-pro-trial" class="oum-tab-pane">
+          <h2><?php 
+        echo __( 'Try PRO Free for 7 Days', 'open-user-map' );
+        ?></h2>
+          <p><?php 
+        echo __( 'Unlock advanced features like custom markers, CSV import/export, and live filters. Enjoy full access, no credit card needed.', 'open-user-map' );
+        ?></p>
 
+          <div class="oum-trial-cta">
+            <a href="<?php 
+        echo esc_url( oum_fs()->get_trial_url() );
+        ?>" class="button button-primary" id="start-free-trial-button">👉 <?php 
+        echo __( 'Start Free Trial', 'open-user-map' );
+        ?></a> <?php 
+        echo __( 'or', 'open-user-map' );
+        ?> <a href="https://www.open-user-map.com/?ref=learnmore" target="_blank"><?php 
+        echo __( 'Learn More', 'open-user-map' );
+        ?></a>
+          </div>
+
+          <div class="wrap-pro-feature-list">
+            <ul id="oum-pro-features-list">
+              <!-- VISIBLE KEY FEATURES -->
+              <li>
+                <p><strong><?php 
+        echo __( 'Filterable Marker Categories', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Organize locations in multiple filterable marker groups. Each group (category) can have an individual marker icon and will be accessible to visitors.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li>
+                <p><strong><?php 
+        echo __( 'Export &amp; Import locations', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Maybe you already have a list of places you need to show on the map. No problem – just make use of the CSV Export &amp; Import feature. This also comes in handy for bulk editing a lot of locations.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li>
+                <p><strong><?php 
+        echo __( 'Allow registered users to edit their locations', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'The editing capability allows users to update their existing locations, ensuring the map always reflects the most current information.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li>
+                <p><strong><?php 
+        echo __( 'Custom marker icons', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Use your own custom marker icon.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li>
+                <p><strong><?php 
+        echo __( 'Live Marker Filter', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Use the search bar to filter markers as you type. Instantly see relevant locations on the map.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li>
+                <p><strong><?php 
+        echo __( 'Pre-Filter locations by user or role', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Shortcode Attribute to filter locations by current user, user_id or a role. Works for map, list and gallery.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <!-- HIDDEN FEATURES -->
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'More custom field types', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Add custom fields like links, radio buttons, checkboxes, dropdowns and even HTML. Social media links will automatically be rendered as icons.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Additional geosearch providers (Geoapify, Here, MapBox)', 'open-user-map' );
+        ?></strong></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Videos from YouTube &amp; Vimeo', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Use videos instead of images to highlight each location.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Email user notification', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Users get notified by email after their location has been approved.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Email Admin notification', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Send notifications to an Admin email account on incoming location proposals.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Zapier/Webhook Integration', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Trigger an external webhook on new or updated locations.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'User restriction', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Restrict “Add location” feature to registered users only. Redirect your visitors to the registration form.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Auto-publish', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'When activated registered users will publish directly without admin approval. This can also be enabled for unregistered users.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Extend user registration', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Integrate the “Add location” feature to the WordPress user registration form.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Custom filesizes', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Customize max. filesize for image/audio uploads (default: 10MB).', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Custom UI Elements color', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Pick a color for buttons and icons that fits your theme.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Current location', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Add a button that relocates the map to the users current location.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Limit visible locations', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'You can limit the locations to be shown by marker categories and by post ids. So it is possible to show only locations of a specific type or to render only one single location. This can be done in the block settings or with shortcode attributes.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Single pages for locations', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Per default locations will not have a single page. This should ensure that all the locations wont negatively affect your SEO. But if you’d like to add more content to locations you can easily enable it in the PRO version.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Default template for Single pages', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'If Single pages are enabled locations will automatically have a post thumbnail, an excerpt as well as a default content template. And you can show locations within query loop blocks to setup your own list or grid view.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Shortcodes for single location values', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Use the shortcode [open-user-map-location value=”YOUR VALUE” post_id=”POST ID (optional)”] to easily display a value from a location. You will need this when creating single pages for locations. See all the available values in the Help section of the plugin settings (Open User Map > Settings > Help).', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Show all location images as gallery', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Use the shortcode [open-user-map-gallery] to get a nice gallery view of all the location images. Each image is linked to the location marker on the map.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li class="hidden-feature">
+                <p><strong><?php 
+        echo __( 'Show all locations as list or grid', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Use the shortcode [open-user-map-list] to get a list view of all the locations. Alternatively you can use the native query loops block to build a custom list or grid.', 'open-user-map' );
+        ?></p>
+              </li>
+
+            </ul>
+
+            <p class="toggle-pro-feature-list-wrapper">
+              <a href="#" id="toggle-pro-feature-list"><?php 
+        echo __( '↓ Show all PRO features', 'open-user-map' );
+        ?></a>
+            </p>
+          </div>
+
+        </div>
+        <?php 
+    }
+    ?>
       </div>
 
       <?php 
