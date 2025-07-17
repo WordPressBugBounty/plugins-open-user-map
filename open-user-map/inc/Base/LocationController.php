@@ -347,7 +347,7 @@ class LocationController extends BaseController {
                 $current_thumbnail_filename = pathinfo( $current_thumbnail_meta['file'], PATHINFO_FILENAME );
             }
             // Remove any suffixes
-            $current_thumbnail_filename = preg_replace( '/-(?:scaled|[0-9]+)$/', '', $current_thumbnail_filename );
+            $current_thumbnail_filename = preg_replace( '/-(?:scaled|[0-9]+x[0-9]+|[0-9]+)$/', '', $current_thumbnail_filename );
         }
         // Get new image filename, handling both relative and absolute paths
         $new_image_filename = '';
@@ -358,22 +358,73 @@ class LocationController extends BaseController {
             // Absolute path or external URL
             $new_image_filename = pathinfo( parse_url( $image_url, PHP_URL_PATH ), PATHINFO_FILENAME );
         }
-        $new_image_filename = preg_replace( '/-(?:scaled|[0-9]+)$/', '', $new_image_filename );
+        // Remove size suffixes like -scaled, -1024x587, -1, etc.
+        $base_image_filename = preg_replace( '/-(?:scaled|[0-9]+x[0-9]+|[0-9]+)$/', '', $new_image_filename );
         // Compare base filenames
-        if ( empty( $current_thumbnail_id ) || $new_image_filename !== $current_thumbnail_filename ) {
+        if ( empty( $current_thumbnail_id ) || $base_image_filename !== $current_thumbnail_filename ) {
             // Convert relative URL to absolute URL if needed
             $absolute_url = ( strpos( $image_url, 'http' ) !== 0 ? site_url() . $image_url : $image_url );
-            // Download image from URL and set as featured image
-            $upload = media_sideload_image(
-                $absolute_url,
-                $post_id,
-                null,
-                'src'
-            );
-            if ( !is_wp_error( $upload ) ) {
-                $attachment_id = attachment_url_to_postid( $upload );
-                if ( $attachment_id ) {
-                    set_post_thumbnail( $post_id, $attachment_id );
+            global $wpdb;
+            $attachment_id = false;
+            // Get uploads dir
+            $upload_dir = wp_upload_dir();
+            $file_path = false;
+            if ( strpos( $absolute_url, $upload_dir['baseurl'] ) === 0 ) {
+                $file_path = ltrim( str_replace( $upload_dir['baseurl'], '', $absolute_url ), '/' );
+            } else {
+                if ( strpos( $image_url, '/wp-content/uploads/' ) === 0 ) {
+                    $file_path = ltrim( str_replace( '/wp-content/uploads/', '', $image_url ), '/' );
+                }
+            }
+            $posts_table = $wpdb->posts;
+            $postmeta_table = $wpdb->postmeta;
+            // --- 1. Prefer exact _wp_attached_file match (image attachments) ---
+            if ( $file_path ) {
+                $query = $wpdb->prepare( "SELECT p.ID FROM {$posts_table} p INNER JOIN {$postmeta_table} pm ON p.ID = pm.post_id WHERE pm.meta_key = '_wp_attached_file' AND pm.meta_value = %s AND p.post_type = 'attachment' AND p.post_mime_type LIKE 'image/%' LIMIT 1", $file_path );
+                $attachment_id = $wpdb->get_var( $query );
+            }
+            // --- 2. Fallback: Search for attachment by base filename (image attachments) ---
+            if ( !$attachment_id && $base_image_filename ) {
+                $like_pattern = '%' . $wpdb->esc_like( $base_image_filename ) . '%';
+                $query = $wpdb->prepare( "SELECT p.ID, pm.meta_value FROM {$posts_table} p INNER JOIN {$postmeta_table} pm ON p.ID = pm.post_id WHERE pm.meta_key = '_wp_attached_file' AND pm.meta_value LIKE %s AND p.post_type = 'attachment' AND p.post_mime_type LIKE 'image/%'", $like_pattern );
+                $results = $wpdb->get_results( $query );
+                if ( $results ) {
+                    // Try to find the best match: prefer the original file (no size suffix)
+                    foreach ( $results as $row ) {
+                        $filename = pathinfo( $row->meta_value, PATHINFO_FILENAME );
+                        $filename_base = preg_replace( '/-(?:scaled|[0-9]+x[0-9]+|[0-9]+)$/', '', $filename );
+                        if ( $filename_base === $base_image_filename ) {
+                            $attachment_id = $row->ID;
+                            break;
+                        }
+                    }
+                    // If no perfect match, just use the first found
+                    if ( !$attachment_id ) {
+                        $attachment_id = $results[0]->ID;
+                    }
+                }
+            }
+            // --- 3. Fallback: search by guid (full URL, image attachments) ---
+            if ( !$attachment_id ) {
+                $query = $wpdb->prepare( "SELECT ID FROM {$posts_table} WHERE post_type = 'attachment' AND post_mime_type LIKE 'image/%' AND guid = %s LIMIT 1", $absolute_url );
+                $attachment_id = $wpdb->get_var( $query );
+            }
+            if ( $attachment_id ) {
+                // Attachment found, set as featured image
+                set_post_thumbnail( $post_id, $attachment_id );
+            } else {
+                // Not found, sideload image as before
+                $upload = media_sideload_image(
+                    $absolute_url,
+                    $post_id,
+                    null,
+                    'src'
+                );
+                if ( !is_wp_error( $upload ) ) {
+                    $attachment_id = attachment_url_to_postid( $upload );
+                    if ( $attachment_id ) {
+                        set_post_thumbnail( $post_id, $attachment_id );
+                    }
                 }
             }
         }

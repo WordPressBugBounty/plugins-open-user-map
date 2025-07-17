@@ -50,6 +50,9 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_marker_user_icon', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'open-user-map-settings-group', 'oum_marker_multicategories_icon', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
         register_setting( 'open-user-map-settings-group', 'oum_max_image_uploads', array(
             'sanitize_callback' => array($this, 'validate_max_image_uploads'),
         ) );

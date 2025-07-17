@@ -18,6 +18,8 @@ class BaseController {
 
     public $oum_searchmarkers_zoom_default;
 
+    public $oum_marker_multicategories_icon_default;
+
     public $map_styles = array(
         "Esri.WorldStreetMap"  => "Esri WorldStreetMap",
         "OpenStreetMap.Mapnik" => "OpenStreetMap",
@@ -147,6 +149,8 @@ class BaseController {
         ) )['Version'];
         $this->plugin = plugin_basename( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/open-user-map.php';
         $this->oum_searchmarkers_zoom_default = 8;
+        // Set the default multi-categories icon URL
+        $this->oum_marker_multicategories_icon_default = $this->plugin_url . 'src/leaflet/images/marker-icon_multicategories_default.png';
         add_action( 'init', array($this, 'oum_init') );
         add_action(
             'transition_post_status',

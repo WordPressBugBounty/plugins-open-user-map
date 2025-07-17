@@ -31,11 +31,29 @@ $query = array(
 // Custom Attribute: Filter for types
 if ( isset( $block_attributes['types'] ) && $block_attributes['types'] != '' ) {
     $selected_types_slugs = explode( '|', $block_attributes['types'] );
-    $query['tax_query'] = array(array(
-        'taxonomy' => 'oum-type',
-        'field'    => 'slug',
-        'terms'    => $selected_types_slugs,
-    ));
+    // Check for attribute 'types-relation' and set relation accordingly
+    $types_relation = ( isset( $block_attributes['types-relation'] ) && strtoupper( $block_attributes['types-relation'] ) === 'AND' ? 'AND' : 'OR' );
+    if ( $types_relation === 'AND' ) {
+        // Build tax_query with relation AND (all types must match)
+        $tax_query = array(
+            'relation' => 'AND',
+        );
+        foreach ( $selected_types_slugs as $slug ) {
+            $tax_query[] = array(
+                'taxonomy' => 'oum-type',
+                'field'    => 'slug',
+                'terms'    => $slug,
+            );
+        }
+        $query['tax_query'] = $tax_query;
+    } else {
+        // Default: OR (any of the types)
+        $query['tax_query'] = array(array(
+            'taxonomy' => 'oum-type',
+            'field'    => 'slug',
+            'terms'    => $selected_types_slugs,
+        ));
+    }
 }
 // Custom Attribute: Filter for ids
 if ( isset( $block_attributes['ids'] ) && $block_attributes['ids'] != '' ) {

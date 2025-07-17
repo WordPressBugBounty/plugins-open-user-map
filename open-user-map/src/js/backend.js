@@ -60,6 +60,49 @@ jQuery(function($){
     icon_uploader.open();
   });
 
+  // Multi-Categories Icon Uploader
+  $('body').on('click', '.oum_upload_multicategories_icon_button', function(e){
+    e.preventDefault();
+
+    // Get the default icon URL from the preview's data-default attribute
+    const $preview = $('#oum_marker_multicategories_icon_preview');
+    const defaultIcon = $preview.data('default');
+
+    const multicat_icon_uploader = wp.media({
+        title: 'Multi-Categories Icon',
+        library : {
+            type : 'image'
+        },
+        button: {
+            text: 'Use this image'
+        },
+        multiple: false
+    }).on('select', function() {
+        const attachment = multicat_icon_uploader.state().get('selection').first().toJSON();
+        const url = attachment.url;
+        $('#oum_marker_multicategories_icon').val(url);
+        $preview.addClass('has-icon');
+        $preview.css('background-image', 'url(' + url + ')');
+        // Show remove button
+        $('.oum_remove_multicategories_icon_button').show();
+    });
+    multicat_icon_uploader.open();
+  });
+
+  // Multi-Categories Icon Remove Button
+  $('body').on('click', '.oum_remove_multicategories_icon_button', function(e){
+    e.preventDefault();
+    const $preview = $('#oum_marker_multicategories_icon_preview');
+    const defaultIcon = $preview.data('default');
+    // Clear the input
+    $('#oum_marker_multicategories_icon').val('');
+    // Reset the preview to default
+    $preview.removeClass('has-icon');
+    $preview.css('background-image', 'url(' + defaultIcon + ')');
+    // Hide remove button
+    $(this).hide();
+  });
+
   // Export CSV
   $('body').on('click', '.oum_export_csv_button', function(e){
     e.preventDefault();

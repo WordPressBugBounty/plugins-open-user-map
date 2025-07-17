@@ -8,7 +8,7 @@ Plugin Name: Open User Map
 Plugin URI: https://wordpress.org/plugins/open-user-map/
 Description: Engage your visitors with an interactive map – let them add markers instantly or create a custom map showcasing your favorite spots.
 Author: 100plugins
-Version: 1.4.9
+Version: 1.4.10
 Author URI: https://www.open-user-map.com/
 License: GPLv3 or later
 Text Domain: open-user-map
@@ -193,7 +193,7 @@ if ( function_exists( 'oum_fs' ) ) {
     // Redirect ?page=open-user-map to ?page=open-user-map-settings (for compatibility with Freemius Trial URL)
     // This is necessary because the Freemius trial URL uses the plugin slug as default page
     add_action( 'admin_menu', function () {
-        if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'open-user-map' && strpos( $_SERVER['PHP_SELF'], 'edit.php' ) !== false ) {
+        if ( is_admin() && isset( $_GET['fs_action'] ) && isset( $_GET['page'] ) && $_GET['page'] === 'open-user-map' && strpos( $_SERVER['PHP_SELF'], 'edit.php' ) !== false ) {
             $query_args = $_GET;
             $query_args['page'] = 'open-user-map-settings';
             $new_url = add_query_arg( $query_args, admin_url( 'edit.php' ) );

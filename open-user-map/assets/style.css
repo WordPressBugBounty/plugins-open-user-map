@@ -1351,6 +1351,45 @@
   font-size: 11px;
   opacity: 0.8;
 }
+.oum-location_page_open-user-map-settings .wrapper_marker_multicategories_icon,
+.toplevel_page_open-user-map .wrapper_marker_multicategories_icon {
+  width: 170px;
+  height: 82px;
+  position: relative;
+}
+.oum-location_page_open-user-map-settings .wrapper_marker_multicategories_icon input,
+.toplevel_page_open-user-map .wrapper_marker_multicategories_icon input {
+  display: none;
+}
+.oum-location_page_open-user-map-settings .wrapper_marker_multicategories_icon .marker_icon_preview,
+.toplevel_page_open-user-map .wrapper_marker_multicategories_icon .marker_icon_preview {
+  height: 50px;
+  width: 50px;
+  background-position: center center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.oum-location_page_open-user-map-settings .wrapper_marker_multicategories_icon .icon_upload,
+.toplevel_page_open-user-map .wrapper_marker_multicategories_icon .icon_upload {
+  position: absolute;
+  width: 225px;
+  left: 60px;
+  top: 8px;
+}
+.oum-location_page_open-user-map-settings .wrapper_marker_multicategories_icon .icon_upload .button,
+.toplevel_page_open-user-map .wrapper_marker_multicategories_icon .icon_upload .button {
+  cursor: pointer;
+  line-height: 1.5;
+  padding: 5px;
+  text-align: center;
+  white-space: pre-wrap;
+}
+.oum-location_page_open-user-map-settings .wrapper_marker_multicategories_icon .icon_upload .description,
+.toplevel_page_open-user-map .wrapper_marker_multicategories_icon .icon_upload .description {
+  font-style: italic;
+  font-size: 11px;
+  opacity: 0.8;
+}
 .oum-location_page_open-user-map-settings .geo-coordinates-wrap,
 .toplevel_page_open-user-map .geo-coordinates-wrap {
   display: flex;

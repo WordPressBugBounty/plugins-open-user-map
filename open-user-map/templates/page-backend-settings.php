@@ -395,6 +395,50 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               </td>
             </tr>
 
+            <?php 
+    ?>
+
+            <?php 
+    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+        ?>
+              <tr class="oum-gopro-tr" valign="top">
+                  <th scope="row">
+                    <?php 
+        echo __( 'Multi-Categories Icon', 'open-user-map' );
+        ?>
+                    <br><span class="oum-pro">PRO</span><br>
+                    <a class="oum-gopro-text" href="<?php 
+        echo oum_fs()->get_upgrade_url();
+        ?>"><?php 
+        echo __( 'Upgrade to PRO to use Marker Categories and the Multi-Categories Icon.', 'open-user-map' );
+        ?></a>
+                  </th>
+                  <td>
+                    <?php 
+        $oum_marker_multicategories_icon = ( get_option( 'oum_marker_multicategories_icon' ) ? get_option( 'oum_marker_multicategories_icon' ) : $this->oum_marker_multicategories_icon_default );
+        ?>
+                    <!-- Multi-categories icon upload section -->
+                    <div class="wrapper_marker_multicategories_icon">
+                      <div class="marker_icon_preview" style="background-image: url('<?php 
+        echo esc_attr( $oum_marker_multicategories_icon );
+        ?>');"></div>
+                      <div class="icon_upload">
+                        <button disabled class="oum_upload_multicategories_icon_button button button-secondary"><?php 
+        echo __( 'Upload Icon', 'open-user-map' );
+        ?></button>
+                        <p class="description">PNG, max. 100px</p>
+                      </div>
+                    </div>
+                    <span class="description"><?php 
+        echo __( 'This icon is used for locations with more than one marker category.', 'open-user-map' );
+        ?></span>
+                  </td>
+                </tr>
+
+            <?php 
+    }
+    ?>
+
             <tr valign="top">
               <?php 
     $oum_ui_color = ( get_option( 'oum_ui_color' ) ? get_option( 'oum_ui_color' ) : $this->oum_ui_color_default );
@@ -2232,6 +2276,15 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></td>
                             </tr>
                             <tr>
+                                <td><code>types-relation</code></td>
+                                <td>
+                                    <code>types-relation="AND"</code><br>
+                                </td>
+                                <td><?php 
+    echo __( 'All types must match (AND). By default any type can match (OR).', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
                                 <td><code>ids</code></td>
                                 <td>
                                     <code>ids="123"</code><br>
@@ -2516,6 +2569,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></li>
                   <li><code>types="food|drinks"</code> - <?php 
     echo __( 'Filter by marker categories. Separate multiple types with a | symbol.', 'open-user-map' );
+    ?></li>
+                  <li><code>types-relation="AND"</code> - <?php 
+    echo __( 'All types must match (AND). By default or any type can match (OR).', 'open-user-map' );
     ?></li>
                   <li><code>ids="123|456"</code> - <?php 
     echo __( 'Filter by location IDs. Separate multiple IDs with a | symbol.', 'open-user-map' );

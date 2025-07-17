@@ -1467,6 +1467,45 @@
     }
   }
 
+  .wrapper_marker_multicategories_icon {
+    width: 170px;
+    height: 82px;
+    position: relative;
+
+    input {
+      display: none;
+    }
+
+    .marker_icon_preview {
+      height: 50px;
+      width: 50px;
+      background-position: center center;
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    .icon_upload {
+      position: absolute;
+      width: 225px;
+      left: 60px;
+      top: 8px;
+
+      .button {
+        cursor: pointer;
+        line-height: 1.5;
+        padding: 5px;
+        text-align: center;
+        white-space: pre-wrap;
+      }
+
+      .description {
+        font-style: italic;
+        font-size: 11px;
+        opacity: 0.8;
+      }
+    }
+  }
+
   .geo-coordinates-wrap {
     display: flex;
     flex-wrap: wrap;

@@ -136,11 +136,29 @@ $query = array(
 // Custom Attribute: Filter for types
 if ( isset( $block_attributes['types'] ) && $block_attributes['types'] != '' ) {
     $selected_types_slugs = explode( '|', $block_attributes['types'] );
-    $query['tax_query'] = array(array(
-        'taxonomy' => 'oum-type',
-        'field'    => 'slug',
-        'terms'    => $selected_types_slugs,
-    ));
+    // Check for attribute 'types-relation' and set relation accordingly
+    $types_relation = ( isset( $block_attributes['types-relation'] ) && strtoupper( $block_attributes['types-relation'] ) === 'AND' ? 'AND' : 'OR' );
+    if ( $types_relation === 'AND' ) {
+        // Build tax_query with relation AND (all types must match)
+        $tax_query = array(
+            'relation' => 'AND',
+        );
+        foreach ( $selected_types_slugs as $slug ) {
+            $tax_query[] = array(
+                'taxonomy' => 'oum-type',
+                'field'    => 'slug',
+                'terms'    => $slug,
+            );
+        }
+        $query['tax_query'] = $tax_query;
+    } else {
+        // Default: OR (any of the types)
+        $query['tax_query'] = array(array(
+            'taxonomy' => 'oum-type',
+            'field'    => 'slug',
+            'terms'    => $selected_types_slugs,
+        ));
+    }
     //overwrite types with filtered types
     $types = [];
     foreach ( $selected_types_slugs as $slug ) {
@@ -306,26 +324,31 @@ foreach ( $posts as $post ) {
             ];
         }
     }
-    if ( isset( $location_types ) && is_array( $location_types ) && count( $location_types ) == 1 && !get_option( 'oum_enable_multiple_marker_types' ) ) {
-        $type = $location_types[0];
-        if ( $type->term_id && get_term_meta( $type->term_id, 'oum_marker_icon', true ) ) {
-            //get current location icon from oum-type taxonomy
-            $current_marker_icon = get_term_meta( $type->term_id, 'oum_marker_icon', true );
-            $current_marker_user_icon = get_term_meta( $type->term_id, 'oum_marker_user_icon', true );
+    // Determine marker icon based on number of categories (types)
+    $multi_icon = ( get_option( 'oum_marker_multicategories_icon' ) ? get_option( 'oum_marker_multicategories_icon' ) : $this->oum_marker_multicategories_icon_default );
+    if ( isset( $location_types ) && is_array( $location_types ) ) {
+        if ( count( $location_types ) > 1 ) {
+            // Multiple categories: use multi-categories icon
+            $icon = esc_url( $multi_icon );
+        } elseif ( count( $location_types ) === 1 ) {
+            // Single category: use that category's icon if set, else default
+            $type = $location_types[0];
+            $cat_icon = get_term_meta( $type->term_id, 'oum_marker_icon', true );
+            $cat_user_icon = get_term_meta( $type->term_id, 'oum_marker_user_icon', true );
+            if ( $cat_icon == 'user1' && $cat_user_icon ) {
+                $icon = esc_url( $cat_user_icon );
+            } elseif ( $cat_icon ) {
+                $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $cat_icon ) . '-2x.png';
+            } else {
+                $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_default-2x.png';
+            }
         } else {
-            //get current location icon from settings
-            $current_marker_icon = $marker_icon;
-            $current_marker_user_icon = $marker_user_icon;
+            // No category: use default
+            $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_default-2x.png';
         }
     } else {
-        //get current location icon from settings
-        $current_marker_icon = $marker_icon;
-        $current_marker_user_icon = $marker_user_icon;
-    }
-    if ( $current_marker_icon == 'user1' && $current_marker_user_icon ) {
-        $icon = esc_url( $current_marker_user_icon );
-    } else {
-        $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $current_marker_icon ) . '-2x.png';
+        // No category: use default
+        $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_default-2x.png';
     }
     // Date: modified or published
     if ( $oum_location_date_type == 'created' ) {

@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
 Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.4.9
+Stable tag: 1.4.10
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -261,6 +261,11 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.10 =
+* New: Shortcode option types-relation="AND" to show only locations that match all selected categories
+* New: Special icon for locations with multiple categories (can be customized)
+* Fix: Featured images were duplicated instead of reused when selecting an existing image
+
 = 1.4.9 =
 * Clean UTF-8 encoding for location data (Repairs data if needed)
 * Update Help Section: Use oum_get_location_value('images') instead of oum_get_location_value('image')
