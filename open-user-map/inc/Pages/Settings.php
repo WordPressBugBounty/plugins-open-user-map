@@ -290,6 +290,15 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_regions_layout_style', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'open-user-map-settings-group', 'oum_enable_vote_feature', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
+        register_setting( 'open-user-map-settings-group', 'oum_vote_button_label', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
+        register_setting( 'open-user-map-settings-group', 'oum_vote_cookie_type', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
         register_setting( 'open-user-map-settings-group', 'oum_custom_js', array(
             'sanitize_callback' => 'wp_kses_post',
         ) );
@@ -507,6 +516,7 @@ class Settings extends BaseController {
                         'notification' => oum_get_location_value( 'notification', $post_id ),
                         'author_name'  => oum_get_location_value( 'author_name', $post_id ),
                         'author_email' => oum_get_location_value( 'author_email', $post_id ),
+                        'votes'        => oum_get_location_value( 'votes', $post_id ),
                     );
                     //get custom fields
                     $location_customfields = array();
@@ -645,6 +655,7 @@ class Settings extends BaseController {
                             'oum_location_notification' => $location['notification'],
                             'oum_location_author_name'  => $location['author_name'],
                             'oum_location_author_email' => $location['author_email'],
+                            'oum_location_votes'        => $location['votes'],
                         );
                         // Add custom fields
                         $customfields = array_filter( $location, function ( $val, $key ) {

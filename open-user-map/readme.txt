@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
 Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.4.10
+Stable tag: 1.4.11
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -122,6 +122,9 @@ Use the search bar to filter markers as you type. Instantly see relevant locatio
 
 - **Pre-Filter locations by user or role**
 Shortcode Attribute to filter locations by current user, user_id or a role. Works for map, list and gallery.
+
+- **Vote button for locations**
+Add a customizable button for Likes, Upvotes, or Flagging – with flexible privacy controls.
 
 - **More custom field types**
 Add custom fields like links, radio buttons, checkboxes, dropdowns and even HTML. Social media links will automatically be rendered as icons.
@@ -261,6 +264,10 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.11 =
+* Bugfix: Default Marker Icon setting was ignored
+* New PRO Feature: Vote Button (Like, Upvote, Flag, ...) for Locations
+
 = 1.4.10 =
 * New: Shortcode option types-relation="AND" to show only locations that match all selected categories
 * New: Special icon for locations with multiple categories (can be customized)

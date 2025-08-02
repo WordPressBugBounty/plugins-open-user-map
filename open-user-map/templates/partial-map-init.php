@@ -326,6 +326,16 @@ foreach ( $posts as $post ) {
     }
     // Determine marker icon based on number of categories (types)
     $multi_icon = ( get_option( 'oum_marker_multicategories_icon' ) ? get_option( 'oum_marker_multicategories_icon' ) : $this->oum_marker_multicategories_icon_default );
+    // Helper function to get default icon based on settings
+    $get_default_icon = function () use($marker_icon, $marker_user_icon) {
+        if ( $marker_icon == 'user1' && $marker_user_icon ) {
+            return esc_url( $marker_user_icon );
+        } elseif ( $marker_icon ) {
+            return esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $marker_icon ) . '-2x.png';
+        } else {
+            return esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_default-2x.png';
+        }
+    };
     if ( isset( $location_types ) && is_array( $location_types ) ) {
         if ( count( $location_types ) > 1 ) {
             // Multiple categories: use multi-categories icon
@@ -340,15 +350,16 @@ foreach ( $posts as $post ) {
             } elseif ( $cat_icon ) {
                 $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $cat_icon ) . '-2x.png';
             } else {
-                $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_default-2x.png';
+                // Use default marker icon from settings
+                $icon = $get_default_icon();
             }
         } else {
-            // No category: use default
-            $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_default-2x.png';
+            // No category: use default marker icon from settings
+            $icon = $get_default_icon();
         }
     } else {
-        // No category: use default
-        $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_default-2x.png';
+        // No category: use default marker icon from settings
+        $icon = $get_default_icon();
     }
     // Date: modified or published
     if ( $oum_location_date_type == 'created' ) {
@@ -372,6 +383,7 @@ foreach ( $posts as $post ) {
         'icon'          => $icon,
         'custom_fields' => $custom_fields,
         'author_id'     => get_post_field( 'post_author', $post_id ),
+        'votes'         => ( isset( $location_meta['votes'] ) ? intval( $location_meta['votes'] ) : 0 ),
     );
     if ( isset( $location_types ) && is_array( $location_types ) && count( $location_types ) > 0 ) {
         foreach ( $location_types as $term ) {

@@ -872,6 +872,19 @@ const OUMMarkers = (function () {
         locationBubble.popup.getContent();
       el.classList.add("visible");
       document.querySelector("body").classList.add("oum-location-opened");
+      
+      // Update vote button states for the newly opened popup
+      if (window.OUMVoteHandler && window.OUMVoteHandler.updateVoteButtonStates) {
+        window.OUMVoteHandler.updateVoteButtonStates();
+      }
+      
+      // Refresh vote counts for the newly opened popup
+      if (window.OUMVoteHandler && window.OUMVoteHandler.refreshVoteCounts) {
+        const voteButtons = el.querySelectorAll('.oum_vote_button');
+        if (voteButtons.length > 0) {
+          window.OUMVoteHandler.refreshVoteCounts(voteButtons);
+        }
+      }
     });
 
     // Event: Close Location Bubble

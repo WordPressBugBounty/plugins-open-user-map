@@ -589,10 +589,60 @@ $search_input_width: 300px;
               audio {
                 margin-top: 15px;
               }
+
+              .oum_location_text_bottom {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+                margin-top: 14px;
+              }
   
               .oum_read_more {
-                margin-top: 10px;
                 font-size: 14px;
+              }
+
+              .oum_vote_button_wrap {
+                .oum_vote_button {
+                  background: #f8f9fa;
+                  border: 1px solid #dee2e6;
+                  border-radius: 20px;
+                  height: 27px;
+                  padding: 4px 11px;
+                  cursor: pointer;
+                  transition: all 0.2s ease;
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 6px;
+                  font-size: 14px;
+                  color: #6c757d;
+            
+                  &:hover {
+                    background: #e9ecef;
+                    border-color: #adb5bd;
+                  }
+            
+                  &.voted {
+                    background: #dc3545;
+                    border-color: #dc3545;
+                    
+                    * {
+                      color: white;
+                    }
+                  }
+            
+                  .oum_vote_count {
+                    background: rgba(0, 0, 0, 0.3);
+                    color: #fff;
+                    border-radius: 10px;
+                    padding: 2px 6px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    min-width: 20px;
+                    text-align: center;
+                    margin-left: 4px;
+                  }
+                }
               }
             }
 
@@ -2300,8 +2350,59 @@ $search_input_width: 300px;
             margin-top: 15px;
           }
   
+          .oum_location_text_bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+          }
+
           .oum_read_more {
-            margin-top: 10px;
+            font-size: 14px;
+          }
+
+          .oum_vote_button_wrap {
+            .oum_vote_button {
+              background: #f8f9fa;
+              border: 1px solid #dee2e6;
+              border-radius: 20px;
+              height: 27px;
+              padding: 4px 11px;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              font-size: 14px;
+              color: #6c757d;
+        
+              &:hover {
+                background: #e9ecef;
+                border-color: #adb5bd;
+              }
+        
+              &.voted {
+                background: #dc3545;
+                border-color: #dc3545;
+                
+                * {
+                  color: white;
+                }
+              }
+        
+              .oum_vote_count {
+                background: rgba(0, 0, 0, 0.3);
+                color: #fff;
+                border-radius: 10px;
+                padding: 2px 6px;
+                font-size: 12px;
+                font-weight: bold;
+                min-width: 20px;
+                text-align: center;
+                margin-left: 4px;
+              }
+            }
           }
         }
       }
@@ -2722,8 +2823,59 @@ $search_input_width: 300px;
         margin-top: 15px;
       }
 
+      .oum_location_text_bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
       .oum_read_more {
-        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      .oum_vote_button_wrap {
+        .oum_vote_button {
+          background: #f8f9fa;
+          border: 1px solid #dee2e6;
+          border-radius: 20px;
+          height: 27px;
+          padding: 4px 11px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 14px;
+          color: #6c757d;
+    
+          &:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+          }
+    
+          &.voted {
+            background: #dc3545;
+            border-color: #dc3545;
+            
+            * {
+              color: white;
+            }
+          }
+    
+          .oum_vote_count {
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            min-width: 20px;
+            text-align: center;
+            margin-left: 4px;
+          }
+        }
       }
     }
 

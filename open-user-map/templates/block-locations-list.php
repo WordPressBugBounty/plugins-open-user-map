@@ -152,6 +152,7 @@ if ( $locations_query->have_posts() ) {
             'video'         => $video,
             'icon'          => $icon,
             'custom_fields' => $custom_fields,
+            'votes'         => ( isset( $location_meta['votes'] ) ? intval( $location_meta['votes'] ) : 0 ),
         );
         if ( isset( $location_types ) && is_array( $location_types ) && count( $location_types ) > 0 ) {
             foreach ( $location_types as $term ) {
@@ -283,6 +284,22 @@ foreach ( $locations_list_clean as $location ) {
     } else {
         $link_tag = '';
     }
+    // Add vote button if feature is enabled
+    $vote_button = '';
+    if ( get_option( 'oum_enable_vote_feature' ) === 'on' ) {
+        $votes = ( isset( $location['votes'] ) ? intval( $location['votes'] ) : 0 );
+        $vote_label = get_option( 'oum_vote_button_label', __( '👍', 'open-user-map' ) );
+        // Handle empty values with fallbacks
+        $display_vote_label = ( !empty( trim( $vote_label ) ) ? $vote_label : __( '👍', 'open-user-map' ) );
+        $vote_button = '<div class="oum_vote_button_wrap">';
+        $vote_button .= '<button class="oum_vote_button" data-post-id="' . esc_attr( $location['post_id'] ) . '" data-votes="' . esc_attr( $votes ) . '" data-label="' . esc_attr( $display_vote_label ) . '">';
+        $vote_button .= '<span class="oum_vote_text">' . esc_html( $display_vote_label ) . '</span>';
+        if ( $votes > 0 ) {
+            $vote_button .= '<span class="oum_vote_count">' . esc_html( $votes ) . '</span>';
+        }
+        $vote_button .= '</button>';
+        $vote_button .= '</div>';
+    }
     // building bubble block content
     $content = '<div class="oum_location_media">' . $media_tag . '</div>';
     $content .= '<div class="oum_location_text">';
@@ -292,7 +309,7 @@ foreach ( $locations_list_clean as $location ) {
     $content .= $custom_fields;
     $content .= $description_tag;
     $content .= $audio_tag;
-    $content .= $link_tag;
+    $content .= '<div class="oum_location_text_bottom">' . $vote_button . $link_tag . '</div>';
     $content .= '</div>';
     // removing backslash escape
     $content = str_replace( "\\", "", $content );
@@ -307,6 +324,7 @@ foreach ( $locations_list_clean as $location ) {
         'icon'    => esc_attr( $location["icon"] ),
         'types'   => ( isset( $location["types"] ) ? $location["types"] : [] ),
         'post_id' => esc_attr( $location["post_id"] ),
+        'votes'   => ( isset( $location['votes'] ) ? intval( $location['votes'] ) : 0 ),
     ];
     ?>
 

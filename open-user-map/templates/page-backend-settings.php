@@ -1816,6 +1816,85 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               <tr valign="top" class="oum-gopro-tr">
                 <th scope="row">
                   <?php 
+        echo __( 'Votes', 'open-user-map' );
+        ?>
+                  <br><span class="oum-pro">PRO</span><br>
+                  <a class="oum-gopro-text" href="<?php 
+        echo oum_fs()->get_upgrade_url();
+        ?>"><?php 
+        echo __( 'Upgrade to PRO to enable public votes for Locations.', 'open-user-map' );
+        ?></a>
+                </th>
+                <td>
+                  <input class="oum-switch" type="checkbox" disabled>
+                  <label></label><br><br>
+                  <span class="description"><?php 
+        echo __( 'Adds a customizable feedback button to each location popup. You can use it for likes, voting, or flagging. The counter is hidden when there are no votes.', 'open-user-map' );
+        ?></span><br><br>
+                  <strong><?php 
+        echo __( 'Vote Button Label:', 'open-user-map' );
+        ?></strong><br>
+                  <input class="regular-text" type="text" value="👍" disabled>
+                  <br><br>
+                  <strong><?php 
+        echo __( 'Prevent Multiple Votes:', 'open-user-map' );
+        ?></strong><br>
+                  <select disabled>
+                    <option><?php 
+        echo __( 'Persistent Cookie (Lasts 1 year)', 'open-user-map' );
+        ?></option>
+                    <option><?php 
+        echo __( 'Session Cookie (Privacy-friendly, expires when browser closes)', 'open-user-map' );
+        ?></option>
+                    <option><?php 
+        echo __( 'No Prevention (Users can vote multiple times)', 'open-user-map' );
+        ?></option>
+                  </select>
+                  <br><br>
+                  <span class="description">
+                    <?php 
+        echo __( 'Choose how to prevent multiple votes:', 'open-user-map' );
+        ?>
+                    <br><br>
+                    <strong><?php 
+        echo __( 'Persistent Cookie:', 'open-user-map' );
+        ?></strong> <?php 
+        echo __( 'Users can vote once per location. Vote state lasts 1 year.', 'open-user-map' );
+        ?>
+                    <br>
+                    <strong><?php 
+        echo __( 'Session Cookie:', 'open-user-map' );
+        ?></strong> <?php 
+        echo __( 'Users can vote once per location. Vote state expires when browser closes (privacy-friendly for German DSGVO compliance).', 'open-user-map' );
+        ?>
+                    <br>
+                    <strong><?php 
+        echo __( 'No Prevention:', 'open-user-map' );
+        ?></strong> <?php 
+        echo __( 'Users can vote multiple times. Vote states are cleared on page refresh. No data is stored on user devices (maximum privacy).', 'open-user-map' );
+        ?>
+                    <br><br>
+                    <a href="https://www.open-user-map.com/knowledge-base/preventing-multiple-votes-cookies-privacy/" target="_blank"><?php 
+        echo __( 'Find ready-made text modules for your Privacy Declaration →', 'open-user-map' );
+        ?></a>
+                  </span><br><br>
+                </td>
+              </tr>
+
+            <?php 
+    }
+    ?>
+
+            <?php 
+    ?>
+
+            <?php 
+    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+        ?>
+              
+              <tr valign="top" class="oum-gopro-tr">
+                <th scope="row">
+                  <?php 
         echo __( 'Restrict "Add location" to logged in users only', 'open-user-map' );
         ?>
                   <br><span class="oum-pro">PRO</span><br>
@@ -2524,6 +2603,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <li>lng</li>
                   <li>route</li>
                   <li>text</li>
+                  <li>votes</li>
                   <li>notification</li>
                   <li>author_name</li>
                   <li>author_email</li>

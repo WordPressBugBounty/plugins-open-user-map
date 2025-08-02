@@ -354,9 +354,51 @@
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text audio {
   margin-top: 15px;
 }
+.open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_text_bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_read_more {
-  margin-top: 10px;
   font-size: 14px;
+}
+.open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_vote_button_wrap .oum_vote_button {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  height: 27px;
+  padding: 4px 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #6c757d;
+}
+.open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_vote_button_wrap .oum_vote_button:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+.open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_vote_button_wrap .oum_vote_button.voted {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+.open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_vote_button_wrap .oum_vote_button.voted * {
+  color: white;
+}
+.open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_vote_button_wrap .oum_vote_button .oum_vote_count {
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 20px;
+  text-align: center;
+  margin-left: 4px;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel {
   position: relative;
@@ -2033,8 +2075,51 @@
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text audio {
   margin-top: 15px;
 }
+.open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_location_text_bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_read_more {
-  margin-top: 10px;
+  font-size: 14px;
+}
+.open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_vote_button_wrap .oum_vote_button {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  height: 27px;
+  padding: 4px 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #6c757d;
+}
+.open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_vote_button_wrap .oum_vote_button:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+.open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_vote_button_wrap .oum_vote_button.voted {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+.open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_vote_button_wrap .oum_vote_button.voted * {
+  color: white;
+}
+.open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_vote_button_wrap .oum_vote_button .oum_vote_count {
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 20px;
+  text-align: center;
+  margin-left: 4px;
 }
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .edit-location-button {
   background: url(images/ico_pen.png) no-repeat 58% 36% #eee;
@@ -2520,8 +2605,51 @@
 .open-user-map-locations-list .oum-locations-list-item .oum_location_text audio {
   margin-top: 15px;
 }
+.open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_location_text_bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
 .open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_read_more {
-  margin-top: 10px;
+  font-size: 14px;
+}
+.open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_vote_button_wrap .oum_vote_button {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  height: 27px;
+  padding: 4px 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #6c757d;
+}
+.open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_vote_button_wrap .oum_vote_button:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+.open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_vote_button_wrap .oum_vote_button.voted {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+.open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_vote_button_wrap .oum_vote_button.voted * {
+  color: white;
+}
+.open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_vote_button_wrap .oum_vote_button .oum_vote_count {
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 20px;
+  text-align: center;
+  margin-left: 4px;
 }
 @media (max-width: 768px) {
   .open-user-map-locations-list .oum-locations-list-item {

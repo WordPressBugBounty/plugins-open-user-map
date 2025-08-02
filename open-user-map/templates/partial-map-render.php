@@ -137,6 +137,8 @@ foreach ( $locations_list as $location ) {
     }
     // Add words that are not visible to the user but can be used for search
     $additional_search_meta = '<div style="display: none">' . get_post_field( 'post_name', $location['post_id'] ) . '</div>';
+    // Add vote button if feature is enabled
+    $vote_button = '';
     // building bubble block content
     $content = $media_tag;
     $content .= '<div class="oum_location_text">';
@@ -146,7 +148,7 @@ foreach ( $locations_list as $location ) {
     $content .= $custom_fields;
     $content .= $description_tag;
     $content .= $audio_tag;
-    $content .= $link_tag;
+    $content .= '<div class="oum_location_text_bottom">' . $vote_button . $link_tag . '</div>';
     $content .= '</div>';
     $content .= $edit_button;
     $content .= $additional_search_meta;
@@ -170,6 +172,7 @@ foreach ( $locations_list as $location ) {
         'audio'         => esc_url( $location["audio"] ),
         'video'         => esc_url( $location["video"] ),
         'custom_fields' => $location['custom_fields'],
+        'votes'         => ( isset( $location['votes'] ) ? intval( $location['votes'] ) : 0 ),
     ];
     $oum_all_locations[] = $oum_location;
 }
@@ -559,6 +562,11 @@ if ( $oum_ui_color ) {
             .open-user-map .oum_location_text a {color: <?php 
     echo $oum_ui_color;
     ?> !important}
+            .open-user-map .oum_location_text .oum_vote_button_wrap .oum_vote_button.voted {background: <?php 
+    echo $oum_ui_color;
+    ?> !important; border-color: <?php 
+    echo $oum_ui_color;
+    ?> !important;}
             .open-user-map .oum-tabs {border-color: <?php 
     echo $oum_ui_color;
     ?> !important}
@@ -612,7 +620,12 @@ if ( $oum_ui_color ) {
             /* List Styles */
             .open-user-map-locations-list .oum-locations-list-item .oum_location_text a {color: <?php 
     echo $oum_ui_color;
-    ?> !important}`;
+    ?> !important} 
+            .open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_vote_button_wrap .oum_vote_button.voted {background: <?php 
+    echo $oum_ui_color;
+    ?> !important; border-color: <?php 
+    echo $oum_ui_color;
+    ?> !important;}`;
 
         <?php 
 }

@@ -167,6 +167,12 @@ class BaseController {
             add_action( 'wp_ajax_nopriv_oum_add_location_from_frontend', array($this, 'ajax_add_location_from_frontend') );
             add_action( 'wp_ajax_oum_add_location_from_frontend', array($this, 'ajax_add_location_from_frontend') );
         }
+        // AJAX: Handle vote/unvote actions (available for all users)
+        add_action( 'wp_ajax_oum_toggle_vote', array($this, 'ajax_toggle_vote') );
+        add_action( 'wp_ajax_nopriv_oum_toggle_vote', array($this, 'ajax_toggle_vote') );
+        // AJAX: Get updated vote count for a location
+        add_action( 'wp_ajax_oum_get_vote_count', array($this, 'ajax_get_vote_count') );
+        add_action( 'wp_ajax_nopriv_oum_get_vote_count', array($this, 'ajax_get_vote_count') );
     }
 
     /**
@@ -704,6 +710,142 @@ class BaseController {
         }
         die;
         //necessary for correct ajax return in WordPress plugins
+    }
+
+    /**
+     * AJAX: Handle vote/unvote actions
+     */
+    public function ajax_toggle_vote() {
+        // Check if vote feature is enabled
+        if ( get_option( 'oum_enable_vote_feature' ) !== 'on' ) {
+            wp_send_json_error( array(
+                'message' => __( 'Vote feature is disabled.', 'open-user-map' ),
+            ) );
+            return;
+        }
+        // Verify nonce for security
+        if ( !wp_verify_nonce( $_POST['nonce'], 'oum_vote_nonce' ) ) {
+            wp_send_json_error( array(
+                'message' => __( 'Security check failed.', 'open-user-map' ),
+            ) );
+            return;
+        }
+        // Get post ID
+        $post_id = intval( $_POST['post_id'] );
+        if ( !$post_id || get_post_type( $post_id ) !== 'oum-location' ) {
+            wp_send_json_error( array(
+                'message' => __( 'Invalid location.', 'open-user-map' ),
+            ) );
+            return;
+        }
+        // Get current vote count
+        $location_data = get_post_meta( $post_id, '_oum_location_key', true );
+        if ( !is_array( $location_data ) ) {
+            $location_data = array();
+        }
+        $current_votes = ( isset( $location_data['votes'] ) ? intval( $location_data['votes'] ) : 0 );
+        $cookie_name = 'oum_voted_' . $post_id;
+        $cookie_type = get_option( 'oum_vote_cookie_type', 'persistent' );
+        // Determine current vote state
+        if ( $cookie_type === 'none' ) {
+            // For no-cookie mode, use the current_vote_state parameter from frontend
+            $is_voted = isset( $_POST['current_vote_state'] ) && $_POST['current_vote_state'] === 'voted';
+        } else {
+            // For cookie modes, check the cookie
+            $is_voted = isset( $_COOKIE[$cookie_name] ) && $_COOKIE[$cookie_name] === '1';
+        }
+        // Toggle vote status
+        if ( $is_voted ) {
+            // Unvote: decrease count
+            $new_votes = max( 0, $current_votes - 1 );
+            $location_data['votes'] = $new_votes;
+            $response_data = array(
+                'voted'   => false,
+                'votes'   => $new_votes,
+                'message' => __( 'Location unvoted.', 'open-user-map' ),
+            );
+        } else {
+            // Vote: increase count
+            $new_votes = $current_votes + 1;
+            $location_data['votes'] = $new_votes;
+            $response_data = array(
+                'voted'   => true,
+                'votes'   => $new_votes,
+                'message' => __( 'Location voted!', 'open-user-map' ),
+            );
+        }
+        // Update location data
+        update_post_meta( $post_id, '_oum_location_key', $location_data );
+        // Set cookie to track user's vote status
+        if ( $cookie_type !== 'none' ) {
+            if ( $is_voted ) {
+                // Remove cookie
+                setcookie(
+                    $cookie_name,
+                    '',
+                    time() - 3600,
+                    '/'
+                );
+            } else {
+                // Set cookie based on type
+                if ( $cookie_type === 'session' ) {
+                    // Session cookie (expires when browser closes)
+                    setcookie(
+                        $cookie_name,
+                        '1',
+                        0,
+                        '/'
+                    );
+                } elseif ( $cookie_type === 'persistent' ) {
+                    // Persistent cookie (expires in 1 year)
+                    setcookie(
+                        $cookie_name,
+                        '1',
+                        time() + 365 * 24 * 60 * 60,
+                        '/'
+                    );
+                }
+            }
+        }
+        // For 'none' type, no cookies are set or removed
+        wp_send_json_success( $response_data );
+    }
+
+    /**
+     * AJAX handler to get updated vote count for a location
+     */
+    public function ajax_get_vote_count() {
+        // Check if vote feature is enabled
+        if ( get_option( 'oum_enable_vote_feature' ) !== 'on' ) {
+            wp_send_json_error( array(
+                'message' => __( 'Vote feature is disabled.', 'open-user-map' ),
+            ) );
+            return;
+        }
+        // Verify nonce for security
+        if ( !wp_verify_nonce( $_POST['nonce'], 'oum_vote_nonce' ) ) {
+            wp_send_json_error( array(
+                'message' => __( 'Security check failed.', 'open-user-map' ),
+            ) );
+            return;
+        }
+        // Get post ID
+        $post_id = intval( $_POST['post_id'] );
+        if ( !$post_id || get_post_type( $post_id ) !== 'oum-location' ) {
+            wp_send_json_error( array(
+                'message' => __( 'Invalid location.', 'open-user-map' ),
+            ) );
+            return;
+        }
+        // Get current vote count
+        $location_data = get_post_meta( $post_id, '_oum_location_key', true );
+        if ( !is_array( $location_data ) ) {
+            $location_data = array();
+        }
+        $votes = ( isset( $location_data['votes'] ) ? intval( $location_data['votes'] ) : 0 );
+        wp_send_json_success( array(
+            'votes' => $votes,
+        ) );
     }
 
     /**

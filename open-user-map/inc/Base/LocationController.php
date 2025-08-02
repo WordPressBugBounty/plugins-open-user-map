@@ -23,6 +23,7 @@ class LocationController extends BaseController {
             2
         );
         // this method has 2 attributes
+        add_filter( 'manage_oum-location_posts_sortable_columns', array($this, 'set_sortable_columns') );
         add_action( 'pre_get_posts', array($this, 'custom_search_oum_location') );
         add_action( 'admin_menu', array($this, 'add_pending_counter_to_menu') );
         add_filter(
@@ -476,6 +477,10 @@ class LocationController extends BaseController {
         }
         $columns['text'] = __( 'Text', 'open-user-map' );
         $columns['geocoordinates'] = __( 'Coordinates', 'open-user-map' );
+        // Add votes column only if vote feature is enabled
+        if ( get_option( 'oum_enable_vote_feature' ) === 'on' ) {
+            $columns['votes'] = __( 'Votes', 'open-user-map' );
+        }
         if ( $comments ) {
             $columns['comments'] = $comments;
         }
@@ -494,6 +499,7 @@ class LocationController extends BaseController {
         $address = ( isset( $data['address'] ) ? $data['address'] : '' );
         $lat = ( isset( $data['lat'] ) ? $data['lat'] : '' );
         $lng = ( isset( $data['lng'] ) ? $data['lng'] : '' );
+        $votes = ( isset( $data['votes'] ) ? intval( $data['votes'] ) : 0 );
         switch ( $column ) {
             case 'post_id':
                 echo esc_html( $post_id );
@@ -507,13 +513,27 @@ class LocationController extends BaseController {
             case 'geocoordinates':
                 echo esc_attr( $lat ) . ', ' . esc_attr( $lng );
                 break;
+            case 'votes':
+                echo esc_attr( $votes );
+                break;
             default:
                 break;
         }
     }
 
     /**
-     * Custom search (backend) for locations (inlcuding meta and author)
+     * Set sortable columns for the admin list
+     */
+    public function set_sortable_columns( $columns ) {
+        // Add votes column as sortable only if vote feature is enabled
+        if ( get_option( 'oum_enable_vote_feature' ) === 'on' ) {
+            $columns['votes'] = 'votes';
+        }
+        return $columns;
+    }
+
+    /**
+     * Custom search for locations (including meta and author)
      */
     public function custom_search_oum_location( $query ) {
         // Ensure we're in the WordPress admin, it's a search query, and the right post type
@@ -705,6 +725,10 @@ class LocationController extends BaseController {
             } else {
                 $value = ( $has_video ? esc_attr( $video ) : '' );
             }
+        } elseif ( $attr == 'votes' ) {
+            // GET VOTES
+            $votes = ( isset( $location['votes'] ) ? intval( $location['votes'] ) : 0 );
+            $value = $votes;
         } elseif ( $attr == 'type' ) {
             // GET TYPE
             $location_types = ( get_the_terms( $post_id, 'oum-type' ) && !is_wp_error( get_the_terms( $post_id, 'oum-type' ) ) ? get_the_terms( $post_id, 'oum-type' ) : false );
