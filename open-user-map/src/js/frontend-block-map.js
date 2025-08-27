@@ -878,11 +878,13 @@ const OUMMarkers = (function () {
         window.OUMVoteHandler.updateVoteButtonStates();
       }
       
-      // Refresh vote counts for the newly opened popup
-      if (window.OUMVoteHandler && window.OUMVoteHandler.refreshVoteCounts) {
+      // Initialize vote counts from data for the newly opened popup
+      if (window.OUMVoteHandler && window.OUMVoteHandler.initializeVoteCountsFromData) {
         const voteButtons = el.querySelectorAll('.oum_vote_button');
         if (voteButtons.length > 0) {
-          window.OUMVoteHandler.refreshVoteCounts(voteButtons);
+          // For popups, use the updated location data to initialize vote counts
+          // This avoids AJAX calls while ensuring we have the latest vote data
+          window.OUMVoteHandler.initializeVoteCountsFromData();
         }
       }
     });
@@ -948,6 +950,59 @@ const OUMMarkers = (function () {
     function hideFilterList() {
       filterControls.classList.remove("active");
     }
+
+    // Function to setup toggle all functionality
+    function setupToggleAll() {
+      const toggleAllCheckbox = filterControls.querySelector('.open-user-map .oum-filter-controls .oum-toggle-all-checkbox');
+      const categoryCheckboxes = filterControls.querySelectorAll('.open-user-map .oum-filter-controls [name="type"]');
+      
+      if (!toggleAllCheckbox || categoryCheckboxes.length === 0) return;
+
+      // Function to update toggle all state based on individual checkboxes
+      function updateToggleAllState() {
+        const checkedCount = Array.from(categoryCheckboxes).filter(cb => cb.checked).length;
+        const totalCount = categoryCheckboxes.length;
+        
+        if (checkedCount === 0) {
+          toggleAllCheckbox.checked = false;
+          toggleAllCheckbox.indeterminate = false;
+        } else if (checkedCount === totalCount) {
+          toggleAllCheckbox.checked = true;
+          toggleAllCheckbox.indeterminate = false;
+        } else {
+          toggleAllCheckbox.checked = false;
+          toggleAllCheckbox.indeterminate = true;
+        }
+      }
+
+      // Function to toggle all categories
+      function toggleAllCategories() {
+        // Determine if we should check all or uncheck all based on current state
+        const checkedCount = Array.from(categoryCheckboxes).filter(cb => cb.checked).length;
+        const totalCount = categoryCheckboxes.length;
+        
+        // If all are checked, uncheck all. Otherwise, check all
+        const shouldCheck = checkedCount < totalCount;
+        
+        categoryCheckboxes.forEach(checkbox => {
+          checkbox.checked = shouldCheck;
+        });
+        
+        // Trigger filter update
+        filterMarkers();
+      }
+
+      // Event listeners
+      toggleAllCheckbox.addEventListener('change', toggleAllCategories);
+      
+      // Update toggle all state when individual checkboxes change
+      categoryCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateToggleAllState);
+      });
+
+      // Set initial state
+      updateToggleAllState();
+    }
   
     // Event: Open Filter List (mouseover for collapsed design)
     if (filterControls.classList.contains("use-collapse")) {
@@ -968,6 +1023,9 @@ const OUMMarkers = (function () {
     filterControls
       .querySelector(".oum-filter-list .close-filter-list")
         ?.addEventListener("click", hideFilterList);
+
+    // Setup toggle all functionality
+    setupToggleAll();
   }
 
   function handleAutoOpenMarker(markerId) {
@@ -1718,6 +1776,12 @@ const OUMFormController = (function () {
       const imageUrls = location.image.split('|').filter(url => url);
       const previewContainer = document.getElementById('oum_location_images_preview');
       
+      // Remove required attribute from image upload field when editing with existing images
+      const imageInput = document.getElementById('oum_location_images');
+      if (imageInput && imageUrls.length > 0) {
+        imageInput.removeAttribute('required');
+      }
+      
       if (previewContainer) {
         previewContainer.innerHTML = '';
         
@@ -1765,6 +1829,9 @@ const OUMFormController = (function () {
       OUMFormMap.setView(location.lat, location.lng, 16);
       OUMFormMap.setLocation(location.lat, location.lng);
     }
+
+    // Sync checkbox validation after form population
+    OUMCheckboxValidation.syncAllGroups();
   }
 
   function resetForm() {
@@ -2346,6 +2413,73 @@ const OUMMedia = (function () {
   };
 })();
 
+/**
+ * Checkbox Validation Module - Handles required checkbox group validation
+ */
+const OUMCheckboxValidation = (function () {
+  // Private functions
+  function syncRequired(group) {
+    const anyChecked = group.some(cb => cb.checked);
+    const first = group[0];
+    first.required = !anyChecked;
+  }
+
+  function getCheckboxGroups() {
+    const checkboxGroups = document.querySelectorAll('.oum-checkbox-group.is-required input[type="checkbox"]');
+    
+    if (!checkboxGroups.length) return {};
+
+    // Group checkboxes by name
+    const groups = {};
+    checkboxGroups.forEach(checkbox => {
+      const name = checkbox.name;
+      if (!groups[name]) groups[name] = [];
+      groups[name].push(checkbox);
+    });
+
+    return groups;
+  }
+
+  function processCheckboxGroup(group, setupEvents = true) {
+    const first = group[0];
+    
+    // Only process if first checkbox is required
+    if (!first.required) return;
+
+    // Add event listeners if requested
+    if (setupEvents) {
+      group.forEach(cb => cb.addEventListener('change', () => syncRequired(group)));
+    }
+    
+    // Sync the state
+    syncRequired(group);
+  }
+
+  function initCheckboxGroups() {
+    const groups = getCheckboxGroups();
+    
+    // Process each group with event listeners
+    Object.keys(groups).forEach(groupName => {
+      processCheckboxGroup(groups[groupName], true);
+    });
+  }
+
+  // Public interface
+  return {
+    init: function() {
+      initCheckboxGroups();
+    },
+    syncAllGroups: function() {
+      const groups = getCheckboxGroups();
+      
+      // Sync each group without setting up new event listeners
+      Object.keys(groups).forEach(groupName => {
+        processCheckboxGroup(groups[groupName], false);
+      });
+    }
+  };
+})();
+
 // Main initialization
 window.addEventListener("load", function () {
   // Only proceed if we have a map element
@@ -2379,6 +2513,9 @@ window.addEventListener("load", function () {
 
   // Initialize media handling
   OUMMedia.init();
+
+  // Initialize checkbox validation
+  OUMCheckboxValidation.init();
 
   // Setup filter events
   const markerFilterInput = document.getElementById("oum_filter_markers");

@@ -180,7 +180,6 @@ foreach ( $locations_list_clean as $location ) {
         $date_tag = '';
     }
     $name_tag = ( get_option( 'oum_enable_title', 'on' ) == 'on' ? '<h3 class="oum_location_name">' . esc_attr( $location['name'] ) . '</h3>' : '' );
-    //error_log(print_r($location, true));
     $media_tag = '';
     if ( $location['image'] ) {
         // Split image URLs if multiple images exist

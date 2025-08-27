@@ -263,6 +263,9 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_enable_multiple_marker_types', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'open-user-map-settings-group', 'oum_enable_toggle_all_categories', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
         register_setting( 'open-user-map-settings-group', 'oum_collapse_filter', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
@@ -331,7 +334,7 @@ class Settings extends BaseController {
             $old_setting = get_option( $old_option );
             // do nothing if old option doesnt exist
             if ( $old_setting === false ) {
-                //error_log('Open User Map: Deprecated option ' . $old_option . ' does not exist. Nothing to do.');
+                //$this->safe_log('Open User Map: Deprecated option ' . $old_option . ' does not exist. Nothing to do.');
                 continue;
             }
             if ( empty( $old_setting ) ) {
@@ -341,10 +344,10 @@ class Settings extends BaseController {
             }
             //update (or create) new
             update_option( $new_option, $new_setting );
-            error_log( 'Open User Map: Update new option ' . $new_option . ' from old option ' . $old_option . '. New Value: ' . $new_setting );
+            $this->safe_log( 'Open User Map: Update new option ' . $new_option . ' from old option ' . $old_option . '. New Value: ' . $new_setting );
             //delete old
             delete_option( $old_option );
-            error_log( 'Open User Map: Deleting old option ' . $new_option . '.' );
+            $this->safe_log( 'Open User Map: Deleting old option ' . $new_option . '.' );
         }
         // Variant 2: rename settings (keep value)
         $options = array(
@@ -354,15 +357,15 @@ class Settings extends BaseController {
             $old_setting = get_option( $old_option );
             // do nothing if old option doesnt exist
             if ( $old_setting === false ) {
-                //error_log('Open User Map: Deprecated option ' . $old_option . ' does not exist. Nothing to do.');
+                //$this->safe_log('Open User Map: Deprecated option ' . $old_option . ' does not exist. Nothing to do.');
                 continue;
             }
             //update (or create) new
             update_option( $new_option, $old_setting );
-            error_log( 'Open User Map: Update new option ' . $new_option . ' from old option ' . $old_option . '. New Value: ' . $old_setting );
+            $this->safe_log( 'Open User Map: Update new option ' . $new_option . ' from old option ' . $old_option . '. New Value: ' . $old_setting );
             //delete old
             delete_option( $old_option );
-            error_log( 'Open User Map: Deleting old option ' . $new_option . '.' );
+            $this->safe_log( 'Open User Map: Deleting old option ' . $new_option . '.' );
         }
         // Variant 3: change value of a setting
         if ( get_option( 'oum_map_style' ) == 'Stamen.TonerLite' ) {
@@ -445,7 +448,7 @@ class Settings extends BaseController {
             return;
         }
         $screen = get_current_screen();
-        //error_log(print_r($screen, true));
+        //$this->safe_log(print_r($screen, true));
         // Only render this notice on a Open User Map page.
         if ( !$screen || 'edit.php?post_type=oum-location' !== $screen->parent_file ) {
             return;
@@ -507,6 +510,7 @@ class Settings extends BaseController {
                         'wp_author_id' => oum_get_location_value( 'wp_author_id', $post_id ),
                         'title'        => oum_get_location_value( 'title', $post_id ),
                         'image'        => oum_get_location_value( 'image', $post_id, true ),
+                        'video'        => oum_get_location_value( 'video', $post_id, true ),
                         'audio'        => oum_get_location_value( 'audio', $post_id, true ),
                         'type'         => oum_get_location_value( 'type', $post_id ),
                         'address'      => oum_get_location_value( 'address', $post_id ),
@@ -612,7 +616,7 @@ class Settings extends BaseController {
                     if ( is_array( $a ) && !empty( array_filter( $a, 'strlen' ) ) ) {
                         $a = array_combine( $rows[0], $a );
                     } else {
-                        error_log( 'Open User Map: an empty line or a row not of type array detected and skipped' );
+                        $this->safe_log( 'Open User Map: an empty line or a row not of type array detected and skipped' );
                     }
                 } );
                 array_shift( $rows );
@@ -625,6 +629,27 @@ class Settings extends BaseController {
                     $types = $location['type'];
                     if ( $types ) {
                         $types = explode( '|', $types );
+                        // Convert term names to term IDs for hierarchical taxonomy compatibility
+                        // WordPress requires term IDs (not names) for hierarchical taxonomies in tax_input
+                        $type_ids = array();
+                        foreach ( $types as $type_name ) {
+                            $type_name = trim( $type_name );
+                            if ( !empty( $type_name ) ) {
+                                // Try to find existing term by name
+                                $term = get_term_by( 'name', $type_name, 'oum-type' );
+                                if ( $term && !is_wp_error( $term ) ) {
+                                    $type_ids[] = $term->term_id;
+                                } else {
+                                    // If term doesn't exist, create it automatically
+                                    $new_term = wp_insert_term( $type_name, 'oum-type' );
+                                    if ( !is_wp_error( $new_term ) ) {
+                                        $type_ids[] = $new_term['term_id'];
+                                    }
+                                }
+                            }
+                        }
+                        $types = $type_ids;
+                        // Use IDs instead of names for wp_insert_post
                     }
                     // update or insert post
                     if ( $location['post_id'] == '' ) {
@@ -647,6 +672,7 @@ class Settings extends BaseController {
                         $fields = array(
                             'oum_location_nonce'        => $nonce,
                             'oum_location_image'        => $location['image'],
+                            'oum_location_video'        => $location['video'],
                             'oum_location_audio'        => $location['audio'],
                             'oum_location_address'      => $location['address'],
                             'oum_location_lat'          => $location['lat'],

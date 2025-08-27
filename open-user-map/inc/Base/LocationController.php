@@ -139,7 +139,7 @@ class LocationController extends BaseController {
     public function render_customfields_box( $post ) {
         wp_nonce_field( 'oum_location', 'oum_location_nonce' );
         $data = get_post_meta( $post->ID, '_oum_location_key', true );
-        //error_log(print_r($data, true));
+        //$this->safe_log(print_r($data, true));
         $address = ( isset( $data['address'] ) ? $data['address'] : '' );
         $lat = ( isset( $data['lat'] ) ? $data['lat'] : '' );
         $lng = ( isset( $data['lng'] ) ? $data['lng'] : '' );
@@ -307,6 +307,12 @@ class LocationController extends BaseController {
         $lat_validated = ( isset( $location_data['oum_location_lat'] ) ? floatval( str_replace( ',', '.', sanitize_text_field( $location_data['oum_location_lat'] ) ) ) : '' );
         $lng_validated = ( isset( $location_data['oum_location_lng'] ) ? floatval( str_replace( ',', '.', sanitize_text_field( $location_data['oum_location_lng'] ) ) ) : '' );
         $zoom_validated = ( isset( $location_data['oum_location_zoom'] ) ? intval( sanitize_text_field( $location_data['oum_location_zoom'] ) ) : 13 );
+        // Get existing location data to preserve vote count and other existing fields
+        // This prevents vote counts from being lost when editing locations
+        $existing_data = get_post_meta( $post_id, '_oum_location_key', true );
+        if ( !is_array( $existing_data ) ) {
+            $existing_data = array();
+        }
         $data = array(
             'address'      => ( isset( $location_data['oum_location_address'] ) ? sanitize_text_field( $location_data['oum_location_address'] ) : '' ),
             'lat'          => $lat_validated,
@@ -317,6 +323,10 @@ class LocationController extends BaseController {
             'author_email' => ( isset( $location_data['oum_location_author_email'] ) ? sanitize_text_field( $location_data['oum_location_author_email'] ) : '' ),
             'video'        => ( isset( $location_data['oum_location_video'] ) ? sanitize_text_field( $location_data['oum_location_video'] ) : '' ),
         );
+        // Preserve existing vote count if it exists
+        if ( isset( $existing_data['votes'] ) ) {
+            $data['votes'] = $existing_data['votes'];
+        }
         if ( isset( $location_data['oum_location_notification'] ) ) {
             $data['notification'] = sanitize_text_field( $location_data['oum_location_notification'] );
         }
@@ -871,7 +881,10 @@ class LocationController extends BaseController {
                 </div>
                 <!-- /wp:group -->
                 ';
-                return $custom_content;
+                // Apply filter to allow users to override the custom content
+                $filtered_content = apply_filters( 'oum_default_location_content', $custom_content, get_the_ID() );
+                // Return filtered content if not empty, otherwise return original content
+                return ( !empty( trim( $filtered_content ) ) ? $filtered_content : $content );
             }
         }
         // Return the original content if it's not empty or if the conditions are not met

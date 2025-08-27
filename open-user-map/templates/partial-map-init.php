@@ -27,6 +27,7 @@ $text_notify_me_on_publish_email = __( 'Your email', 'open-user-map' );
 $oum_enable_currentlocation = ( get_option( 'oum_enable_currentlocation' ) ? 'true' : 'false' );
 $oum_disable_oum_attribution = get_option( 'oum_disable_oum_attribution' );
 $oum_collapse_filter = ( get_option( 'oum_collapse_filter' ) ? 'use-collapse' : 'active' );
+$oum_enable_toggle_all_categories = get_option( 'oum_enable_toggle_all_categories', 'off' );
 $oum_ui_color = ( get_option( 'oum_ui_color' ) ? get_option( 'oum_ui_color' ) : $this->oum_ui_color_default );
 $oum_plus_button_label = ( get_option( 'oum_plus_button_label' ) ? get_option( 'oum_plus_button_label' ) : __( 'Add location', 'open-user-map' ) );
 $oum_marker_types_label = ( get_option( 'oum_marker_types_label' ) ? get_option( 'oum_marker_types_label' ) : $this->oum_get_default_label( 'marker_types' ) );

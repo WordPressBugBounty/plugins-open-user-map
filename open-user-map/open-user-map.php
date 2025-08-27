@@ -8,7 +8,7 @@ Plugin Name: Open User Map
 Plugin URI: https://wordpress.org/plugins/open-user-map/
 Description: Engage your visitors with an interactive map – let them add markers instantly or create a custom map showcasing your favorite spots.
 Author: 100plugins
-Version: 1.4.11
+Version: 1.4.12
 Author URI: https://www.open-user-map.com/
 License: GPLv3 or later
 Text Domain: open-user-map
@@ -138,7 +138,10 @@ if ( function_exists( 'oum_fs' ) ) {
             OpenUserMapPlugin\Init::register_services();
         } catch ( \Error $e ) {
             return 'An error has occurred. Please look in the settings under Open User Map > Help > Debug Info.';
-            error_log( $e->getMessage() . '(' . $e->getFile() . ' Line: ' . $e->getLine() . ')' );
+            // Safe logging that works even when error_log is disabled
+            if ( function_exists( 'error_log' ) && !in_array( 'error_log', explode( ',', ( ini_get( 'disable_functions' ) ?: '' ) ) ) ) {
+                error_log( $e->getMessage() . '(' . $e->getFile() . ' Line: ' . $e->getLine() . ')' );
+            }
         }
     }
     /**

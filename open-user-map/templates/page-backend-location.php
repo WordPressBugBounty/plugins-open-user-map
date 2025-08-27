@@ -234,7 +234,7 @@ if ( is_array( $active_custom_fields ) ) {
         $custom_field['fieldtype'] = ( isset( $custom_field['fieldtype'] ) ? $custom_field['fieldtype'] : 'text' );
         $custom_field['description'] = ( isset( $custom_field['description'] ) ? $custom_field['description'] : '' );
         $label = esc_attr( $custom_field['label'] ) . (( isset( $custom_field['required'] ) ? '*' : '' ));
-        $description = ( $custom_field['description'] ? '<div class="oum_custom_field_description">' . $custom_field['description'] . '</div>' : '' );
+        $description = ( $custom_field['description'] ? '<div class="oum_custom_field_description">' . wp_kses_post( $custom_field['description'] ) . '</div>' : '' );
         ?>
                 
                 <?php 

@@ -297,6 +297,25 @@ if ( $types ) {
         <div class="oum-filter-toggle"></div>
         <div class="oum-filter-list">
           <div class="close-filter-list">&#x2715;</div>
+          
+          <!-- Toggle All Checkbox -->
+          <?php 
+    if ( $oum_enable_toggle_all_categories === 'on' ) {
+        ?>
+            <div class="oum-toggle-all-wrapper">
+              <label class="oum-toggle-all-label">
+                <input style="accent-color: <?php 
+        echo $oum_ui_color;
+        ?>" type="checkbox" id="oum-toggle-all" class="oum-toggle-all-checkbox">
+                <span class="oum-toggle-all-text"><?php 
+        echo __( 'Select all', 'open-user-map' );
+        ?></span>
+              </label>
+            </div>
+          <?php 
+    }
+    ?>
+          
           <?php 
     foreach ( $types as $type ) {
         ?>

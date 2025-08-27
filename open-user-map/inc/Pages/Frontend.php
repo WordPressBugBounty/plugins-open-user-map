@@ -20,7 +20,7 @@ class Frontend extends BaseController {
         // Check if Elementor installed and activated
         if ( did_action( 'elementor/loaded' ) ) {
             if ( \Elementor_OUM_Addon\Plugin::is_elementor_backend() ) {
-                error_log( 'OUM: prevented shortcode rendering inside Elementor' );
+                $this->safe_log( 'OUM: prevented shortcode rendering inside Elementor' );
                 return;
             }
         }

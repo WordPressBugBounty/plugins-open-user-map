@@ -74,7 +74,7 @@ if ( is_array( $oum_custom_fields ) ) {
         $custom_field['fieldtype'] = ( isset( $custom_field['fieldtype'] ) ? $custom_field['fieldtype'] : 'text' );
         $custom_field['description'] = ( isset( $custom_field['description'] ) ? $custom_field['description'] : '' );
         $label = esc_attr( $custom_field['label'] ) . (( isset( $custom_field['required'] ) ? '*' : '' ));
-        $description = ( $custom_field['description'] ? '<div class="oum_custom_field_description">' . $custom_field['description'] . '</div>' : '' );
+        $description = ( $custom_field['description'] ? '<div class="oum_custom_field_description">' . wp_kses_post( $custom_field['description'] ) . '</div>' : '' );
         $maxlength = ( $custom_field['maxlength'] ? 'maxlength="' . $custom_field['maxlength'] . '"' : '' );
         $html = ( $custom_field['html'] ? $custom_field['html'] : '' );
         ?>
@@ -146,7 +146,7 @@ if ( is_array( $oum_custom_fields ) ) {
         if ( $custom_field['fieldtype'] == 'checkbox' ) {
             ?>
               <div>
-                <fieldset class="<?php 
+                <fieldset class="oum-checkbox-group <?php 
             echo ( isset( $custom_field['required'] ) ? 'is-required' : '' );
             ?>">
                   <legend><?php 
@@ -154,7 +154,7 @@ if ( is_array( $oum_custom_fields ) ) {
             ?></legend>
                   <?php 
             $options = ( isset( $custom_field['options'] ) ? explode( '|', $custom_field['options'] ) : array() );
-            foreach ( $options as $option ) {
+            foreach ( $options as $option_index => $option ) {
                 ?>
                     <div>
                       <label>
@@ -165,7 +165,7 @@ if ( is_array( $oum_custom_fields ) ) {
                 ?>][]" value="<?php 
                 echo esc_attr( trim( $option ) );
                 ?>" <?php 
-                echo ( isset( $custom_field['required'] ) ? 'required' : '' );
+                echo ( isset( $custom_field['required'] ) && $option_index === 0 ? 'required' : '' );
                 ?>>
                         <span><?php 
                 echo trim( $option );

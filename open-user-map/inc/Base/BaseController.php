@@ -20,6 +20,21 @@ class BaseController {
 
     public $oum_marker_multicategories_icon_default;
 
+    /**
+     * Safe logging function that works even when error_log is disabled
+     * 
+     * @param string $message The message to log
+     * @return void
+     */
+    protected function safe_log( $message ) {
+        // Check if error_log function is available and enabled
+        if ( function_exists( 'error_log' ) && !in_array( 'error_log', explode( ',', ( ini_get( 'disable_functions' ) ?: '' ) ) ) ) {
+            error_log( $message );
+        } elseif ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+            error_log( $message );
+        }
+    }
+
     public $map_styles = array(
         "Esri.WorldStreetMap"  => "Esri WorldStreetMap",
         "OpenStreetMap.Mapnik" => "OpenStreetMap",
@@ -445,12 +460,12 @@ class BaseController {
                         //multiple values
                         $arr_vals = array();
                         foreach ( $val as $el ) {
-                            $arr_vals[] = sanitize_text_field( wp_strip_all_tags( $el ) );
+                            $arr_vals[] = sanitize_text_field( $el );
                         }
                         $data['oum_location_custom_fields'][$index] = $arr_vals;
                     } else {
                         //single value
-                        $data['oum_location_custom_fields'][$index] = sanitize_text_field( wp_strip_all_tags( $val ) );
+                        $data['oum_location_custom_fields'][$index] = sanitize_text_field( $val );
                     }
                 }
             }
@@ -491,7 +506,6 @@ class BaseController {
                 $tmp = sanitize_text_field( $_FILES['oum_location_audio']['tmp_name'] );
                 // get uploaded file's extension
                 $ext = strtolower( pathinfo( $img, PATHINFO_EXTENSION ) );
-                //error_log(print_r($_FILES, true));
                 // check internal upload handling
                 if ( $tmp == '' ) {
                     $error->add( '003', 'Something went wrong with file upload. Use a valid audio file.' );
@@ -568,15 +582,15 @@ class BaseController {
                                     $size = $_FILES['oum_location_images']['size'][$key];
                                     // Validate file
                                     if ( $tmp == '' || !is_uploaded_file( $tmp ) ) {
-                                        error_log( "File {$key}: Invalid upload" );
+                                        $this->safe_log( "File {$key}: Invalid upload" );
                                         continue;
                                     }
                                     if ( !in_array( $ext, $valid_extensions ) ) {
-                                        error_log( "File {$key}: Invalid extension" );
+                                        $this->safe_log( "File {$key}: Invalid extension" );
                                         continue;
                                     }
                                     if ( $size > $max_filesize ) {
-                                        error_log( "File {$key}: File too large" );
+                                        $this->safe_log( "File {$key}: File too large" );
                                         $error->add( '005', sprintf( __( 'Image "%s" is too large. Maximum file size is %d MB.', 'open-user-map' ), $name, $oum_max_image_filesize ) );
                                         continue;
                                     }
@@ -660,6 +674,12 @@ class BaseController {
                         if ( !$lng_validated ) {
                             $lng_validated = '';
                         }
+                        // Get existing location data to preserve vote count and other existing fields
+                        // This prevents vote counts from being lost when editing locations via AJAX
+                        $existing_data = get_post_meta( $post_id, '_oum_location_key', true );
+                        if ( !is_array( $existing_data ) ) {
+                            $existing_data = array();
+                        }
                         $data_meta = array(
                             'address' => $data['oum_location_address'],
                             'lat'     => $lat_validated,
@@ -667,6 +687,10 @@ class BaseController {
                             'text'    => $data['oum_location_text'],
                             'video'   => $data['oum_location_video'],
                         );
+                        // Preserve existing vote count if it exists
+                        if ( isset( $existing_data['votes'] ) ) {
+                            $data_meta['votes'] = $existing_data['votes'];
+                        }
                         if ( isset( $data['oum_location_notification'] ) && isset( $data['oum_location_author_name'] ) && isset( $data['oum_location_author_email'] ) ) {
                             $data_meta['notification'] = $data['oum_location_notification'];
                             $data_meta['author_name'] = $data['oum_location_author_name'];
@@ -854,13 +878,13 @@ class BaseController {
     public function trigger_webhook( $post_id, $event_type, $data_meta = null ) {
         // Check if webhook notifications are enabled
         if ( !get_option( 'oum_enable_webhook_notification' ) ) {
-            error_log( "Webhook notifications are disabled. Skipping trigger for Post ID: {$post_id}" );
+            $this->safe_log( "Webhook notifications are disabled. Skipping trigger for Post ID: {$post_id}" );
             return;
         }
         // Get the webhook URL from settings
         $webhook_url = get_option( 'oum_webhook_notification_url' );
         if ( !$webhook_url ) {
-            error_log( "No webhook URL configured for Post ID: {$post_id}" );
+            $this->safe_log( "No webhook URL configured for Post ID: {$post_id}" );
             return;
         }
         // Prepare webhook payload
@@ -887,9 +911,9 @@ class BaseController {
         ) );
         // Handle response
         if ( is_wp_error( $response ) ) {
-            error_log( 'Webhook error: ' . $response->get_error_message() );
+            $this->safe_log( 'Webhook error: ' . $response->get_error_message() );
         } else {
-            error_log( "Webhook successfully triggered for Post ID: {$post_id} - Event: {$event_type}" );
+            $this->safe_log( "Webhook successfully triggered for Post ID: {$post_id} - Event: {$event_type}" );
         }
     }
 
@@ -935,7 +959,7 @@ class BaseController {
                 'ID'          => $post->ID,
                 'post_author' => get_current_user_id(),
             ) );
-            error_log( 'Open User Map: Assigned user ID ' . get_current_user_id() . ' to location ' . $post->ID . ' on approval' );
+            $this->safe_log( 'Open User Map: Assigned user ID ' . get_current_user_id() . ' to location ' . $post->ID . ' on approval' );
         }
     }
 

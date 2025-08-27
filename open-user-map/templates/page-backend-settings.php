@@ -1640,34 +1640,22 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <br>
                   <br>
                   <input class="oum-switch" type="checkbox" disabled>
+                  <label><?php 
+        echo __( 'Show "Select all" checkbox', 'open-user-map' );
+        ?></label><br>
+                  <div class="description"><?php 
+        echo __( 'If enabled, a "Select all" checkbox will be shown at the top of the marker categories filter.', 'open-user-map' );
+        ?></div>
+                  <br>
+                  <br>
+                  <br>
+                  <input class="oum-switch" type="checkbox" disabled>
                   <label for="oum_collapse_filter"><?php 
         echo __( 'Collapsed Filterbox', 'open-user-map' );
         ?></label><br>
                   <div class="description"><?php 
         echo __( 'If enabled the filterbox will take less space and just open on mouseover.', 'open-user-map' );
         ?></div>
-                </td>
-              </tr>
-
-              <tr valign="top" class="oum-gopro-tr">
-                <th scope="row">
-                  <?php 
-        echo __( 'Filterbox', 'open-user-map' );
-        ?>
-                  <br><span class="oum-pro">PRO</span><br>
-                  <a class="oum-gopro-text" href="<?php 
-        echo oum_fs()->get_upgrade_url();
-        ?>"><?php 
-        echo __( 'Upgrade to PRO and add category filters to the map.', 'open-user-map' );
-        ?></a>
-                </th>
-                <td>
-                  <input class="oum-switch" type="checkbox" disabled>
-                  <label><?php 
-        echo __( 'Collapsed design', 'open-user-map' );
-        ?></label>
-                  <br>
-                  <br>
                 </td>
               </tr>
 
@@ -2728,6 +2716,17 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
   $content .= 'Post ID: ' . $location['post_id'];
 
   return $content;
+}, 10, 2);</pre></code>
+                <br><br><br>
+                <strong><?php 
+    echo __( 'Customize the default location content:', 'open-user-map' );
+    ?></strong><br><br>
+                <code class="block"><pre>add_filter('oum_default_location_content', function ($default_content, $post_id) {
+
+    // Your custom content here
+    $my_custom_default_content = 'WRITE YOUR CUSTOM CONTENT HERE';
+   
+    return $my_custom_default_content;
 }, 10, 2);</pre></code>
                 <br><br><br>
                 <span class="oum-pro">PRO</span> <strong><?php 

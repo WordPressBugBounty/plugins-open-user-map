@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
 Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.4.11
+Stable tag: 1.4.12
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -264,6 +264,19 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.12 =
+* New: "Select all" toggle for categories
+* Fix: Required option for custom field type Select is broken
+* Fix: Required image upload field is invalid on Edit although image already exists
+* Fix: < Symbol gets removed from the custom text field
+* Fix: oum_get_vote_count (admin_ajax) takes too much loading time (list view)
+* Fix: YouTube URLs are missing in the CSV export
+* Fix: Carousel navigation areas
+* Fix: server error when error_log function has been disabled
+* Fix: vote count resets on edit
+* New: Hook to customize the default single location content template
+* Security improvements
+
 = 1.4.11 =
 * Bugfix: Default Marker Icon setting was ignored
 * New PRO Feature: Vote Button (Like, Upvote, Flag, ...) for Locations

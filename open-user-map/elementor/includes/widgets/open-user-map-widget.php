@@ -215,7 +215,6 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 	protected function render() {
 		
 		$settings = $this->get_settings_for_display();
-		// error_log(print_r($settings, true));
 		
 		?>
 		
