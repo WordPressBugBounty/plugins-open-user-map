@@ -373,7 +373,7 @@ if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_
     if ( get_option( 'oum_enable_audio', 'on' ) === 'on' ) {
         ?>
             <div class="media-upload oum-audio-upload">
-              <label style="color: #e02aaf" for="oum_location_audio" title="<?php 
+              <label style="color: #e82c71" for="oum_location_audio" title="<?php 
         echo __( 'Upload Audio', 'open-user-map' );
         ?>">
                 <span class="dashicons dashicons-format-audio"></span>

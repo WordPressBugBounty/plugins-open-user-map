@@ -85,7 +85,7 @@
   z-index: 10;
 }
 .open-user-map input.oum-switch[type=checkbox]:checked + label::before {
-  background-color: #e02aaf;
+  background-color: #e82c71;
 }
 .open-user-map input.oum-switch[type=checkbox]:checked + label::after {
   margin: 0 0 0 20px;
@@ -136,7 +136,7 @@
   width: 50px;
   height: 50px;
   border: 3px solid #f3f3f3;
-  border-top: 3px solid #e02aaf;
+  border-top: 3px solid #e82c71;
   border-radius: 50%;
   animation: oum-spin 1s linear infinite;
 }
@@ -229,6 +229,7 @@
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text {
   padding: 15px;
+  overflow: auto;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text * {
   color: #000;
@@ -236,12 +237,13 @@
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_title {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   gap: 4px;
   margin-bottom: 10px;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_title .oum_location_name {
   font-size: 20px;
+  line-height: 1.4;
   font-weight: bold;
   margin-top: 0;
   margin-bottom: 0;
@@ -259,7 +261,7 @@
   flex-shrink: 0;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text a {
-  color: #e02aaf;
+  color: #e82c71;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_date {
   opacity: 0.8;
@@ -380,7 +382,7 @@
   gap: 10px;
   margin-top: 14px;
 }
-.open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_read_more {
+.open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_read_more a {
   font-size: 14px;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_vote_button_wrap .oum_vote_button {
@@ -819,9 +821,9 @@
   top: 8px;
   right: 13px;
   z-index: 9999;
-  background: #e02aaf;
+  background: #e82c71;
   color: white;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -857,7 +859,7 @@
   opacity: 0;
 }
 .open-user-map .box-wrap .map-wrap .open-add-location-overlay:hover, .open-user-map .box-wrap .map-wrap .open-add-location-overlay:active {
-  background: #bc1b91;
+  background: #cb1658;
   width: 158px;
 }
 .open-user-map .box-wrap .map-wrap .open-add-location-overlay:hover span.btn_text, .open-user-map .box-wrap .map-wrap .open-add-location-overlay:active span.btn_text {
@@ -999,7 +1001,7 @@
   position: relative;
   top: 2px;
   appearance: auto;
-  accent-color: #e02aaf;
+  accent-color: #e82c71;
   position: relative;
   width: 16px;
   height: 16px;
@@ -1024,9 +1026,10 @@
   top: 4px;
   right: 10px;
   cursor: pointer;
+  font-size: 13px;
 }
 .open-user-map .box-wrap .map-wrap .oum-filter-controls .oum-filter-list .close-filter-list:hover {
-  color: #e02aaf;
+  color: #e82c71;
 }
 .open-user-map .box-wrap .map-wrap .oum-filter-controls.active .oum-filter-list {
   display: flex;
@@ -1051,7 +1054,7 @@
   border-bottom-right-radius: 4px;
 }
 .open-user-map .box-wrap .map-wrap .oum-attribution a {
-  color: #e02aaf;
+  color: #e82c71;
   text-decoration: none;
   display: inline;
   line-height: 1;
@@ -1152,7 +1155,7 @@
   cursor: pointer;
 }
 .open-user-map .add-location .location-overlay-content #close-add-location-overlay:hover {
-  color: #e02aaf;
+  color: #e82c71;
 }
 @media screen and (max-width: 768px) {
   .open-user-map .add-location .location-overlay-content #close-add-location-overlay {
@@ -1273,7 +1276,7 @@
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location fieldset input[type=checkbox] {
   appearance: auto;
-  accent-color: #e02aaf;
+  accent-color: #e82c71;
   position: relative;
   width: 20px;
   height: 20px;
@@ -1284,7 +1287,7 @@
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location fieldset input[type=radio] {
   appearance: auto;
-  accent-color: #e02aaf;
+  accent-color: #e82c71;
   position: relative;
   width: 20px;
   height: 20px;
@@ -1394,12 +1397,12 @@
 .open-user-map .add-location .location-overlay-content #oum_add_location .oum_custom_field_description {
   font-size: 14px;
   font-style: italic;
-  opacity: 0.8;
-  margin-top: -9px;
+  opacity: 0.6;
+  margin-top: -20px;
   padding: 0 9px 20px;
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location #oum_location_image {
-  color: #e02aaf;
+  color: #e82c71;
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media {
   display: flex;
@@ -1416,12 +1419,13 @@
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .media-upload label {
   display: flex;
+  width: 32px;
   align-items: center;
   gap: 3px;
   padding: 0;
   margin: 0;
   line-height: 1;
-  color: #e02aaf;
+  color: #e82c71;
   cursor: pointer;
   position: relative;
   flex-shrink: 0;
@@ -1491,7 +1495,7 @@
   font-weight: bold;
   font-family: math;
   color: #fff;
-  background: #e02aaf;
+  background: #e82c71;
   width: 18px;
   height: 18px;
   line-height: 18px;
@@ -1514,10 +1518,10 @@
   transition: border-color 0.2s ease;
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .oum-video-upload input[type=text]:hover {
-  border-color: #e02aaf;
+  border-color: #e82c71;
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .oum-video-upload input[type=text]:focus {
-  border-color: #e02aaf;
+  border-color: #e82c71;
   outline: none;
   box-shadow: 0 0 0 2px rgba(224, 42, 175, 0.1);
 }
@@ -1588,7 +1592,7 @@
 .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .oum-image-preview-grid .image-preview-item.dragging {
   cursor: grabbing;
   background: #fff;
-  border-color: #e02aaf;
+  border-color: #e82c71;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .oum-image-preview-grid .image-preview-item img {
@@ -1635,7 +1639,7 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location .oum_media .image-preview-placeholder {
-  border: 2px dashed #e02aaf;
+  border: 2px dashed #e82c71;
   border-radius: 4px;
   background: rgba(224, 42, 175, 0.05);
   transition: all 0.15s ease-in-out;
@@ -1655,7 +1659,7 @@
   cursor: pointer;
   font-size: 19px;
   margin: 40px 0 10px;
-  background: #e02aaf;
+  background: #e82c71;
   padding: 15px 30px;
   line-height: 1;
   border: none;
@@ -1676,7 +1680,7 @@
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location input[type=submit]:hover, .open-user-map .add-location .location-overlay-content #oum_add_location input[type=submit]:active {
   color: white;
-  background-color: #bc1b91;
+  background-color: #cb1658;
 }
 @media screen and (max-width: 768px) {
   .open-user-map .add-location .location-overlay-content #oum_add_location input[type=submit] {
@@ -1689,7 +1693,7 @@
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location #oum_delete_location_btn span {
   cursor: pointer;
-  color: #e02aaf;
+  color: #e82c71;
   display: inline-block;
   margin-top: 20px;
   margin-bottom: 10px;
@@ -1704,7 +1708,7 @@
   text-align: center;
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location_thankyou h3 {
-  color: #e02aaf;
+  color: #e82c71;
   margin-bottom: 20px;
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location_thankyou button {
@@ -1712,7 +1716,7 @@
   cursor: pointer;
   font-size: 19px;
   margin: 40px 0 10px;
-  background: #e02aaf;
+  background: #e82c71;
   padding: 15px 30px;
   line-height: 1;
   border: none;
@@ -1721,7 +1725,7 @@
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location_thankyou button:hover, .open-user-map .add-location .location-overlay-content #oum_add_location_thankyou button:active {
   color: white;
-  background: #bc1b91;
+  background: #cb1658;
 }
 .open-user-map .add-location.active {
   display: flex;
@@ -2020,12 +2024,13 @@
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_location_title {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   gap: 4px;
   margin-bottom: 10px;
 }
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_location_title .oum_location_name {
   font-size: 20px;
+  line-height: 1.4;
   font-weight: bold;
   margin-top: 0;
   margin-bottom: 0;
@@ -2043,7 +2048,7 @@
   flex-shrink: 0;
 }
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text a {
-  color: #e02aaf;
+  color: #e82c71;
 }
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_location_date {
   opacity: 0.8;
@@ -2164,7 +2169,7 @@
   gap: 10px;
   margin-top: 14px;
 }
-.open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_read_more {
+.open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_read_more a {
   font-size: 14px;
 }
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_vote_button_wrap .oum_vote_button {
@@ -2233,7 +2238,7 @@
   cursor: pointer;
 }
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container #close-location-fullscreen:hover {
-  color: #e02aaf;
+  color: #e82c71;
 }
 @media (max-width: 768px) {
   .open-user-map.oum-container-for-fullscreen #location-fullscreen-container.visible {
@@ -2314,8 +2319,8 @@
   border-color: #ccc;
 }
 .open-user-map-image-gallery .oum-gallery-pagination .page-numbers.current {
-  background: #e02aaf;
-  border-color: #e02aaf;
+  background: #e82c71;
+  border-color: #e82c71;
   color: #fff;
 }
 .open-user-map-image-gallery .oum-gallery-pagination .page-numbers.prev, .open-user-map-image-gallery .oum-gallery-pagination .page-numbers.next {
@@ -2561,6 +2566,7 @@
 }
 .open-user-map-locations-list .oum-locations-list-item .oum_location_text {
   padding: 15px;
+  overflow: auto;
 }
 .open-user-map-locations-list .oum-locations-list-item .oum_location_text * {
   color: #000;
@@ -2569,12 +2575,13 @@
 .open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_location_title {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   gap: 4px;
   margin-bottom: 10px;
 }
 .open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_location_title .oum_location_name {
   font-size: 20px;
+  line-height: 1.4;
   font-weight: bold;
   margin-top: 0;
   margin-bottom: 0;
@@ -2592,7 +2599,7 @@
   flex-shrink: 0;
 }
 .open-user-map-locations-list .oum-locations-list-item .oum_location_text a {
-  color: #e02aaf;
+  color: #e82c71;
 }
 .open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_location_date {
   opacity: 0.8;
@@ -2713,7 +2720,7 @@
   gap: 10px;
   margin-top: 14px;
 }
-.open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_read_more {
+.open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_read_more a {
   font-size: 14px;
 }
 .open-user-map-locations-list .oum-locations-list-item .oum_location_text .oum_vote_button_wrap .oum_vote_button {
@@ -2976,7 +2983,7 @@ body.oum-add-location-opened {
   display: inline-block !important;
   margin: 0 auto !important;
   padding: 12px 24px !important;
-  background-color: #e02aaf !important;
+  background-color: #e82c71 !important;
   color: #fff !important;
   border: none !important;
   border-radius: 4px !important;
@@ -2985,7 +2992,7 @@ body.oum-add-location-opened {
   transition: background-color 0.3s ease !important;
 }
 .oum-delete-confirmation button:hover {
-  background-color: #bc1b91 !important;
+  background-color: #cb1658 !important;
 }
 
 .open-user-map-single-default-template .wp-block-post-featured-image {

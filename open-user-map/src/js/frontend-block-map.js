@@ -2340,7 +2340,7 @@ const OUMMedia = (function () {
     placeholder.style.width = element.offsetWidth + "px";
     placeholder.style.height = element.offsetHeight + "px";
     placeholder.style.transition = "transform 0.2s ease";
-    placeholder.style.border = "2px dashed #e02aaf";
+    placeholder.style.border = "2px dashed #e82c71";
     placeholder.style.borderRadius = "4px";
     placeholder.style.backgroundColor = "rgba(224, 42, 175, 0.05)";
     element.parentNode.insertBefore(placeholder, element);

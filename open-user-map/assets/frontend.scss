@@ -1,6 +1,6 @@
 // Variables
 $colors: (
-  primary: #e02aaf,
+  primary: #e82c71,
   highlight: red
 );
 
@@ -282,7 +282,7 @@ $search_input_width: 300px;
     }
 
     &:checked + label::before {
-      background-color: #e02aaf;
+      background-color: #e82c71;
     }
 
     &:checked + label::after {
@@ -345,7 +345,7 @@ $search_input_width: 300px;
           width: 50px;
           height: 50px;
           border: 3px solid #f3f3f3;
-          border-top: 3px solid #e02aaf;
+          border-top: 3px solid #e82c71;
           border-radius: 50%;
           animation: oum-spin 1s linear infinite;
         }
@@ -448,6 +448,7 @@ $search_input_width: 300px;
   
             .oum_location_text {
               padding: 15px;
+              overflow: auto;
   
               * {
                 color: #000;
@@ -456,12 +457,13 @@ $search_input_width: 300px;
               .oum_location_title {
                 display: flex;
                 flex-wrap: wrap;
-                align-items: flex-start;
+                align-items: center;
                 gap: 4px;
                 margin-bottom: 10px;
 
                 .oum_location_name {
                   font-size: 20px;
+                  line-height: 1.4;
                   font-weight: bold;
                   margin-top: 0;
                   margin-bottom: 0;
@@ -621,7 +623,7 @@ $search_input_width: 300px;
                 margin-top: 14px;
               }
   
-              .oum_read_more {
+              .oum_read_more a {
                 font-size: 14px;
               }
 
@@ -1004,7 +1006,7 @@ $search_input_width: 300px;
         z-index: 9999;
         background: map-get($colors, "primary");
         color: white;
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+        box-shadow: 0 0 4px 2px rgba(0,0,0,0.2);
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -1230,6 +1232,7 @@ $search_input_width: 300px;
             top: 4px;
             right: 10px;
             cursor: pointer;
+            font-size: 13px;
 
             &:hover {
               color: map-get($colors, "primary");
@@ -1514,7 +1517,7 @@ $search_input_width: 300px;
 
           input[type=checkbox] {
             appearance: auto;
-            accent-color: #e02aaf;
+            accent-color: #e82c71;
             position: relative;
             width: 20px;
             height: 20px;
@@ -1528,7 +1531,7 @@ $search_input_width: 300px;
 
           input[type=radio] {
             appearance: auto;
-            accent-color: #e02aaf;
+            accent-color: #e82c71;
             position: relative;
             width: 20px;
             height: 20px;
@@ -1675,8 +1678,8 @@ $search_input_width: 300px;
         .oum_custom_field_description {
           font-size: 14px;
           font-style: italic;
-          opacity: 0.8;
-          margin-top: -9px;
+          opacity: 0.6;
+          margin-top: -20px;
           padding: 0 9px 20px;
         }
 
@@ -1699,6 +1702,7 @@ $search_input_width: 300px;
 
             label {
               display: flex;
+              width: 32px;
               align-items: center;
               gap: 3px;
               padding: 0;
@@ -2292,12 +2296,13 @@ $search_input_width: 300px;
           .oum_location_title {
             display: flex;
             flex-wrap: wrap;
-            align-items: flex-start;
+            align-items: center;
             gap: 4px;
             margin-bottom: 10px;
 
             .oum_location_name {
               font-size: 20px;
+              line-height: 1.4;
               font-weight: bold;
               margin-top: 0;
               margin-bottom: 0;
@@ -2456,7 +2461,7 @@ $search_input_width: 300px;
             margin-top: 14px;
           }
 
-          .oum_read_more {
+          .oum_read_more a {
             font-size: 14px;
           }
 
@@ -2630,8 +2635,8 @@ $search_input_width: 300px;
       }
 
       &.current {
-        background: #e02aaf;
-        border-color: #e02aaf;
+        background: #e82c71;
+        border-color: #e82c71;
         color: #fff;
       }
 
@@ -2692,7 +2697,7 @@ $search_input_width: 300px;
 }
 
 .open-user-map-locations-list {
-  $colors: (primary : #e02aaf,
+  $colors: (primary : #e82c71,
       highlight: red);
 
   /* resets */
@@ -2778,6 +2783,7 @@ $search_input_width: 300px;
 
     .oum_location_text {
       padding: 15px;
+      overflow: auto;
 
       * {
         color: #000;
@@ -2787,12 +2793,13 @@ $search_input_width: 300px;
       .oum_location_title {
         display: flex;
         flex-wrap: wrap;
-        align-items: flex-start;
+        align-items: center;
         gap: 4px;
         margin-bottom: 10px;
 
         .oum_location_name {
           font-size: 20px;
+          line-height: 1.4;
           font-weight: bold;
           margin-top: 0;
           margin-bottom: 0;
@@ -2951,7 +2958,7 @@ $search_input_width: 300px;
         margin-top: 14px;
       }
 
-      .oum_read_more {
+      .oum_read_more a {
         font-size: 14px;
       }
 
@@ -3106,7 +3113,7 @@ body.oum-add-location-opened {
     display: inline-block !important;
     margin: 0 auto !important;
     padding: 12px 24px !important;
-    background-color: #e02aaf !important;
+    background-color: #e82c71 !important;
     color: #fff !important;
     border: none !important;
     border-radius: 4px !important;
@@ -3115,7 +3122,7 @@ body.oum-add-location-opened {
     transition: background-color 0.3s ease !important;
 
     &:hover {
-      background-color: darken(#e02aaf, 10%) !important;
+      background-color: darken(#e82c71, 10%) !important;
     }
   }
 }

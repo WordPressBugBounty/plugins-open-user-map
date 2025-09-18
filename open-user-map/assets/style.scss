@@ -222,7 +222,7 @@
         &.dragging {
           cursor: grabbing;
           background: #fff;
-          border-color: #e02aaf;
+          border-color: #e82c71;
           box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
           opacity: 0.9;
           transform: scale(1.05) rotate(1deg);
@@ -281,7 +281,7 @@
     }
 
     .image-preview-placeholder {
-      border: 2px dashed #e02aaf;
+      border: 2px dashed #e82c71;
       border-radius: 4px;
       background: rgba(224, 42, 175, 0.05);
       transition: all 0.15s ease-in-out;
@@ -417,7 +417,7 @@
     }
 
     &:checked + label::before {
-      background-color: #e02aaf;
+      background-color: #e82c71;
     }
 
     &:checked + label::after {
@@ -442,7 +442,7 @@
 
       &.checked,
       &:not(.pro-only):hover {
-        border-color: #e02aaf;
+        border-color: #e82c71;
       }
 
       .marker_icon_preview {
@@ -567,7 +567,7 @@
 
       &.checked,
       &:not(.pro-only):hover {
-        border-color: #e02aaf;
+        border-color: #e82c71;
       }
 
       .marker_icon_preview {
@@ -861,7 +861,7 @@
 
       .oum-inline-plus {
         display: inline-block;
-        background: #e02aaf;
+        background: #e82c71;
         color: #fff;
         border-radius: 15px;
         width: 16px;
@@ -992,7 +992,7 @@
       
       
               &:has(input[type=radio]:checked) {
-                border-color: #e02aaf;
+                border-color: #e82c71;
                 opacity: 1;
               }
       
@@ -1000,7 +1000,7 @@
                 opacity: 0.6;
       
                 &:hover {
-                  border-color: #e02aaf;
+                  border-color: #e82c71;
                   opacity: 1;
                 }
               }
@@ -1163,7 +1163,7 @@
 
 
         &:has(input[type=radio]:checked) {
-          border-color: #e02aaf;
+          border-color: #e82c71;
           opacity: 1;
         }
 
@@ -1171,7 +1171,7 @@
           opacity: 0.6;
 
           &:hover {
-            border-color: #e02aaf;
+            border-color: #e82c71;
             opacity: 1;
           }
         }
@@ -1218,7 +1218,7 @@
 
       &.checked,
       &:not(.pro-only):hover {
-        border-color: #e02aaf;
+        border-color: #e82c71;
       }
 
       .map_style_preview {
@@ -1380,7 +1380,7 @@
 
       &.checked,
       &:not(.pro-only):hover {
-        border-color: #e02aaf;
+        border-color: #e82c71;
       }
 
       .marker_icon_preview {
@@ -1682,7 +1682,7 @@
       thead {
         tr {
           th {
-            background: #e02aaf;
+            background: #e82c71;
             color: #fff;
           }
         }
@@ -1774,7 +1774,7 @@
     }
 
     &:checked + label::before {
-      background-color: #e02aaf;
+      background-color: #e82c71;
     }
 
     &:checked + label::after {

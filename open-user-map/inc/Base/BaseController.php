@@ -80,7 +80,7 @@ class BaseController {
 
     public $pro_marker_icons = array("user1");
 
-    public $oum_ui_color_default = '#e02aaf';
+    public $oum_ui_color_default = '#e82c71';
 
     public $oum_custom_field_fieldtypes = array(
         "text" => "Text",

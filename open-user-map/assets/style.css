@@ -206,7 +206,7 @@
 .post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-grid .image-preview-item.dragging {
   cursor: grabbing;
   background: #fff;
-  border-color: #e02aaf;
+  border-color: #e82c71;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
   opacity: 0.9;
   transform: scale(1.05) rotate(1deg);
@@ -263,7 +263,7 @@
 }
 .post-php.post-type-oum-location #oum_location_image_preview .image-preview-placeholder,
 .post-new-php.post-type-oum-location #oum_location_image_preview .image-preview-placeholder {
-  border: 2px dashed #e02aaf;
+  border: 2px dashed #e82c71;
   border-radius: 4px;
   background: rgba(224, 42, 175, 0.05);
   transition: all 0.15s ease-in-out;
@@ -395,7 +395,7 @@
 }
 .post-php.post-type-oum-location input.oum-switch[type=checkbox]:checked + label::before,
 .post-new-php.post-type-oum-location input.oum-switch[type=checkbox]:checked + label::before {
-  background-color: #e02aaf;
+  background-color: #e82c71;
 }
 .post-php.post-type-oum-location input.oum-switch[type=checkbox]:checked + label::after,
 .post-new-php.post-type-oum-location input.oum-switch[type=checkbox]:checked + label::after {
@@ -421,7 +421,7 @@
 .post-php.post-type-oum-location .marker_icons label.checked, .post-php.post-type-oum-location .marker_icons label:not(.pro-only):hover,
 .post-new-php.post-type-oum-location .marker_icons label.checked,
 .post-new-php.post-type-oum-location .marker_icons label:not(.pro-only):hover {
-  border-color: #e02aaf;
+  border-color: #e82c71;
 }
 .post-php.post-type-oum-location .marker_icons label .marker_icon_preview,
 .post-new-php.post-type-oum-location .marker_icons label .marker_icon_preview {
@@ -535,7 +535,7 @@
   padding: 0px 4px;
 }
 .taxonomy-oum-type .marker_icons label.checked, .taxonomy-oum-type .marker_icons label:not(.pro-only):hover {
-  border-color: #e02aaf;
+  border-color: #e82c71;
 }
 .taxonomy-oum-type .marker_icons label .marker_icon_preview {
   width: 50px;
@@ -760,7 +760,7 @@
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .oum-inline-plus,
 .toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .oum-inline-plus {
   display: inline-block;
-  background: #e02aaf;
+  background: #e82c71;
   color: #fff;
   border-radius: 15px;
   width: 16px;
@@ -894,7 +894,7 @@
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types .option label:has(input[type=radio]:checked),
 .toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types .option label:has(input[type=radio]:checked) {
-  border-color: #e02aaf;
+  border-color: #e82c71;
   opacity: 1;
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types .option label:has(input[type=radio]:not(:checked)),
@@ -903,7 +903,7 @@
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types .option label:has(input[type=radio]:not(:checked)):hover,
 .toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types .option label:has(input[type=radio]:not(:checked)):hover {
-  border-color: #e02aaf;
+  border-color: #e82c71;
   opacity: 1;
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .next-steps,
@@ -1053,7 +1053,7 @@
 }
 .oum-location_page_open-user-map-settings .map-types .option label:has(input[type=radio]:checked),
 .toplevel_page_open-user-map .map-types .option label:has(input[type=radio]:checked) {
-  border-color: #e02aaf;
+  border-color: #e82c71;
   opacity: 1;
 }
 .oum-location_page_open-user-map-settings .map-types .option label:has(input[type=radio]:not(:checked)),
@@ -1062,7 +1062,7 @@
 }
 .oum-location_page_open-user-map-settings .map-types .option label:has(input[type=radio]:not(:checked)):hover,
 .toplevel_page_open-user-map .map-types .option label:has(input[type=radio]:not(:checked)):hover {
-  border-color: #e02aaf;
+  border-color: #e82c71;
   opacity: 1;
 }
 .oum-location_page_open-user-map-settings #oum_enable_add_location,
@@ -1107,7 +1107,7 @@
 .oum-location_page_open-user-map-settings .map_styles label.checked, .oum-location_page_open-user-map-settings .map_styles label:not(.pro-only):hover,
 .toplevel_page_open-user-map .map_styles label.checked,
 .toplevel_page_open-user-map .map_styles label:not(.pro-only):hover {
-  border-color: #e02aaf;
+  border-color: #e82c71;
 }
 .oum-location_page_open-user-map-settings .map_styles label .map_style_preview,
 .toplevel_page_open-user-map .map_styles label .map_style_preview {
@@ -1267,7 +1267,7 @@
 .oum-location_page_open-user-map-settings .marker_icons label.checked, .oum-location_page_open-user-map-settings .marker_icons label:not(.pro-only):hover,
 .toplevel_page_open-user-map .marker_icons label.checked,
 .toplevel_page_open-user-map .marker_icons label:not(.pro-only):hover {
-  border-color: #e02aaf;
+  border-color: #e82c71;
 }
 .oum-location_page_open-user-map-settings .marker_icons label .marker_icon_preview,
 .toplevel_page_open-user-map .marker_icons label .marker_icon_preview {
@@ -1553,7 +1553,7 @@
 }
 .oum-location_page_open-user-map-settings .oum_custom_fields_wrapper table thead tr th,
 .toplevel_page_open-user-map .oum_custom_fields_wrapper table thead tr th {
-  background: #e02aaf;
+  background: #e82c71;
   color: #fff;
 }
 .oum-location_page_open-user-map-settings .oum_custom_fields_wrapper table tbody tr td .oum-custom-field-allow-empty,
@@ -1634,7 +1634,7 @@
 }
 .oum-location_page_open-user-map-settings input.oum-switch[type=checkbox]:checked + label::before,
 .toplevel_page_open-user-map input.oum-switch[type=checkbox]:checked + label::before {
-  background-color: #e02aaf;
+  background-color: #e82c71;
 }
 .oum-location_page_open-user-map-settings input.oum-switch[type=checkbox]:checked + label::after,
 .toplevel_page_open-user-map input.oum-switch[type=checkbox]:checked + label::after {
