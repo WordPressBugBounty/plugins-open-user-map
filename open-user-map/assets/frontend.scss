@@ -452,6 +452,35 @@ $search_input_width: 300px;
               * {
                 color: #000;
               }
+
+              .oum_location_title {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: flex-start;
+                gap: 4px;
+                margin-bottom: 10px;
+
+                .oum_location_name {
+                  font-size: 20px;
+                  font-weight: bold;
+                  margin-top: 0;
+                  margin-bottom: 0;
+                }
+                
+                .oum_location_category_icons {
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 4px;
+              
+                  .oum_category_icon {
+                    width: 20px;
+                    height: 20px;
+                    object-fit: contain;
+                    object-position: center;
+                    flex-shrink: 0;
+                  }
+                }
+              }
   
               a {
                 color: map-get($colors, "primary");
@@ -473,12 +502,6 @@ $search_input_width: 300px;
                 margin-bottom: 10px;
               }
   
-              .oum_location_name {
-                font-size: 20px;
-                font-weight: bold;
-                margin-top: 0;
-                margin-bottom: 10px;
-              }
   
               .oum_location_custom_fields {
                 font-size: 14px;
@@ -1403,7 +1426,8 @@ $search_input_width: 300px;
         input[type=email],
         input[type=url],
         textarea,
-        select {
+        select,
+        .oum-category-dropdown-display {
           font-family: inherit;
           margin: 0 0 25px;
           font-size: 16px;
@@ -1417,7 +1441,8 @@ $search_input_width: 300px;
           width: 100%;
         }
 
-        select {
+        select,
+        .oum-category-dropdown-display {
           appearance: none;
           background-image: url(data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0Ljk1IDEwIj48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6I2ZmZjt9LmNscy0ye2ZpbGw6IzQ0NDt9PC9zdHlsZT48L2RlZnM+PHRpdGxlPmFycm93czwvdGl0bGU+PHJlY3QgY2xhc3M9ImNscy0xIiB3aWR0aD0iNC45NSIgaGVpZ2h0PSIxMCIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMiIgcG9pbnRzPSIxLjQxIDQuNjcgMi40OCAzLjE4IDMuNTQgNC42NyAxLjQxIDQuNjciLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMy41NCA1LjMzIDIuNDggNi44MiAxLjQxIDUuMzMgMy41NCA1LjMzIi8+PC9zdmc+);
           background-repeat: no-repeat;
@@ -1425,6 +1450,21 @@ $search_input_width: 300px;
           background-size: 20px;
           line-height: 1.1;
           height: auto;
+          border-color: #888;
+        }
+
+        .oum-category-dropdown-display {
+          display: flex;
+          align-items: center;
+
+          .oum-category-dropdown-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 4px;
+            object-fit: contain;
+            object-position: center;
+            flex-shrink: 0;
+          }
         }
 
         fieldset {
@@ -1459,6 +1499,16 @@ $search_input_width: 300px;
                 display: block;
                 margin-left: 0;
               }
+
+              // Category icon styles
+              .oum-category-icon {
+                width: 20px;
+                height: 20px;
+                margin-right: 4px;
+                object-fit: contain;
+                object-position: center;
+                flex-shrink: 0;
+              }
             }
           }
 
@@ -1468,7 +1518,7 @@ $search_input_width: 300px;
             position: relative;
             width: 20px;
             height: 20px;
-            margin: 0 10px 0 0;
+            margin: 0 7px 0 0;
 
             &::before,
             &::after {
@@ -2224,6 +2274,49 @@ $search_input_width: 300px;
           * {
             color: #000;
           }
+
+          .oum_location_categories {
+            margin: 8px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            
+            .oum_category_icon {
+              width: 20px;
+              height: 20px;
+              object-fit: contain;
+              border-radius: 2px;
+            }
+          }
+
+          .oum_location_title {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 4px;
+            margin-bottom: 10px;
+
+            .oum_location_name {
+              font-size: 20px;
+              font-weight: bold;
+              margin-top: 0;
+              margin-bottom: 0;
+            }
+            
+            .oum_location_category_icons {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 4px;
+          
+              .oum_category_icon {
+                width: 20px;
+                height: 20px;
+                object-fit: contain;
+                object-position: center;
+                flex-shrink: 0;
+              }
+            }
+          }
   
           a {
             color: map-get($colors, "primary");
@@ -2242,13 +2335,6 @@ $search_input_width: 300px;
             text-transform: uppercase;
             letter-spacing: 1px;
             font-size: 11px;
-            margin-bottom: 10px;
-          }
-    
-          .oum_location_name {
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 0;
             margin-bottom: 10px;
           }
     
@@ -2698,6 +2784,35 @@ $search_input_width: 300px;
         hyphens: auto;
       }
 
+      .oum_location_title {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 4px;
+        margin-bottom: 10px;
+
+        .oum_location_name {
+          font-size: 20px;
+          font-weight: bold;
+          margin-top: 0;
+          margin-bottom: 0;
+        }
+        
+        .oum_location_category_icons {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+      
+          .oum_category_icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            object-position: center;
+            flex-shrink: 0;
+          }
+        }
+      }
+
       a {
         color: map-get($colors, "primary");
       }
@@ -2715,13 +2830,6 @@ $search_input_width: 300px;
         text-transform: uppercase;
         letter-spacing: 1px;
         font-size: 11px;
-        margin-bottom: 10px;
-      }
-
-      .oum_location_name {
-        font-size: 20px;
-        font-weight: bold;
-        margin-top: 0;
         margin-bottom: 10px;
       }
 
@@ -2942,6 +3050,22 @@ $search_input_width: 300px;
   letter-spacing: 1px;
 }
 
+.oum-location-value[data-value=type_icons] {
+  .oum_location_category_icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+
+    .oum_category_icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      object-position: center;
+      flex-shrink: 0;
+    }
+  }
+}
+
 
 body.oum-location-opened {
   @media (max-width: 768px) {
@@ -3021,5 +3145,38 @@ body.oum-add-location-opened {
     .wp-block-columns {
       gap: 1.5em;
     }
+  }
+}
+
+// Inline form: show form, remove overlay behavior and hide main map
+.oum-inline-form {
+  .add-location {
+    display: block;
+    position: static;
+    background: transparent;
+    z-index: auto;
+    padding: 0;
+    overflow: visible;
+
+    .location-overlay-content {
+      position: static;
+      transform: none;
+      max-width: none;
+      width: 100%;
+      max-height: none;
+      overflow: visible;
+      padding: 0;
+
+      #close-add-location-overlay {
+        display: none;
+      }
+    }
+  }
+}
+
+// Form-only: hide main map/controls (inside .box-wrap) but keep the form map visible
+.oum-hide-map {
+  .box-wrap {
+    display: none;
   }
 }

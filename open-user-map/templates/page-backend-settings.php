@@ -1409,6 +1409,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <?php 
     $oum_thankyou_headline = get_option( 'oum_thankyou_headline' );
     $oum_thankyou_text = get_option( 'oum_thankyou_text' );
+    $oum_thankyou_buttontext = get_option( 'oum_thankyou_buttontext' );
     ?>
                   <input class="regular-text" type="text" name="oum_thankyou_headline" id="oum_thankyou_headline" placeholder="<?php 
     echo __( 'Thank you!', 'open-user-map' );
@@ -1420,6 +1421,14 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>"><?php 
     echo esc_textarea( $oum_thankyou_text );
     ?></textarea><br><br>
+                  <input class="regular-text" type="text" name="oum_thankyou_buttontext" id="oum_thankyou_buttontext" placeholder="<?php 
+    echo __( 'Close and refresh map', 'open-user-map' );
+    ?>" value="<?php 
+    echo esc_textarea( $oum_thankyou_buttontext );
+    ?>"></input><br>
+                  <br><span class="description"><?php 
+    echo __( 'Text for the close button after successful submission', 'open-user-map' );
+    ?></span>
                 </div>
                 <div id="oum_action_after_submit_redirect">
                   <?php 
@@ -1655,6 +1664,16 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         ?></label><br>
                   <div class="description"><?php 
         echo __( 'If enabled the filterbox will take less space and just open on mouseover.', 'open-user-map' );
+        ?></div>
+                  <br>
+                  <br>
+                  <br>
+                  <input class="oum-switch" type="checkbox" disabled>
+                  <label for="oum_enable_category_icons_in_title"><?php 
+        echo __( 'Show category icons next to location name', 'open-user-map' );
+        ?></label><br>
+                  <div class="description"><?php 
+        echo __( 'If enabled, category icons will be displayed inline with the location title in popups and location lists.', 'open-user-map' );
         ?></div>
                 </td>
               </tr>
@@ -2570,6 +2589,14 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Additional Shortcodes', 'open-user-map' );
     ?></th>
               <td class="top-padding-20">
+                <code>[open-user-map-form]</code> 
+                <br><br>
+                <span class="hint"><?php 
+    echo __( 'Display the "Add Location" form inline instead of within a popup. The form will be displayed directly on the page without the map.', 'open-user-map' );
+    ?></span>
+                <br><br>
+                <br><br>
+
                 <span class="oum-pro">PRO</span> <code>[open-user-map-location value="Favorite color" post_id="12345"]</code> 
                 <br><br>
                 <span class="hint"><?php 

@@ -13,7 +13,7 @@ const OUMVoteHandler = (function () {
   let sessionVotes = new Set();
   
   // Get cookie type from PHP (will be set by wp_localize_script)
-  const cookieType = window.oum_vote_cookie_type || 'persistent';
+  const cookieType = window.oum_vote_cookie_type?.type || 'persistent';
   
   function initializeVoteButtons() {
     // Add event listeners to existing vote buttons
@@ -141,7 +141,7 @@ const OUMVoteHandler = (function () {
     const formData = new FormData();
     formData.append('action', 'oum_toggle_vote');
     formData.append('post_id', postId);
-    formData.append('nonce', oum_vote_nonce);
+    formData.append('nonce', oum_vote_nonce.nonce);
     
     // For no-cookie mode, send current vote state to help server determine action
     if (cookieType === 'none') {
@@ -274,7 +274,7 @@ const OUMVoteHandler = (function () {
         const formData = new FormData();
         formData.append('action', 'oum_get_vote_count');
         formData.append('post_id', postId);
-        formData.append('nonce', oum_vote_nonce);
+        formData.append('nonce', oum_vote_nonce.nonce);
 
         // Send AJAX request to get updated count
         fetch(oum_ajax.ajaxurl, {

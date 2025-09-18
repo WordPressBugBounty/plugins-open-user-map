@@ -26,6 +26,8 @@ class Frontend extends BaseController {
         }
         // Render Map
         add_shortcode( 'open-user-map', array($this, 'render_block_map') );
+        // Shortcode: "Add Location" Form (only)
+        add_shortcode( 'open-user-map-form', array($this, 'render_block_form') );
         // Whitelisting OUM scripts for Complianz plugin
         add_filter(
             'script_loader_tag',
@@ -46,6 +48,7 @@ class Frontend extends BaseController {
             $shortcodes[] = 'open-user-map-location';
             $shortcodes[] = 'open-user-map-gallery';
             $shortcodes[] = 'open-user-map-list';
+            $shortcodes[] = 'open-user-map-form';
             return $shortcodes;
         } );
         // Prevent block parsing by Slim SEO plugin

@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
 Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.4.12
+Stable tag: 1.4.13
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -110,6 +110,7 @@ Use the **Gutenberg Block** or **Elementor Widget** to integrate your map or pla
 - use URL-Parameter &markerid=123 to highlight a specific marker on the map
 - get a specific value from a location by using the PHP function oum_get_location_value( 'YOUR VALUE', $post_id )
 - use WordPress Hooks to extend the plugin functionality with your own code
+- use Shortcode [open-user-map-form] to display the “Add Location” form stand-alone
 
 === 🚀 PRO ===
 The Open User Map plugin is also available in a professional version which includes more styles, more funtionality and more flexibility!
@@ -264,6 +265,14 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.13 =
+* New: Use Shortcode [open-user-map-form] to display the “Add Location” form stand-alone without showing the map
+* New: Showing category icons in the form
+* New: Showing category icons next to location title (optional)
+* New: Customize the "Close and refresh map" button text
+* Fix: PHP Notice
+* Freemius SDK update
+
 = 1.4.12 =
 * New: "Select all" toggle for categories
 * Fix: Required option for custom field type Select is broken

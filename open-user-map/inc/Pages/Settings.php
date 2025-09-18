@@ -53,6 +53,9 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_marker_multicategories_icon', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'open-user-map-settings-group', 'oum_enable_category_icons_in_title', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
         register_setting( 'open-user-map-settings-group', 'oum_max_image_uploads', array(
             'sanitize_callback' => array($this, 'validate_max_image_uploads'),
         ) );
@@ -205,6 +208,9 @@ class Settings extends BaseController {
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_thankyou_text', array(
             'sanitize_callback' => 'wp_kses_post',
+        ) );
+        register_setting( 'open-user-map-settings-group', 'oum_thankyou_buttontext', array(
+            'sanitize_callback' => 'sanitize_text_field',
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_plus_button_label', array(
             'sanitize_callback' => 'sanitize_text_field',

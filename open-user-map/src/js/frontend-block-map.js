@@ -1528,7 +1528,6 @@ const OUMFormController = (function () {
     setupCloseEvents();
     setupNotificationEvents();
     setupMediaEvents();
-    setupValidation();
   }
 
   function handleAddLocationClick() {
@@ -1668,8 +1667,86 @@ const OUMFormController = (function () {
     }
   }
 
-  function setupValidation() {
-    // Add validation logic here
+  function setupCategoryDropdownIcons() {
+    // Handle dropdown with icons for marker categories
+    const categorySelect = document.querySelector('select#oum_marker_icon');
+    if (categorySelect) {
+      // Create a custom dropdown wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'oum-category-dropdown-wrapper';
+      wrapper.style.position = 'relative';
+      
+      // Insert wrapper before the select
+      categorySelect.parentNode.insertBefore(wrapper, categorySelect);
+      wrapper.appendChild(categorySelect);
+      
+      // Create custom dropdown display
+      const display = document.createElement('div');
+      display.className = 'oum-category-dropdown-display';
+      
+      // Create icon element
+      const icon = document.createElement('img');
+      icon.className = 'oum-category-dropdown-icon';
+      
+      // Create text element
+      const text = document.createElement('span');
+      text.className = 'oum-category-dropdown-text';
+      
+      display.appendChild(icon);
+      display.appendChild(text);
+      
+      // Insert display before select
+      wrapper.insertBefore(display, categorySelect);
+      
+      // Make select invisible but still functional
+      categorySelect.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 1;
+      `;
+      
+      // Update display when selection changes
+      function updateDisplay() {
+        const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+          const iconUrl = selectedOption.getAttribute('data-icon');
+          if (iconUrl) {
+            icon.src = iconUrl;
+            icon.style.display = 'block';
+          } else {
+            icon.style.display = 'none';
+          }
+          text.textContent = selectedOption.textContent;
+        } else {
+          icon.style.display = 'none';
+          text.textContent = 'Select a category...';
+        }
+      }
+      
+      // Initial display update
+      updateDisplay();
+      
+      // Handle selection change
+      categorySelect.addEventListener('change', updateDisplay);
+
+      
+      // Make display focusable for accessibility
+      display.setAttribute('tabindex', '0');
+      
+      // Handle keyboard navigation
+      display.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          categorySelect.focus();
+          categorySelect.click();
+        }
+      });
+    }
   }
 
   function populateForm(location) {
@@ -1714,6 +1791,13 @@ const OUMFormController = (function () {
             const markerSelect = document.querySelector('select#oum_marker_icon');
             if (markerSelect) {
                 markerSelect.value = location.types[0] || '';
+                
+                // Update custom dropdown display if it exists
+                const customDisplay = document.querySelector('.oum-category-dropdown-display');
+                if (customDisplay) {
+                    // Trigger the change event to update the display
+                    markerSelect.dispatchEvent(new Event('change'));
+                }
             }
         }
     }
@@ -1953,6 +2037,7 @@ const OUMFormController = (function () {
     init: function() {
       setupFormEvents();
       setupDeleteButton(); // Add delete button handler
+      setupCategoryDropdownIcons();
     },
     showFormMessage: showFormMessage,
     openForm: openForm,

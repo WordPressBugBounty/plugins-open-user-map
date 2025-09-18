@@ -750,6 +750,37 @@ class LocationController extends BaseController {
                     $value = implode( '|', wp_list_pluck( $location_types, 'name' ) );
                 }
             }
+        } elseif ( $attr == 'type_icons' ) {
+            // GET TYPE ICONS
+            $location_types = ( get_the_terms( $post_id, 'oum-type' ) && !is_wp_error( get_the_terms( $post_id, 'oum-type' ) ) ? get_the_terms( $post_id, 'oum-type' ) : false );
+            if ( isset( $location_types ) && is_array( $location_types ) && !empty( $location_types ) ) {
+                $plugin_url = plugin_dir_url( dirname( dirname( __FILE__ ) ) );
+                $category_icons_content = '';
+                foreach ( $location_types as $category ) {
+                    // Get category icon
+                    $cat_icon = get_term_meta( $category->term_id, 'oum_marker_icon', true );
+                    $cat_user_icon = get_term_meta( $category->term_id, 'oum_marker_user_icon', true );
+                    // Determine icon URL
+                    if ( $cat_icon == 'user1' && $cat_user_icon ) {
+                        $icon_url = esc_url( $cat_user_icon );
+                    } elseif ( $cat_icon ) {
+                        $icon_url = esc_url( $plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $cat_icon ) . '-2x.png';
+                    } else {
+                        // Use default marker icon from settings
+                        $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );
+                        $marker_user_icon = get_option( 'oum_marker_user_icon' );
+                        if ( $marker_icon == 'user1' && $marker_user_icon ) {
+                            $icon_url = esc_url( $marker_user_icon );
+                        } else {
+                            $icon_url = esc_url( $plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $marker_icon ) . '-2x.png';
+                        }
+                    }
+                    $category_icons_content .= '<img class="oum_category_icon" src="' . $icon_url . '" alt="' . esc_attr( $category->name ) . '" title="' . esc_attr( $category->name ) . '">';
+                }
+                $value = '<div class="oum_location_category_icons">' . $category_icons_content . '</div>';
+            } else {
+                $value = '';
+            }
         } elseif ( $attr == 'map' ) {
             // GET MAP
             $plugin_url = plugin_dir_url( dirname( dirname( __FILE__ ) ) );

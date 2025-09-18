@@ -129,7 +129,7 @@ class BaseController {
             'location_deleted'        => __( 'Location deleted', 'open-user-map' ),
             'delete_success'          => __( 'The location has been successfully removed from the map.', 'open-user-map' ),
             'delete_error'            => __( 'An error occurred while deleting the location. Please try again.', 'open-user-map' ),
-            'close_and_refresh'       => __( 'Close and refresh map', 'open-user-map' ),
+            'close_and_refresh'       => ( get_option( 'oum_thankyou_buttontext' ) ?: __( 'Close and refresh map', 'open-user-map' ) ),
             'changes_saved'           => __( 'Changes saved', 'open-user-map' ),
             'changes_saved_message'   => __( 'Your changes have been saved and will be visible after we reviewed them.', 'open-user-map' ),
             'thank_you'               => __( 'Thank you!', 'open-user-map' ),
@@ -961,6 +961,78 @@ class BaseController {
             ) );
             $this->safe_log( 'Open User Map: Assigned user ID ' . get_current_user_id() . ' to location ' . $post->ID . ' on approval' );
         }
+    }
+
+    /**
+     * Render Add Location Form only
+     */
+    public function render_block_form( $block_attributes, $content ) {
+        wp_enqueue_style(
+            'oum_frontend_css',
+            $this->plugin_url . 'assets/frontend.css',
+            array(),
+            $this->plugin_version
+        );
+        $this->include_map_scripts();
+        wp_enqueue_script(
+            'oum_frontend_block_map_js',
+            $this->plugin_url . 'src/js/frontend-block-map.js',
+            array(
+                'oum_leaflet_providers_js',
+                'oum_leaflet_markercluster_js',
+                'oum_leaflet_subgroups_js',
+                'oum_leaflet_geosearch_js',
+                'oum_leaflet_locate_js',
+                'oum_leaflet_fullscreen_js',
+                'oum_leaflet_search_js',
+                'oum_leaflet_gesture_js',
+                'oum_global_leaflet_js'
+            ),
+            $this->plugin_version,
+            true
+        );
+        wp_localize_script( 'oum_frontend_block_map_js', 'oum_custom_strings', $this->oum_custom_strings() );
+        wp_localize_script( 'oum_frontend_block_map_js', 'custom_js', array(
+            'snippet' => get_option( 'oum_custom_js' ),
+        ) );
+        wp_enqueue_script(
+            'oum_frontend_ajax_js',
+            $this->plugin_url . 'src/js/frontend-ajax.js',
+            array('jquery', 'oum_frontend_block_map_js'),
+            $this->plugin_version,
+            true
+        );
+        wp_localize_script( 'oum_frontend_ajax_js', 'oum_custom_strings', $this->oum_custom_strings() );
+        wp_localize_script( 'oum_frontend_ajax_js', 'oum_ajax', array(
+            'ajaxurl' => admin_url( 'admin-ajax.php' ),
+        ) );
+        wp_enqueue_script(
+            'oum_frontend_carousel_js',
+            $this->plugin_url . 'src/js/frontend-carousel.js',
+            array(),
+            $this->plugin_version,
+            true
+        );
+        if ( oum_fs()->is__premium_only() && oum_fs()->can_use_premium_code() ) {
+            if ( get_option( 'oum_enable_vote_feature' ) === 'on' ) {
+                wp_enqueue_script(
+                    'oum_frontend_vote_js',
+                    $this->plugin_url . 'src/js/frontend-vote.js',
+                    array('jquery'),
+                    $this->plugin_version,
+                    true
+                );
+                wp_localize_script( 'oum_frontend_vote_js', 'oum_vote_nonce', array(
+                    'nonce' => wp_create_nonce( 'oum_vote_nonce' ),
+                ) );
+                wp_localize_script( 'oum_frontend_vote_js', 'oum_vote_cookie_type', array(
+                    'type' => get_option( 'oum_vote_cookie_type', 'persistent' ),
+                ) );
+            }
+        }
+        ob_start();
+        require oum_get_template( 'block-form.php' );
+        return ob_get_clean();
     }
 
 }

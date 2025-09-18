@@ -23,7 +23,21 @@ foreach ( $locations_list as $location ) {
     } else {
         $date_tag = '';
     }
-    $name_tag = ( get_option( 'oum_enable_title', 'on' ) == 'on' ? '<h3 class="oum_location_name">' . esc_attr( $location['name'] ) . '</h3>' : '' );
+    // Get and display assigned categories as icons inline with title
+    $name_tag = '';
+    if ( get_option( 'oum_enable_title', 'on' ) == 'on' ) {
+        $title_wrapper_content = '';
+        // Add the title
+        $title_wrapper_content .= '<h3 class="oum_location_name">' . esc_attr( $location['name'] ) . '</h3>';
+        // Add category icons after the title if setting is enabled
+        if ( get_option( 'oum_enable_category_icons_in_title', 'on' ) === 'on' && isset( $location['post_id'] ) && $location['post_id'] ) {
+            $category_icons = oum_get_location_value( 'type_icons', $location['post_id'] );
+            if ( $category_icons ) {
+                $title_wrapper_content .= $category_icons;
+            }
+        }
+        $name_tag = '<div class="oum_location_title">' . $title_wrapper_content . '</div>';
+    }
     $media_tag = '';
     if ( isset( $location['images'] ) && !empty( $location['images'] ) ) {
         // Get the image size setting
