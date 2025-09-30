@@ -222,7 +222,7 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 
 			<!-- Backend Block -->
 			
-			<div class="hint" style="height: <?php echo $settings['oum_map_height']; ?>px">
+			<div class="hint" style="height: <?php echo esc_attr($settings['oum_map_height']); ?>px">
 				<h5><?php echo __('Open User Map', 'open-user-map'); ?></h5>
 				<p>
 					<?php echo __('This block will show your Locations on a map in the front end.', 'open-user-map'); ?>
@@ -239,19 +239,19 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 								<div>
 									<div>
 										<label><?php echo __('Latitude', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo $settings['latitude']; ?>" disabled>
+										<input type="text" value="<?php echo esc_attr($settings['latitude']); ?>" disabled>
 									</div>
 								</div>
 								<div>
 									<div>
 										<label><?php echo __('Longitude', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo $settings['longitude']; ?>" disabled>
+										<input type="text" value="<?php echo esc_attr($settings['longitude']); ?>" disabled>
 									</div>
 								</div>
 								<div>
 									<div>
 										<label><?php echo __('Zoom', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo $settings['zoom']; ?>" disabled>
+										<input type="text" value="<?php echo esc_attr($settings['zoom']); ?>" disabled>
 									</div>
 								</div>
 							</div>
@@ -262,7 +262,7 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 								<div>
 									<div>
 										<label><?php echo __('Pre-select Region', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo $settings['region']; ?>" disabled>
+										<input type="text" value="<?php echo esc_attr($settings['region']); ?>" disabled>
 									</div>
 								</div>
 							</div>
@@ -276,13 +276,13 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 								<div>
 									<div>
 										<label><?php echo __('Filter by Marker Categories [PRO]', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo $settings['types']; ?>" disabled>
+										<input type="text" value="<?php echo esc_attr($settings['types']); ?>" disabled>
 									</div>
 								</div>
 								<div>
 									<div>
 										<label><?php echo __('Filter by POST IDs', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo $settings['ids']; ?>" disabled>
+										<input type="text" value="<?php echo esc_attr($settings['ids']); ?>" disabled>
 									</div>
 								</div>
 							</div>
