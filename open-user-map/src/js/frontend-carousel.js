@@ -142,6 +142,6 @@ const OUMCarousel = (function () {
 })();
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+jQuery(document).ready(function($) {
   OUMCarousel.init();
 }); 

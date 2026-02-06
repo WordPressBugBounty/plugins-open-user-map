@@ -5,12 +5,12 @@ window.addEventListener('load', function(e) {
 
   const map = L.map('mapGetInitial', {
       scrollWheelZoom: false,
-      zoomSnap: 0.5,
-      zoomDelta: 0.5,
+      zoomSnap: 0.1,
+      zoomDelta: 0.1,
   });
 
   // prevent moving/zoom outside main world bounds
-  let world_bounds = L.latLngBounds(L.latLng(-60, -190), L.latLng(80, 190));
+  let world_bounds = L.latLngBounds(L.latLng(-85, -200), L.latLng(85, 200));
   let world_min_zoom = map.getBoundsZoom(world_bounds);
   map.setMaxBounds(world_bounds);
   map.setMinZoom(Math.ceil(world_min_zoom));
@@ -20,6 +20,7 @@ window.addEventListener('load', function(e) {
 
   // Tabs
   const tabs = document.querySelectorAll(".oum-nav-tab-wrapper > .nav-tab");
+  const activeTabInput = document.getElementById("oum_active_tab");
 
   for(i = 0; i < tabs.length; i++) {
     tabs[i].addEventListener("click", switchTab);
@@ -33,12 +34,53 @@ window.addEventListener('load', function(e) {
     let clickedTab = event.currentTarget;
     let anchor = event.target;
     let activePaneID = anchor.getAttribute("href");
+    let tabId = activePaneID.replace('#', '');
 
     clickedTab.classList.add("nav-tab-active");
     document.querySelector(activePaneID).classList.add("active");
 
+    // Update hidden input field to preserve active tab on form submission
+    if (activeTabInput) {
+      activeTabInput.value = tabId;
+    }
+
+    // Update URL parameter without page reload
+    const url = new URL(window.location);
+    url.searchParams.set('tab', tabId);
+    window.history.pushState({}, '', url);
+
     //reposition map
     map.invalidateSize();
+  }
+
+  // Activate tab on page load based on URL parameter or hidden input value
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabFromUrl = urlParams.get('tab');
+  const tabFromInput = activeTabInput ? activeTabInput.value : null;
+  const tabToActivate = tabFromUrl || tabFromInput || 'tab-1';
+  
+  if (tabToActivate && tabToActivate !== 'tab-1') {
+    const tabToClick = document.querySelector(`.oum-nav-tab-wrapper > .nav-tab[href="#${tabToActivate}"]`);
+    if (tabToClick) {
+      // Remove active classes from default tab
+      document.querySelector(".oum-nav-tab-wrapper > .nav-tab.nav-tab-active")?.classList.remove("nav-tab-active");
+      document.querySelector(".oum-tab-pane.active")?.classList.remove("active");
+      
+      // Activate the correct tab
+      tabToClick.classList.add("nav-tab-active");
+      const paneToActivate = document.querySelector(`#${tabToActivate}`);
+      if (paneToActivate) {
+        paneToActivate.classList.add("active");
+      }
+      
+      // Update hidden input
+      if (activeTabInput) {
+        activeTabInput.value = tabToActivate;
+      }
+      
+      // Reposition map
+      map.invalidateSize();
+    }
   }
 
   // Map type selector
@@ -69,6 +111,7 @@ window.addEventListener('load', function(e) {
     function toggleTileProviderApiKeySettings(val) {
 
       jQuery('.wrap-tile-provider-settings > div').hide();
+      jQuery('.wrap-custom-image-settings').hide();
 
       if(val.includes('MapBox')) {
         // show
@@ -79,6 +122,17 @@ window.addEventListener('load', function(e) {
           alert("Please enter a MapBox API Key");
           window.scrollTo({
             top: jQuery('#oum_tile_provider_mapbox_key').offset().top - 200, 
+            behavior: 'smooth'
+          });
+        }
+      } else if(val === 'CustomImage') {
+        // show custom image settings
+        jQuery('.wrap-custom-image-settings').show();
+        
+        // Only scroll to custom image settings if no image is currently set
+        if (!window.oum_custom_image_url || window.oum_custom_image_url === '') {
+          window.scrollTo({
+            top: jQuery('.wrap-custom-image-settings').offset().top - 200, 
             behavior: 'smooth'
           });
         }
@@ -159,6 +213,25 @@ window.addEventListener('load', function(e) {
       accessToken: oum_tile_provider_mapbox_key
     }).addTo(map);
 
+  } else if (mapStyle == "CustomImage") {
+    // Custom Image layer
+    setupCustomImageLayer();
+    // Always add a base tile layer for proper map functionality
+    // If hide tiles is enabled, use a transparent/invisible layer
+    if (window.oum_custom_image_hide_tiles) {
+      // Use a transparent tile layer to maintain map functionality
+      L.tileLayer('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', {
+        attribution: '',
+        opacity: 0
+      }).addTo(map);
+      
+      // Apply background color to map container
+      if (window.oum_custom_image_background_color) {
+        map.getContainer().style.backgroundColor = window.oum_custom_image_background_color;
+      }
+    } else {
+      L.tileLayer.provider("OpenStreetMap.Mapnik").addTo(map);
+    }
   } else {
     // Default
     L.tileLayer.provider(mapStyle).addTo(map);
@@ -232,7 +305,7 @@ window.addEventListener('load', function(e) {
         x++; //Increment field counter
         let index = Date.now();
         let fieldHTML = `
-          <tr>
+          <tr data-field-id="${index}">
             <td>
               <input type="text" class="field-type-text field-type-link field-type-email field-type-checkbox field-type-radio field-type-select" name="oum_custom_fields[${index}][label]" placeholder="Enter label" value="" />
             </td>
@@ -257,8 +330,10 @@ window.addEventListener('load', function(e) {
             </td>
             <td>
               <input type="text" class="regular-text field-type-checkbox field-type-radio field-type-select" name="oum_custom_fields[${index}][options]" placeholder="Red|Blue|Green" value="" style="display: none;" />
-              <label class="field-type-select oum-custom-field-allow-empty" style="display: none;"><input class="field-type-select" type="checkbox" name="oum_custom_fields[${index}][emptyoption]" />add empty option</label>
+            <label class="field-type-select oum-custom-field-allow-empty" style="display: none;"><input class="field-type-select" type="checkbox" name="oum_custom_fields[${index}][emptyoption]" />add empty option</label>
+            <label class="field-type-select oum-custom-field-allow-multiple" style="display: none;"><input class="field-type-select" type="checkbox" name="oum_custom_fields[${index}][multiple]" />allow multiple</label>
               <label class="field-type-link oum-custom-field-use-label-as-text" style="display: none;"><input class="field-type-link" type="checkbox" name="oum_custom_fields[${index}][uselabelastextoption]" />use label as text</label>
+              <label class="field-type-opening-hours oum-custom-field-use-12hour" style="display: none;"><input class="field-type-opening-hours" type="checkbox" name="oum_custom_fields[${index}][use12hour]" />use 12-hour format</label>
               <textarea class="regular-text field-type-html" name="oum_custom_fields[${index}][html]" placeholder="Enter HTML here" style="display: none;"></textarea>
             </td>
             <td>
@@ -318,6 +393,12 @@ window.addEventListener('load', function(e) {
 
     if(jQuery(el).val() == 'html') {
       jQuery(el).closest('tr').find('.field-type-html').show();
+      return;
+    }
+
+    if(jQuery(el).val() == 'opening_hours') {
+      jQuery(el).closest('tr').find('.field-type-text').show();
+      jQuery(el).closest('tr').find('.field-type-opening-hours').show();
       return;
     }
   }
@@ -402,6 +483,26 @@ window.addEventListener('load', function(e) {
     }
   }
 
+  //Setting: Enable Advanced Filter Interface
+  if(jQuery('#oum_enable_advanced_filter').length > 0) {
+    
+    toggleAdvancedFilterSettings(jQuery('#oum_enable_advanced_filter').is(':checked'));
+
+    jQuery('#oum_enable_advanced_filter').on('click', function(e){
+      toggleAdvancedFilterSettings(this.checked);
+    });
+
+    function toggleAdvancedFilterSettings(val) {
+      if(val) {
+        // show
+        jQuery('.wrap-advanced-filter-settings').show();
+      }else{
+        // hide
+        jQuery('.wrap-advanced-filter-settings').hide();
+      }
+    }
+  }
+
   //Setting: Geoseach Provider
   if(jQuery('#oum_geosearch_provider').length > 0) {
     
@@ -472,5 +573,445 @@ window.addEventListener('load', function(e) {
       }
     }
   }
+
+  // Helper function to setup custom image layer
+  function setupCustomImageLayer() {
+    // Check if we have an image URL and bounds
+    if (typeof window.oum_custom_image_url !== 'undefined' && window.oum_custom_image_url && 
+        typeof window.oum_custom_image_bounds !== 'undefined' && window.oum_custom_image_bounds) {
+      
+      // Check if the uploaded file is an SVG
+      const isSVG = window.oum_custom_image_url.toLowerCase().includes('.svg');
+      
+      if (isSVG) {
+        // Handle SVG file - fetch and render as DOM elements
+        setupSVGFromFile();
+      } else {
+        // Handle regular image file
+        setupImageOverlay();
+      }
+    } else {
+    }
+  }
+
+  // Helper function to setup SVG from uploaded file
+  function setupSVGFromFile() {
+    try {
+      // Get bounds data (now properly handled as object)
+      const bounds = window.oum_custom_image_bounds;
+
+      // Validate bounds
+      if (!bounds || typeof bounds.north === 'undefined' || typeof bounds.south === 'undefined' ||
+          typeof bounds.east === 'undefined' || typeof bounds.west === 'undefined' ||
+          bounds.north === '' || bounds.south === '' || bounds.east === '' || bounds.west === '') {
+        console.warn('Open User Map: Invalid or empty bounds data, skipping SVG file layer');
+        return;
+      }
+
+
+      // Fetch the SVG file and render it
+      fetch(window.oum_custom_image_url)
+        .then(response => response.text())
+        .then(svgText => {
+          // Create SVG element from the fetched content
+          const svgElement = createSVGElement(svgText);
+          if (!svgElement) {
+            console.warn('Open User Map: Cannot create SVG layer from file - invalid SVG element');
+            return;
+          }
+
+          // Create a custom SVG layer
+          const svgLayer = L.svgOverlay(svgElement, [
+            [bounds.north, bounds.west], // Southwest corner
+            [bounds.south, bounds.east]  // Northeast corner
+          ], {
+            opacity: 1.0,
+            interactive: true
+          });
+
+          svgLayer.addTo(map);
+
+
+          // Store reference for potential removal
+          window.oumCustomSVGLayer = svgLayer;
+
+          console.log('Open User Map: Custom SVG file layer added successfully');
+        })
+        .catch(error => {
+          console.warn('Open User Map: Error fetching SVG file:', error);
+        });
+
+    } catch (error) {
+      console.warn('Open User Map: Error setting up custom SVG file layer:', error);
+    }
+  }
+
+  // Helper function to setup regular image overlay
+  function setupImageOverlay() {
+    try {
+      // Get bounds data (now properly handled as object)
+      const bounds = window.oum_custom_image_bounds;
+
+      // Validate bounds
+      if (!bounds || typeof bounds.north === 'undefined' || typeof bounds.south === 'undefined' ||
+          typeof bounds.east === 'undefined' || typeof bounds.west === 'undefined' ||
+          bounds.north === '' || bounds.south === '' || bounds.east === '' || bounds.west === '') {
+        console.warn('Open User Map: Invalid or empty bounds data, skipping image layer');
+        return;
+      }
+
+
+      // Create image overlay
+      const imageOverlay = L.imageOverlay(window.oum_custom_image_url, [
+        [bounds.north, bounds.west], // Southwest corner
+        [bounds.south, bounds.east]  // Northeast corner
+      ], {
+        opacity: 1.0,
+        interactive: true
+      });
+
+      imageOverlay.addTo(map);
+
+
+      // Store reference for potential removal
+      window.oumCustomImageLayer = imageOverlay;
+
+      console.log('Open User Map: Custom image layer added successfully');
+
+    } catch (error) {
+      console.warn('Open User Map: Error setting up custom image layer:', error);
+    }
+  }
+
+  // Helper function to create SVG element from text
+  function createSVGElement(svgText) {
+    // Create a temporary div to parse the SVG
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = svgText;
+    const svgElement = tempDiv.querySelector('svg');
+    
+    if (!svgElement) {
+      console.warn('Open User Map: No valid SVG element found in SVG text');
+      return null;
+    }
+    
+    // Preserve the original viewBox if it exists
+    // If missing, try to create it from width/height attributes
+    if (!svgElement.getAttribute('viewBox')) {
+      const width = svgElement.getAttribute('width');
+      const height = svgElement.getAttribute('height');
+      if (width && height) {
+        // Remove units if present (e.g., "1580px" -> "1580")
+        const widthNum = parseFloat(width);
+        const heightNum = parseFloat(height);
+        if (!isNaN(widthNum) && !isNaN(heightNum)) {
+          svgElement.setAttribute('viewBox', `0 0 ${widthNum} ${heightNum}`);
+        } else {
+          svgElement.setAttribute('viewBox', '0 0 1000 1200');
+        }
+      } else {
+        svgElement.setAttribute('viewBox', '0 0 1000 1200');
+      }
+    }
+    
+    // Ensure the SVG has proper styling for overlay
+    svgElement.style.width = '100%';
+    svgElement.style.height = '100%';
+    svgElement.style.display = 'block';
+    
+    // Ensure the SVG fills the entire bounds area to prevent cropping
+    svgElement.setAttribute('preserveAspectRatio', 'none');
+    
+    console.log('Open User Map: SVG element created successfully:', svgElement);
+    
+    return svgElement;
+  }
+
+  /**
+   * Advanced Filter Interface Module - Handles backend settings for the Advanced Filter Interface
+   */
+  const OUMAdvancedFilterSettings = (function () {
+    // Private variables
+    let isInitialized = false;
+    let addSectionBtn = null;
+    let sectionsContainer = null;
+
+    // Private functions
+    function init() {
+      if (isInitialized) return;
+
+      addSectionBtn = document.getElementById('oum-add-filter-section');
+      sectionsContainer = document.getElementById('oum-advanced-filter-sections');
+      
+      if (!addSectionBtn || !sectionsContainer) {
+        return;
+      }
+
+      setupEventListeners();
+      initializeExistingSections();
+      isInitialized = true;
+    }
+
+    function setupEventListeners() {
+      // Add new section
+      addSectionBtn.addEventListener('click', addFilterSection);
+
+      // Handle section type changes
+      sectionsContainer.addEventListener('change', function(e) {
+        if (e.target.classList.contains('oum-section-type')) {
+          handleSectionTypeChange(e.target);
+        } else if (e.target.classList.contains('oum-custom-field-select')) {
+          handleCustomFieldChange(e.target);
+        }
+      });
+
+      // Handle section controls
+      sectionsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('oum-move-up')) {
+          moveSection(e.target, 'up');
+        } else if (e.target.classList.contains('oum-move-down')) {
+          moveSection(e.target, 'down');
+        } else if (e.target.classList.contains('oum-remove-section')) {
+          removeSection(e.target);
+        }
+      });
+    }
+
+    function addFilterSection() {
+      const existingSections = sectionsContainer.querySelectorAll('.oum-filter-section');
+      const newIndex = existingSections.length;
+      
+      // Get available custom fields from the page
+      const availableCustomFields = getAvailableCustomFields();
+      
+      const sectionHTML = `
+        <div class="oum-filter-section" data-index="${newIndex}">
+        <div class="oum-section-header">
+          <h4>Filter Section #${newIndex + 1}</h4>
+          <div class="oum-section-controls">
+            <button type="button" class="button oum-move-up" title="Move section up">↑</button>
+            <button type="button" class="button oum-move-down" title="Move section down">↓</button>
+            <button type="button" class="button oum-remove-section" title="Remove this section">×</button>
+          </div>
+        </div>
+          <div class="oum-section-content">
+            <table class="form-table">
+              <tr>
+                <th scope="row">Section Type</th>
+                <td>
+                  <select name="oum_advanced_filter_sections[${newIndex}][type]" class="oum-section-type">
+                    <option value="custom_field">Custom Field Filter</option>
+                    <option value="html">Custom HTML Content</option>
+                  </select>
+                  <div class="description">Choose whether this section filters by a custom field or displays custom HTML.</div>
+                </td>
+              </tr>
+              <tr class="oum-custom-field-options active">
+                <th scope="row">Filter Field</th>
+                <td>
+                  <select name="oum_advanced_filter_sections[${newIndex}][custom_field_id]" class="oum-custom-field-select">
+                    ${availableCustomFields}
+                  </select>
+                  <div class="description">Select which custom field to use for filtering locations.</div>
+                </td>
+              </tr>
+              <tr class="oum-checkbox-relation-options oum-custom-field-options" style="display: none;">
+                <th scope="row">Checkbox Relation</th>
+                <td>
+                  <select name="oum_advanced_filter_sections[${newIndex}][checkbox_relation]">
+                    <option value="OR">OR - Show locations matching ANY selected value</option>
+                    <option value="AND">AND - Show locations matching ALL selected values</option>
+                  </select>
+                  <div class="description">Choose how multiple checkbox selections are combined. OR shows locations matching any selected value, AND shows locations matching all selected values.</div>
+                </td>
+              </tr>
+              <tr class="oum-html-options">
+                <th scope="row">HTML Content</th>
+                <td>
+                  <textarea name="oum_advanced_filter_sections[${newIndex}][html_content]" rows="5" cols="50" placeholder="<h3>Custom Section</h3><p>Enter your HTML content here...</p>"></textarea>
+                  <div class="description">Enter custom HTML content that will be displayed in the filter sidebar. You can use headings, text, links, or any HTML elements.</div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      `;
+      
+      sectionsContainer.insertAdjacentHTML('beforeend', sectionHTML);
+      updateSectionNumbers();
+    }
+
+    function getAvailableCustomFields() {
+      // Look for custom fields from the Form Settings section
+      const customFieldRows = document.querySelectorAll('.oum_custom_fields_wrapper tbody tr');
+      if (customFieldRows.length === 0) {
+        return '<option value="">No custom fields available</option>';
+      }
+
+      let options = '<option value="">Select Custom Field</option>';
+      
+      customFieldRows.forEach((row, index) => {
+        // Prefer the data attribute, but keep a fallback for backwards compatibility
+        const dataFieldId = row.getAttribute('data-field-id');
+        const labelInput = row.querySelector('input[name*="[label]"]');
+        const fieldtypeSelect = row.querySelector('select[name*="[fieldtype]"]');
+        const fieldId = dataFieldId || extractFieldIdFromName(labelInput);
+        
+        if (labelInput && fieldtypeSelect && fieldId) {
+          const label = labelInput.value.trim();
+          const fieldtype = fieldtypeSelect.value;
+          
+          if (label && fieldtype !== 'html') {
+            options += `<option value="${fieldId}" data-fieldtype="${fieldtype}">${label} (${fieldtype})</option>`;
+          }
+        }
+      });
+
+      return options;
+      
+      function extractFieldIdFromName(input) {
+        if (!input) {
+          return null;
+        }
+        const name = input.getAttribute('name');
+        if (!name) {
+          return null;
+        }
+        const match = name.match(/oum_custom_fields\[(.+?)\]/);
+        return match && match[1] ? match[1] : null;
+      }
+    }
+
+    function handleSectionTypeChange(selectElement) {
+      const section = selectElement.closest('.oum-filter-section');
+      const customFieldOptions = section.querySelector('.oum-custom-field-options');
+      const htmlOptions = section.querySelector('.oum-html-options');
+      
+      if (selectElement.value === 'custom_field') {
+        if (customFieldOptions) {
+          customFieldOptions.classList.add('active');
+          customFieldOptions.style.display = '';
+        }
+        if (htmlOptions) {
+          htmlOptions.classList.remove('active');
+          htmlOptions.style.display = 'none';
+        }
+        // Check if checkbox field is selected and show relation option
+        const customFieldSelect = section.querySelector('.oum-custom-field-select');
+        if (customFieldSelect) {
+          handleCustomFieldChange(customFieldSelect);
+        }
+      } else if (selectElement.value === 'html') {
+        if (customFieldOptions) {
+          customFieldOptions.classList.remove('active');
+          customFieldOptions.style.display = 'none';
+        }
+        if (htmlOptions) {
+          htmlOptions.classList.add('active');
+          htmlOptions.style.display = '';
+        }
+        // Hide checkbox relation when switching to HTML
+        const checkboxRelationRow = section.querySelector('.oum-checkbox-relation-options');
+        if (checkboxRelationRow) {
+          checkboxRelationRow.classList.remove('active');
+          checkboxRelationRow.style.display = 'none';
+        }
+      }
+    }
+
+    function handleCustomFieldChange(selectElement) {
+      const section = selectElement.closest('.oum-filter-section');
+      const checkboxRelationRow = section.querySelector('.oum-checkbox-relation-options');
+      
+      if (!checkboxRelationRow) {
+        return;
+      }
+      
+      const selectedOption = selectElement.options[selectElement.selectedIndex];
+      const fieldType = selectedOption ? selectedOption.getAttribute('data-fieldtype') : null;
+      
+      // Show checkbox relation option only if checkbox field is selected
+      if (fieldType === 'checkbox') {
+        checkboxRelationRow.classList.add('active');
+        checkboxRelationRow.style.display = '';
+      } else {
+        checkboxRelationRow.classList.remove('active');
+        checkboxRelationRow.style.display = 'none';
+      }
+    }
+
+    function moveSection(button, direction) {
+      const section = button.closest('.oum-filter-section');
+      
+      if (direction === 'up') {
+        const prevSection = section.previousElementSibling;
+        if (prevSection) {
+          sectionsContainer.insertBefore(section, prevSection);
+        }
+      } else if (direction === 'down') {
+        const nextSection = section.nextElementSibling;
+        if (nextSection) {
+          sectionsContainer.insertBefore(nextSection, section);
+        }
+      }
+      
+      updateSectionNumbers();
+    }
+
+    function removeSection(button) {
+      if (confirm('Are you sure you want to remove this section?')) {
+        const section = button.closest('.oum-filter-section');
+        section.remove();
+        updateSectionNumbers();
+      }
+    }
+
+    function updateSectionNumbers() {
+      const sections = document.querySelectorAll('.oum-filter-section');
+      sections.forEach((section, index) => {
+      const header = section.querySelector('.oum-section-header h4');
+      if (header) {
+        header.textContent = `Filter Section #${index + 1}`;
+      }
+        
+        // Update data-index and form field names
+        section.setAttribute('data-index', index);
+        
+        // Update all form field names
+        const formFields = section.querySelectorAll('input, select, textarea');
+        formFields.forEach(field => {
+          const name = field.getAttribute('name');
+          if (name) {
+            const newName = name.replace(/\[\d+\]/, `[${index}]`);
+            field.setAttribute('name', newName);
+          }
+        });
+      });
+    }
+
+    function initializeExistingSections() {
+      const sections = document.querySelectorAll('.oum-filter-section');
+      sections.forEach(section => {
+        const typeSelect = section.querySelector('.oum-section-type');
+        if (typeSelect) {
+          // Initialize the section based on its current type
+          handleSectionTypeChange(typeSelect);
+        }
+        // Also check custom field selection for existing sections
+        const customFieldSelect = section.querySelector('.oum-custom-field-select');
+        if (customFieldSelect) {
+          handleCustomFieldChange(customFieldSelect);
+        }
+      });
+    }
+
+    // Public interface
+    return {
+      init: init
+    };
+  })();
+
+  // Initialize Advanced Filter Interface Settings
+  OUMAdvancedFilterSettings.init();
 
 }, false);

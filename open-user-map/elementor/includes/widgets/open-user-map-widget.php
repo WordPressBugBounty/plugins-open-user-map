@@ -222,7 +222,35 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 
 			<!-- Backend Block -->
 			
-			<div class="hint" style="height: <?php echo esc_attr($settings['oum_map_height']); ?>px">
+			<?php
+			// Calculate backend preview height with priority order:
+			// 1. Default aspect ratio 1.77 (56.5% padding-top hack)
+			// 2. Plugin settings height (oum_map_height)
+			// 3. Widget custom height (highest priority)
+			
+			$backend_height_style = '';
+			$use_aspect_ratio = true;
+			
+			// Check if plugin settings has a custom height
+			$plugin_height = get_option('oum_map_height');
+			if ($plugin_height && is_numeric($plugin_height)) {
+				$backend_height_style = 'height: ' . esc_attr($plugin_height) . 'px;';
+				$use_aspect_ratio = false;
+			}
+			
+			// Check if widget has a custom height (highest priority)
+			if ($settings['oum_map_height'] && is_numeric($settings['oum_map_height'])) {
+				$backend_height_style = 'height: ' . esc_attr($settings['oum_map_height']) . 'px;';
+				$use_aspect_ratio = false;
+			}
+			
+			// If no custom height is set, use aspect ratio 1.77
+			if ($use_aspect_ratio) {
+				$backend_height_style = 'aspect-ratio: 1.77';
+			}
+			?>
+			
+			<div class="hint" style="<?php echo $backend_height_style; ?>">
 				<h5><?php echo __('Open User Map', 'open-user-map'); ?></h5>
 				<p>
 					<?php echo __('This block will show your Locations on a map in the front end.', 'open-user-map'); ?>

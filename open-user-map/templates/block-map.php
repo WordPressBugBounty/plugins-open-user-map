@@ -1,36 +1,31 @@
 <?php require oum_get_template('partial-map-init.php'); ?>
 
-<div class="open-user-map">
+<?php
+// Note: $oum_enable_advanced_filter and $oum_advanced_filter_layout are set in partial-map-init.php 
+// and can be overridden by shortcode attributes
+// Only add sidebar class if not using button or panel layout
+$should_add_sidebar_class = ($oum_enable_advanced_filter && $oum_advanced_filter_layout !== 'button' && $oum_advanced_filter_layout !== 'panel');
+?>
+
+<div class="open-user-map <?php echo ($should_add_sidebar_class) ? 'oum-map-with-sidebar' : ''; ?>">
 
   <?php
   //TODO: manage variables from partial-map-init.php in a $oum_settings[]
-
-  $plugin_path = $this->plugin_path;
   
-  add_action('wp_footer', function () use (
-    $plugin_path, 
-    $oum_map_label, 
-    $types,
-    $oum_marker_types_label, 
-    $oum_title_label, 
-    $oum_address_label,
-    $oum_description_label, 
-    $oum_upload_media_label,
-    $oum_searchaddress_label, 
-    $oum_ui_color, 
-    $oum_enable_user_notification, 
-    $text_notify_me_on_publish_label, 
-    $thankyou_text, 
-    $map_style,
-    $text_notify_me_on_publish_name, 
-    $text_notify_me_on_publish_email, 
-    $thankyou_headline) { 
-
-    require_once oum_get_template('partial-map-add-location.php');
-
-  });
+  // Footer containers (add-location form, fullscreen popup) are rendered
+  // via wp_footer in Frontend.php to work with page builder caching
   ?>
 
-  <?php require oum_get_template('partial-map-render.php'); ?>
+  <?php 
+  // Sidebar layouts (left/right) include the advanced filter before the map container
+  if($oum_advanced_filter_layout !== 'button' && $oum_advanced_filter_layout !== 'panel'): 
+    require oum_get_template('partial-map-advanced-filter.php'); 
+  endif; 
+  ?>
+
+  <!-- Map Container -->
+  <div class="oum-map-container">
+    <?php require oum_get_template('partial-map-render.php'); ?>
+  </div>
 
 </div>

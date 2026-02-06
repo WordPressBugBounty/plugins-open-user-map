@@ -226,7 +226,8 @@ class TaxController extends BaseController {
 
     public static function set_custom_region_columns( $columns ) {
         // preserve default columns
-        $name = $columns['name'];
+        // Check if 'name' key exists before accessing to prevent undefined array key warning
+        $name = ( isset( $columns['name'] ) ? $columns['name'] : '' );
         unset($columns['description'], $columns['slug'], $columns['posts']);
         $columns['name'] = $name;
         $columns['geocoordinates'] = __( 'Coordinates', 'open-user-map' );

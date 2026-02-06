@@ -1,3 +1,95 @@
+// Global
+.oum-getting-started-notice {
+  border-left-color: #1d8cb9;
+
+  // Container for icon and content
+  .oum-getting-started-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 11px 0;
+  }
+
+  // Icon wrapper for positioning badge
+  .oum-getting-started-icon-wrapper {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  // Plugin icon styling
+  .oum-getting-started-icon {
+    width: 75px;
+    height: 75px;
+    display: block;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 3px solid #fff;
+  }
+
+  // Text content wrapper
+  .oum-getting-started-text {
+    flex: 1;
+    min-width: 0; // Allows text to shrink properly
+  }
+
+  // Heading styling
+  h3 {
+    margin-top: 2px;
+    margin-bottom: 6px;
+    font-size: 18px;
+    line-height: 1.7;
+  }
+
+  // Ordered list styling
+  ol {
+    margin: 0;
+    padding-left: 15px;
+    
+    li {
+      margin-bottom: 6px;
+      line-height: 2.4;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  // Shortcode input styling
+  input.shortcode-display {
+    padding: 6px 7px;
+    background: #f3f3f3 !important;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    line-height: 1;
+    font-size: 13px;
+    font-family: Consolas, Monaco, monospace;
+  }
+
+  // Responsive design for smaller screens
+  @media (max-width: 782px) {
+    .oum-getting-started-content {
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .oum-getting-started-icon-wrapper {
+      align-self: flex-start;
+    }
+
+    .oum-getting-started-icon {
+      width: 48px;
+      height: 48px;
+    }
+
+    .oum-badge {
+      font-size: 9px;
+      padding: 2px 6px;
+      top: -4px;
+      right: -4px;
+    }
+  }
+}
+
 // CPT Page
 .post-php.post-type-oum-location,
 .post-new-php.post-type-oum-location {
@@ -32,9 +124,8 @@
 
     .map-wrap {
       position: relative;
-      width: 50%;
-      min-width: 340px;
-      padding-top: 30%;
+      width: 520px;
+      aspect-ratio: 1.77;
   
       #mapGetLocation {
         position: absolute;
@@ -45,6 +136,10 @@
         left: 0;
         border: 1px solid #888;
         border-radius: 2px;
+
+        .leaflet-control-attribution {
+          display: none;
+        }
 
         .leaflet-control-geosearch {
           &.leaflet-geosearch-bar {
@@ -535,7 +630,7 @@
           content: 'PRO';
           display: inline-block;
           position: absolute;
-          background: red;
+          background: #dc3232;
           color: white;
           right: 0;
           top: 0;
@@ -556,7 +651,7 @@
         content: 'PRO';
         display: inline-block;
         position: absolute;
-        background: red;
+        background: #dc3232;
         color: white;
         right: 0;
         top: 0;
@@ -666,7 +761,8 @@
   .geo-coordinates-wrap {
     .map-wrap {
       position: relative;
-      aspect-ratio: 1.53;
+      width: 520px;
+      aspect-ratio: 1.77;
 
       #mapGetRegion {
         position: absolute;
@@ -675,6 +771,10 @@
         right: 0;
         bottom: 0;
         left: 0;
+
+        .leaflet-control-attribution {
+          display: none;
+        }
 
         .leaflet-control-geosearch {
           &.leaflet-geosearch-bar {
@@ -1013,6 +1113,10 @@
 
           li {
             margin-bottom: 20px;
+
+            input.shortcode-display {
+              background: #f3f3f3 !important;
+            }
           }
         }
   
@@ -1097,6 +1201,55 @@
     padding: 15px;
   }
 
+  input.shortcode-display {
+    padding: 6px 7px;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    line-height: 1;
+    font-size: 13px;
+    font-family: Consolas, Monaco, monospace;
+    unicode-bidi: embed;
+  }
+
+  textarea.code-display {
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    line-height: 1;
+    font-size: 13px;
+    font-family: Consolas, Monaco, monospace;
+    unicode-bidi: embed;
+  }
+
+  .oum-code-snippet {
+    position: relative;
+    margin: 25px 0 15px;
+    width: 100%;
+  
+    .oum-code-label {
+      position: absolute;
+      top: -24px;
+      left: 0;
+      display: inline-block;
+      padding: 5px 12px;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #e82c71;
+    }
+  
+    textarea.code-display {
+      margin-top: 0;
+      border-top-left-radius: 0;
+    }
+  }
+
   .description {
     font-style: italic;
     font-weight: normal;
@@ -1154,6 +1307,7 @@
 
           #plus_button_label {
             margin-top: 1rem;
+            margin-bottom: 1rem;
 
             input {
               max-width: 100%;
@@ -1207,7 +1361,7 @@
         content: 'PRO';
         display: inline-block;
         position: absolute;
-        background: red;
+        background: #dc3232;
         color: white;
         right: 5px;
         bottom: 5px;
@@ -1315,6 +1469,10 @@
         &[data-style="MapBox.satellite-streets"] {
           background-image: url('images/map_style_MapBox.satellite-streets.png');
         }
+
+        &[data-style="CustomImage"] {
+          background-image: url('images/map_style_custom_image.png');
+        }
       }
     }
   }
@@ -1322,6 +1480,85 @@
   .wrap-tile-provider-settings {
     padding: 10px;
     margin-top: 15px;
+  }
+
+  // Custom Image Settings
+  .wrap-custom-image-settings {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+
+    .custom-image-upload-section,
+    .image-bounds-section,
+    .image-display-options {
+      margin-bottom: 25px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #ffffff;
+
+      h5 {
+        margin-top: 0;
+      }
+    }
+
+    .image-display-options {
+      margin-bottom: 0;
+    }
+
+    .custom-image-hide-tiles-option {
+      margin-bottom: 20px;
+
+      .description {
+        margin-top: 5px;
+      }
+    }
+
+    #image_preview img {
+      max-width: 300px;
+      max-height: 200px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .image-bounds-section {
+      .grid-inputs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+
+        .input-group {
+          label {
+            display: block;
+            margin-bottom: 5px;
+          }
+
+          input {
+            width: 100%;
+            
+            // Invalid bounds styling
+            &.oum-invalid-bounds {
+              border-color: #dc3232;
+              background-color: #fff5f5;
+              
+              &:focus {
+                border-color: #dc3232;
+                box-shadow: 0 0 0 1px #dc3232;
+              }
+            }
+          }
+
+          small {
+            color: #666;
+            font-size: 12px;
+          }
+        }
+      }
+    }
   }
 
   .marker_icons {
@@ -1348,7 +1585,7 @@
           content: 'PRO';
           display: inline-block;
           position: absolute;
-          background: red;
+          background: #dc3232;
           color: white;
           right: 0;
           top: 0;
@@ -1369,7 +1606,7 @@
         content: 'PRO';
         display: inline-block;
         position: absolute;
-        background: red;
+        background: #dc3232;
         color: white;
         right: 0;
         top: 0;
@@ -1513,8 +1750,8 @@
 
     .map-wrap {
       position: relative;
-      flex: 0 0 440px;
-      aspect-ratio: 1.53;
+      flex: 0 0 520px;
+      aspect-ratio: 1.77;
       margin-bottom: auto;
 
       #mapGetInitial {
@@ -1523,7 +1760,11 @@
         top: 0;
         right: 0;
         bottom: 0;
-        left: 0; 
+        left: 0;
+
+        .leaflet-control-attribution {
+          display: none;
+        }
 
         .leaflet-control-geosearch {
           &.leaflet-geosearch-bar {
@@ -1620,7 +1861,7 @@
     }
 
     .input-wrap {
-      width: 440px;
+      width: 520px;
 
       .latlng-wrap {
         display: flex;
@@ -1713,7 +1954,7 @@
               }
       
               &.remove_button {
-                color: red;
+                color: #dc3232;
               }
             }
           }
@@ -1782,6 +2023,71 @@
     }
   }
 
+  .oum-tooltip {
+    position: relative; 
+    display: inline-block; 
+    margin-left: 5px;
+
+    .oum-tooltip-trigger {
+      display: inline-block; 
+      width: 16px; 
+      height: 16px; 
+      background: #666; 
+      color: white; 
+      border-radius: 50%; 
+      text-align: center; 
+      line-height: 16px; 
+      font-size: 11px; 
+      cursor: help;
+    }
+
+    .oum-tooltip-content {
+      display: none; 
+      position: absolute; 
+      bottom: 25px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      background: #333; 
+      color: white; 
+      padding: 12px 16px; 
+      border-radius: 6px; 
+      font-size: 12px;
+      z-index: 1000; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3); 
+      min-width: 200px; 
+      max-width: 300px;
+
+      h4 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      p {
+        margin-top: 0;
+        margin-bottom: 8px;
+      }
+
+      a {
+        color: #e82c71;
+      }
+
+      &::after {
+        content: "";
+        position: absolute; 
+        top: 100%; 
+        left: 50%; 
+        transform: translateX(-50%); 
+        width: 0; 
+        height: 0; 
+        border-left: 5px solid transparent; 
+        border-right: 5px solid transparent; 
+        border-top: 5px solid #333;
+      }
+    }
+  }
+
   // Import/Export Loading Spinner
   .csv_upload {
     position: relative;
@@ -1817,7 +2123,7 @@
 
   .oum-pro {
     display: inline-block;
-    background: red;
+    background: #dc3232;
     color: white;
     font-size: 11px;
     text-align: center;
@@ -1835,6 +2141,133 @@
     ul {
       margin: 0;
       padding: 0;
+    }
+
+    // Error logging configuration section
+    .oum-error-config {
+      margin-top: 8px;
+      max-width: 800px;
+    }
+
+    .oum-status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      margin: 2px 4px 2px 0;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 500;
+
+      &.enabled {
+        background: #d4edda;
+        color: #28a745;
+      }
+
+      &.disabled {
+        background: #fff3cd;
+        color: #fd7e14;
+      }
+    }
+
+    .oum-log-paths {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-left: 3px solid #6c757d;
+      font-size: 12px;
+      color: #495057;
+
+      strong {
+        font-weight: 600;
+      }
+
+      .status-icon {
+        &.success {
+          color: #28a745;
+        }
+
+        &.warning {
+          color: #fd7e14;
+        }
+      }
+    }
+
+    // Recent PHP Errors section
+    .oum-errors-container {
+      margin-top: 10px;
+    }
+
+    .oum-error-alert {
+      max-width: 900px;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+
+      &.warning {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+
+        strong {
+          color: #856404;
+        }
+
+        .source-label {
+          color: #666;
+          font-size: 0.85em;
+        }
+
+        .help-text {
+          color: #495057;
+          font-size: 13px;
+
+          a {
+            color: #007bff;
+            text-decoration: none;
+
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
+      }
+
+      &.success {
+        background: #d4edda;
+        border-left: 4px solid #28a745;
+
+        strong {
+          color: #155724;
+        }
+
+        .success-text {
+          color: #155724;
+          font-size: 13px;
+        }
+      }
+
+      &.info {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+
+        em {
+          color: #6c757d;
+        }
+      }
+    }
+
+    .oum-error-log {
+      max-width: 900px;
+      max-height: 300px;
+      overflow-x: auto;
+      overflow-y: auto;
+      background: #f8f9fa;
+      padding: 12px;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      font-size: 11px;
+      line-height: 1.6;
+      margin: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
   }
 
@@ -2030,22 +2463,214 @@
     }
   }
 
+  // Advanced Filter Interface Styles
+  .oum-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 
+    h3 {
+      margin-top: 0;
+      color: #333;
+    }
+  }
+
+  .oum-filter-section {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    padding: 15px;
+
+    .oum-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+
+      h4 {
+        margin: 0;
+        color: #333;
+      }
+
+      .oum-section-controls {
+        display: flex;
+        gap: 5px;
+
+        .button {
+          padding: 4px 8px;
+          font-size: 12px;
+          line-height: 1;
+          min-height: auto;
+          height: auto;
+
+          &.oum-move-up,
+          &.oum-move-down {
+            background: #f0f0f0;
+            border-color: #ccc;
+            color: #666;
+
+            &:hover {
+              background: #e0e0e0;
+              border-color: #999;
+            }
+          }
+
+          &.oum-remove-section {
+            background: #ff6b6b;
+            border-color: #ff5252;
+            color: #fff;
+
+            &:hover {
+              background: #ff5252;
+              border-color: #ff1744;
+            }
+          }
+        }
+      }
+    }
+
+    .oum-section-content {
+      .form-table {
+        margin: 0;
+
+        th {
+          width: 150px;
+          padding: 10px 0;
+          font-weight: 600;
+        }
+
+        td {
+          padding: 10px 0;
+        }
+
+        .description {
+          font-style: italic;
+          color: #666;
+          margin-top: 5px;
+          font-size: 13px;
+        }
+
+        .oum-custom-field-options,
+        .oum-html-options {
+          display: none;
+
+          &.active {
+            display: table-row;
+          }
+        }
+      }
+    }
+  }
+
+  .oum-filter-sections-container {
+    border: 2px dashed #c3c4c7;
+    border-radius: 8px;
+    padding: 20px;
+    background: #fafafa;
+    margin: 15px 0;
+    max-width: 800px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: #8c8f94;
+      background: #f6f7f7;
+    }
+
+    .oum-filter-sections-header {
+      margin-bottom: 20px;
+
+      strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 16px;
+        color: #1d2327;
+      }
+
+      .description {
+        margin: 0;
+        font-size: 14px;
+        color: #646970;
+      }
+    }
+
+    .oum-filter-sections-footer {
+      margin-top: 20px;
+      text-align: left;
+    }
+  }
+
+  #oum-advanced-filter-sections {
+    margin-bottom: 20px;
+
+    .oum-filter-section {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+      .oum-section-header {
+        background: #f8f9fa;
+        padding: 12px 15px;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 6px 6px 0 0;
+
+        h4 {
+          margin: 0;
+          font-size: 14px;
+          font-weight: 600;
+          color: #1d2327;
+        }
+
+        .oum-section-controls {
+          display: flex;
+          gap: 5px;
+
+          .button {
+            padding: 4px 8px;
+            font-size: 12px;
+            line-height: 1;
+            min-height: auto;
+            border-radius: 3px;
+          }
+        }
+      }
+    }
+  }
+
+  #oum-add-filter-section {
+    margin-top: 10px;
+  }
 }
 
 // Pagebuilder: Gutenberg & Elementor
 .wp-block.wp-block-open-user-map-map,
-.elementor-editor-active .elementor-widget-open_user_map_widget .elementor-widget-container,
-.elementor-editor-preview .elementor-widget-open_user_map_widget .elementor-widget-container{
+.elementor-editor-active .elementor-widget-open_user_map_widget,
+.elementor-editor-preview .elementor-widget-open_user_map_widget {
   background: url(images/block-bg.jpg) top center no-repeat;
   background-size: cover;
 
   .hint {
-    backdrop-filter: blur(3px);
+    overflow: hidden;
+    backdrop-filter: blur(2px);
     position: relative;
     padding: 50px 40px;
     text-align: left;
     color: white;
+    border: 6px solid #fff;
+    box-shadow: 0 0 1px 0px #008fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
 
     h5 {
       font-size: 36px;
@@ -2078,6 +2703,13 @@
 
       &.is-primary {
         color: #fff;
+        border: 1px solid;
+      }
+
+      &.is-secondary {
+        color: #fff;
+        box-shadow: none;
+        border: 1px solid;
       }
     }
   }

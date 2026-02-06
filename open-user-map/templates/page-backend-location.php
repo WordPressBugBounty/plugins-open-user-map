@@ -96,6 +96,12 @@ echo get_option( 'oum_geosearch_provider_mapbox_key', '' );
                     const oum_searchaddress_label = `<?php 
 echo esc_attr( ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_get_default_label( 'searchaddress' ) ) );
 ?>`;
+                    const oum_enable_address = `<?php 
+echo get_option( 'oum_enable_address', 'on' );
+?>`;
+                    const oum_enable_address_autofill = `<?php 
+echo get_option( 'oum_enable_address_autofill' );
+?>`;
 
                     <?php 
 if ( $marker_icon == 'user1' && $marker_user_icon ) {
@@ -118,6 +124,30 @@ if ( $marker_icon == 'user1' && $marker_user_icon ) {
                     const marker_shadow_url = '<?php 
 echo esc_url( $this->plugin_url );
 ?>src/leaflet/images/marker-shadow.png';
+
+                    // Custom Image data
+                    window.oum_custom_image_url = `<?php 
+echo esc_js( get_option( 'oum_custom_image_url', '' ) );
+?>`;
+                    window.oum_custom_image_bounds = <?php 
+$bounds = get_option( 'oum_custom_image_bounds', '' );
+if ( empty( $bounds ) ) {
+    echo '{}';
+} else {
+    $bounds_array = maybe_unserialize( $bounds );
+    if ( is_array( $bounds_array ) ) {
+        echo json_encode( $bounds_array );
+    } else {
+        echo '{}';
+    }
+}
+?>;
+                    window.oum_custom_image_hide_tiles = <?php 
+echo ( get_option( 'oum_custom_image_hide_tiles', '' ) === 'on' ? 'true' : 'false' );
+?>;
+                    window.oum_custom_image_background_color = `<?php 
+echo esc_js( get_option( 'oum_custom_image_background_color', '#ffffff' ) );
+?>`;
                     </script>
 
                     <?php 
@@ -437,8 +467,12 @@ if ( is_array( $active_custom_fields ) ) {
                         <td>
                             <select name="oum_location_custom_fields[<?php 
             echo $index;
-            ?>]" <?php 
+            ?>]<?php 
+            echo ( isset( $custom_field['multiple'] ) ? '[]' : '' );
+            ?>" <?php 
             echo ( isset( $custom_field['required'] ) ? 'required' : '' );
+            ?> <?php 
+            echo ( isset( $custom_field['multiple'] ) ? 'multiple' : '' );
             ?>>
                                 <?php 
             $options = ( isset( $custom_field['options'] ) ? explode( '|', $custom_field['options'] ) : array() );
@@ -446,10 +480,14 @@ if ( is_array( $active_custom_fields ) ) {
                                 <?php 
             foreach ( $options as $option ) {
                 ?>
+                                    <?php 
+                $current_val = ( isset( $meta_custom_fields[$index] ) ? $meta_custom_fields[$index] : '' );
+                $is_selected = ( is_array( $current_val ) ? in_array( $option, $current_val ) : esc_attr( $option ) == $current_val );
+                ?>
                                     <option value="<?php 
                 echo esc_attr( $option );
                 ?>" <?php 
-                echo ( isset( $meta_custom_fields[$index] ) && esc_attr( $option ) == $meta_custom_fields[$index] ? 'selected' : '' );
+                echo ( $is_selected ? 'selected' : '' );
                 ?>><?php 
                 echo $option;
                 ?></option>
@@ -457,6 +495,56 @@ if ( is_array( $active_custom_fields ) ) {
             }
             ?>
                             </select>
+                            <?php 
+            echo $description;
+            ?>
+                        </td>
+                    </tr>
+
+                <?php 
+        }
+        ?>
+
+
+                <?php 
+        if ( $custom_field['fieldtype'] == 'opening_hours' ) {
+            ?>
+
+                    <tr valign="top" class="section-id_cf-<?php 
+            echo $index;
+            ?>">
+                        <th scope="row">
+                            <?php 
+            echo $label;
+            ?>
+                        </th>
+                        <td>
+                            <?php 
+            // Get stored value
+            $stored_value = ( isset( $meta_custom_fields[$index] ) ? $meta_custom_fields[$index] : '' );
+            $use12hour = isset( $custom_field['use12hour'] ) && $custom_field['use12hour'];
+            // Convert JSON to input format using centralized method
+            $hours_input = \OpenUserMapPlugin\Base\LocationController::convert_opening_hours_json_to_input( $stored_value, $use12hour );
+            $placeholder = ( $use12hour ? 'Mo 9:00 AM-5:00 PM | Tu 9:00 AM-11:00 AM | Tu 1:00 PM-5:00 PM' : 'Mo 09:00-18:00 | Tu 09:00-11:00 | Tu 13:00-18:00' );
+            $format_hint = ( $use12hour ? __( 'Enter the day (Mo–Su) and opening hours in 12-hour format with AM/PM (e.g. 9:00 AM–5:00 PM). Use | to separate multiple time blocks.', 'open-user-map' ) : __( 'Enter the day (Mo–Su) and opening hours in 24-hour format (e.g. 09:00–18:00). Use | to separate multiple time blocks.', 'open-user-map' ) );
+            ?>
+                            <input type="text" 
+                                class="regular-text oum-opening-hours-input" 
+                                name="oum_location_custom_fields[<?php 
+            echo $index;
+            ?>][hours]" 
+                                placeholder="<?php 
+            echo esc_attr( $placeholder );
+            ?>" 
+                                value="<?php 
+            echo esc_attr( $hours_input );
+            ?>"
+                            />
+                            <small style="display: block; margin-top: 5px; color: #666;">
+                                <?php 
+            echo $format_hint;
+            ?>
+                            </small>
                             <?php 
             echo $description;
             ?>

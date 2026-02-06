@@ -27,12 +27,388 @@ class BaseController {
      * @return void
      */
     protected function safe_log( $message ) {
-        // Check if error_log function is available and enabled
+        // Try to use error_log if available
         if ( function_exists( 'error_log' ) && !in_array( 'error_log', explode( ',', ( ini_get( 'disable_functions' ) ?: '' ) ) ) ) {
             error_log( $message );
-        } elseif ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-            error_log( $message );
+            return;
         }
+        // Fallback: Write directly to debug.log file if WP_DEBUG_LOG is enabled
+        if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG && defined( 'WP_CONTENT_DIR' ) ) {
+            $log_file = WP_CONTENT_DIR . '/debug.log';
+            // Only write if file is writable or can be created
+            if ( is_writable( dirname( $log_file ) ) ) {
+                $timestamp = current_time( 'Y-m-d H:i:s' );
+                $log_message = "[{$timestamp}] {$message}\n";
+                // Suppress errors in case of file permission issues
+                @file_put_contents( $log_file, $log_message, FILE_APPEND );
+            }
+        }
+    }
+
+    /**
+     * Enqueue frontend CSS with optional custom inline CSS
+     * 
+     * This method enqueues the registered frontend CSS stylesheet and adds any custom CSS
+     * from the settings as inline styles.
+     * 
+     * @return void
+     */
+    protected function enqueue_frontend_css() {
+        // Enqueue the registered frontend CSS file
+        wp_enqueue_style( 'oum_frontend_css' );
+        // Add custom CSS inline if it exists
+        $custom_css = get_option( 'oum_custom_css' );
+        if ( !empty( $custom_css ) ) {
+            // Sanitize CSS: strip HTML tags and escape for safe output
+            $custom_css = wp_strip_all_tags( $custom_css );
+            // Check if this inline style was already added to prevent duplicates
+            // This can happen if enqueue_frontend_css() is called multiple times (e.g., multiple shortcodes on same page)
+            global $wp_styles;
+            $already_added = false;
+            if ( $wp_styles instanceof \WP_Styles && isset( $wp_styles->registered['oum_frontend_css'] ) ) {
+                if ( isset( $wp_styles->registered['oum_frontend_css']->extra['after'] ) && is_array( $wp_styles->registered['oum_frontend_css']->extra['after'] ) ) {
+                    // Check if the same CSS is already in the inline styles array
+                    foreach ( $wp_styles->registered['oum_frontend_css']->extra['after'] as $existing_css ) {
+                        if ( trim( $existing_css ) === trim( $custom_css ) ) {
+                            $already_added = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            // Only add inline style if it hasn't been added already
+            if ( !$already_added ) {
+                // wp_add_inline_style will handle additional escaping
+                wp_add_inline_style( 'oum_frontend_css', $custom_css );
+            }
+        }
+    }
+
+    /**
+     * Static flag to track if AJAX script localization filter has been added
+     * 
+     * @var bool
+     */
+    private static $ajax_localization_filter_added = false;
+
+    /**
+     * Static flag to track if vote script localization filter has been added
+     * 
+     * @var bool
+     */
+    private static $vote_localization_filter_added = false;
+
+    /**
+     * Static flag to track if custom_js localization filter has been added
+     * 
+     * @var bool
+     */
+    private static $custom_js_localization_filter_added = false;
+
+    /**
+     * Enqueue and localize the AJAX script with required data
+     * 
+     * This helper method ensures the AJAX script is properly enqueued and localized
+     * with all required data. It uses a filter hook as a safety net to ensure localization
+     * happens reliably even with deferred scripts and in various contexts (shortcodes, AJAX, iframes).
+     * 
+     * @return void
+     */
+    protected function enqueue_and_localize_ajax_script() {
+        // Ensure script is enqueued
+        wp_enqueue_script( 'oum_frontend_ajax_js' );
+        // Get custom strings data
+        $custom_strings_data = $this->oum_custom_strings();
+        // Localize with custom strings (must happen immediately after enqueue)
+        wp_localize_script( 'oum_frontend_ajax_js', 'oum_custom_strings', $custom_strings_data );
+        // Localize with AJAX URL and nonce action
+        $ajax_data = array(
+            'ajaxurl'              => admin_url( 'admin-ajax.php' ),
+            'refresh_nonce_action' => 'oum_refresh_location_nonce',
+        );
+        // Localize the script (primary method)
+        wp_localize_script( 'oum_frontend_ajax_js', 'oum_ajax', $ajax_data );
+        // Add a filter as a safety net to ensure localization happens even if script is already output
+        // This handles edge cases where wp_localize_script might not work (AJAX, iframes, etc.)
+        // Only add the filter once to avoid duplicates
+        if ( !self::$ajax_localization_filter_added ) {
+            // Store reference to this instance for the filter closure
+            $controller_instance = $this;
+            add_filter(
+                'script_loader_tag',
+                function ( $tag, $handle, $src ) use($controller_instance) {
+                    // Only process our AJAX script
+                    if ( $handle !== 'oum_frontend_ajax_js' ) {
+                        return $tag;
+                    }
+                    // For deferred scripts, ensure both oum_ajax and oum_custom_strings are available
+                    // wp_localize_script() should handle this, but this is a safety net
+                    // We inject them as inline scripts that run immediately (not deferred)
+                    // This ensures the variables exist when the deferred script runs
+                    // Get fresh data each time to ensure we have the latest values
+                    if ( strpos( $tag, 'defer' ) !== false || strpos( $tag, 'async' ) !== false ) {
+                        $ajax_data = array(
+                            'ajaxurl'              => admin_url( 'admin-ajax.php' ),
+                            'refresh_nonce_action' => 'oum_refresh_location_nonce',
+                        );
+                        $custom_strings_data = $controller_instance->oum_custom_strings();
+                        $inline_scripts = sprintf( '<script>window.oum_ajax = window.oum_ajax || %s; window.oum_custom_strings = window.oum_custom_strings || %s;</script>', wp_json_encode( $ajax_data ), wp_json_encode( $custom_strings_data ) );
+                        return $inline_scripts . $tag;
+                    }
+                    return $tag;
+                },
+                20,
+                3
+            );
+            self::$ajax_localization_filter_added = true;
+        }
+    }
+
+    /**
+     * Enqueue and localize the vote script with required data
+     * 
+     * This helper method ensures the vote script is properly enqueued and localized
+     * with all required data. It uses a filter hook as a safety net to ensure localization
+     * happens reliably even with deferred scripts and in various contexts (shortcodes, AJAX, iframes).
+     * 
+     * @return void
+     */
+    protected function enqueue_and_localize_vote_script() {
+        // Ensure script is enqueued
+        wp_enqueue_script( 'oum_frontend_vote_js' );
+        // Localize with vote nonce
+        $vote_nonce_data = array(
+            'nonce' => wp_create_nonce( 'oum_vote_nonce' ),
+        );
+        wp_localize_script( 'oum_frontend_vote_js', 'oum_vote_nonce', $vote_nonce_data );
+        // Localize with cookie type
+        $cookie_type_data = array(
+            'type' => get_option( 'oum_vote_cookie_type', 'persistent' ),
+        );
+        wp_localize_script( 'oum_frontend_vote_js', 'oum_vote_cookie_type', $cookie_type_data );
+        // Add a filter as a safety net to ensure localization happens even if script is already output
+        // This handles edge cases where wp_localize_script might not work (AJAX, iframes, etc.)
+        // Only add the filter once to avoid duplicates
+        if ( !self::$vote_localization_filter_added ) {
+            // Store reference to this instance for the filter closure to get fresh data
+            $controller_instance = $this;
+            add_filter(
+                'script_loader_tag',
+                function ( $tag, $handle, $src ) use($controller_instance) {
+                    // Only process our vote script
+                    if ( $handle !== 'oum_frontend_vote_js' ) {
+                        return $tag;
+                    }
+                    // Get fresh data each time to ensure we have the latest values
+                    $vote_nonce_data = array(
+                        'nonce' => wp_create_nonce( 'oum_vote_nonce' ),
+                    );
+                    $cookie_type_data = array(
+                        'type' => get_option( 'oum_vote_cookie_type', 'persistent' ),
+                    );
+                    // Ensure variables are available before the script executes
+                    // wp_localize_script() should handle this, but this is a safety net
+                    // We inject them as inline scripts that run immediately
+                    // This ensures the variables exist when the script runs, especially for late-enqueued scripts
+                    $inline_scripts = sprintf( '<script>window.oum_vote_nonce = window.oum_vote_nonce || %s; window.oum_vote_cookie_type = window.oum_vote_cookie_type || %s;</script>', wp_json_encode( $vote_nonce_data ), wp_json_encode( $cookie_type_data ) );
+                    return $inline_scripts . $tag;
+                },
+                20,
+                3
+            );
+            self::$vote_localization_filter_added = true;
+        }
+    }
+
+    /**
+     * Ensure custom_js localization is available even with script optimization
+     * 
+     * This method adds a filter hook as a safety net to ensure custom_js
+     * is available even when scripts are optimized, minified, or deferred.
+     * This handles edge cases where wp_localize_script might not work (AJAX, iframes, etc.)
+     * 
+     * @return void
+     */
+    protected function ensure_custom_js_localization() {
+        // Only add the filter once to avoid duplicates
+        if ( !self::$custom_js_localization_filter_added ) {
+            add_filter(
+                'script_loader_tag',
+                function ( $tag, $handle, $src ) {
+                    // Only process our frontend block map script
+                    if ( $handle !== 'oum_frontend_block_map_js' ) {
+                        return $tag;
+                    }
+                    // Get fresh custom_js data each time to ensure we have the latest values
+                    $custom_js_snippet = get_option( 'oum_custom_js' );
+                    // Decode HTML entities before JSON encoding
+                    // WordPress may HTML-escape content when saving options (depending on sanitization),
+                    // or the value was already stored with entities. Decoding before encoding ensures
+                    // the raw characters (like > in arrow functions) are preserved in the JSON output.
+                    if ( !empty( $custom_js_snippet ) ) {
+                        $custom_js_snippet = html_entity_decode( $custom_js_snippet, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+                    }
+                    $custom_js_data = array(
+                        'snippet' => $custom_js_snippet,
+                    );
+                    // Inject as inline script that runs immediately (not deferred)
+                    // This ensures the variable exists when the main script runs
+                    // Check if custom_js is not already defined to avoid overwriting
+                    $inline_script = sprintf( '<script>window.custom_js = window.custom_js || %s;</script>', wp_json_encode( $custom_js_data ) );
+                    return $inline_script . $tag;
+                },
+                20,
+                3
+            );
+            self::$custom_js_localization_filter_added = true;
+        }
+    }
+
+    /**
+     * Check if the shortcode is being rendered within a page builder interface
+     * 
+     * Detects various page builders: Elementor, Breakdance, Divi, and Bricks
+     * 
+     * @return bool True if inside a page builder, false otherwise
+     */
+    protected function is_page_builder_active() {
+        // Check if inside Elementor Backend
+        if ( did_action( 'elementor/loaded' ) ) {
+            if ( class_exists( '\\Elementor_OUM_Addon\\Plugin' ) && \Elementor_OUM_Addon\Plugin::is_elementor_backend() ) {
+                $this->safe_log( 'OUM: detected page builder - Elementor' );
+                return true;
+            }
+        }
+        // Check if inside Breakdance Builder iframe
+        if ( isset( $_POST['action'] ) && $_POST['action'] === 'breakdance_server_side_render' || isset( $_POST['breakdance_ajax_at_any_url'] ) && $_POST['breakdance_ajax_at_any_url'] === 'true' ) {
+            $this->safe_log( 'OUM: detected page builder - Breakdance (AJAX detection)' );
+            return true;
+        }
+        // Check if inside Divi Builder
+        if ( isset( $_GET['et_fb'] ) && $_GET['et_fb'] === '1' || isset( $_GET['et_builder'] ) && $_GET['et_builder'] === 'true' || function_exists( 'et_core_is_fb_enabled' ) && et_core_is_fb_enabled() ) {
+            $this->safe_log( 'OUM: detected page builder - Divi Builder' );
+            return true;
+        }
+        // Check if inside Bricks Builder UI (NOT canvas, NOT preview)
+        // Check if Bricks is active/loaded
+        $is_bricks_active = defined( 'BRICKS_VERSION' ) || class_exists( 'Bricks\\Builder' ) || function_exists( 'bricks_is_builder' );
+        if ( $is_bricks_active ) {
+            // Check Bricks helper function first (most reliable if available)
+            if ( function_exists( 'bricks_is_builder' ) && bricks_is_builder() ) {
+                $this->safe_log( 'OUM: detected page builder - Bricks Builder UI' );
+                return true;
+            }
+            // Check for direct builder access via GET parameter
+            if ( isset( $_GET['bricks'] ) && $_GET['bricks'] === 'run' ) {
+                $this->safe_log( 'OUM: detected page builder - Bricks Builder UI' );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Render a styled placeholder for shortcodes when inside a page builder
+     * 
+     * Returns a styled div matching the Gutenberg block placeholder style,
+     * containing the shortcode text and a brief hint that it will render
+     * in the frontend only.
+     * 
+     * @param string $shortcode_name The name of the shortcode (e.g., 'open-user-map')
+     * @param array $shortcode_attrs The shortcode attributes array
+     * @return string HTML output for the placeholder
+     */
+    protected function render_page_builder_placeholder( $shortcode_name, $shortcode_attrs = array() ) {
+        // Build the shortcode string from name and attributes
+        $shortcode_string = '[' . esc_html( $shortcode_name );
+        if ( !empty( $shortcode_attrs ) ) {
+            foreach ( $shortcode_attrs as $key => $value ) {
+                if ( $value !== '' && $value !== null ) {
+                    $shortcode_string .= ' ' . esc_html( $key ) . '="' . esc_attr( $value ) . '"';
+                }
+            }
+        }
+        $shortcode_string .= ']';
+        // Get image URLs for inline styles
+        $bg_image_url = esc_url( $this->plugin_url . 'assets/images/block-bg.jpg' );
+        $icon_image_url = esc_url( $this->plugin_url . 'assets/images/icon-256x256.png' );
+        // Determine if this is a compact shortcode (location shortcode)
+        $is_compact = $shortcode_name === 'open-user-map-location';
+        // Inline styles to ensure placeholder displays correctly even if CSS file isn't loaded
+        $inline_styles = sprintf( '<style>
+                .oum-page-builder-placeholder {
+                    background: url(%s) top center no-repeat;
+                    background-size: cover;
+                }
+                .oum-page-builder-placeholder .hint {
+                    backdrop-filter: blur(2px);
+                    position: relative;
+                    padding: 50px 40px;
+                    text-align: left;
+                    color: white;
+                    border: 6px solid #fff;
+                    box-shadow: 0 0 1px 0px #008fff;
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 20px;
+                }
+                .oum-page-builder-placeholder[data-shortcode="open-user-map-location"] .hint {
+                    padding: 5px;
+                }
+                .oum-page-builder-placeholder .hint__icon {
+                    width: 80px;
+                    height: 80px;
+                    background: url(%s) center center no-repeat;
+                    background-size: cover;
+                    border: 5px solid #fff;
+                    opacity: 0.8;
+                    flex-shrink: 0;
+                }
+                .oum-page-builder-placeholder[data-shortcode="open-user-map-location"] .hint__icon {
+                    width: 40px;
+                    height: 40px;
+                    border: 2px solid #fff;
+                }
+                .oum-page-builder-placeholder .hint__content {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }
+                .oum-page-builder-placeholder[data-shortcode="open-user-map-location"] .hint__content {
+                    display: none;
+                }
+                .oum-page-builder-placeholder .hint h5 {
+                    font-size: 24px;
+                    font-weight: 600;
+                    font-family: "Courier New", monospace;
+                    margin: 0;
+                    padding: 0;
+                    color: white;
+                    word-break: break-all;
+                }
+                .oum-page-builder-placeholder .hint p {
+                    font-size: 17px;
+                    margin: 0;
+                    padding: 0;
+                }
+            </style>', $bg_image_url, $icon_image_url );
+        // Return styled placeholder HTML with inline styles
+        return $inline_styles . sprintf(
+            '<div class="oum-page-builder-placeholder" data-shortcode="%s" title="%s">
+                <div class="hint">
+                    <div class="hint__icon"></div>
+                    <div class="hint__content">
+                        <h5>%s</h5>
+                        <p>%s</p>
+                    </div>
+                </div>
+            </div>',
+            esc_attr( $shortcode_name ),
+            esc_attr( $shortcode_string ),
+            $shortcode_string,
+            esc_html__( 'This shortcode will render in the frontend only.', 'open-user-map' )
+        );
     }
 
     public $map_styles = array(
@@ -57,6 +433,10 @@ class BaseController {
         "MapBox.dark"              => "MapBox Dark",
         "MapBox.satellite"         => "MapBox Satellite",
         "MapBox.satellite-streets" => "MapBox Satellite Streets",
+    );
+
+    public $pro_map_styles = array(
+        "CustomImage" => "Custom Image",
     );
 
     public $marker_icons = array(
@@ -87,12 +467,13 @@ class BaseController {
     );
 
     public $pro_oum_custom_field_fieldtypes = array(
-        "link"     => "Link [PRO]",
-        "email"    => "Email [PRO]",
-        "checkbox" => "Checkbox [PRO]",
-        "radio"    => "Radio [PRO]",
-        "select"   => "Select [PRO]",
-        "html"     => "HTML [PRO]",
+        "link"          => "Link [PRO]",
+        "email"         => "Email [PRO]",
+        "checkbox"      => "Checkbox [PRO]",
+        "radio"         => "Radio [PRO]",
+        "select"        => "Select [PRO]",
+        "opening_hours" => "Opening Hours [PRO]",
+        "html"          => "HTML [PRO]",
     );
 
     public $oum_title_required_default = true;
@@ -121,6 +502,72 @@ class BaseController {
         "layout-2" => "Sidebar",
     );
 
+    /**
+     * Extract the base tile provider from a map style string.
+     *
+     * @param string $map_style Map style identifier, e.g. "Esri.WorldStreetMap".
+     * @return string Lowercase provider slug or empty string.
+     */
+    public function get_tile_provider_from_style( $map_style ) {
+        $map_style = strtolower( trim( (string) $map_style ) );
+        if ( $map_style === '' ) {
+            return '';
+        }
+        if ( in_array( $map_style, array('custom1', 'custom2', 'custom3'), true ) ) {
+            return 'openstreetmap';
+        }
+        if ( $map_style === 'customimage' ) {
+            return 'esri';
+        }
+        $provider = $map_style;
+        if ( strpos( $map_style, '.' ) !== false ) {
+            list( $provider ) = explode( '.', $map_style, 2 );
+        }
+        if ( strpos( $provider, 'mapbox' ) === 0 ) {
+            $provider = 'mapbox';
+        }
+        return $provider;
+    }
+
+    /**
+     * Build a data attribute snippet for the detected tile provider.
+     *
+     * @param string $map_style Map style identifier.
+     * @return string Attribute snippet or empty string.
+     */
+    public function get_tile_provider_data_attribute( $map_style, $type = 'script' ) {
+        $provider = $this->get_tile_provider_from_style( $map_style );
+        if ( $provider === '' ) {
+            return '';
+        }
+        if ( $type === 'container' ) {
+            return ' data-oum-tile-provider-container="' . esc_attr( $provider ) . '"';
+        } else {
+            return ' data-oum-tile-provider="' . esc_attr( $provider ) . '"';
+        }
+    }
+
+    /**
+     * Persist tile provider metadata on a script handle.
+     *
+     * @param string $handle    Script handle.
+     * @param string $map_style Map style identifier.
+     * @return void
+     */
+    public function assign_tile_provider_to_script( $handle, $map_style ) {
+        if ( !function_exists( 'wp_scripts' ) ) {
+            return;
+        }
+        $provider = $this->get_tile_provider_from_style( $map_style );
+        if ( $provider === '' ) {
+            return;
+        }
+        $scripts = wp_scripts();
+        if ( $scripts instanceof \WP_Scripts ) {
+            $scripts->add_data( $handle, 'data-oum-tile-provider', $provider );
+        }
+    }
+
     public function oum_custom_strings() {
         return array(
             'delete_location'         => __( 'Delete this location?', 'open-user-map' ),
@@ -136,6 +583,7 @@ class BaseController {
             'thank_you_message'       => __( 'We will check your location suggestion and release it as soon as possible.', 'open-user-map' ),
             'max_files_exceeded'      => __( 'Maximum %1$d images allowed. Only the first %2$d new images will be used.', 'open-user-map' ),
             'max_filesize_exceeded'   => __( 'The following images exceed the maximum file size of %1$dMB:\\n%2$s', 'open-user-map' ),
+            'edit_location'           => __( 'Edit location', 'open-user-map' ),
         );
     }
 
@@ -173,11 +621,17 @@ class BaseController {
             10,
             3
         );
+        // Reset PRO-only settings after Freemius is fully loaded (prevents crashes during early init)
+        add_action( 'oum_fs_loaded', array($this, 'on_freemius_loaded') );
     }
 
     public function oum_init() {
         $this->post_status = 'pending';
         if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+            // Auto-Publish for registered users
+            if ( get_option( 'oum_enable_auto_publish', 'on' ) && current_user_can( 'edit_oum-locations' ) ) {
+                $this->post_status = 'publish';
+            }
             // Default: Allow Frontend Adding for everyone
             add_action( 'wp_ajax_nopriv_oum_add_location_from_frontend', array($this, 'ajax_add_location_from_frontend') );
             add_action( 'wp_ajax_oum_add_location_from_frontend', array($this, 'ajax_add_location_from_frontend') );
@@ -188,163 +642,102 @@ class BaseController {
         // AJAX: Get updated vote count for a location
         add_action( 'wp_ajax_oum_get_vote_count', array($this, 'ajax_get_vote_count') );
         add_action( 'wp_ajax_nopriv_oum_get_vote_count', array($this, 'ajax_get_vote_count') );
+        // AJAX: Provide a fresh nonce for cached frontend forms
+        add_action( 'wp_ajax_oum_refresh_location_nonce', array($this, 'ajax_refresh_location_nonce') );
+        add_action( 'wp_ajax_nopriv_oum_refresh_location_nonce', array($this, 'ajax_refresh_location_nonce') );
     }
 
     /**
-     * Render all necessary base scripts for the map
+     * Called after Freemius is fully initialized
+     * Safely checks and resets PRO-only settings if needed
+     */
+    public function on_freemius_loaded() {
+        // Only run in admin context to avoid unnecessary option writes on frontend/login/cron requests
+        if ( is_admin() ) {
+            $this->reset_pro_only_settings();
+        }
+    }
+
+    /**
+     * Reset PRO-only settings when user no longer has PRO access
+     * 
+     * This function checks if the user has PRO access and resets PRO-only settings
+     * if they don't. This handles cases like when a PRO trial ends.
+     * 
+     * @return void
+     */
+    protected function reset_pro_only_settings() {
+        // Defensive check: Ensure Freemius is available
+        if ( !function_exists( 'oum_fs' ) ) {
+            return;
+        }
+        $fs = oum_fs();
+        // Defensive check: Ensure Freemius returned a valid object
+        if ( !$fs || !is_object( $fs ) ) {
+            return;
+        }
+        // Check if user has PRO access
+        $has_pro_access = false;
+        try {
+            if ( $fs->is__premium_only() && $fs->can_use_premium_code() ) {
+                $has_pro_access = true;
+            }
+        } catch ( \Throwable $e ) {
+            // Catch any errors from Freemius and log them safely
+            $this->safe_log( 'Freemius error in reset_pro_only_settings: ' . $e->getMessage() );
+            return;
+        }
+        // If user doesn't have PRO access, reset PRO-only settings
+        if ( !$has_pro_access ) {
+            // Reset Advanced Filter Interface setting
+            if ( get_option( 'oum_enable_advanced_filter' ) ) {
+                delete_option( 'oum_enable_advanced_filter' );
+            }
+            // Reset Custom Image map style to default if it's currently set
+            $current_map_style = get_option( 'oum_map_style' );
+            if ( $current_map_style === 'CustomImage' ) {
+                update_option( 'oum_map_style', 'Esri.WorldStreetMap' );
+            }
+        }
+    }
+
+    /**
+     * Enqueue all necessary base scripts for the map
+     * 
+     * This method enqueues all registered Leaflet CSS and JS assets.
+     * Assets must be registered first via Enqueue::register_assets().
+     * 
+     * @return void
      */
     public function include_map_scripts() {
         // Unregister incompatible 3rd party scripts
         $this->remove_incompatible_3rd_party_scripts();
-        // enqueue Leaflet css
-        wp_enqueue_style(
-            'oum_leaflet_css',
-            $this->plugin_url . 'src/leaflet/leaflet.css',
-            array(),
-            $this->plugin_version
-        );
-        wp_enqueue_style(
-            'oum_leaflet_gesture_css',
-            $this->plugin_url . 'src/leaflet/leaflet-gesture-handling.min.css',
-            array(),
-            $this->plugin_version
-        );
-        wp_enqueue_style(
-            'oum_leaflet_markercluster_css',
-            $this->plugin_url . 'src/leaflet/leaflet-markercluster.css',
-            array(),
-            $this->plugin_version
-        );
-        wp_enqueue_style(
-            'oum_leaflet_markercluster_default_css',
-            $this->plugin_url . 'src/leaflet/leaflet-markercluster.default.css',
-            array(),
-            $this->plugin_version
-        );
-        wp_enqueue_style(
-            'oum_leaflet_geosearch_css',
-            $this->plugin_url . 'src/leaflet/geosearch.css',
-            array(),
-            $this->plugin_version
-        );
-        wp_enqueue_style(
-            'oum_leaflet_fullscreen_css',
-            $this->plugin_url . 'src/leaflet/control.fullscreen.css',
-            array(),
-            $this->plugin_version
-        );
-        wp_enqueue_style(
-            'oum_leaflet_locate_css',
-            $this->plugin_url . 'src/leaflet/leaflet-locate.min.css',
-            array(),
-            $this->plugin_version
-        );
-        wp_enqueue_style(
-            'oum_leaflet_search_css',
-            $this->plugin_url . 'src/leaflet/leaflet-search.css',
-            array(),
-            $this->plugin_version
-        );
-        wp_enqueue_style(
-            'oum_leaflet_responsivepopup_css',
-            $this->plugin_url . 'src/leaflet/leaflet-responsive-popup.css',
-            array(),
-            $this->plugin_version
-        );
-        // Add map loader script first (before any other scripts)
-        wp_enqueue_script(
-            'oum_map_loader_js',
-            $this->plugin_url . 'src/js/frontend-map-loader.js',
-            array(),
-            $this->plugin_version,
-            true
-        );
-        // enqueue Leaflet javascripts
-        wp_enqueue_script(
-            'oum_leaflet_polyfill_unfetch_js',
-            $this->plugin_url . 'src/js/polyfills/unfetch.js',
-            array(),
-            $this->plugin_version,
-            true
-        );
-        wp_enqueue_script(
-            'oum_leaflet_js',
-            $this->plugin_url . 'src/leaflet/leaflet.js',
-            array('oum_leaflet_polyfill_unfetch_js'),
-            $this->plugin_version,
-            true
-        );
-        wp_enqueue_script(
-            'oum_leaflet_providers_js',
-            $this->plugin_url . 'src/leaflet/leaflet-providers.js',
-            array('oum_leaflet_js'),
-            $this->plugin_version,
-            true
-        );
-        wp_enqueue_script(
-            'oum_leaflet_markercluster_js',
-            $this->plugin_url . 'src/leaflet/leaflet-markercluster.js',
-            array('oum_leaflet_js'),
-            $this->plugin_version,
-            true
-        );
-        wp_enqueue_script(
-            'oum_leaflet_subgroups_js',
-            $this->plugin_url . 'src/leaflet/leaflet.featuregroup.subgroup.js',
-            array('oum_leaflet_js', 'oum_leaflet_markercluster_js'),
-            $this->plugin_version,
-            true
-        );
-        wp_enqueue_script(
-            'oum_leaflet_geosearch_js',
-            $this->plugin_url . 'src/leaflet/geosearch.js',
-            array('oum_leaflet_js'),
-            $this->plugin_version,
-            true
-        );
-        wp_enqueue_script(
-            'oum_leaflet_locate_js',
-            $this->plugin_url . 'src/leaflet/leaflet-locate.min.js',
-            array('oum_leaflet_js'),
-            $this->plugin_version,
-            true
-        );
-        wp_enqueue_script(
-            'oum_leaflet_fullscreen_js',
-            $this->plugin_url . 'src/leaflet/control.fullscreen.js',
-            array('oum_leaflet_js'),
-            $this->plugin_version,
-            true
-        );
-        wp_enqueue_script(
-            'oum_leaflet_search_js',
-            $this->plugin_url . 'src/leaflet/leaflet-search.js',
-            array('oum_leaflet_js'),
-            $this->plugin_version,
-            true
-        );
-        wp_enqueue_script(
-            'oum_leaflet_gesture_js',
-            $this->plugin_url . 'src/leaflet/leaflet-gesture-handling.min.js',
-            array('oum_leaflet_js'),
-            $this->plugin_version,
-            true
-        );
-        wp_enqueue_script(
-            'oum_leaflet_responsivepopup_js',
-            $this->plugin_url . 'src/leaflet/leaflet-responsive-popup.js',
-            array('oum_leaflet_js'),
-            $this->plugin_version,
-            true
-        );
+        // Enqueue registered Leaflet CSS files
+        wp_enqueue_style( 'oum_leaflet_css' );
+        wp_enqueue_style( 'oum_leaflet_gesture_css' );
+        wp_enqueue_style( 'oum_leaflet_markercluster_css' );
+        wp_enqueue_style( 'oum_leaflet_markercluster_default_css' );
+        wp_enqueue_style( 'oum_leaflet_geosearch_css' );
+        wp_enqueue_style( 'oum_leaflet_fullscreen_css' );
+        wp_enqueue_style( 'oum_leaflet_locate_css' );
+        wp_enqueue_style( 'oum_leaflet_search_css' );
+        wp_enqueue_style( 'oum_leaflet_responsivepopup_css' );
+        // Enqueue map loader script first (before any other scripts)
+        wp_enqueue_script( 'oum_map_loader_js' );
+        // Enqueue registered Leaflet JavaScript files
+        wp_enqueue_script( 'oum_leaflet_polyfill_unfetch_js' );
+        wp_enqueue_script( 'oum_leaflet_js' );
+        wp_enqueue_script( 'oum_leaflet_providers_js' );
+        wp_enqueue_script( 'oum_leaflet_markercluster_js' );
+        wp_enqueue_script( 'oum_leaflet_subgroups_js' );
+        wp_enqueue_script( 'oum_leaflet_geosearch_js' );
+        wp_enqueue_script( 'oum_leaflet_locate_js' );
+        wp_enqueue_script( 'oum_leaflet_fullscreen_js' );
+        wp_enqueue_script( 'oum_leaflet_search_js' );
+        wp_enqueue_script( 'oum_leaflet_gesture_js' );
+        wp_enqueue_script( 'oum_leaflet_responsivepopup_js' );
         // Capture the fully extended L object after all Leaflet add-ons are loaded
-        wp_enqueue_script(
-            'oum_global_leaflet_js',
-            $this->plugin_url . 'src/leaflet/oum-global-leaflet.js',
-            array('oum_leaflet_js'),
-            $this->plugin_version,
-            true
-        );
+        wp_enqueue_script( 'oum_global_leaflet_js' );
     }
 
     /**
@@ -360,57 +753,34 @@ class BaseController {
      * Render the map
      */
     public function render_block_map( $block_attributes, $content ) {
-        wp_enqueue_style(
-            'oum_frontend_css',
-            $this->plugin_url . 'assets/frontend.css',
-            array(),
-            $this->plugin_version
-        );
-        // load map base scripts
+        // Check if inside a page builder - return placeholder if so
+        if ( $this->is_page_builder_active() ) {
+            return $this->render_page_builder_placeholder( 'open-user-map', $block_attributes );
+        }
+        // Enqueue frontend CSS with custom inline CSS
+        $this->enqueue_frontend_css();
+        // Load map base scripts (enqueues registered Leaflet CSS and JS)
         $this->include_map_scripts();
-        wp_enqueue_script(
-            'oum_frontend_block_map_js',
-            $this->plugin_url . 'src/js/frontend-block-map.js',
-            array(
-                'oum_leaflet_providers_js',
-                'oum_leaflet_markercluster_js',
-                'oum_leaflet_subgroups_js',
-                'oum_leaflet_geosearch_js',
-                'oum_leaflet_locate_js',
-                'oum_leaflet_fullscreen_js',
-                'oum_leaflet_search_js',
-                'oum_leaflet_gesture_js',
-                'oum_global_leaflet_js'
-            ),
-            $this->plugin_version,
-            true
-        );
+        // Enqueue registered frontend block map script
+        wp_enqueue_script( 'oum_frontend_block_map_js' );
         // Localize custom strings
         wp_localize_script( 'oum_frontend_block_map_js', 'oum_custom_strings', $this->oum_custom_strings() );
-        // add custom js to frontend-block-map.js
+        // Add custom js to frontend-block-map.js
+        // Decode HTML entities before passing to wp_localize_script to ensure
+        // raw characters (like > in arrow functions) are preserved
+        $custom_js_snippet = get_option( 'oum_custom_js' );
+        if ( !empty( $custom_js_snippet ) ) {
+            $custom_js_snippet = html_entity_decode( $custom_js_snippet, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+        }
         wp_localize_script( 'oum_frontend_block_map_js', 'custom_js', array(
-            'snippet' => get_option( 'oum_custom_js' ),
+            'snippet' => $custom_js_snippet,
         ) );
-        wp_enqueue_script(
-            'oum_frontend_ajax_js',
-            $this->plugin_url . 'src/js/frontend-ajax.js',
-            array('jquery', 'oum_frontend_block_map_js'),
-            $this->plugin_version,
-            true
-        );
-        // Localize custom strings
-        wp_localize_script( 'oum_frontend_ajax_js', 'oum_custom_strings', $this->oum_custom_strings() );
-        wp_localize_script( 'oum_frontend_ajax_js', 'oum_ajax', array(
-            'ajaxurl' => admin_url( 'admin-ajax.php' ),
-        ) );
-        // Enqueue carousel script
-        wp_enqueue_script(
-            'oum_frontend_carousel_js',
-            $this->plugin_url . 'src/js/frontend-carousel.js',
-            array(),
-            $this->plugin_version,
-            true
-        );
+        // Add safety net filter for custom_js localization
+        $this->ensure_custom_js_localization();
+        // Enqueue and localize AJAX script with all required data
+        $this->enqueue_and_localize_ajax_script();
+        // Enqueue registered carousel script
+        wp_enqueue_script( 'oum_frontend_carousel_js' );
         ob_start();
         require oum_get_template( 'block-map.php' );
         return ob_get_clean();
@@ -454,18 +824,47 @@ class BaseController {
                 $data['oum_marker_icon'] = '';
             }
             if ( isset( $_POST['oum_location_custom_fields'] ) && is_array( $_POST['oum_location_custom_fields'] ) ) {
+                $available_custom_fields = get_option( 'oum_custom_fields', array() );
                 $data['oum_location_custom_fields'] = array();
                 foreach ( $_POST['oum_location_custom_fields'] as $index => $val ) {
-                    if ( is_array( $val ) ) {
-                        //multiple values
+                    $fieldtype = ( isset( $available_custom_fields[$index]['fieldtype'] ) ? $available_custom_fields[$index]['fieldtype'] : 'text' );
+                    // Handle opening hours field type
+                    if ( $fieldtype === 'opening_hours' ) {
+                        // Handle both array format [hours] and string format
+                        $hours_input = '';
+                        if ( is_array( $val ) ) {
+                            $hours_input = ( isset( $val['hours'] ) ? sanitize_text_field( $val['hours'] ) : '' );
+                        } else {
+                            // Treat as string input
+                            $hours_input = sanitize_text_field( $val );
+                        }
+                        if ( $hours_input !== '' ) {
+                            // Parse the input format to JSON (without timezone - loaded from WordPress when needed)
+                            $parsed = \OpenUserMapPlugin\Base\LocationController::convert_opening_hours_input_to_json( $hours_input );
+                            if ( $parsed ) {
+                                $data['oum_location_custom_fields'][$index] = json_encode( $parsed );
+                            } else {
+                                // Invalid format, skip
+                                $data['oum_location_custom_fields'][$index] = '';
+                            }
+                        } else {
+                            $data['oum_location_custom_fields'][$index] = '';
+                        }
+                    } elseif ( is_array( $val ) ) {
+                        // Multiple values (like checkbox)
                         $arr_vals = array();
                         foreach ( $val as $el ) {
                             $arr_vals[] = sanitize_text_field( $el );
                         }
                         $data['oum_location_custom_fields'][$index] = $arr_vals;
                     } else {
-                        //single value
-                        $data['oum_location_custom_fields'][$index] = sanitize_text_field( $val );
+                        // Single value
+                        $sanitized_value = sanitize_text_field( $val );
+                        if ( $fieldtype === 'link' ) {
+                            // Link fields require URL sanitizing to preserve protocols (e.g., https://).
+                            $sanitized_value = esc_url_raw( $val );
+                        }
+                        $data['oum_location_custom_fields'][$index] = $sanitized_value;
                     }
                 }
             }
@@ -691,6 +1090,13 @@ class BaseController {
                         if ( isset( $existing_data['votes'] ) ) {
                             $data_meta['votes'] = $existing_data['votes'];
                         }
+                        // Preserve existing star rating data if it exists
+                        if ( isset( $existing_data['star_rating_avg'] ) ) {
+                            $data_meta['star_rating_avg'] = $existing_data['star_rating_avg'];
+                        }
+                        if ( isset( $existing_data['star_rating_count'] ) ) {
+                            $data_meta['star_rating_count'] = $existing_data['star_rating_count'];
+                        }
                         if ( isset( $data['oum_location_notification'] ) && isset( $data['oum_location_author_name'] ) && isset( $data['oum_location_author_email'] ) ) {
                             $data_meta['notification'] = $data['oum_location_notification'];
                             $data_meta['author_name'] = $data['oum_location_author_name'];
@@ -737,7 +1143,7 @@ class BaseController {
     }
 
     /**
-     * AJAX: Handle vote/unvote actions
+     * AJAX: Handle vote/unvote actions and star ratings
      */
     public function ajax_toggle_vote() {
         // Check if vote feature is enabled
@@ -762,14 +1168,97 @@ class BaseController {
             ) );
             return;
         }
-        // Get current vote count
+        // Get vote type setting (default: upvote)
+        $vote_type = get_option( 'oum_vote_type', 'upvote' );
+        // Get current location data
         $location_data = get_post_meta( $post_id, '_oum_location_key', true );
         if ( !is_array( $location_data ) ) {
             $location_data = array();
         }
+        $cookie_type = get_option( 'oum_vote_cookie_type', 'persistent' );
+        // Handle star rating type
+        if ( $vote_type === 'star_rating' ) {
+            // Get star rating value (1-5)
+            $new_rating = ( isset( $_POST['star_rating'] ) ? intval( $_POST['star_rating'] ) : 0 );
+            // Validate rating range
+            if ( $new_rating < 1 || $new_rating > 5 ) {
+                wp_send_json_error( array(
+                    'message' => __( 'Invalid rating. Please select 1-5 stars.', 'open-user-map' ),
+                ) );
+                return;
+            }
+            // Get current star rating data
+            $star_rating_avg = ( isset( $location_data['star_rating_avg'] ) ? floatval( $location_data['star_rating_avg'] ) : 0 );
+            $star_rating_count = ( isset( $location_data['star_rating_count'] ) ? intval( $location_data['star_rating_count'] ) : 0 );
+            // Cookie name for star rating
+            $cookie_name = 'oum_star_rating_' . $post_id;
+            // Get user's previous rating (if any)
+            $previous_rating = 0;
+            if ( $cookie_type === 'none' ) {
+                // For no-cookie mode, use the current_rating parameter from frontend
+                $previous_rating = ( isset( $_POST['current_rating'] ) ? intval( $_POST['current_rating'] ) : 0 );
+            } else {
+                // For cookie modes, check the cookie
+                if ( isset( $_COOKIE[$cookie_name] ) ) {
+                    $previous_rating = intval( $_COOKIE[$cookie_name] );
+                }
+            }
+            // Calculate new average rating
+            if ( $previous_rating > 0 ) {
+                // User is changing their rating
+                // Remove old rating and add new one
+                // Handle edge case: if count is 0 but previous_rating exists (data inconsistency), treat as new rating
+                if ( $star_rating_count > 0 ) {
+                    $total_sum = $star_rating_avg * $star_rating_count - $previous_rating + $new_rating;
+                    $new_avg = $total_sum / $star_rating_count;
+                } else {
+                    // Data inconsistency: cookie exists but count is 0, treat as new rating
+                    $star_rating_count = 1;
+                    $new_avg = $new_rating;
+                }
+            } else {
+                // User is adding a new rating
+                $total_sum = $star_rating_avg * $star_rating_count + $new_rating;
+                $star_rating_count++;
+                $new_avg = $total_sum / $star_rating_count;
+            }
+            // Update location data
+            $location_data['star_rating_avg'] = round( $new_avg, 2 );
+            $location_data['star_rating_count'] = $star_rating_count;
+            update_post_meta( $post_id, '_oum_location_key', $location_data );
+            // Set cookie to track user's rating
+            if ( $cookie_type !== 'none' ) {
+                // Set cookie based on type
+                if ( $cookie_type === 'session' ) {
+                    // Session cookie (expires when browser closes)
+                    setcookie(
+                        $cookie_name,
+                        $new_rating,
+                        0,
+                        '/'
+                    );
+                } elseif ( $cookie_type === 'persistent' ) {
+                    // Persistent cookie (expires in 1 year)
+                    setcookie(
+                        $cookie_name,
+                        $new_rating,
+                        time() + 365 * 24 * 60 * 60,
+                        '/'
+                    );
+                }
+            }
+            // Return response
+            wp_send_json_success( array(
+                'rating'  => $new_rating,
+                'average' => round( $new_avg, 2 ),
+                'count'   => $star_rating_count,
+                'message' => __( 'Rating saved!', 'open-user-map' ),
+            ) );
+            return;
+        }
+        // Handle upvote type (existing logic)
         $current_votes = ( isset( $location_data['votes'] ) ? intval( $location_data['votes'] ) : 0 );
         $cookie_name = 'oum_voted_' . $post_id;
-        $cookie_type = get_option( 'oum_vote_cookie_type', 'persistent' );
         // Determine current vote state
         if ( $cookie_type === 'none' ) {
             // For no-cookie mode, use the current_vote_state parameter from frontend
@@ -861,15 +1350,38 @@ class BaseController {
             ) );
             return;
         }
-        // Get current vote count
+        // Get vote type setting (default: upvote)
+        $vote_type = get_option( 'oum_vote_type', 'upvote' );
+        // Get current location data
         $location_data = get_post_meta( $post_id, '_oum_location_key', true );
         if ( !is_array( $location_data ) ) {
             $location_data = array();
         }
-        $votes = ( isset( $location_data['votes'] ) ? intval( $location_data['votes'] ) : 0 );
-        wp_send_json_success( array(
-            'votes' => $votes,
-        ) );
+        // Return data based on vote type
+        if ( $vote_type === 'star_rating' ) {
+            $star_rating_avg = ( isset( $location_data['star_rating_avg'] ) ? floatval( $location_data['star_rating_avg'] ) : 0 );
+            $star_rating_count = ( isset( $location_data['star_rating_count'] ) ? intval( $location_data['star_rating_count'] ) : 0 );
+            // Get user's current rating from cookie (if any)
+            $cookie_type = get_option( 'oum_vote_cookie_type', 'persistent' );
+            $user_rating = 0;
+            if ( $cookie_type !== 'none' ) {
+                $cookie_name = 'oum_star_rating_' . $post_id;
+                if ( isset( $_COOKIE[$cookie_name] ) ) {
+                    $user_rating = intval( $_COOKIE[$cookie_name] );
+                }
+            }
+            wp_send_json_success( array(
+                'average'     => round( $star_rating_avg, 2 ),
+                'count'       => $star_rating_count,
+                'user_rating' => $user_rating,
+            ) );
+        } else {
+            // Upvote type
+            $votes = ( isset( $location_data['votes'] ) ? intval( $location_data['votes'] ) : 0 );
+            wp_send_json_success( array(
+                'votes' => $votes,
+            ) );
+        }
     }
 
     /**
@@ -887,6 +1399,18 @@ class BaseController {
             $this->safe_log( "No webhook URL configured for Post ID: {$post_id}" );
             return;
         }
+        // Get first image URL if available
+        $first_image_url = '';
+        $image_value = oum_get_location_value( 'image', $post_id, true );
+        if ( !empty( $image_value ) ) {
+            // Extract first image from pipe-separated string
+            $images = explode( '|', $image_value );
+            if ( !empty( $images[0] ) ) {
+                $first_image = trim( $images[0] );
+                // Convert relative path to absolute URL if needed
+                $first_image_url = ( strpos( $first_image, 'http' ) !== 0 ? site_url() . $first_image : $first_image );
+            }
+        }
         // Prepare webhook payload
         $webhook_data = array(
             'post_id'           => $post_id,
@@ -899,6 +1423,7 @@ class BaseController {
                 'fields' => 'names',
             ) ),
             'meta_data'         => $data_meta ?? get_post_meta( $post_id, '_oum_location_key', true ),
+            'image_url'         => $first_image_url,
             'event'             => $event_type,
             'timestamp'         => current_time( 'mysql' ),
         );
@@ -915,6 +1440,18 @@ class BaseController {
         } else {
             $this->safe_log( "Webhook successfully triggered for Post ID: {$post_id} - Event: {$event_type}" );
         }
+    }
+
+    /**
+     * AJAX callback: return a fresh nonce for the frontend "Add location" form.
+     *
+     * This keeps cached pages functional by letting the form request
+     * a new nonce right before submission/opening.
+     */
+    public function ajax_refresh_location_nonce() {
+        wp_send_json_success( array(
+            'nonce' => wp_create_nonce( 'oum_location' ),
+        ) );
     }
 
     public function correctImageOrientation( $filename, $img ) {
@@ -967,61 +1504,37 @@ class BaseController {
      * Render Add Location Form only
      */
     public function render_block_form( $block_attributes, $content ) {
-        wp_enqueue_style(
-            'oum_frontend_css',
-            $this->plugin_url . 'assets/frontend.css',
-            array(),
-            $this->plugin_version
-        );
+        // Check if inside a page builder - return placeholder if so
+        if ( $this->is_page_builder_active() ) {
+            return $this->render_page_builder_placeholder( 'open-user-map-form', $block_attributes );
+        }
+        // Enqueue frontend CSS with custom inline CSS
+        $this->enqueue_frontend_css();
+        // Load map base scripts (enqueues registered Leaflet CSS and JS)
         $this->include_map_scripts();
-        wp_enqueue_script(
-            'oum_frontend_block_map_js',
-            $this->plugin_url . 'src/js/frontend-block-map.js',
-            array(
-                'oum_leaflet_providers_js',
-                'oum_leaflet_markercluster_js',
-                'oum_leaflet_subgroups_js',
-                'oum_leaflet_geosearch_js',
-                'oum_leaflet_locate_js',
-                'oum_leaflet_fullscreen_js',
-                'oum_leaflet_search_js',
-                'oum_leaflet_gesture_js',
-                'oum_global_leaflet_js'
-            ),
-            $this->plugin_version,
-            true
-        );
+        // Enqueue registered frontend block map script
+        wp_enqueue_script( 'oum_frontend_block_map_js' );
+        // Localize block map script
         wp_localize_script( 'oum_frontend_block_map_js', 'oum_custom_strings', $this->oum_custom_strings() );
+        // Decode HTML entities before passing to wp_localize_script to ensure
+        // raw characters (like > in arrow functions) are preserved
+        $custom_js_snippet = get_option( 'oum_custom_js' );
+        if ( !empty( $custom_js_snippet ) ) {
+            $custom_js_snippet = html_entity_decode( $custom_js_snippet, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+        }
         wp_localize_script( 'oum_frontend_block_map_js', 'custom_js', array(
-            'snippet' => get_option( 'oum_custom_js' ),
+            'snippet' => $custom_js_snippet,
         ) );
-        wp_enqueue_script(
-            'oum_frontend_ajax_js',
-            $this->plugin_url . 'src/js/frontend-ajax.js',
-            array('jquery', 'oum_frontend_block_map_js'),
-            $this->plugin_version,
-            true
-        );
-        wp_localize_script( 'oum_frontend_ajax_js', 'oum_custom_strings', $this->oum_custom_strings() );
-        wp_localize_script( 'oum_frontend_ajax_js', 'oum_ajax', array(
-            'ajaxurl' => admin_url( 'admin-ajax.php' ),
-        ) );
-        wp_enqueue_script(
-            'oum_frontend_carousel_js',
-            $this->plugin_url . 'src/js/frontend-carousel.js',
-            array(),
-            $this->plugin_version,
-            true
-        );
+        // Add safety net filter for custom_js localization
+        $this->ensure_custom_js_localization();
+        // Enqueue and localize AJAX script with all required data
+        $this->enqueue_and_localize_ajax_script();
+        // Enqueue registered carousel script
+        wp_enqueue_script( 'oum_frontend_carousel_js' );
+        // Enqueue vote functionality script if enabled (PRO feature)
         if ( oum_fs()->is__premium_only() && oum_fs()->can_use_premium_code() ) {
             if ( get_option( 'oum_enable_vote_feature' ) === 'on' ) {
-                wp_enqueue_script(
-                    'oum_frontend_vote_js',
-                    $this->plugin_url . 'src/js/frontend-vote.js',
-                    array('jquery'),
-                    $this->plugin_version,
-                    true
-                );
+                wp_enqueue_script( 'oum_frontend_vote_js' );
                 wp_localize_script( 'oum_frontend_vote_js', 'oum_vote_nonce', array(
                     'nonce' => wp_create_nonce( 'oum_vote_nonce' ),
                 ) );

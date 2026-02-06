@@ -55,9 +55,6 @@ const OUMUtils = (function () {
         ? parseFloat(height.replace(/['"]+/g, ""))
         : parseFloat(height);
 
-    // Add zoom offset to match settings map view
-    zoom = zoom + 0.7;
-
     // Validate coordinates
     if (!validateCoordinates(lat, lng)) {
       console.warn("Invalid coordinates for latLngToBounds, using defaults");
@@ -70,41 +67,52 @@ const OUMUtils = (function () {
     // Validate dimensions
     if (isNaN(width) || width <= 0 || isNaN(height) || height <= 0) {
       console.warn("Invalid dimensions for latLngToBounds");
-      width = 570; // Default width
-      height = 372; // Default height
+      width = 520; // Default width
+      height = 294; // Default height
     }
 
     // Validate and adjust zoom
     if (isNaN(zoom)) {
       zoom = OUMConfig.defaults.map.zoom;
     } else {
-      // Ensure zoom is between 2 and 20
-      zoom = Math.max(2, Math.min(20, zoom));
+      // Ensure zoom is between 1 and 20
+      zoom = Math.max(1, Math.min(20, zoom));
     }
 
-    // Calculate the visible area based on zoom level and Mercator projection
-    const EARTH_RADIUS = 6378137; // Earth's radius in meters
-    const scale = Math.pow(2, zoom);
-
-    // Convert pixel dimensions to meters at this zoom level
-    const metersPerPixel = (2 * Math.PI * EARTH_RADIUS) / (256 * scale);
-    const widthMeters = width * metersPerPixel;
-    const heightMeters = height * metersPerPixel;
-
-    // Calculate the latitude bounds, accounting for Mercator projection
-    const latRad = (lat * Math.PI) / 180;
-    const latDelta = heightMeters / 2 / EARTH_RADIUS;
-    const latitudeNorth = ((latRad + latDelta) * 180) / Math.PI;
-    const latitudeSouth = ((latRad - latDelta) * 180) / Math.PI;
-
-    // Calculate the longitude bounds (simpler as it's linear in Mercator)
-    const lngDelta = widthMeters / 2 / (EARTH_RADIUS * Math.cos(latRad));
-    const longitudeEast = lng + (lngDelta * 180) / Math.PI;
-    const longitudeWest = lng - (lngDelta * 180) / Math.PI;
+    // Use Leaflet's projection system to properly account for Mercator distortion
+    // This ensures equal visual margins regardless of latitude
+    const crs = L.CRS.EPSG3857; // Default Mercator projection used by Leaflet
+    
+    // Project the center position to pixel space at the specified zoom level
+    const centerLatLng = L.latLng(lat, lng);
+    const centerPoint = crs.latLngToPoint(centerLatLng, zoom);
+    
+    // Calculate pixel bounds: center ± half width/height
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+    
+    // Calculate the four corners of the viewport in pixel space
+    const topLeftPoint = L.point(centerPoint.x - halfWidth, centerPoint.y - halfHeight);
+    const topRightPoint = L.point(centerPoint.x + halfWidth, centerPoint.y - halfHeight);
+    const bottomLeftPoint = L.point(centerPoint.x - halfWidth, centerPoint.y + halfHeight);
+    const bottomRightPoint = L.point(centerPoint.x + halfWidth, centerPoint.y + halfHeight);
+    
+    // Unproject the corners back to lat/lng (this properly accounts for Mercator distortion)
+    const topLeftLatLng = crs.pointToLatLng(topLeftPoint, zoom);
+    const topRightLatLng = crs.pointToLatLng(topRightPoint, zoom);
+    const bottomLeftLatLng = crs.pointToLatLng(bottomLeftPoint, zoom);
+    const bottomRightLatLng = crs.pointToLatLng(bottomRightPoint, zoom);
+    
+    // Find the min/max lat and lng from all four corners
+    // This ensures we capture the full bounds correctly
+    const minLat = Math.min(topLeftLatLng.lat, topRightLatLng.lat, bottomLeftLatLng.lat, bottomRightLatLng.lat);
+    const maxLat = Math.max(topLeftLatLng.lat, topRightLatLng.lat, bottomLeftLatLng.lat, bottomRightLatLng.lat);
+    const minLng = Math.min(topLeftLatLng.lng, topRightLatLng.lng, bottomLeftLatLng.lng, bottomRightLatLng.lng);
+    const maxLng = Math.max(topLeftLatLng.lng, topRightLatLng.lng, bottomLeftLatLng.lng, bottomRightLatLng.lng);
 
     return [
-      [latitudeSouth, longitudeWest],
-      [latitudeNorth, longitudeEast],
+      [minLat, minLng],  // Southwest corner
+      [maxLat, maxLng],  // Northeast corner
     ];
   }
 
@@ -281,8 +289,8 @@ const OUMConfig = (function () {
   // Private variables
   const defaults = {
     map: {
-      lat: 28,
-      lng: 0,
+      lat: 26,
+      lng: 10,
       zoom: 1,
       bounds: L.latLngBounds(
         L.latLng(-85, -200), // Southwest corner (adjusted to prevent grey areas)
@@ -392,13 +400,15 @@ const OUMMap = (function () {
   function setupMapBounds() {
     // Set bounds if fixed map bounds is enabled
     if (oum_enable_fixed_map_bounds) {
-      // Calculate bounds based on initial position
+      // Calculate bounds using the updated latLngToBounds method
+      // This uses Leaflet's projection system to properly account for Mercator distortion
+      // Settings map dimensions (used when setting initial view in admin)
       const boundsArray = OUMUtils.latLngToBounds(
         startPosition.lat,
         startPosition.lng,
         startPosition.zoom,
-        570, // Width of settings map
-        372 // Height of settings map
+        520, // Width of settings map
+        294 // Height of settings map
       );
 
       // Convert the bounds array to a Leaflet LatLngBounds object
@@ -551,12 +561,183 @@ const OUMMap = (function () {
           accessToken: OUMConfig.getTileProviderKey(),
         })
         .addTo(map);
+    } else if (mapStyle == "CustomImage") {
+      // Custom Image layer
+      setupCustomImageLayer();
+      // Always add a base tile layer for proper map functionality
+      // If hide tiles is enabled, use a transparent/invisible layer
+      if (window.oum_custom_image_hide_tiles) {
+        // Use a transparent tile layer to maintain map functionality
+        tileLayer = L.tileLayer('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', {
+          attribution: '',
+          opacity: 0
+        }).addTo(map);
+        
+        // Apply background color to map container
+        if (window.oum_custom_image_background_color) {
+          map.getContainer().style.backgroundColor = window.oum_custom_image_background_color;
+        }
+      } else {
+        tileLayer = L.tileLayer.provider("OpenStreetMap.Mapnik").addTo(map);
+      }
     } else {
       // Default
       tileLayer = L.tileLayer.provider(mapStyle).addTo(map);
     }
 
     return tileLayer;
+  }
+
+  function setupCustomImageLayer() {
+    // Check if we have an image URL and bounds
+    if (typeof window.oum_custom_image_url !== 'undefined' && window.oum_custom_image_url && 
+        typeof window.oum_custom_image_bounds !== 'undefined' && window.oum_custom_image_bounds) {
+      
+      // Check if the uploaded file is an SVG
+      const isSVG = window.oum_custom_image_url.toLowerCase().includes('.svg');
+      
+      if (isSVG) {
+        // Handle SVG file - fetch and render as DOM elements
+        setupSVGFromFile();
+      } else {
+        // Handle regular image file
+        setupImageOverlay();
+      }
+    } else {
+    }
+  }
+
+  // Helper function to setup SVG from uploaded file
+  function setupSVGFromFile() {
+    try {
+      // Get bounds data (now properly handled as object)
+      const bounds = window.oum_custom_image_bounds;
+
+      // Validate bounds
+      if (!bounds || typeof bounds.north === 'undefined' || typeof bounds.south === 'undefined' ||
+          typeof bounds.east === 'undefined' || typeof bounds.west === 'undefined' ||
+          bounds.north === '' || bounds.south === '' || bounds.east === '' || bounds.west === '') {
+        console.warn('Open User Map: Invalid or empty bounds data, skipping SVG file layer');
+        return;
+      }
+
+
+      // Fetch the SVG file and render it
+      fetch(window.oum_custom_image_url)
+        .then(response => response.text())
+        .then(svgText => {
+          // Create SVG element from the fetched content
+          const svgElement = createSVGElement(svgText);
+          if (!svgElement) {
+            console.warn('Open User Map: Cannot create SVG layer from file - invalid SVG element');
+            return;
+          }
+
+          // Create a custom SVG layer
+          const svgLayer = L.svgOverlay(svgElement, [
+            [bounds.south, bounds.west], // Southwest corner
+            [bounds.north, bounds.east]  // Northeast corner
+          ], {
+            opacity: 1.0,
+            interactive: true
+          });
+
+          svgLayer.addTo(map);
+
+
+          // Store reference for potential removal
+          window.oumCustomSVGLayer = svgLayer;
+
+          console.log('Open User Map: Custom SVG file layer added successfully');
+        })
+        .catch(error => {
+          console.warn('Open User Map: Error fetching SVG file:', error);
+        });
+
+    } catch (error) {
+      console.warn('Open User Map: Error setting up custom SVG file layer:', error);
+    }
+  }
+
+  // Helper function to setup regular image overlay
+  function setupImageOverlay() {
+    try {
+      // Get bounds data (now properly handled as object)
+      const bounds = window.oum_custom_image_bounds;
+
+      // Validate bounds
+      if (!bounds || typeof bounds.north === 'undefined' || typeof bounds.south === 'undefined' ||
+          typeof bounds.east === 'undefined' || typeof bounds.west === 'undefined' ||
+          bounds.north === '' || bounds.south === '' || bounds.east === '' || bounds.west === '') {
+        console.warn('Open User Map: Invalid or empty bounds data, skipping image layer');
+        return;
+      }
+
+
+      // Create image overlay
+      const imageOverlay = L.imageOverlay(window.oum_custom_image_url, [
+        [bounds.south, bounds.west], // Southwest corner
+        [bounds.north, bounds.east]  // Northeast corner
+      ], {
+        opacity: 1.0,
+        interactive: true
+      });
+
+      imageOverlay.addTo(map);
+
+
+      // Store reference for potential removal
+      window.oumCustomImageLayer = imageOverlay;
+
+      console.log('Open User Map: Custom image layer added successfully');
+
+    } catch (error) {
+      console.warn('Open User Map: Error setting up custom image layer:', error);
+    }
+  }
+
+  // Helper function to create SVG element from text
+  function createSVGElement(svgText) {
+    // Create a temporary div to parse the SVG
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = svgText;
+    const svgElement = tempDiv.querySelector('svg');
+    
+    if (!svgElement) {
+      console.warn('Open User Map: No valid SVG element found in SVG text');
+      return null;
+    }
+    
+    // Preserve the original viewBox if it exists
+    // If missing, try to create it from width/height attributes
+    if (!svgElement.getAttribute('viewBox')) {
+      const width = svgElement.getAttribute('width');
+      const height = svgElement.getAttribute('height');
+      if (width && height) {
+        // Remove units if present (e.g., "1580px" -> "1580")
+        const widthNum = parseFloat(width);
+        const heightNum = parseFloat(height);
+        if (!isNaN(widthNum) && !isNaN(heightNum)) {
+          svgElement.setAttribute('viewBox', `0 0 ${widthNum} ${heightNum}`);
+        } else {
+          svgElement.setAttribute('viewBox', '0 0 1000 1200');
+        }
+      } else {
+        svgElement.setAttribute('viewBox', '0 0 1000 1200');
+      }
+    }
+    
+    // Ensure the SVG has proper styling for overlay
+    svgElement.style.width = '100%';
+    svgElement.style.height = '100%';
+    svgElement.style.display = 'block';
+    
+    // Ensure the SVG fills the entire bounds area to prevent cropping
+    svgElement.setAttribute('preserveAspectRatio', 'none');
+    
+    console.log('Open User Map: SVG element created successfully:', svgElement);
+    
+    return svgElement;
   }
 
   function setupControls() {
@@ -659,7 +840,13 @@ const OUMMap = (function () {
     // Event: geosearch success
     map.on("geosearch/showlocation", function(e) {
       let coords = e.marker._latlng;
-      let isInBounds = map.getBounds().contains(coords);
+      
+      // Check against fixed map bounds if enabled, otherwise allow any location
+      let isInBounds = true; // Default to true when fixed bounds is disabled
+      if (oum_enable_fixed_map_bounds === 'on' && sharedMapBounds) {
+        // Check if location is within the fixed map bounds (not just current viewport)
+        isInBounds = sharedMapBounds.contains(coords);
+      }
       
       if (!isInBounds && oum_enable_fixed_map_bounds === 'on') {
         console.log("This search result is out of reach.");
@@ -696,14 +883,44 @@ const OUMMap = (function () {
           let region_lng = el.getAttribute("data-lng");
           let region_zoom = el.getAttribute("data-zoom");
 
+          // Get frontend map container size
+          const mapContainer = map.getContainer();
+          const frontendMapWidth = mapContainer.offsetWidth || 520;
+          const frontendMapHeight = mapContainer.offsetHeight || 294;
+          const settingsMapWidth = 520;
+          const settingsMapHeight = 294;
+          
+          // Calculate bounds based on settings map dimensions
           let region_bounds = OUMUtils.latLngToBounds(
             parseFloat(region_lat),
             parseFloat(region_lng),
             parseFloat(region_zoom),
-            570,
-            372
+            settingsMapWidth,
+            settingsMapHeight
           );
-          let region_bounds_zoom = map.getBoundsZoom(region_bounds);
+          
+          // Convert to Leaflet bounds
+          const regionBounds = L.latLngBounds(
+            L.latLng(region_bounds[0][0], region_bounds[0][1]),
+            L.latLng(region_bounds[1][0], region_bounds[1][1])
+          );
+          
+          // Calculate aspect ratios
+          const settingsAspectRatio = settingsMapWidth / settingsMapHeight;
+          const frontendAspectRatio = frontendMapWidth / frontendMapHeight;
+          const aspectRatioDifference = Math.abs(settingsAspectRatio - frontendAspectRatio);
+          
+          let region_bounds_zoom;
+          
+          // If aspect ratios match, use ratio-based calculation
+          if (aspectRatioDifference < 0.01) {
+            const widthRatio = frontendMapWidth / settingsMapWidth;
+            const zoomAdjustment = Math.log2(widthRatio);
+            region_bounds_zoom = parseFloat(region_zoom) + zoomAdjustment;
+          } else {
+            // Different aspect ratios - use getBoundsZoom
+            region_bounds_zoom = map.getBoundsZoom(regionBounds, false);
+          }
 
           // Center Map
           map.flyTo([region_lat, region_lng], region_bounds_zoom);
@@ -735,6 +952,8 @@ const OUMMap = (function () {
         map = L.map(mapEl, {
           gestureHandling: oum_enable_scrollwheel_zoom_map ? false : true,
           minZoom: 1, // Set default minimum zoom
+          zoomSnap: 0.01, // Allow fractional zoom levels (0.01 steps)
+          zoomDelta: 1, // Zoom step size for controls
           attributionControl: true,
           fullscreenControl: oum_enable_fullscreen,
           fullscreenControlOptions: {
@@ -750,27 +969,60 @@ const OUMMap = (function () {
         // First set up the tile layer
         setupTileLayer(OUMConfig.getMapStyle());
 
-        // Calculate initial bounds based on settings map dimensions
-        const boundsArray = OUMUtils.latLngToBounds(
+        // Invalidate size to ensure accurate measurements
+        map.invalidateSize();
+        
+        // Get the actual frontend map container size
+        const mapContainer = map.getContainer();
+        const frontendMapWidth = mapContainer.offsetWidth || 520;
+        const frontendMapHeight = mapContainer.offsetHeight || 294;
+        
+        // Settings map dimensions (fixed)
+        const settingsMapWidth = 520;
+        const settingsMapHeight = 294;
+        
+        // Calculate aspect ratios to determine if they match
+        const settingsAspectRatio = settingsMapWidth / settingsMapHeight;
+        const frontendAspectRatio = frontendMapWidth / frontendMapHeight;
+        const aspectRatioDifference = Math.abs(settingsAspectRatio - frontendAspectRatio);
+        
+        // Calculate initial bounds based on settings map dimensions (520)
+        // This gives us the geographic area that should be visible
+        const settingsBoundsArray = OUMUtils.latLngToBounds(
           startPosition.lat,
           startPosition.lng,
           startPosition.zoom,
-          570, // Width of settings map
-          372 // Height of settings map
+          settingsMapWidth,
+          settingsMapHeight
         );
 
         // Convert to Leaflet bounds
-        const initialBounds = L.latLngBounds(
-          L.latLng(boundsArray[0][0], boundsArray[0][1]),
-          L.latLng(boundsArray[1][0], boundsArray[1][1])
+        const settingsBounds = L.latLngBounds(
+          L.latLng(settingsBoundsArray[0][0], settingsBoundsArray[0][1]),
+          L.latLng(settingsBoundsArray[1][0], settingsBoundsArray[1][1])
         );
 
-        // Set view to match settings map exactly, with zoom offset
-        const zoomOffset = 0.7; // Zoom in a bit more to match settings map
-        map.fitBounds(initialBounds, {
-          animate: false,
-          padding: [0, 0], // No padding to match exactly
-          maxZoom: map.getBoundsZoom(initialBounds) + zoomOffset,
+        let targetZoom;
+        
+        // If aspect ratios are very similar (within 1%), use ratio-based zoom calculation
+        // This preserves the exact same geographic area when aspect ratios match
+        if (aspectRatioDifference < 0.01) {
+          // Calculate zoom adjustment based on size ratio
+          // If frontend map is larger, we need higher zoom to show same area
+          // Formula: zoom adjustment = log2(frontendWidth / settingsWidth)
+          const widthRatio = frontendMapWidth / settingsMapWidth;
+          const zoomAdjustment = Math.log2(widthRatio);
+          targetZoom = startPosition.zoom + zoomAdjustment;
+        } else {
+          // Aspect ratios differ - use getBoundsZoom to account for different aspect ratios
+          // This will fit the bounds but may show slightly different area due to aspect ratio
+          targetZoom = map.getBoundsZoom(settingsBounds, false);
+        }
+        
+        // Use setView with the calculated zoom level to show the same geographic area
+        // This ensures the same geographic bounds are visible regardless of frontend map size
+        map.setView([startPosition.lat, startPosition.lng], targetZoom, {
+          animate: false
         });
 
         // Set up other components
@@ -819,6 +1071,11 @@ const OUMMarkers = (function () {
   let markersLayer = null;
   let allMarkers = [];
   let map = null;
+  let locationsById = {};
+  let searchtextFilterValue = "";
+  let categoriesFilterSelection = null;
+  let customfieldsFilterSelection = null;
+  let visibleMarkersCount = 0;
 
   // Private functions
   function initializeMarkersLayer() {
@@ -873,6 +1130,15 @@ const OUMMarkers = (function () {
       el.classList.add("visible");
       document.querySelector("body").classList.add("oum-location-opened");
       
+      // Check edit permissions and inject edit button if allowed (for fullscreen container)
+      checkEditPermissionAndInjectButton(el.querySelector(".location-content-wrap"));
+      
+      // Also check for the Leaflet popup itself (the small popup on the map)
+      const popupContent = locationBubble.popup.getElement();
+      if (popupContent) {
+        checkEditPermissionAndInjectButton(popupContent);
+      }
+      
       // Update vote button states for the newly opened popup
       if (window.OUMVoteHandler && window.OUMVoteHandler.updateVoteButtonStates) {
         window.OUMVoteHandler.updateVoteButtonStates();
@@ -886,6 +1152,24 @@ const OUMMarkers = (function () {
           // This avoids AJAX calls while ensuring we have the latest vote data
           window.OUMVoteHandler.initializeVoteCountsFromData();
         }
+      }
+      
+      // Initialize star ratings from data for the newly opened popup
+      if (window.OUMVoteHandler && window.OUMVoteHandler.initializeStarRatings) {
+        const starRatings = el.querySelectorAll('.oum_star_rating');
+        if (starRatings.length > 0) {
+          // For popups, use the updated location data to initialize star ratings
+          // This avoids AJAX calls while ensuring we have the latest star rating data
+          window.OUMVoteHandler.initializeStarRatings();
+        }
+      }
+      
+      // Setup opening hours toggle functionality for fullscreen container
+      OUMOpeningHours.setupToggle(el.querySelector(".location-content-wrap"));
+      
+      // Setup opening hours toggle for popup content
+      if (popupContent) {
+        OUMOpeningHours.setupToggle(popupContent);
       }
     });
 
@@ -901,38 +1185,264 @@ const OUMMarkers = (function () {
       document.querySelector("body").classList.remove("oum-location-opened");
     });
   }
+  
+  /**
+   * Check edit permission for a location and inject edit button if allowed
+   * This is called when a popup opens to dynamically show edit buttons
+   * based on real-time permissions (cache-safe solution)
+   * 
+   * @param {HTMLElement} container - The container element to search for placeholder
+   */
+  function checkEditPermissionAndInjectButton(container) {
+    // Find the edit button placeholder in the opened popup
+    const placeholder = container.querySelector('.edit-location-button-placeholder');
+    
+    if (!placeholder) {
+      return; // No placeholder found, nothing to do
+    }
+    
+    const postId = placeholder.getAttribute('data-post-id');
+    
+    if (!postId) {
+      placeholder.remove();
+      return;
+    }
+    
+    if (typeof jQuery === 'undefined') {
+      placeholder.remove();
+      return;
+    }
+    
+    if (!oum_ajax || !oum_ajax.ajaxurl) {
+      placeholder.remove();
+      return;
+    }
+    
+    // Make AJAX call to check permissions
+    jQuery.ajax({
+      type: 'POST',
+      url: oum_ajax.ajaxurl,
+      dataType: 'json',
+      data: {
+        action: 'oum_check_edit_permission',
+        post_id: postId
+      },
+      success: function(response) {
+        if (response && response.success && response.data && response.data.can_edit) {
+          // User can edit - inject the edit button
+          const editButton = document.createElement('div');
+          editButton.className = 'edit-location-button';
+          editButton.setAttribute('data-post-id', postId);
+          editButton.setAttribute('title', oum_custom_strings && oum_custom_strings.edit_location ? oum_custom_strings.edit_location : 'Edit location');
+          
+          // Replace placeholder with actual button
+          placeholder.parentNode.replaceChild(editButton, placeholder);
+        } else {
+          // User cannot edit - remove placeholder (keep clean HTML)
+          placeholder.remove();
+        }
+      },
+      error: function(xhr, status, error) {
+        // On error, just remove the placeholder
+        placeholder.remove();
+      }
+    });
+  }
 
-  function filterMarkers() {
-    // Get filter values
+  function applyFilters() {
+    if (!markersLayer) {
+      return;
+    }
+
+    markersLayer.clearLayers();
+    visibleMarkersCount = 0;
+
+    allMarkers.forEach((marker) => {
+      if (
+        markerMatchesSearchtextFilter(marker) &&
+        markerMatchesCategoriesFilter(marker) &&
+        markerMatchesCustomfieldsFilter(marker)
+      ) {
+        markersLayer.addLayer(marker);
+        visibleMarkersCount += 1;
+      }
+    });
+
+    if (oum_enable_cluster && typeof markersLayer.refreshClusters === "function") {
+      markersLayer.refreshClusters();
+    }
+  }
+
+  function markerMatchesSearchtextFilter(marker) {
+    if (!searchtextFilterValue) {
+      return true;
+    }
+    return marker.options.content.toLowerCase().includes(searchtextFilterValue);
+  }
+
+  function markerMatchesCategoriesFilter(marker) {
+    const markerTypes = marker.options.types || [];
+
+    if (!markerTypes.length) {
+      return true;
+    }
+
+    // Before the user interacts with the category checkboxes, keep the previous behaviour (show all)
+    if (categoriesFilterSelection === null) {
+      return true;
+    }
+
+    if (!categoriesFilterSelection.size) {
+      return false;
+    }
+
+    return markerTypes.some((type) => categoriesFilterSelection.has(type));
+  }
+
+  function markerMatchesCustomfieldsFilter(marker) {
+    if (!customfieldsFilterSelection || !Object.keys(customfieldsFilterSelection).length) {
+      return true;
+    }
+
+    const locationData = getLocationData(marker.options.post_id);
+    if (!locationData) {
+      return true;
+    }
+
+    for (const [customFieldId, criterion] of Object.entries(customfieldsFilterSelection)) {
+      // Special handling for opening_hours_open_now filter type
+      if (criterion.type === 'opening_hours_open_now') {
+        const field = locationData.custom_fields?.find(
+          (customField) => String(customField.index) === String(customFieldId)
+        );
+        
+        // Use pre-calculated open_now value from PHP
+        if (field && typeof field.open_now === 'boolean') {
+          if (field.open_now !== true) {
+            return false;
+          }
+        } else {
+          // Fallback: if open_now not available, exclude location
+          return false;
+        }
+        continue;
+      }
+
+      // Standard custom field filtering
+      const fieldValue = getCustomFieldValue(locationData, customFieldId);
+      if (!matchesCriterion(fieldValue, criterion)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function getLocationData(postId) {
+    if (!postId) {
+      return null;
+    }
+
+    if (locationsById[String(postId)]) {
+      return locationsById[String(postId)];
+    }
+
+    if (typeof window !== "undefined" && Array.isArray(window.oum_all_locations)) {
+      const fallback = window.oum_all_locations.find(
+        (location) => String(location.post_id) === String(postId)
+      );
+      if (fallback) {
+        locationsById[String(postId)] = fallback;
+        return fallback;
+      }
+    }
+
+    return null;
+  }
+
+  function getCustomFieldValue(locationData, customFieldId) {
+    if (!locationData || !Array.isArray(locationData.custom_fields)) {
+      return null;
+    }
+
+    const field = locationData.custom_fields.find(
+      (customField) => String(customField.index) === String(customFieldId)
+    );
+
+    return field ? field.val : null;
+  }
+
+  function normalizeFieldValues(fieldValue) {
+    if (Array.isArray(fieldValue)) {
+      return fieldValue.map((val) => val.toString()).filter((val) => val !== "");
+    }
+
+    if (typeof fieldValue === "string") {
+      return fieldValue
+        .split("|")
+        .map((val) => val.trim())
+        .filter((val) => val !== "");
+    }
+
+    if (fieldValue !== null && typeof fieldValue !== "undefined") {
+      const value = fieldValue.toString();
+      return value ? [value] : [];
+    }
+
+    return [];
+  }
+
+  function matchesCriterion(fieldValue, criterion) {
+    if (
+      fieldValue === null ||
+      typeof fieldValue === "undefined" ||
+      (typeof fieldValue === "string" && fieldValue.trim() === "") ||
+      (Array.isArray(fieldValue) && fieldValue.length === 0)
+    ) {
+      return false;
+    }
+
+    switch (criterion.type) {
+      case "text":
+        return fieldValue.toString().toLowerCase().includes(criterion.value);
+      case "checkbox": {
+        const values = normalizeFieldValues(fieldValue);
+        const relation = criterion.relation || 'OR'; // Default to OR for backward compatibility
+        
+        if (relation === 'AND') {
+          // AND: All selected checkbox values must be present in the field values
+          return criterion.values.length > 0 && criterion.values.every((val) => values.includes(val));
+        } else {
+          // OR: At least one selected checkbox value must match (default behavior)
+          return criterion.values.some((val) => values.includes(val));
+        }
+      }
+      case "radio":
+      case "select": {
+        const values = normalizeFieldValues(fieldValue);
+        return values.includes(criterion.value);
+      }
+      default:
+        return true;
+    }
+  }
+
+  function updateSearchtextAndCategoriesFilters() {
+    // Read searchtext filter
     const markerFilterInput = document.getElementById("oum_filter_markers");
-    const filter = markerFilterInput
-      ? markerFilterInput.value.toLowerCase()
-      : "";
+    searchtextFilterValue = markerFilterInput ? markerFilterInput.value.toLowerCase() : "";
+
+    // Read categories filter
     const categoryInputs = document.querySelectorAll(
       '.open-user-map .oum-filter-controls [name="type"]'
     );
-    const checkedCategories = Array.from(categoryInputs)
-      .filter((input) => input.checked)
-      .map((input) => input.value);
+    categoriesFilterSelection = new Set(
+      Array.from(categoryInputs)
+        .filter((input) => input.checked)
+        .map((input) => input.value)
+    );
 
-    // Clear existing markers
-    markersLayer.clearLayers();
-
-    // Filter and re-add markers
-    allMarkers.forEach((marker) => {
-      const contentText = marker.options.content.toLowerCase();
-      const markerTypes = marker.options.types || [];
-
-      const matchesTextFilter = !filter || contentText.includes(filter);
-      const matchesCategoryFilter =
-        markerTypes.length === 0 ||
-        (checkedCategories.length === 0 && markerTypes.length === 0) ||
-        markerTypes.some((type) => checkedCategories.includes(type));
-
-      if (matchesTextFilter && matchesCategoryFilter) {
-        markersLayer.addLayer(marker);
-      }
-    });
+    applyFilters();
   }
 
   function setupFilterListEvents() {
@@ -940,29 +1450,56 @@ const OUMMarkers = (function () {
       ".open-user-map .oum-filter-controls"
     );
     if (!filterControls) return;
-  
-    // Function to show the filter list
-    function showFilterList() {
-      filterControls.classList.add("active");
+
+    const closeButton = filterControls.querySelector(".close-filter-list");
+    const toggle = filterControls.querySelector(".oum-filter-toggle");
+    const filterWrapper = filterControls.closest(".oum-map-filter-wrapper");
+
+    // Close button always collapses the filter controls
+    if (closeButton) {
+      closeButton.addEventListener("click", function(e) {
+        e.stopPropagation();
+        filterControls.classList.remove("active");
+        // Ensure use-collapse class is present so the toggle button becomes visible
+        filterControls.classList.add("use-collapse");
+      });
     }
-  
-    // Function to hide the filter list
-    function hideFilterList() {
-      filterControls.classList.remove("active");
+
+    // Setup click toggle for the toggle button (works regardless of initial use-collapse state)
+    if (toggle) {
+      toggle.addEventListener("click", function(e) {
+        e.stopPropagation();
+        filterControls.classList.toggle("active");
+      });
+    }
+
+    // Close when clicking outside the filter wrapper (only if use-collapse is present)
+    if (filterWrapper) {
+      document.addEventListener("click", function(e) {
+        if (filterControls.classList.contains("use-collapse") && !filterWrapper.contains(e.target)) {
+          filterControls.classList.remove("active");
+        }
+      });
     }
 
     // Function to setup toggle all functionality
     function setupToggleAll() {
-      const toggleAllCheckbox = filterControls.querySelector('.open-user-map .oum-filter-controls .oum-toggle-all-checkbox');
-      const categoryCheckboxes = filterControls.querySelectorAll('.open-user-map .oum-filter-controls [name="type"]');
-      
+      const toggleAllCheckbox = filterControls.querySelector(
+        ".oum-toggle-all-checkbox"
+      );
+      const categoryCheckboxes = filterControls.querySelectorAll(
+        '[name="type"]'
+      );
+
       if (!toggleAllCheckbox || categoryCheckboxes.length === 0) return;
 
       // Function to update toggle all state based on individual checkboxes
       function updateToggleAllState() {
-        const checkedCount = Array.from(categoryCheckboxes).filter(cb => cb.checked).length;
+        const checkedCount = Array.from(categoryCheckboxes).filter(
+          (cb) => cb.checked
+        ).length;
         const totalCount = categoryCheckboxes.length;
-        
+
         if (checkedCount === 0) {
           toggleAllCheckbox.checked = false;
           toggleAllCheckbox.indeterminate = false;
@@ -978,53 +1515,35 @@ const OUMMarkers = (function () {
       // Function to toggle all categories
       function toggleAllCategories() {
         // Determine if we should check all or uncheck all based on current state
-        const checkedCount = Array.from(categoryCheckboxes).filter(cb => cb.checked).length;
+        const checkedCount = Array.from(categoryCheckboxes).filter(
+          (cb) => cb.checked
+        ).length;
         const totalCount = categoryCheckboxes.length;
-        
+
         // If all are checked, uncheck all. Otherwise, check all
         const shouldCheck = checkedCount < totalCount;
-        
-        categoryCheckboxes.forEach(checkbox => {
+
+        categoryCheckboxes.forEach((checkbox) => {
           checkbox.checked = shouldCheck;
         });
-        
+
         // Trigger filter update
-        filterMarkers();
+        updateSearchtextAndCategoriesFilters();
       }
 
       // Event listeners
-      toggleAllCheckbox.addEventListener('change', toggleAllCategories);
-      
+      toggleAllCheckbox.addEventListener("change", toggleAllCategories);
+
       // Update toggle all state when individual checkboxes change
-      categoryCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updateToggleAllState);
+      categoryCheckboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", updateToggleAllState);
       });
 
       // Set initial state
       updateToggleAllState();
     }
-  
-    // Event: Open Filter List (mouseover for collapsed design)
-    if (filterControls.classList.contains("use-collapse")) {
-      filterControls
-        .querySelector(".oum-filter-toggle")
-        ?.addEventListener("mouseover", showFilterList);
-      filterControls
-        .querySelector(".oum-filter-list")
-        ?.addEventListener("mouseleave", hideFilterList);
-    }
-  
-    // Event: Open Filter List (click)
-    filterControls
-      .querySelector(".oum-filter-toggle")
-        ?.addEventListener("click", showFilterList);
-  
-    // Event: Close Filter List (click on close button)
-    filterControls
-      .querySelector(".oum-filter-list .close-filter-list")
-        ?.addEventListener("click", hideFilterList);
 
-    // Setup toggle all functionality
+    // Setup toggle all functionality regardless of layout
     setupToggleAll();
   }
 
@@ -1077,8 +1596,12 @@ const OUMMarkers = (function () {
       locations.forEach((location) => {
         const marker = createMarker(location);
         allMarkers.push(marker);
+        locationsById[String(location.post_id)] = location;
         markersLayer.addLayer(marker);
       });
+
+      // Re-run filters so that advanced filter state or search/category selections stay in sync
+      applyFilters();
 
       // After adding all markers, check if we need to auto-open one
       const POPUP_MARKER_ID = OUMUtils.getParameterByName("markerid");
@@ -1086,12 +1609,36 @@ const OUMMarkers = (function () {
         handleAutoOpenMarker(POPUP_MARKER_ID);
       }
     },
-    filterMarkers: filterMarkers,
+    updateSearchtextAndCategoriesFilters: updateSearchtextAndCategoriesFilters,
     getMarkersLayer: function () {
       return markersLayer;
     },
     getAllMarkers: function () {
       return allMarkers;
+    },
+    getAllLocations: function () {
+      return Object.values(locationsById);
+    },
+    setCustomfieldsFilter: function (criteria) {
+      if (criteria && Object.keys(criteria).length > 0) {
+        customfieldsFilterSelection = criteria;
+      } else {
+        customfieldsFilterSelection = null;
+      }
+      applyFilters();
+    },
+    getFilterState: function () {
+      return {
+        searchtext: searchtextFilterValue,
+        categories:
+          categoriesFilterSelection === null
+            ? null
+            : Array.from(categoriesFilterSelection),
+        customfields: customfieldsFilterSelection
+      };
+    },
+    getFilteredMarkersCount: function () {
+      return visibleMarkersCount;
     },
   };
 })();
@@ -1117,8 +1664,8 @@ const OUMFormMap = (function () {
       attributionControl: false,
       gestureHandling: true,
       minZoom: 1,
-      zoomSnap: 1,
-      zoomDelta: 1,
+      zoomSnap: 0.01, // Allow fractional zoom levels (0.01 steps)
+      zoomDelta: 1, // Zoom step size for controls
       fullscreenControl: oum_enable_fullscreen,
       fullscreenControlOptions: {
         position: "topleft",
@@ -1133,6 +1680,9 @@ const OUMFormMap = (function () {
     setupMarker();
     setupMapEvents();
 
+    // Invalidate size to ensure accurate measurements before calculating bounds
+    formMap.invalidateSize();
+
     // Always apply bounds to prevent showing repeated maps
     const boundsToUse = oum_enable_fixed_map_bounds 
       ? sharedMapBounds 
@@ -1141,9 +1691,19 @@ const OUMFormMap = (function () {
     // Set the bounds
     formMap.setMaxBounds(boundsToUse);
 
-    // Set minimum zoom level based on bounds
-    const maxVisibleBounds = formMap.getBoundsZoom(boundsToUse);
-    formMap.setMinZoom(maxVisibleBounds);
+    // Calculate minimum zoom level based on bounds
+    // When fixed bounds are enabled, use sharedMapBounds for accurate calculation
+    // This is used both for setting minZoom and in the moveend event handler
+    let maxVisibleBounds;
+    if (oum_enable_fixed_map_bounds && sharedMapBounds) {
+      // Invalidate size first to ensure accurate measurements
+      formMap.invalidateSize();
+      maxVisibleBounds = formMap.getBoundsZoom(sharedMapBounds);
+      // Set minimum zoom level to prevent users from zooming out too far
+      formMap.setMinZoom(maxVisibleBounds);
+    } else {
+      maxVisibleBounds = formMap.getBoundsZoom(boundsToUse);
+    }
 
     // Add moveend event to enforce bounds
     formMap.on("moveend", function () {
@@ -1191,7 +1751,23 @@ const OUMFormMap = (function () {
       isAdjusting = false;
     });
 
+    // Update minZoom when fixed bounds are enabled
+    // This prevents users from zooming out too far
+    updateMinZoom();
+
     isInitialized = true;
+  }
+
+  function updateMinZoom() {
+    if (!formMap) return;
+    
+    // Recalculate and set minZoom when fixed bounds are enabled
+    // This prevents users from zooming out beyond the defined bounds
+    if (oum_enable_fixed_map_bounds && sharedMapBounds) {
+      formMap.invalidateSize();
+      const maxVisibleBounds = formMap.getBoundsZoom(sharedMapBounds);
+      formMap.setMinZoom(maxVisibleBounds);
+    }
   }
 
   function setupTileLayer() {
@@ -1221,6 +1797,25 @@ const OUMFormMap = (function () {
         id: mapStyle.replace("MapBox.", "mapbox/") + (mapStyle.includes("-v") ? "" : "-v12"),
         accessToken: OUMConfig.getTileProviderKey(),
       }).addTo(formMap);
+    } else if (mapStyle == "CustomImage") {
+      // Custom Image layer
+      setupCustomImageLayer();
+      // Always add a base tile layer for proper map functionality
+      // If hide tiles is enabled, use a transparent/invisible layer
+      if (window.oum_custom_image_hide_tiles) {
+        // Use a transparent tile layer to maintain map functionality
+        L.tileLayer('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', {
+          attribution: '',
+          opacity: 0
+        }).addTo(formMap);
+        
+        // Apply background color to map container
+        if (window.oum_custom_image_background_color) {
+          formMap.getContainer().style.backgroundColor = window.oum_custom_image_background_color;
+        }
+      } else {
+        L.tileLayer.provider("OpenStreetMap.Mapnik").addTo(formMap);
+      }
     } else {
       // Default
       L.tileLayer.provider(mapStyle).addTo(formMap);
@@ -1296,17 +1891,30 @@ const OUMFormMap = (function () {
   function handleGeosearchSuccess(e) {
     let coords = e.marker._latlng;
     let label = e.location.label;
-    let isInBounds = formMap.getBounds().contains(coords);
     const searchBar = document.querySelector(`#mapGetLocation .leaflet-geosearch-bar form`);
 
-    if (!isInBounds && oum_enable_fixed_map_bounds) {
+    // Check against fixed map bounds if enabled, otherwise allow any location
+    let isInBounds = true; // Default to true when fixed bounds is disabled
+    if (oum_enable_fixed_map_bounds === 'on' && sharedMapBounds) {
+      // Check if location is within the fixed map bounds (not just current viewport)
+      isInBounds = sharedMapBounds.contains(coords);
+    }
+
+    // Only restrict movement if fixed map bounds is enabled and location is outside those bounds
+    if (!isInBounds && oum_enable_fixed_map_bounds === 'on') {
       console.log("This search result is out of reach.");
-      searchBar.style.boxShadow = "0 0 10px rgb(255, 111, 105)";
-      setTimeout(function () {
-        searchBar.style.boxShadow = "0 1px 5px rgba(255, 255, 255, 0.65)";
-      }, 2000);
+      if (searchBar) {
+        searchBar.style.boxShadow = "0 0 10px rgb(255, 111, 105)";
+        setTimeout(function () {
+          searchBar.style.boxShadow = "0 1px 5px rgba(255, 255, 255, 0.65)";
+        }, 2000);
+      }
     } else {
-      handleValidGeosearchResult(e.location);
+      // Location is within fixed bounds (or fixed bounds is disabled) - handle normally
+      // Set coordinates and address immediately (before map animation) for instant feedback
+      setLocationLatLng(coords, label);
+      
+      // Set marker position
       locationMarker.setLatLng(coords);
 
       if (!markerIsVisible) {
@@ -1315,7 +1923,8 @@ const OUMFormMap = (function () {
         window.markerIsVisible = true;
       }
 
-      setLocationLatLng(coords);
+      // Fly to location (animated - happens after address is already set)
+      handleValidGeosearchResult(e.location);
     }
   }
 
@@ -1332,9 +1941,273 @@ const OUMFormMap = (function () {
     }
   }
 
-  function setLocationLatLng(markerLatLng) {
+  function setLocationLatLng(markerLatLng, address) {
     document.getElementById("oum_location_lat").value = markerLatLng.lat;
     document.getElementById("oum_location_lng").value = markerLatLng.lng;
+    
+    // Only perform reverse geocoding if both subtitle field and autofill are enabled
+    if (shouldPerformReverseGeocoding()) {
+      reverseGeocode(markerLatLng.lat, markerLatLng.lng, address);
+    }
+  }
+
+  /**
+   * Check if reverse geocoding should be performed
+   * Requires both subtitle field and autofill to be enabled
+   * @returns {boolean}
+   */
+  function shouldPerformReverseGeocoding() {
+    // Check if subtitle field is enabled (use window prefix for safety)
+    const subtitleEnabled = typeof window.oum_enable_address !== 'undefined' && window.oum_enable_address === 'on';
+    
+    // Check if autofill is enabled (use window prefix for safety)
+    const autofillEnabled = typeof window.oum_enable_address_autofill !== 'undefined' && window.oum_enable_address_autofill === 'on';
+    
+    return subtitleEnabled && autofillEnabled;
+  }
+
+  /**
+   * Format address from Nominatim API response
+   * @param {Object} addressData - Address data from Nominatim API
+   * @param {string} displayName - Fallback display name
+   * @returns {string}
+   */
+  function formatAddressFromResponse(addressData, displayName) {
+    const addressParts = [];
+    
+    // Build address from most specific to least specific
+    if (addressData.house_number) addressParts.push(addressData.house_number);
+    if (addressData.road) addressParts.push(addressData.road);
+    if (addressData.suburb) addressParts.push(addressData.suburb);
+    if (addressData.city || addressData.town || addressData.village) {
+      addressParts.push(addressData.city || addressData.town || addressData.village);
+    }
+    if (addressData.postcode) addressParts.push(addressData.postcode);
+    if (addressData.country) addressParts.push(addressData.country);
+    
+    return addressParts.length > 0 
+      ? addressParts.join(', ') 
+      : displayName || 'Address not found';
+  }
+
+  /**
+   * Reverse geocode coordinates to get address
+   * Uses OpenStreetMap Nominatim API (free, no API key required)
+   * @param {number} lat - Latitude
+   * @param {number} lng - Longitude
+   * @param {string} [providedAddress] - Optional address to use directly (e.g., from geosearch result)
+   */
+  function reverseGeocode(lat, lng, providedAddress) {
+    // If address is already provided (e.g., from geosearch), use it directly
+    if (providedAddress && providedAddress.trim()) {
+      handleAddressResult(providedAddress.trim());
+      return;
+    }
+
+    // Validate coordinates
+    if (!OUMUtils.validateCoordinates(lat, lng)) {
+      console.warn('Open User Map: Invalid coordinates for reverse geocoding');
+      return;
+    }
+
+    // Use Nominatim reverse geocoding API
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+    
+    fetch(url, {
+      headers: {
+        'User-Agent': 'OpenUserMap/1.0' // Required by Nominatim
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data && data.address) {
+          const address = formatAddressFromResponse(data.address, data.display_name);
+          handleAddressResult(address);
+        } else {
+          console.log('Open User Map: No address found for coordinates:', lat, lng);
+        }
+      })
+      .catch(error => {
+        console.warn('Open User Map: Reverse geocoding error:', error);
+      });
+  }
+
+  /**
+   * Handle the address result - log it and optionally fill subtitle field
+   * @param {string} address - The formatted address
+   */
+  function handleAddressResult(address) {
+    if (!address || typeof address !== 'string') {
+      return;
+    }
+
+    console.log('Open User Map: Address:', address);
+    
+    // Auto-fill subtitle field if enabled (always update when address changes)
+    if (shouldPerformReverseGeocoding()) {
+      const subtitleField = document.getElementById('oum_location_address');
+      if (subtitleField) {
+        subtitleField.value = address;
+      }
+    }
+  }
+
+  // Helper function to setup custom image layer
+  function setupCustomImageLayer() {
+    // Check if we have an image URL and bounds
+    if (typeof window.oum_custom_image_url !== 'undefined' && window.oum_custom_image_url && 
+        typeof window.oum_custom_image_bounds !== 'undefined' && window.oum_custom_image_bounds) {
+      
+      // Check if the uploaded file is an SVG
+      const isSVG = window.oum_custom_image_url.toLowerCase().includes('.svg');
+      
+      if (isSVG) {
+        // Handle SVG file - fetch and render as DOM elements
+        setupSVGFromFile();
+      } else {
+        // Handle regular image file
+        setupImageOverlay();
+      }
+    } else {
+    }
+  }
+
+  // Helper function to setup SVG from uploaded file
+  function setupSVGFromFile() {
+    try {
+      // Get bounds data (now properly handled as object)
+      const bounds = window.oum_custom_image_bounds;
+
+      // Validate bounds
+      if (!bounds || typeof bounds.north === 'undefined' || typeof bounds.south === 'undefined' ||
+          typeof bounds.east === 'undefined' || typeof bounds.west === 'undefined' ||
+          bounds.north === '' || bounds.south === '' || bounds.east === '' || bounds.west === '') {
+        console.warn('Open User Map: Invalid or empty bounds data, skipping SVG file layer');
+        return;
+      }
+
+
+      // Fetch the SVG file and render it
+      fetch(window.oum_custom_image_url)
+        .then(response => response.text())
+        .then(svgText => {
+          // Create SVG element from the fetched content
+          const svgElement = createSVGElement(svgText);
+          if (!svgElement) {
+            console.warn('Open User Map: Cannot create SVG layer from file - invalid SVG element');
+            return;
+          }
+
+          // Create a custom SVG layer
+          const svgLayer = L.svgOverlay(svgElement, [
+            [bounds.north, bounds.west], // Southwest corner
+            [bounds.south, bounds.east]  // Northeast corner
+          ], {
+            opacity: 1.0,
+            interactive: true
+          });
+
+          svgLayer.addTo(formMap);
+
+
+          // Store reference for potential removal
+          window.oumCustomSVGLayer = svgLayer;
+
+          console.log('Open User Map: Custom SVG file layer added successfully');
+        })
+        .catch(error => {
+          console.warn('Open User Map: Error fetching SVG file:', error);
+        });
+
+    } catch (error) {
+      console.warn('Open User Map: Error setting up custom SVG file layer:', error);
+    }
+  }
+
+  // Helper function to setup regular image overlay
+  function setupImageOverlay() {
+    try {
+      // Get bounds data (now properly handled as object)
+      const bounds = window.oum_custom_image_bounds;
+
+      // Validate bounds
+      if (!bounds || typeof bounds.north === 'undefined' || typeof bounds.south === 'undefined' ||
+          typeof bounds.east === 'undefined' || typeof bounds.west === 'undefined' ||
+          bounds.north === '' || bounds.south === '' || bounds.east === '' || bounds.west === '') {
+        console.warn('Open User Map: Invalid or empty bounds data, skipping image layer');
+        return;
+      }
+
+
+      // Create image overlay
+      const imageOverlay = L.imageOverlay(window.oum_custom_image_url, [
+        [bounds.north, bounds.west], // Southwest corner
+        [bounds.south, bounds.east]  // Northeast corner
+      ], {
+        opacity: 1.0,
+        interactive: true
+      });
+
+      imageOverlay.addTo(formMap);
+
+
+      // Store reference for potential removal
+      window.oumCustomImageLayer = imageOverlay;
+
+      console.log('Open User Map: Custom image layer added successfully');
+
+    } catch (error) {
+      console.warn('Open User Map: Error setting up custom image layer:', error);
+    }
+  }
+
+  // Helper function to create SVG element from text
+  function createSVGElement(svgText) {
+    // Create a temporary div to parse the SVG
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = svgText;
+    const svgElement = tempDiv.querySelector('svg');
+    
+    if (!svgElement) {
+      console.warn('Open User Map: No valid SVG element found in SVG text');
+      return null;
+    }
+    
+    // Preserve the original viewBox if it exists
+    // If missing, try to create it from width/height attributes
+    if (!svgElement.getAttribute('viewBox')) {
+      const width = svgElement.getAttribute('width');
+      const height = svgElement.getAttribute('height');
+      if (width && height) {
+        // Remove units if present (e.g., "1580px" -> "1580")
+        const widthNum = parseFloat(width);
+        const heightNum = parseFloat(height);
+        if (!isNaN(widthNum) && !isNaN(heightNum)) {
+          svgElement.setAttribute('viewBox', `0 0 ${widthNum} ${heightNum}`);
+        } else {
+          svgElement.setAttribute('viewBox', '0 0 1000 1200');
+        }
+      } else {
+        svgElement.setAttribute('viewBox', '0 0 1000 1200');
+      }
+    }
+    
+    // Ensure the SVG has proper styling for overlay
+    svgElement.style.width = '100%';
+    svgElement.style.height = '100%';
+    svgElement.style.display = 'block';
+    
+    // Ensure the SVG fills the entire bounds area to prevent cropping
+    svgElement.setAttribute('preserveAspectRatio', 'none');
+    
+    console.log('Open User Map: SVG element created successfully:', svgElement);
+    
+    return svgElement;
   }
 
   // Public interface
@@ -1367,6 +2240,9 @@ const OUMFormMap = (function () {
         formMap.invalidateSize();
       }
     },
+    updateMinZoom: function() {
+      updateMinZoom();
+    },
     getMap: function() {
       return formMap;
     },
@@ -1374,6 +2250,50 @@ const OUMFormMap = (function () {
       if (formMap) {
         formMap.setView([lat, lng], zoom);
       }
+    },
+    setViewToMatchMainMap: function(mainMap) {
+      if (!formMap || !mainMap) return;
+      
+      // Invalidate size to ensure accurate measurements
+      formMap.invalidateSize();
+      
+      // Get the main map's bounds (the geographic area currently visible)
+      const mainBounds = mainMap.getBounds();
+      const mainCenter = mainMap.getCenter();
+      const mainZoom = mainMap.getZoom();
+      
+      // Get form map container size
+      const formMapContainer = formMap.getContainer();
+      const formMapWidth = formMapContainer.offsetWidth || 520;
+      const formMapHeight = formMapContainer.offsetHeight || 294;
+      
+      // Get main map container size
+      const mainMapContainer = mainMap.getContainer();
+      const mainMapWidth = mainMapContainer.offsetWidth || 520;
+      const mainMapHeight = mainMapContainer.offsetHeight || 294;
+      
+      // Calculate aspect ratios
+      const mainAspectRatio = mainMapWidth / mainMapHeight;
+      const formAspectRatio = formMapWidth / formMapHeight;
+      const aspectRatioDifference = Math.abs(mainAspectRatio - formAspectRatio);
+      
+      let targetZoom;
+      
+      // If aspect ratios match, use ratio-based zoom calculation
+      if (aspectRatioDifference < 0.01) {
+        // Calculate zoom adjustment based on size ratio
+        const widthRatio = formMapWidth / mainMapWidth;
+        const zoomAdjustment = Math.log2(widthRatio);
+        targetZoom = mainZoom + zoomAdjustment;
+      } else {
+        // Different aspect ratios - use getBoundsZoom to fit the main map's bounds
+        targetZoom = formMap.getBoundsZoom(mainBounds, false);
+      }
+      
+      // Set view with calculated zoom to show the same geographic area
+      formMap.setView([mainCenter.lat, mainCenter.lng], targetZoom, {
+        animate: false
+      });
     }
   };
 })();
@@ -1530,35 +2450,114 @@ const OUMFormController = (function () {
     setupMediaEvents();
   }
 
+  /**
+   * Request a fresh form nonce so cached pages stay valid.
+   *
+   * We refresh when the overlay opens, ensuring the submission
+   * uses a nonce generated in the current time window.
+   */
+  function refreshLocationNonce() {
+    const formEl = document.getElementById('oum_add_location');
+    if (!formEl || typeof oum_ajax === 'undefined') {
+      return Promise.resolve();
+    }
+
+    const nonceField = formEl.querySelector('input[name="oum_location_nonce"]');
+    if (!nonceField || !oum_ajax.ajaxurl) {
+      return Promise.resolve();
+    }
+
+    const action = oum_ajax.refresh_nonce_action || 'oum_refresh_location_nonce';
+
+    return jQuery.ajax({
+      type: 'POST',
+      url: oum_ajax.ajaxurl,
+      dataType: 'json',
+      data: { action },
+    }).done(function(response) {
+      if (response && response.success && response.data && response.data.nonce) {
+        nonceField.value = response.data.nonce;
+      }
+    }).fail(function() {
+      // Keep backward compatibility: fall back to the existing nonce if refresh fails.
+      console.warn('Open User Map: Unable to refresh nonce.');
+    });
+  }
+
   function handleAddLocationClick() {
     resetForm();
     openForm();
   }
   
   function openForm(location = null) {
+    // Refresh nonce on every open to avoid cached/expired tokens.
+    refreshLocationNonce();
     document.querySelector(".add-location").classList.add("active");
     document.body.classList.add("oum-add-location-opened");
 
     setTimeout(function () {
       // Initialize map if needed
       OUMFormMap.init();
+      
+      // Update minZoom after form opens to ensure it's set correctly when fixed bounds are enabled
+      // Use a small delay to ensure the map container is properly sized
+      setTimeout(function() {
+        OUMFormMap.updateMinZoom();
+      }, 100);
 
-      if (location) {
-        populateForm(location);
-      } else {
-        // Set view to match main map
+      // Apply main map's aspect ratio to form map
+      const applyAspectRatioAndView = () => {
         const mainMapEl = document.querySelector(`#${map_el}`);
         if (mainMapEl) {
           const mainMap = window.oumMap;
-          const mainCenter = mainMap.getCenter();
-          const mainZoom = mainMap.getZoom();
-          OUMFormMap.setView(mainCenter.lat, mainCenter.lng, mainZoom);
+          if (mainMap) {
+            const mainMapContainer = mainMap.getContainer();
+            const mainMapWidth = mainMapContainer.offsetWidth;
+            const mainMapHeight = mainMapContainer.offsetHeight;
+            
+            if (mainMapWidth && mainMapHeight) {
+              // Calculate aspect ratio from main map
+              const aspectRatio = mainMapWidth / mainMapHeight;
+              
+              // Apply aspect ratio to form map container
+              const formMapWrap = document.querySelector('.add-location .location-overlay-content .map-wrap');
+              if (formMapWrap) {
+                formMapWrap.style.aspectRatio = aspectRatio.toString();
+                formMapWrap.style.height = 'auto';
+              }
+            }
+          }
         }
-      }
+        
+        if (location) {
+          populateForm(location);
+        } else {
+          // Set view to match main map's geographic bounds
+          const mainMapEl = document.querySelector(`#${map_el}`);
+          if (mainMapEl) {
+            const mainMap = window.oumMap;
+            // Use the new method that calculates zoom based on form map size
+            // This ensures the same geographic area is visible regardless of map size differences
+            OUMFormMap.setViewToMatchMainMap(mainMap);
+          }
+        }
+      };
+      
+      // Wait for container to resize after applying aspect ratio
+      applyAspectRatioAndView();
+      requestAnimationFrame(applyAspectRatioAndView);
 
-      // Add a separate timeout for invalidateSize
+      // Add a separate timeout for invalidateSize to ensure accurate measurements
       setTimeout(() => {
         OUMFormMap.invalidateSize();
+        // Re-apply the view after size invalidation to ensure correct zoom
+        if (!location) {
+          const mainMapEl = document.querySelector(`#${map_el}`);
+          if (mainMapEl) {
+            const mainMap = window.oumMap;
+            OUMFormMap.setViewToMatchMainMap(mainMap);
+          }
+        }
       }, 200);
     }, 150);
   }
@@ -1846,6 +2845,43 @@ const OUMFormController = (function () {
                         }
                     });
                 }
+            } else if (field.fieldtype === 'select') {
+                // Handle single and multiple select
+                let input = document.querySelector(`[name="oum_location_custom_fields[${field.index}][]"]`);
+                const isMultiple = !!input;
+                if (!input) {
+                    input = document.querySelector(`[name="oum_location_custom_fields[${field.index}]"]`);
+                }
+                if (input && input.tagName === 'SELECT') {
+                    const values = Array.isArray(field.val) ? field.val.map(v => (v || '').toString().trim()) : [(field.val || '').toString().trim()];
+                    Array.from(input.options).forEach(opt => {
+                        opt.selected = values.includes((opt.value || '').toString().trim());
+                    });
+                }
+            } else if (field.fieldtype === 'opening_hours') {
+                // Handle opening hours field - expect JSON string
+                try {
+                    const openingHoursData = JSON.parse(field.val);
+                    if (openingHoursData && typeof openingHoursData === 'object') {
+                        // Find the hours input
+                        const hoursInput = document.querySelector(`input[name="oum_location_custom_fields[${field.index}][hours]"]`);
+                        const fieldContainer = document.querySelector(`[data-custom-field-index="${field.index}"]`);
+                        
+                        // Check if 12-hour format is enabled for this field
+                        const use12hour = fieldContainer && fieldContainer.dataset.use12hour === '1';
+                        
+                        if (hoursInput && typeof OUMOpeningHours !== 'undefined') {
+                            // Convert JSON back to input format (with 12-hour format if enabled)
+                            hoursInput.value = OUMOpeningHours.formatForInput(openingHoursData, use12hour);
+                        }
+                    }
+                } catch (e) {
+                    // Invalid JSON, try to set as raw value
+                    const input = document.querySelector(`input[name="oum_location_custom_fields[${field.index}][hours]"]`);
+                    if (input) {
+                        input.value = field.val || '';
+                    }
+                }
             } else {
                 const input = document.querySelector(`[name="oum_location_custom_fields[${field.index}]"]`);
                 if (input) {
@@ -2052,6 +3088,9 @@ const OUMFormController = (function () {
     }
   };
 })();
+
+// OUMOpeningHours module is now in a separate file: frontend-opening-hours.js
+// It's loaded as a dependency of this script
 
 /**
  * Media Module - Handles image upload and preview functionality
@@ -2565,13 +3604,233 @@ const OUMCheckboxValidation = (function () {
   };
 })();
 
-// Main initialization
-window.addEventListener("load", function () {
+/**
+ * Advanced Filter Interface Module - Handles advanced filtering functionality
+ */
+const OUMAdvancedFilter = (function () {
+  // Private variables
+  let isInitialized = false;
+  let filterSidebar = null;
+
+  // Private functions
+  function init() {
+    if (isInitialized) return;
+
+    filterSidebar = document.querySelector('.oum-advanced-filter-sidebar');
+    if (!filterSidebar) {
+      return;
+    }
+    
+    setupFilterEvents();
+    setupFloatingPanelToggle();
+    isInitialized = true;
+  }
+
+  // Setup click toggle for button/panel
+  function setupFloatingPanelToggle() {
+    const floatingPanel = document.querySelector('.oum-advanced-filter-button, .oum-advanced-filter-panel');
+    if (!floatingPanel || !floatingPanel.classList.contains('use-collapse')) {
+      return;
+    }
+
+    const toggle = floatingPanel.querySelector('.oum-advanced-filter-toggle');
+    const closeButton = floatingPanel.querySelector('.close-advanced-filter');
+    const filterWrapper = floatingPanel.closest('.oum-map-filter-wrapper');
+
+    // Toggle active class on click
+    if (toggle) {
+      toggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        floatingPanel.classList.toggle('active');
+      });
+    }
+
+    // Close button always collapses the floating panel
+    if (closeButton) {
+      closeButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        floatingPanel.classList.remove('active');
+      });
+    }
+
+    // Close when clicking outside the filter wrapper
+    if (filterWrapper) {
+      document.addEventListener('click', function(e) {
+        if (!filterWrapper.contains(e.target)) {
+          floatingPanel.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  function setupFilterEvents() {
+    // Get all filter inputs
+    const filterInputs = filterSidebar.querySelectorAll('.oum-advanced-filter-input');
+    const filterCheckboxes = filterSidebar.querySelectorAll('.oum-advanced-filter-checkbox');
+    const filterRadios = filterSidebar.querySelectorAll('.oum-advanced-filter-radio');
+    const filterSelects = filterSidebar.querySelectorAll('.oum-advanced-filter-select');
+
+    // Add event listeners to all filter inputs
+    filterInputs.forEach(input => {
+      input.addEventListener('input', handleFilterChange);
+    });
+
+    filterCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', handleFilterChange);
+    });
+
+    filterRadios.forEach(radio => {
+      radio.addEventListener('change', handleFilterChange);
+    });
+
+    filterSelects.forEach(select => {
+      select.addEventListener('change', handleFilterChange);
+    });
+
+    // Add reset button functionality
+    const resetButton = filterSidebar.querySelector('#oum-advanced-filter-reset');
+    if (resetButton) {
+      resetButton.addEventListener('click', resetAllFilters);
+    }
+  }
+
+  function handleFilterChange() {
+    if (typeof OUMMarkers === 'undefined' || !OUMMarkers.setCustomfieldsFilter) {
+      console.warn('OUMMarkers not available for advanced filtering');
+      return;
+    }
+
+    const filterCriteria = getFilterCriteria();
+    OUMMarkers.setCustomfieldsFilter(filterCriteria);
+  }
+
+  function getFilterCriteria() {
+    const criteria = {};
+    if (!filterSidebar) return criteria;
+
+    // Get text/email/url inputs
+    const textInputs = filterSidebar.querySelectorAll('.oum-advanced-filter-input');
+    textInputs.forEach(input => {
+      const customFieldId = input.dataset.customFieldId;
+      if (customFieldId && input.value.trim()) {
+        criteria[customFieldId] = {
+          type: 'text',
+          value: input.value.trim().toLowerCase()
+        };
+      }
+    });
+
+    // Get checkbox selections
+    const checkboxes = filterSidebar.querySelectorAll('.oum-advanced-filter-checkbox');
+    checkboxes.forEach(checkbox => {
+      const customFieldId = checkbox.dataset.customFieldId;
+      const filterType = checkbox.dataset.filterType;
+      
+      if (customFieldId) {
+        // Check if this is an opening_hours open_now filter
+        if (filterType === 'opening_hours_open_now') {
+          if (checkbox.checked) {
+            criteria[customFieldId] = {
+              type: 'opening_hours_open_now',
+              value: 'open'
+            };
+          }
+        } else {
+          // Standard checkbox handling
+          if (!criteria[customFieldId]) {
+            // Get checkbox relation from the fieldset (default to OR for backward compatibility)
+            const fieldset = checkbox.closest('.oum-checkbox-group');
+            const relation = fieldset ? (fieldset.dataset.checkboxRelation || 'OR') : 'OR';
+            criteria[customFieldId] = { type: 'checkbox', values: [], relation: relation };
+          }
+          if (checkbox.checked) {
+            criteria[customFieldId].values.push(checkbox.value);
+          }
+        }
+      }
+    });
+
+    // Get radio selections
+    const radios = filterSidebar.querySelectorAll('.oum-advanced-filter-radio');
+    radios.forEach(radio => {
+      const customFieldId = radio.dataset.customFieldId;
+      if (customFieldId && radio.checked) {
+        criteria[customFieldId] = {
+          type: 'radio',
+          value: radio.value
+        };
+      }
+    });
+
+    // Get select selections
+    const selects = filterSidebar.querySelectorAll('.oum-advanced-filter-select');
+    selects.forEach(select => {
+      const customFieldId = select.dataset.customFieldId;
+      if (customFieldId && select.value) {
+        criteria[customFieldId] = {
+          type: 'select',
+          value: select.value
+        };
+      }
+    });
+
+    // Remove empty criteria (no checkboxes selected, empty text inputs, etc.)
+    Object.keys(criteria).forEach(key => {
+      const criterion = criteria[key];
+      if (criterion.type === 'checkbox' && criterion.values.length === 0) {
+        delete criteria[key];
+      }
+    });
+
+    return criteria;
+  }
+
+  function resetAllFilters() {
+    // Clear all text inputs
+    const filterInputs = filterSidebar.querySelectorAll('.oum-advanced-filter-input');
+    filterInputs.forEach(input => {
+      input.value = '';
+    });
+
+    // Uncheck all checkboxes
+    const filterCheckboxes = filterSidebar.querySelectorAll('.oum-advanced-filter-checkbox');
+    filterCheckboxes.forEach(checkbox => {
+      checkbox.checked = false;
+    });
+
+    // Uncheck all radio buttons
+    const filterRadios = filterSidebar.querySelectorAll('.oum-advanced-filter-radio');
+    filterRadios.forEach(radio => {
+      radio.checked = false;
+    });
+
+    // Reset all select dropdowns to first option
+    const filterSelects = filterSidebar.querySelectorAll('.oum-advanced-filter-select');
+    filterSelects.forEach(select => {
+      select.selectedIndex = 0;
+    });
+
+    if (typeof OUMMarkers !== 'undefined' && OUMMarkers.setCustomfieldsFilter) {
+      OUMMarkers.setCustomfieldsFilter(null);
+    }
+  }
+
+  // Public interface
+  return {
+    init: init
+  };
+})();
+
+// Main initialization function
+function oumInitializeMap() {
   // Only proceed if we have a map element
-  if (!document.getElementById(window.map_el)) {
+  if (!document.getElementById(map_el)) {
     console.warn('‼️ Open User Map: Map container missing. Initialization aborted. Disable page caching if applicable, or contact support@open-user-map.com for help.');
     return;
   }
+  
+  // Initialize opening hours UI
+  OUMOpeningHours.init();
 
   // Restore the extended L object
   window.L = window.OUMLeaflet.L;
@@ -2602,10 +3861,13 @@ window.addEventListener("load", function () {
   // Initialize checkbox validation
   OUMCheckboxValidation.init();
 
+  // Initialize Advanced Filter Interface
+  OUMAdvancedFilter.init();
+
   // Setup filter events
   const markerFilterInput = document.getElementById("oum_filter_markers");
   if (markerFilterInput) {
-    markerFilterInput.addEventListener("input", OUMMarkers.filterMarkers);
+    markerFilterInput.addEventListener("input", OUMMarkers.updateSearchtextAndCategoriesFilters);
   }
 
   const categoryInputs = document.querySelectorAll(
@@ -2613,7 +3875,7 @@ window.addEventListener("load", function () {
   );
   if (categoryInputs.length > 0) {
     categoryInputs.forEach((input) => {
-      input.addEventListener("change", OUMMarkers.filterMarkers);
+      input.addEventListener("change", OUMMarkers.updateSearchtextAndCategoriesFilters);
     });
   }
 
@@ -2658,4 +3920,4 @@ window.addEventListener("load", function () {
       console.warn("Error executing custom JS:", error);
     }
   }
-});
+}

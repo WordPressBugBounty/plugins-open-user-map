@@ -7,6 +7,7 @@ $oum_regions_layout_style = get_option( 'oum_regions_layout_style', 'layout-1' )
 $oum_enable_cluster = ( get_option( 'oum_enable_cluster', 'on' ) === 'on' ? 'true' : 'false' );
 $oum_enable_fullscreen = ( get_option( 'oum_enable_fullscreen', 'on' ) === 'on' ? 'true' : 'false' );
 $oum_enable_gmaps_link = get_option( 'oum_enable_gmaps_link', 'on' );
+$oum_enable_address_autofill = get_option( 'oum_enable_address_autofill' );
 $oum_max_image_filesize = ( !empty( get_option( 'oum_max_image_filesize' ) ) ? get_option( 'oum_max_image_filesize' ) : 10 );
 $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'Esri.WorldStreetMap' );
 $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
@@ -34,6 +35,7 @@ $oum_marker_types_label = ( get_option( 'oum_marker_types_label' ) ? get_option(
 $oum_title_label = ( get_option( 'oum_title_label' ) ? get_option( 'oum_title_label' ) : $this->oum_get_default_label( 'title' ) );
 $oum_map_label = ( get_option( 'oum_map_label' ) ? get_option( 'oum_map_label' ) : $this->oum_get_default_label( 'map' ) );
 $oum_address_label = ( get_option( 'oum_address_label' ) ? get_option( 'oum_address_label' ) : $this->oum_get_default_label( 'address' ) );
+$oum_enable_address = get_option( 'oum_enable_address', 'on' );
 $oum_description_label = ( get_option( 'oum_description_label' ) ? get_option( 'oum_description_label' ) : $this->oum_get_default_label( 'description' ) );
 $oum_upload_media_label = ( get_option( 'oum_upload_media_label' ) ? get_option( 'oum_upload_media_label' ) : $this->oum_get_default_label( 'upload_media' ) );
 $oum_enable_fixed_map_bounds = get_option( 'oum_enable_fixed_map_bounds' );
@@ -51,6 +53,22 @@ $oum_enable_searchaddress_button = ( get_option( 'oum_enable_searchaddress_butto
 $oum_searchaddress_label = ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_get_default_label( 'searchaddress' ) );
 $oum_custom_js = get_option( 'oum_custom_js' );
 $oum_location_date_type = get_option( 'oum_location_date_type', 'modified' );
+// Advanced Filter Interface setting
+$oum_enable_advanced_filter = get_option( 'oum_enable_advanced_filter' );
+$oum_advanced_filter_layout = get_option( 'oum_advanced_filter_layout', 'left' );
+// Custom Image settings
+$oum_custom_image_url = get_option( 'oum_custom_image_url', '' );
+$oum_custom_image_bounds_raw = get_option( 'oum_custom_image_bounds', '' );
+$oum_custom_image_hide_tiles = get_option( 'oum_custom_image_hide_tiles', '' );
+$oum_custom_image_background_color = get_option( 'oum_custom_image_background_color', '#ffffff' );
+// Process bounds data for JavaScript
+$oum_custom_image_bounds = '{}';
+if ( !empty( $oum_custom_image_bounds_raw ) ) {
+    $bounds_array = maybe_unserialize( $oum_custom_image_bounds_raw );
+    if ( is_array( $bounds_array ) ) {
+        $oum_custom_image_bounds = json_encode( $bounds_array );
+    }
+}
 // Custom Attribute: Map Size
 if ( isset( $block_attributes['size'] ) && $block_attributes['size'] != '' ) {
     $map_size = $block_attributes['size'];
@@ -69,7 +87,7 @@ if ( isset( $block_attributes['height_mobile'] ) && $block_attributes['height_mo
 }
 // Custom Attribute: Clustering (true|false)
 if ( isset( $block_attributes['enable_cluster'] ) && $block_attributes['enable_cluster'] != '' ) {
-    $oum_enable_cluster = $block_attributes['enable_cluster'];
+    $oum_enable_cluster = ( $block_attributes['enable_cluster'] === 'true' ? 'true' : 'false' );
 }
 // Custom Attribute: Map Type (interactive|simple)
 if ( isset( $block_attributes['map_type'] ) && $block_attributes['map_type'] != '' ) {
@@ -77,27 +95,50 @@ if ( isset( $block_attributes['map_type'] ) && $block_attributes['map_type'] != 
 }
 // Custom Attribute: Fullscreen (true|false)
 if ( isset( $block_attributes['enable_fullscreen'] ) && $block_attributes['enable_fullscreen'] != '' ) {
-    $oum_enable_fullscreen = $block_attributes['enable_fullscreen'];
+    $oum_enable_fullscreen = ( $block_attributes['enable_fullscreen'] === 'true' ? 'true' : 'false' );
 }
 // Custom Attribute: Searchbar (true|false)
 if ( isset( $block_attributes['enable_searchbar'] ) && $block_attributes['enable_searchbar'] != '' ) {
-    $oum_enable_searchbar = $block_attributes['enable_searchbar'];
+    $oum_enable_searchbar = ( $block_attributes['enable_searchbar'] === 'true' ? 'true' : 'false' );
 }
 // Custom Attribute: Search Address Button (true|false)
 if ( isset( $block_attributes['enable_searchaddress_button'] ) && $block_attributes['enable_searchaddress_button'] != '' ) {
-    $oum_enable_searchaddress_button = $block_attributes['enable_searchaddress_button'];
+    $oum_enable_searchaddress_button = ( $block_attributes['enable_searchaddress_button'] === 'true' ? 'true' : 'false' );
 }
 // Custom Attribute: Search Markers Button (true|false)
 if ( isset( $block_attributes['enable_searchmarkers_button'] ) && $block_attributes['enable_searchmarkers_button'] != '' ) {
-    $oum_enable_searchmarkers_button = $block_attributes['enable_searchmarkers_button'];
+    $oum_enable_searchmarkers_button = ( $block_attributes['enable_searchmarkers_button'] === 'true' ? 'true' : 'false' );
 }
 // Custom Attribute: Current Location Button (true|false)
 if ( isset( $block_attributes['enable_currentlocation'] ) && $block_attributes['enable_currentlocation'] != '' ) {
-    $oum_enable_currentlocation = $block_attributes['enable_currentlocation'];
+    $oum_enable_currentlocation = ( $block_attributes['enable_currentlocation'] === 'true' ? 'true' : 'false' );
 }
 // Custom Attribute: Disable Regions (true|false)
 if ( isset( $block_attributes['disable_regions'] ) && $block_attributes['disable_regions'] != '' ) {
     $oum_enable_regions = ( $block_attributes['disable_regions'] == 'true' ? '' : $oum_enable_regions );
+}
+// Custom Attribute: Hide Filterbox (true|false)
+if ( isset( $block_attributes['hide_filterbox'] ) && $block_attributes['hide_filterbox'] != '' ) {
+    $oum_hide_filterbox = ( $block_attributes['hide_filterbox'] == 'true' ? 'true' : 'false' );
+} else {
+    $oum_hide_filterbox = 'false';
+}
+// Custom Attribute: Enable Advanced Filter (true|false)
+if ( isset( $block_attributes['enable_advanced_filter'] ) && $block_attributes['enable_advanced_filter'] != '' ) {
+    $oum_enable_advanced_filter = ( $block_attributes['enable_advanced_filter'] === 'true' ? true : false );
+}
+// Custom Attribute: Advanced Filter Layout (left|right|button|panel)
+if ( isset( $block_attributes['advanced_filter_layout'] ) && $block_attributes['advanced_filter_layout'] != '' ) {
+    $valid_layouts = array(
+        'left',
+        'right',
+        'button',
+        'panel'
+    );
+    $layout_value = strtolower( trim( $block_attributes['advanced_filter_layout'] ) );
+    if ( in_array( $layout_value, $valid_layouts ) ) {
+        $oum_advanced_filter_layout = $layout_value;
+    }
 }
 if ( $oum_enable_regions == 'on' ) {
     // Taxonomy: Regions
@@ -171,6 +212,56 @@ if ( isset( $block_attributes['ids'] ) && $block_attributes['ids'] != '' ) {
     $selected_ids = explode( '|', $block_attributes['ids'] );
     $query['post__in'] = $selected_ids;
 }
+// Custom Attribute: Filter by date using keywords (e.g., "after:2025-08-15;before:2025-11-03")
+// Accept both dash and underscore attribute names
+$date_filter_attr = '';
+if ( isset( $block_attributes['date-filter'] ) && $block_attributes['date-filter'] !== '' ) {
+    $date_filter_attr = $block_attributes['date-filter'];
+} elseif ( isset( $block_attributes['date_filter'] ) && $block_attributes['date_filter'] !== '' ) {
+    $date_filter_attr = $block_attributes['date_filter'];
+}
+if ( $date_filter_attr !== '' ) {
+    $date_filter_input = html_entity_decode( trim( $date_filter_attr ), ENT_QUOTES, 'UTF-8' );
+    $tokens = array_map( 'trim', explode( ';', $date_filter_input ) );
+    $date_query = array(
+        'relation' => 'AND',
+    );
+    $date_column = ( $oum_location_date_type == 'created' ? 'post_date' : 'post_modified' );
+    foreach ( $tokens as $token ) {
+        if ( $token === '' ) {
+            continue;
+        }
+        if ( preg_match( '/^(after|before):\\s*(\\d{4}-\\d{2}-\\d{2})$/i', $token, $m ) ) {
+            $kw = strtolower( $m[1] );
+            $date = $m[2];
+            if ( $kw === 'after' ) {
+                $date_query[] = array(
+                    'column'    => $date_column,
+                    'after'     => $date . ' 23:59:59',
+                    'inclusive' => false,
+                );
+            } elseif ( $kw === 'before' ) {
+                $date_query[] = array(
+                    'column'    => $date_column,
+                    'before'    => $date . ' 00:00:00',
+                    'inclusive' => false,
+                );
+            }
+        } elseif ( preg_match( '/^(\\d{4}-\\d{2}-\\d{2})$/', $token, $m ) ) {
+            // Exact day without keyword: include that day
+            $date = $m[1];
+            $date_query[] = array(
+                'column'    => $date_column,
+                'after'     => $date . ' 00:00:00',
+                'before'    => $date . ' 23:59:59',
+                'inclusive' => true,
+            );
+        }
+    }
+    if ( count( $date_query ) > 1 ) {
+        $query['date_query'] = $date_query;
+    }
+}
 // Custom Attribute: Pre-select region
 if ( isset( $regions ) && isset( $block_attributes['region'] ) && $block_attributes['region'] != '' ) {
     $oum_start_region_name = $block_attributes['region'];
@@ -184,6 +275,7 @@ if ( isset( $regions ) && isset( $block_attributes['region'] ) && $block_attribu
 // Instead of get_posts(), use WP_Query to get all post data at once
 $locations_query = new WP_Query($query);
 $posts = $locations_query->posts;
+// Date filtering is handled directly via date_query in WP_Query
 // Get all post meta in a single query
 $post_ids = wp_list_pluck( $posts, 'ID' );
 $all_meta = array();
@@ -260,6 +352,146 @@ if ( !empty( $filenames_needed ) ) {
 }
 // Get active custom fields once
 $active_custom_fields = get_option( 'oum_custom_fields' );
+$custom_fields_filter_config = array();
+$custom_fields_filter_relation = 'AND';
+/**
+ * Parse custom-fields-filter attribute
+ *
+ * Format: LABEL:VALUE1|VALUE2:RELATION;LABEL2:VALUE3:RELATION
+ * Example: "Select Level:One|Two:OR; Skill Level:Red"
+ *
+ * To include a colon in a value (e.g., URLs), escape it with a backslash: \:
+ * Example: "Website:https\://example.com|http\://another.com"
+ */
+if ( !function_exists( 'oum_parse_custom_fields_filter' ) ) {
+    function oum_parse_custom_fields_filter(  $filter_string  ) {
+        if ( empty( $filter_string ) ) {
+            return array();
+        }
+        $filter_config = array();
+        $placeholder = '__OUM_ESCAPED_COLON__';
+        $filter_groups = explode( ';', $filter_string );
+        foreach ( $filter_groups as $group ) {
+            $group = trim( $group );
+            if ( empty( $group ) ) {
+                continue;
+            }
+            $group_with_placeholder = str_replace( '\\:', $placeholder, $group );
+            $parts = explode( ':', $group_with_placeholder );
+            if ( count( $parts ) < 2 ) {
+                continue;
+            }
+            $label = str_replace( $placeholder, ':', trim( $parts[0] ) );
+            $relation = 'OR';
+            $last_part = strtoupper( trim( end( $parts ) ) );
+            if ( ($last_part === 'AND' || $last_part === 'OR') && count( $parts ) >= 3 ) {
+                $relation = $last_part;
+                $values_string = trim( implode( ':', array_slice( $parts, 1, -1 ) ) );
+            } else {
+                $values_string = trim( implode( ':', array_slice( $parts, 1 ) ) );
+            }
+            $values_string = str_replace( $placeholder, ':', $values_string );
+            $values = array_map( 'trim', explode( '|', $values_string ) );
+            $values = array_map( function ( $val ) use($placeholder) {
+                return str_replace( $placeholder, ':', $val );
+            }, $values );
+            $filter_config[] = array(
+                'label'    => $label,
+                'values'   => $values,
+                'relation' => $relation,
+            );
+        }
+        return $filter_config;
+    }
+
+}
+/**
+ * Check if a location's meta matches the custom-fields filter
+ */
+if ( !function_exists( 'oum_location_matches_custom_field_filter' ) ) {
+    function oum_location_matches_custom_field_filter(
+        $location_meta,
+        $filter_config,
+        $active_custom_fields,
+        $filter_groups_relation = 'AND'
+    ) {
+        if ( empty( $filter_config ) ) {
+            return true;
+        }
+        $location_custom_fields = ( isset( $location_meta['custom_fields'] ) ? $location_meta['custom_fields'] : array() );
+        $group_matches = array();
+        foreach ( $filter_config as $filter_group ) {
+            $label = $filter_group['label'];
+            $values = $filter_group['values'];
+            $relation = strtoupper( $filter_group['relation'] );
+            $custom_field_index = null;
+            if ( is_array( $active_custom_fields ) ) {
+                foreach ( $active_custom_fields as $index => $custom_field ) {
+                    if ( strtolower( trim( $custom_field['label'] ) ) === strtolower( trim( $label ) ) ) {
+                        $custom_field_index = $index;
+                        break;
+                    }
+                }
+            }
+            if ( $custom_field_index === null ) {
+                $group_matches[] = false;
+                continue;
+            }
+            $field_value = ( isset( $location_custom_fields[$custom_field_index] ) ? $location_custom_fields[$custom_field_index] : null );
+            $field_values = array();
+            if ( is_array( $field_value ) ) {
+                $field_values = array_map( 'trim', $field_value );
+            } elseif ( $field_value !== null && $field_value !== '' ) {
+                if ( strpos( $field_value, '|' ) !== false ) {
+                    $field_values = array_map( 'trim', explode( '|', $field_value ) );
+                } else {
+                    $field_values = array(trim( $field_value ));
+                }
+            }
+            $filter_values = array_map( 'trim', $values );
+            $matches = false;
+            if ( $relation === 'AND' ) {
+                $matches = count( array_intersect( $filter_values, $field_values ) ) === count( $filter_values );
+            } else {
+                $matches = count( array_intersect( $filter_values, $field_values ) ) > 0;
+            }
+            $group_matches[] = $matches;
+        }
+        if ( strtoupper( $filter_groups_relation ) === 'OR' ) {
+            return in_array( true, $group_matches, true );
+        }
+        return !in_array( false, $group_matches, true );
+    }
+
+}
+// Parse attributes for custom fields filter
+if ( isset( $block_attributes['custom-fields-filter'] ) && $block_attributes['custom-fields-filter'] != '' ) {
+    $custom_fields_filter_config = oum_parse_custom_fields_filter( $block_attributes['custom-fields-filter'] );
+}
+if ( isset( $block_attributes['custom-fields-filter-relation'] ) && $block_attributes['custom-fields-filter-relation'] != '' ) {
+    $rel = strtoupper( trim( $block_attributes['custom-fields-filter-relation'] ) );
+    if ( $rel === 'OR' || $rel === 'AND' ) {
+        $custom_fields_filter_relation = $rel;
+    }
+}
+$posts = array_values( $posts );
+// ensure reindexing
+if ( !empty( $custom_fields_filter_config ) && is_array( $posts ) && !empty( $posts ) ) {
+    $filtered_posts = array();
+    foreach ( $posts as $post ) {
+        $pid = $post->ID;
+        $lm = ( isset( $indexed_meta[$pid]['_oum_location_key'] ) ? maybe_unserialize( $indexed_meta[$pid]['_oum_location_key'] ) : array() );
+        if ( oum_location_matches_custom_field_filter(
+            $lm,
+            $custom_fields_filter_config,
+            $active_custom_fields,
+            $custom_fields_filter_relation
+        ) ) {
+            $filtered_posts[] = $post;
+        }
+    }
+    $posts = $filtered_posts;
+}
 $locations_list = array();
 foreach ( $posts as $post ) {
     $post_id = $post->ID;
@@ -316,13 +548,22 @@ foreach ( $posts as $post ) {
             if ( !isset( $meta_custom_fields[$index] ) ) {
                 continue;
             }
-            $custom_fields[] = [
+            $field_data = [
                 'index'                => $index,
                 'label'                => $custom_field['label'],
                 'val'                  => $meta_custom_fields[$index],
                 'fieldtype'            => ( isset( $custom_field['fieldtype'] ) ? $custom_field['fieldtype'] : 'text' ),
                 'uselabelastextoption' => ( isset( $custom_field['uselabelastextoption'] ) ? $custom_field['uselabelastextoption'] : false ),
+                'use12hour'            => ( isset( $custom_field['use12hour'] ) ? $custom_field['use12hour'] : false ),
             ];
+            // Calculate open_now for opening_hours fields
+            if ( $custom_field['fieldtype'] === 'opening_hours' ) {
+                $opening_hours_data = json_decode( $meta_custom_fields[$index], true );
+                // Use centralized helper function to calculate open_now
+                $open_now = \OpenUserMapPlugin\Base\LocationController::calculate_open_now( $opening_hours_data );
+                $field_data['open_now'] = $open_now;
+            }
+            $custom_fields[] = $field_data;
         }
     }
     // Determine marker icon based on number of categories (types)
@@ -370,21 +611,23 @@ foreach ( $posts as $post ) {
     }
     // collect locations for JS use
     $location = array(
-        'post_id'       => $post_id,
-        'date'          => $date,
-        'name'          => $name,
-        'address'       => $address,
-        'lat'           => $location_meta['lat'],
-        'lng'           => $location_meta['lng'],
-        'zoom'          => ( isset( $location_meta['zoom'] ) ? $location_meta['zoom'] : '16' ),
-        'text'          => $text,
-        'images'        => $absolute_images,
-        'audio'         => $absolute_audio,
-        'video'         => $video,
-        'icon'          => $icon,
-        'custom_fields' => $custom_fields,
-        'author_id'     => get_post_field( 'post_author', $post_id ),
-        'votes'         => ( isset( $location_meta['votes'] ) ? intval( $location_meta['votes'] ) : 0 ),
+        'post_id'           => $post_id,
+        'date'              => $date,
+        'title'             => $name,
+        'address'           => $address,
+        'lat'               => $location_meta['lat'],
+        'lng'               => $location_meta['lng'],
+        'zoom'              => ( isset( $location_meta['zoom'] ) ? $location_meta['zoom'] : '16' ),
+        'text'              => $text,
+        'images'            => $absolute_images,
+        'audio'             => $absolute_audio,
+        'video'             => $video,
+        'icon'              => $icon,
+        'custom_fields'     => $custom_fields,
+        'author_id'         => get_post_field( 'post_author', $post_id ),
+        'votes'             => ( isset( $location_meta['votes'] ) ? intval( $location_meta['votes'] ) : 0 ),
+        'star_rating_avg'   => ( isset( $location_meta['star_rating_avg'] ) ? floatval( $location_meta['star_rating_avg'] ) : 0 ),
+        'star_rating_count' => ( isset( $location_meta['star_rating_count'] ) ? intval( $location_meta['star_rating_count'] ) : 0 ),
     );
     if ( isset( $location_types ) && is_array( $location_types ) && count( $location_types ) > 0 ) {
         foreach ( $location_types as $term ) {
@@ -405,7 +648,7 @@ if ( isset( $block_attributes['lat'] ) && $block_attributes['lat'] != '' && isse
     $start_lat = get_term_meta( $oum_start_region->term_id, 'oum_lat', true );
     $start_lng = get_term_meta( $oum_start_region->term_id, 'oum_lng', true );
     $start_zoom = get_term_meta( $oum_start_region->term_id, 'oum_zoom', true );
-} elseif ( get_option( 'oum_start_lat' ) && get_option( 'oum_start_lng' ) && get_option( 'oum_start_zoom' ) ) {
+} elseif ( get_option( 'oum_start_lat' ) !== false && get_option( 'oum_start_lat' ) !== '' && (get_option( 'oum_start_lng' ) !== false && get_option( 'oum_start_lng' ) !== '') && (get_option( 'oum_start_zoom' ) !== false && get_option( 'oum_start_zoom' ) !== '') ) {
     //get from settings
     $oum_use_settings_start_location = 'true';
     $start_lat = get_option( 'oum_start_lat' );
@@ -415,10 +658,10 @@ if ( isset( $block_attributes['lat'] ) && $block_attributes['lat'] != '' && isse
     //get from single location
     $start_lat = $locations_list[0]['lat'];
     $start_lng = $locations_list[0]['lng'];
-    $start_zoom = '8';
+    $start_zoom = $locations_list[0]['zoom'];
 } else {
     //default worldview
-    $start_lat = '28';
+    $start_lat = '26';
     $start_lng = '0';
     $start_zoom = '1';
 }

@@ -54,6 +54,24 @@
         const oum_geosearch_provider_here_key = `<?php echo get_option('oum_geosearch_provider_here_key', ''); ?>`;
         const oum_geosearch_provider_mapbox_key = `<?php echo get_option('oum_geosearch_provider_mapbox_key', ''); ?>`;
         const oum_searchaddress_label = `<?php echo esc_attr(get_option('oum_searchaddress_label') ? get_option('oum_searchaddress_label') : $this->oum_get_default_label('searchaddress')); ?>`;
+
+        // Custom Image data
+        window.oum_custom_image_url = `<?php echo esc_js(get_option('oum_custom_image_url', '')); ?>`;
+        window.oum_custom_image_bounds = <?php
+          $bounds = get_option('oum_custom_image_bounds', '');
+          if (empty($bounds)) {
+            echo '{}';
+          } else {
+            $bounds_array = maybe_unserialize($bounds);
+            if (is_array($bounds_array)) {
+              echo json_encode($bounds_array);
+            } else {
+              echo '{}';
+            }
+          }
+        ?>;
+        window.oum_custom_image_hide_tiles = <?php echo get_option('oum_custom_image_hide_tiles', '') === 'on' ? 'true' : 'false'; ?>;
+        window.oum_custom_image_background_color = `<?php echo esc_js(get_option('oum_custom_image_background_color', '#ffffff')); ?>`;
         </script>
 
         <?php 

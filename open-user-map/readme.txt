@@ -2,9 +2,9 @@
 Contributors: 100plugins
 Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 1.4.15
+Stable tag: 1.4.29
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -93,8 +93,11 @@ Use the **Gutenberg Block** or **Elementor Widget** to integrate your map or pla
 - scroll wheel zoom (optional) 🆕
 - Search for Markers 🆕
 - Search for Address (OSM geosearch)
+- Auto-generate address from marker location (Reverse Geocoding) 🆕
 - locations with custom fields! 🥳
 - private custom fields
+- Pre-Filter locations by custom fields
+- Pre-Filter locations by date or daterange
 - conditional fields (🪄 experimental, please see Help section)
 - "subtitle", "description", "image", "audio" and even "title" fields can be disabled
 - "subtitle"-field links to google route
@@ -109,8 +112,10 @@ Use the **Gutenberg Block** or **Elementor Widget** to integrate your map or pla
 - refresh, redirection or thank you message after submit
 - use URL-Parameter &markerid=123 to highlight a specific marker on the map
 - get a specific value from a location by using the PHP function oum_get_location_value( 'YOUR VALUE', $post_id )
-- use WordPress Hooks to extend the plugin functionality with your own code
+- use WordPress Hooks to extend the plugin functionality with your own code (including hook to modify location data before rendering) 🆕
 - use Shortcode [open-user-map-form] to display the “Add Location” form stand-alone
+- Custom JS inputs
+- Custom CSS inputs
 
 === 🚀 PRO ===
 The Open User Map plugin is also available in a professional version which includes more styles, more funtionality and more flexibility!
@@ -121,14 +126,24 @@ Organize locations in multiple filterable marker groups. Each group (category) c
 - **Live Marker Filter**
 Use the search bar to filter markers as you type. Instantly see relevant locations on the map.
 
+- **Advanced Filter Interface**
+Create a filter sidebar that appears next to your map, allowing visitors to filter locations by any custom field you've configured. You can also add custom HTML content sections to display additional information or branding.
+[Video](https://www.youtube.com/watch?v=0aiLxhs5zls)
+
+- **Custom Image map style**
+Add a custom image layer to your map or replace it entirely with a custom image (like floor plans or event maps) while retaining all interactions, clustering, and popups.
+
 - **Pre-Filter locations by user or role**
 Shortcode Attribute to filter locations by current user, user_id or a role. Works for map, list and gallery.
 
 - **Vote button for locations**
 Add a customizable button for Likes, Upvotes, or Flagging – with flexible privacy controls.
 
+- **Star Rating**
+Let visitors rate locations with a customizable star rating system.
+
 - **More custom field types**
-Add custom fields like links, radio buttons, checkboxes, dropdowns and even HTML. Social media links will automatically be rendered as icons.
+Add custom fields like links, radio buttons, checkboxes, dropdowns, Opening Hours, and even HTML. Social media links will automatically be rendered as icons.
 
 - **Additional geosearch providers (Geoapify, Here, MapBox)**
 
@@ -161,9 +176,6 @@ Customize max. filesize for image/audio uploads (default: 10MB).
 
 - **Custom marker icons**
 Use your own custom marker icon.
-
-- **Custom UI Elements color**
-Pick a color for buttons and icons that fits your theme.
 
 - **Current location**
 Add a button that relocates the map to the users current location.
@@ -232,6 +244,10 @@ From your WordPress dashboard
 6. You can manage styles and features under "Open User Map > Settings".
 
 == Frequently Asked Questions ==
+= Where do I report security bugs found in this plugin? =
+
+Please report security bugs found in the source code of the Open User Map plugin through the [Patchstack Vulnerability Disclosure  Program](https://patchstack.com/database/vdp/f3028dd8-ee74-4254-999d-bb1b553ab477). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+
 = How to integrate the map? =
 Use the Block Editor or Elementor to insert the "Open User Map" block or just place the shortcode `[open-user-map]` anywhere in your content. Or integrate it within your theme template with PHP:
 
@@ -265,6 +281,96 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.29 =
+* Opt-in for handling output buffering layers
+
+= 1.4.28 =
+* Revert changes related to handling output buffering layers (1.4.25 and 1.4.26)
+
+= 1.4.27 =
+* Bugfix: Site layout crashed after updating to version 1.4.26
+
+= 1.4.26 =
+* Bugfix: Site crash on plugin activation when Freemius initialization fails (e.g., expired licenses, recovery mode)
+* Improved: Compatibility with themes that add output buffering layers
+
+= 1.4.25 =
+* Improved: Allow rewrite slug to be customized (buggy in 1.4.24)
+
+= 1.4.24 =
+* Bugfix: Plugin crashes on activation (in rare circumstances)
+* Improved: Debug Info (Settings > Help & Getting Started > Debug Info)
+
+= 1.4.23 =
+* NEW: Custom Field Type "Opening Hours"
+* NEW: Star Rating
+* NEW: Auto-generate address from marker location (Reverse Geocoding)
+* NEW: Hook to modify location data before rendering
+* Bugfix: Admin notification on new location proposals
+* Bugfix: Elementor breaks video player
+* Bugfix: Breaking issues with Elementor's Element Cache
+* Improved: Post Type Location is now available to Elementor by default
+* Improved: Elementor editor block style
+* Improved: "Edit" button is now cache independent
+
+= 1.4.22 =
+* NEW: Visual Editor to position custom overlay image on the map
+* Improved: Keep map focus in fixed position
+* Bugfix: Ensure Custom JS is loaded in all environments
+
+= 1.4.21 =
+* Improved: Location popup style
+* Improved: Aspect ratio of form map
+* Bugfix: Admin notifcation on auto draft
+* Bugfix: Placeholder for query filters in Bricks Builder
+
+= 1.4.20 =
+* Improved: New CSV import setting: Publish imported locations immediately
+* Improved: Stay on the active settings tab when saving
+* Improved: Update notice
+* Improved: Display current version in the settings
+* Improved: Getting Started notice
+* Bugfix: Mark custom field label as "required"
+
+= 1.4.19 =
+* Improved: Form styles
+* Improved: Replaced composer auto-load with custom solution
+* Improved: Allowing to set AND/OR relation for checkbox filter (Advanced Filter Interface)
+* Bugfix: Custom CSS did not load
+
+= 1.4.18 =
+* Bugfix: CSS did not load in rare cases
+
+= 1.4.17 =
+* Improved: Webhook Data
+* Improved: Initial Map Position
+* Improved: Font styles
+* Security Fix
+
+= 1.4.16 =
+* NEW: New map style: Custom Image [PRO]
+* NEW: Advanced Filter Interface [PRO]
+* NEW: New shortcode attribute to filter by Custom Fields
+* NEW: New shortcode attribute to filter by date
+* NEW: Advanced Settings > Custom CSS field
+* Improved: Adding data-custom-field-label to custom field wrapper for better css customization
+* Improved: Auto-publish for registered users by default
+* Improved: Allow multiple selections in custom field of type "select"
+* Improved: oumConditionalField() function
+* Improved: Add visible labels to all form fields
+* Improved: Map Settings: smaller zoom steps
+* Improved: Allow JSON return for [open-user-map-location] shortcode
+* Improved: Better UX for code snippets (Help Section)
+* Improved: Added JS API Documentation to Help & Getting Started
+* Improved: Freemius SDK update
+* Bugfix: Compatibility with Borlabs Cookie Content Blocker
+* Bugfix: Renaming "address" field to "subtitle" (CSV & Docs)
+* Bugfix: Custom map style on location map value
+* Bugfix: Sanitization on link fields
+* Bugfix: Incorrect Nonce
+* Bugfix: Elementor Widget Flexbox issue (no width set by default)
+* WordPress 6.9 compatibility
+
 = 1.4.15 =
 * Security Fix
 

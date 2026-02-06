@@ -181,6 +181,13 @@ $search_input_width: 300px;
   }
 }
 
+// Fix Elementor Widget Flexbox issue (no width set by default)
+.elementor-widget-open_user_map_widget,
+.elementor-widget-shortcode:has(.open-user-map),
+.elementor-widget-shortcode:has(.open-user-map-image-gallery) {
+  width: 100%;
+}
+
 .open-user-map {
   position: relative;
   z-index: 1;
@@ -219,9 +226,6 @@ $search_input_width: 300px;
     padding: 0;
   }
 
-  .elementor-widget-open_user_map_widget {
-    width: 100%;
-  }
   /* end resets */
 
   $marker_size: 22px;
@@ -242,7 +246,7 @@ $search_input_width: 300px;
       display: block;
       cursor: pointer;
       font-family: sans-serif;
-      font-size: 1rem;
+      font-size: 16px;
       line-height: 22px;
       padding-left: 50px;
       position: relative;
@@ -299,7 +303,7 @@ $search_input_width: 300px;
         border-bottom: 1px solid rgba(0, 0, 0, 0.5);
     
         .nav-item {
-          font-size: 1.2rem;
+          font-size: 19px;
           padding: 3px 15px;
           border-bottom: 3px solid transparent;
           color: inherit;
@@ -320,7 +324,156 @@ $search_input_width: 300px;
 
     .map-wrap {
       position: relative;
-      aspect-ratio: 1.53;
+      aspect-ratio: 1.77;
+
+      .oum-map-filter-wrapper {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        width: auto;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 15px;
+
+
+      }
+
+      .oum-filter-controls {
+        position: relative;
+        z-index: auto;
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: flex-end;
+        gap: 8px;
+
+        &.active {
+          max-width: 250px;
+        }
+
+        .oum-filter-toggle {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: rgba(255, 255, 255, 0.9);
+          background-image: url('images/ico_marker_categories.png');
+          background-position: center center;
+          background-repeat: no-repeat;
+          background-size: 60%;
+          width: 44px;
+          height: 44px;
+          border: 2px solid rgba(0, 0, 0, 0.2);
+          border-radius: 5px;
+          cursor: pointer;
+          z-index: 1;
+        }
+
+        .oum-filter-list {
+          display: flex;
+          background: rgba(255, 255, 255, 0.95);
+          color: #333;
+          padding: 6px;
+          border: 1px solid rgba(0, 0, 0, 0.2);
+          border-radius: 5px;
+          position: relative;
+          z-index: 2;
+          flex-direction: column;
+          gap: 5px;
+          padding-right: 30px;
+
+          .oum-toggle-all-wrapper {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding-bottom: 8px;
+            margin-bottom: 5px;
+
+            .oum-toggle-all-text {
+              opacity: 0.8;
+              font-weight: bold;
+            }
+          }
+
+          label {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            margin: 0;
+            padding: 0;
+            font-weight: normal;
+            cursor: pointer;
+            color: #333;
+
+            input[type='checkbox'] {
+              margin: 0;
+              position: relative;
+              top: 2px;
+              appearance: auto;
+              accent-color: map-get($colors, 'primary');
+              width: 16px;
+              height: 16px;
+              flex-shrink: 0;
+            }
+
+            img {
+              height: 26px;
+              width: 26px;
+              object-fit: contain;
+              object-position: top;
+              transform: translateY(-10%);
+              flex-shrink: 0;
+            }
+
+            span {
+              font-size: 12px;
+              line-height: 1.2;
+              margin-top: 2px;
+              margin-bottom: 5px;
+            }
+          }
+
+          .close-filter-list {
+            position: absolute;
+            top: 4px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 13px;
+
+            &:hover {
+              color: map-get($colors, 'primary');
+            }
+          }
+        }
+
+        // Default state: show list, hide toggle (when not collapsed and not active)
+        &:not(.use-collapse):not(.active) {
+          .oum-filter-toggle {
+            display: none;
+          }
+          .oum-filter-list {
+            display: flex;
+          }
+        }
+
+        // When use-collapse is present, show toggle button (unless active)
+        &.use-collapse:not(.active) {
+          .oum-filter-list {
+            display: none;
+          }
+          .oum-filter-toggle {
+            display: flex !important;
+          }
+        }
+
+        // When active class is present (expanded), show list and hide toggle (regardless of use-collapse)
+        &.active {
+          .oum-filter-list {
+            display: flex;
+          }
+          .oum-filter-toggle {
+            display: none;
+          }
+        }
+      }
 
       // Loading overlay styles
       .oum-loading-overlay {
@@ -358,7 +511,9 @@ $search_input_width: 300px;
 
       // Initially hide controls until map is loaded
       .oum-filter-controls,
-      .open-add-location-overlay {
+      .open-add-location-overlay,
+      .oum-advanced-filter-button,
+      .oum-advanced-filter-panel {
         opacity: 0;
         transition: opacity 0.3s ease-out;
 
@@ -407,15 +562,28 @@ $search_input_width: 300px;
 
         .leaflet-popup {
           box-shadow: 0 3px 14px rgba(0,0,0,0.2);
+          border-radius: 10px;
         }
   
         .leaflet-popup-content-wrapper {
           position: relative;
           z-index: 1;
           box-shadow: none;
-          border-radius: 2px;
+          border-radius: 10px;
           overflow: hidden;
           padding: 0;
+
+          &::after {
+            content: '';
+            display: block;
+            background: linear-gradient(0deg, white, transparent);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 25px;
+            pointer-events: none;
+          }
   
           .leaflet-popup-content {
             margin: 0;
@@ -459,7 +627,6 @@ $search_input_width: 300px;
                 flex-wrap: wrap;
                 align-items: center;
                 gap: 4px;
-                margin-bottom: 10px;
 
                 .oum_location_name {
                   font-size: 20px;
@@ -508,6 +675,7 @@ $search_input_width: 300px;
               .oum_location_custom_fields {
                 font-size: 14px;
                 opacity: 0.8;
+                margin-top: 10px;
 
                 .oum_custom_field {
                   margin-bottom: 10px;
@@ -595,20 +763,108 @@ $search_input_width: 300px;
                   text-indent: -9999px;
                   margin: 6px 0;
                 }
-  
-                .oum_custom_field span {
-                  background:rgba(0, 0, 0, 0.1);
-                  display: inline-block;
-                  padding: 3px 5px;
-                  border-radius: 5px;
-                  margin-right: 5px;
-                  font-size: 13px;
+
+                // Opening hours field styling
+                .oum-opening-hours-header {
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  margin-bottom: 8px;
+                  cursor: pointer;
+                  user-select: none;
+                  outline: none;
+                  
+                  &:hover {
+                    opacity: 0.8;
+                  }
+                  
+                  .oum-opening-hours-label {
+                    margin-right: 0;
+                  }
+                  
+                  .oum-opening-hours-status-indicator {
+                    display: inline-block;
+                    font-weight: bolder;
+                    
+                    &.oum-opening-hours-status-open {
+                      color: #28a745; // Green for open
+                    }
+                    
+                    &.oum-opening-hours-status-closed {
+                      color: #dc3545; // Red for closed
+                    }
+                  }
+                  
+                  .oum-opening-hours-toggle-icon {
+                    width: 16px;
+                    height: 16px;
+                    margin-left: auto;
+                    transition: transform 0.2s ease;
+                    opacity: 0.7;
+                  }
+                  
+                  // Rotate icon when expanded
+                  &.oum-opening-hours-expanded .oum-opening-hours-toggle-icon {
+                    transform: rotate(180deg);
+                  }
+                }
+                
+                .oum-opening-hours-wrapper {
+                  margin-top: 8px;
+                  
+                  &.oum-opening-hours-expanded {
+                    display: block !important;
+                  }
+                }
+                
+                .oum-opening-hours-wrapper {
+                  .oum-opening-hours-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: start;
+                    margin-bottom: 5px;
+                    font-size: 13px;
+
+                    &:has(.closed) {
+                      opacity: 0.5;
+                    }
+
+                    .oum-opening-hours-day-name {
+                      margin-right: 10px;
+                    }
+                    
+                    .oum-opening-hours-times,
+                    .oum-opening-hours-status {
+                      text-align: right;
+                      flex: 1;
+                    }
+                  }
+                }
+
+                .oum_custom_field:has(span):not(.oum_custom_field_type_opening_hours) {
+                  display: flex;
+                  flex-wrap: wrap;
+                  align-items: center;
+                  gap: 5px;
+
+                  span {
+                    background:rgba(0, 0, 0, 0.1);
+                    display: inline-block;
+                    padding: 3px 5px;
+                    border-radius: 5px;
+                    font-size: 13px;
+                  }
                 }
               }
   
               .oum_location_description {
                 font-size: 14px;
                 opacity: 0.8;
+                margin-top: 10px;
+
+                &:empty {
+                  display: none;
+                }
               }
   
               audio {
@@ -621,6 +877,10 @@ $search_input_width: 300px;
                 align-items: center;
                 gap: 10px;
                 margin-top: 14px;
+
+                &:empty {
+                  display: none;
+                }
               }
   
               .oum_read_more a {
@@ -666,6 +926,50 @@ $search_input_width: 300px;
                     min-width: 20px;
                     text-align: center;
                     margin-left: 4px;
+                  }
+                }
+              }
+
+              // Star Rating Styles
+              .oum_star_rating_wrap {
+                .oum_star_rating {
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 8px;
+                  font-size: 14px;
+
+                  .oum_stars {
+                    display: inline-flex;
+                    gap: 2px;
+                    cursor: pointer;
+
+                    .oum_star {
+                      color: #ddd;
+                      font-size: 18px;
+                      line-height: 1;
+                      transition: color 0.2s ease;
+                      user-select: none;
+
+                      &.active {
+                        color: #ffc107;
+                      }
+
+                      &.hover {
+                        color: #ff9800;
+                      }
+
+                      &.half {
+                        background: linear-gradient(90deg, #ffc107 50%, #ddd 50%);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                      }
+                    }
+                  }
+
+                  .oum_star_rating_count {
+                    color: #6c757d;
+                    font-size: 12px;
                   }
                 }
               }
@@ -1132,125 +1436,13 @@ $search_input_width: 300px;
         background-clip: padding-box;
         font-size: 14px;
         line-height: 1;
-        padding: 0 1rem;
+        padding: 0 16px;
         background-image: url(images/ico_search_marker.png);
         background-position: right 1px;
         background-repeat: no-repeat;
         background-size: 30px;
         background-color: #fff;
       }
-
-      .oum-filter-controls {
-        position: absolute;
-        z-index: 9999;
-        right: 10px;
-        bottom: 20px;
-
-        .oum-filter-toggle {
-          display: block;
-          background-color: rgba(255, 255, 255, 0.9);
-          background-image: url('images/ico_marker_categories.png');
-          background-position: center center;
-          background-repeat: no-repeat;
-          background-size: 60%;
-          width: 44px;
-          height: 44px;
-          border: 2px solid rgba(0, 0, 0, 0.2);
-          border-radius: 5px;
-          cursor: pointer;
-          position: absolute;
-          bottom: 0;
-          right: 0;
-          z-index: 1;
-        }
-
-        .oum-filter-list {
-          display: none;
-          background: rgba(255, 255, 255, 0.95);
-          color: #333;
-          padding: 6px;
-          border: 1px solid rgba(0, 0, 0, 0.2);
-          border-radius: 5px;
-          position: relative;
-          z-index: 2;
-          flex-direction: column;
-          gap: 5px;
-          padding-right: 30px;
-
-          // Toggle All Wrapper
-          .oum-toggle-all-wrapper {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            padding-bottom: 8px;
-            margin-bottom: 5px;
-
-            .oum-toggle-all-text {
-              opacity: 0.8;
-              font-weight: bold;
-            }
-          }
-
-          label {
-            display: flex;
-            align-items: flex-start;
-            gap: 9px;
-            margin: 0;
-            padding: 0;
-            font-weight: normal;
-            cursor: pointer;
-
-            input[type="checkbox"] {
-              margin: 0;
-              position: relative;
-              top: 2px;
-              appearance: auto;
-              accent-color: map-get($colors, "primary");
-              position: relative;
-              width: 16px;
-              height: 16px;
-              flex-shrink: 0;
-            }
-
-            img {
-              height: 26px;
-              width: 26px;
-              object-fit: contain;
-              object-position: top;
-              transform: translateY(-10%);
-              flex-shrink: 0;
-            }
-
-            span {
-              font-size: 12px;
-              line-height: 1.2;
-              margin-top: 2px;
-              margin-bottom: 5px;
-            }
-          }
-
-          .close-filter-list {
-            position: absolute;
-            top: 4px;
-            right: 10px;
-            cursor: pointer;
-            font-size: 13px;
-
-            &:hover {
-              color: map-get($colors, "primary");
-            }
-          }
-        }
-
-        &.active {
-          .oum-filter-list {
-            display: flex;
-          }
-
-          .oum-filter-toggle {
-            display: none;
-          }
-        }
-      }
-    
 
       .oum-attribution {
         position: absolute;
@@ -1345,6 +1537,7 @@ $search_input_width: 300px;
     justify-content: center;
     align-items: flex-start;
     padding-top: 50px;
+    padding-bottom: 50px;
     overflow: auto;
 
     * {
@@ -1353,6 +1546,7 @@ $search_input_width: 300px;
 
     @media screen and (max-width: 768px) {
       padding-top: 0;
+      padding-bottom: 0;
     }
 
     .location-overlay-content {
@@ -1361,14 +1555,15 @@ $search_input_width: 300px;
       max-width: 80%;
       display: flex;
       flex-direction: column;
-      background: #fff;
+      background: #f8f8f8;
       color: #333;
       padding: 33px 43px;
-      border-radius: 5px;
+      border-radius: 20px;
 
       @media screen and (max-width: 768px) {
         max-width: 100%;
         padding: 15px;
+        border-radius: 0;
       }
 
       #close-add-location-overlay {
@@ -1392,11 +1587,19 @@ $search_input_width: 300px;
       }
 
       #oum_add_location {
+        .oum-required-indicator {
+          color: map-get($colors, "primary");
+          font-size: 18px;
+          line-height: 1;
+          margin-left: 2px;
+          display: inline-block;
+        }
+
         h2 {
           text-align: center;
-          font-size: 26px;
-          margin-bottom: 16px;
-          color: #333;
+          font-size: 36px;
+          margin-bottom: 7px;
+          color: map-get($colors, "primary");
 
           &.oum-add-location-headline {
             display: block;
@@ -1408,11 +1611,13 @@ $search_input_width: 300px;
 
           @media screen and (max-width: 768px) {
             text-align: left;
+            font-size: 26px;
+            margin-bottom: 13px;
           }
         }
 
         label {
-          font-size: 16px;
+          font-size: 15px;
           color: #333;
           margin-left: 0;
           margin-right: 0;
@@ -1420,7 +1625,7 @@ $search_input_width: 300px;
           &.oum-label {
             display: block;
             font-weight: bold;
-            margin: 0 0 10px 0;
+            margin: 0 0 8px 0;
             line-height: 1.5;
           }
         }
@@ -1433,15 +1638,20 @@ $search_input_width: 300px;
         .oum-category-dropdown-display {
           font-family: inherit;
           margin: 0 0 25px;
-          font-size: 16px;
-          border: 1px solid #888;
-          border-radius: 2px;
+          font-size: 15px;
+          border: 1px solid #bbb;
+          border-radius: 4px;
           color: #333;
           background-color: #fff;
           outline: none;
           line-height: 1;
           padding: 14px;
           width: 100%;
+
+          &:focus {
+            border-color: map-get($colors, "primary");
+            box-shadow: 0 0 0 2px rgba(map-get($colors, "primary"), 0.1);
+          }
         }
 
         select,
@@ -1453,7 +1663,7 @@ $search_input_width: 300px;
           background-size: 20px;
           line-height: 1.1;
           height: auto;
-          border-color: #888;
+          border-color: #bbb;
         }
 
         .oum-category-dropdown-display {
@@ -1473,33 +1683,34 @@ $search_input_width: 300px;
         fieldset {
           display: flex;
           flex-wrap: wrap;
+          gap: 10px;
           border: none;
           padding: 0;
           margin: 0 0 15px;
-          font-size: 16px;
+          font-size: 15px;
           color: #333;
-          background-color: #fff;
+          background-color: transparent;
           width: 100%;
 
           legend {
             padding: 0;
-            margin: 0 0 10px 0;
+            margin: 0 0 8px 0;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.5;
           }
 
           >div {
-            margin: 0 10px 10px 0;
+            margin: 0;
 
             label {
               display: flex;
               align-items: center;
               margin-left: 6px;
               margin-right: 10px;
+              color: #333;
     
               @media screen and (max-width: 768px) {
-                display: block;
                 margin-left: 0;
               }
 
@@ -1521,6 +1732,7 @@ $search_input_width: 300px;
             position: relative;
             width: 20px;
             height: 20px;
+            flex: 0 0 20px;
             margin: 0 7px 0 0;
 
             &::before,
@@ -1535,6 +1747,7 @@ $search_input_width: 300px;
             position: relative;
             width: 20px;
             height: 20px;
+            flex: 0 0 20px;
             margin: 0 10px 0 0;
 
             &::before,
@@ -1550,8 +1763,8 @@ $search_input_width: 300px;
 
         .map-wrap {
           position: relative;
-          aspect-ratio: 1.53;
-          margin: 0 2px 25px;
+          aspect-ratio: 1.77;
+          margin: 0 0 25px;
       
           #mapGetLocation {
             position: absolute;
@@ -1560,8 +1773,8 @@ $search_input_width: 300px;
             right: 0;
             bottom: 0;
             left: 0; 
-            border: 1px solid #888;
-            border-radius: 2px;
+            border: 1px solid #bbb;
+            border-radius: 4px;
 
             @media screen and (max-width: 768px) {
               .leaflet-geosearch-bar {
@@ -1991,6 +2204,9 @@ $search_input_width: 300px;
         input[type=submit] {
           cursor: pointer;
           font-size: 19px;
+          text-align: center;
+          font-weight: bold;
+          border-radius: 4px;
           margin: 40px 0 10px;
           background: map-get($colors, "primary");
           padding: 15px 30px;
@@ -2056,7 +2272,9 @@ $search_input_width: 300px;
           margin: 30px 0 0;
           cursor: pointer;
           font-size: 19px;
-          margin: 40px 0 10px;
+          text-align: center;
+          font-weight: bold;
+          border-radius: 4px;
           background: map-get($colors, "primary");
           padding: 15px 30px;
           line-height: 1;
@@ -2094,12 +2312,6 @@ $search_input_width: 300px;
             display: block;
           }
         }
-        
-        #oum_add_location_thankyou {
-          .oum-add-location-thankyou-text {
-            // Remove the display: none rule
-          }
-        }
       }
     }
   }
@@ -2121,7 +2333,7 @@ $search_input_width: 300px;
         right: 0;
         bottom: 0;
         left: 0; 
-        border: 1px solid #888;
+        border: 1px solid #bbb;
         border-radius: 2px;
 
         @media screen and (max-width: 768px) {
@@ -2298,7 +2510,6 @@ $search_input_width: 300px;
             flex-wrap: wrap;
             align-items: center;
             gap: 4px;
-            margin-bottom: 10px;
 
             .oum_location_name {
               font-size: 20px;
@@ -2346,6 +2557,7 @@ $search_input_width: 300px;
           .oum_location_custom_fields {
             font-size: 14px;
             opacity: 0.8;
+            margin-top: 10px;
 
             .oum_custom_field {
               margin-bottom: 10px;
@@ -2434,19 +2646,103 @@ $search_input_width: 300px;
               margin: 6px 0;
             }
   
-            .oum_custom_field span {
-              background:rgba(0, 0, 0, 0.1);
-              display: inline-block;
-              padding: 3px 5px;
-              border-radius: 5px;
-              margin-right: 5px;
-              font-size: 13px;
+            .oum_custom_field:has(span):not(.oum_custom_field_type_opening_hours) {
+              display: flex;
+              flex-wrap: wrap;
+              align-items: center;
+              gap: 5px;
+
+              span {
+                background:rgba(0, 0, 0, 0.1);
+                display: inline-block;
+                padding: 3px 5px;
+                border-radius: 5px;
+                font-size: 13px;
+              }
+            }
+
+            // Opening hours field styling
+            .oum-opening-hours-header {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              margin-bottom: 8px;
+              cursor: pointer;
+              user-select: none;
+              
+              &:hover {
+                opacity: 0.8;
+              }
+              
+              .oum-opening-hours-label {
+                margin-right: 0;
+              }
+              
+              .oum-opening-hours-status-indicator {
+                display: inline-block;
+                
+                &.oum-opening-hours-status-open {
+                  color: #28a745; // Green for open
+                }
+                
+                &.oum-opening-hours-status-closed {
+                  color: #dc3545; // Red for closed
+                }
+              }
+              
+              .oum-opening-hours-toggle-icon {
+                width: 16px;
+                height: 16px;
+                margin-left: auto;
+                transition: transform 0.2s ease;
+                opacity: 0.7;
+              }
+              
+              // Rotate icon when expanded
+              &.oum-opening-hours-expanded .oum-opening-hours-toggle-icon {
+                transform: rotate(180deg);
+              }
+            }
+            
+            .oum-opening-hours-wrapper {
+              margin-top: 8px;
+              
+              .oum-opening-hours-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: start;
+                margin-bottom: 5px;
+                font-size: 13px;
+
+                &:has(.closed) {
+                  opacity: 0.5;
+                }
+
+                .oum-opening-hours-day-name {
+                  margin-right: 10px;
+                }
+                
+                .oum-opening-hours-times,
+                .oum-opening-hours-status {
+                  text-align: right;
+                  flex: 1;
+                }
+              }
+              
+              &.oum-opening-hours-expanded {
+                display: block !important;
+              }
             }
           }
     
           .oum_location_description {
             font-size: 14px;
             opacity: 0.8;
+            margin-top: 10px;
+
+            &:empty {
+              display: none;
+            }
           }
     
           audio {
@@ -2459,6 +2755,10 @@ $search_input_width: 300px;
             align-items: center;
             gap: 10px;
             margin-top: 14px;
+
+            &:empty {
+              display: none;
+            }
           }
 
           .oum_read_more a {
@@ -2504,6 +2804,50 @@ $search_input_width: 300px;
                 min-width: 20px;
                 text-align: center;
                 margin-left: 4px;
+              }
+            }
+          }
+
+          // Star Rating Styles for Fullscreen
+          .oum_star_rating_wrap {
+            .oum_star_rating {
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 14px;
+
+              .oum_stars {
+                display: inline-flex;
+                gap: 2px;
+                cursor: pointer;
+
+                .oum_star {
+                  color: #ddd;
+                  font-size: 18px;
+                  line-height: 1;
+                  transition: color 0.2s ease;
+                  user-select: none;
+
+                  &.active {
+                    color: #ffc107;
+                  }
+
+                  &.hover {
+                    color: #ff9800;
+                  }
+
+                  &.half {
+                    background: linear-gradient(90deg, #ffc107 50%, #ddd 50%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                  }
+                }
+              }
+
+              .oum_star_rating_count {
+                color: #6c757d;
+                font-size: 12px;
               }
             }
           }
@@ -2795,7 +3139,6 @@ $search_input_width: 300px;
         flex-wrap: wrap;
         align-items: center;
         gap: 4px;
-        margin-bottom: 10px;
 
         .oum_location_name {
           font-size: 20px;
@@ -2843,6 +3186,7 @@ $search_input_width: 300px;
       .oum_location_custom_fields {
         font-size: 14px;
         opacity: 0.8;
+        margin-top: 10px;
 
         .oum_custom_field {
           margin-bottom: 10px;
@@ -2931,19 +3275,103 @@ $search_input_width: 300px;
           margin: 6px 0;
         }
 
-        .oum_custom_field span {
-          background:rgba(0, 0, 0, 0.1);
-          display: inline-block;
-          padding: 3px 5px;
-          border-radius: 5px;
-          margin-right: 5px;
-          font-size: 13px;
+        .oum_custom_field:has(span):not(.oum_custom_field_type_opening_hours) {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 5px;
+
+          span {
+            background:rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            padding: 3px 5px;
+            border-radius: 5px;
+            font-size: 13px;
+          }
+        }
+
+        // Opening hours field styling
+        .oum-opening-hours-header {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-bottom: 8px;
+          cursor: pointer;
+          user-select: none;
+          
+          &:hover {
+            opacity: 0.8;
+          }
+          
+          .oum-opening-hours-label {
+            margin-right: 0;
+          }
+          
+          .oum-opening-hours-status-indicator {
+            display: inline-block;
+            
+            &.oum-opening-hours-status-open {
+              color: #28a745; // Green for open
+            }
+            
+            &.oum-opening-hours-status-closed {
+              color: #dc3545; // Red for closed
+            }
+          }
+          
+          .oum-opening-hours-toggle-icon {
+            width: 16px;
+            height: 16px;
+            margin-left: auto;
+            transition: transform 0.2s ease;
+            opacity: 0.7;
+          }
+          
+          // Rotate icon when expanded
+          &.oum-opening-hours-expanded .oum-opening-hours-toggle-icon {
+            transform: rotate(180deg);
+          }
+        }
+        
+        .oum-opening-hours-wrapper {
+          margin-top: 8px;
+          
+          &.oum-opening-hours-expanded {
+            display: block !important;
+          }
+          
+          .oum-opening-hours-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 5px;
+            font-size: 13px;
+
+            &:has(.closed) {
+              opacity: 0.5;
+            }
+
+            .oum-opening-hours-day-name {
+              margin-right: 10px;
+            }
+            
+            .oum-opening-hours-times,
+            .oum-opening-hours-status {
+              text-align: right;
+              flex: 1;
+            }
+          }
         }
       }
 
       .oum_location_description {
         font-size: 14px;
         opacity: 0.8;
+        margin-top: 10px;
+
+        &:empty {
+          display: none;
+        }
       }
 
       audio {
@@ -2956,6 +3384,10 @@ $search_input_width: 300px;
         align-items: center;
         gap: 10px;
         margin-top: 14px;
+
+        &:empty {
+          display: none;
+        }
       }
 
       .oum_read_more a {
@@ -3004,6 +3436,50 @@ $search_input_width: 300px;
           }
         }
       }
+
+      // Star Rating Styles for Locations List
+      .oum_star_rating_wrap {
+        .oum_star_rating {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+
+          .oum_stars {
+            display: inline-flex;
+            gap: 2px;
+            cursor: pointer;
+
+            .oum_star {
+              color: #ddd;
+              font-size: 18px;
+              line-height: 1;
+              transition: color 0.2s ease;
+              user-select: none;
+
+              &.active {
+                color: #ffc107;
+              }
+
+              &.hover {
+                color: #ff9800;
+              }
+
+              &.half {
+                background: linear-gradient(90deg, #ffc107 50%, #ddd 50%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+              }
+            }
+          }
+
+          .oum_star_rating_count {
+            color: #6c757d;
+            font-size: 12px;
+          }
+        }
+      }
     }
 
     @media (max-width: 768px) {
@@ -3038,21 +3514,142 @@ $search_input_width: 300px;
 }
 
 .oum-location-value {
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
 
   // Add carousel styles
   .oum-carousel {
       @include oum-carousel;
       pointer-events: all;
   }
+
+  // Opening hours field styling for single location value
+  .oum_custom_field_type_opening_hours {
+    .oum-opening-hours-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      user-select: none;
+      outline: none;
+      
+      &:hover {
+        opacity: 0.8;
+      }
+      
+      .oum-opening-hours-label {
+        margin-right: 0;
+      }
+      
+      .oum-opening-hours-status-indicator {
+        display: inline-block;
+        font-weight: bolder;
+        
+        &.oum-opening-hours-status-open {
+          color: #28a745; // Green for open
+        }
+        
+        &.oum-opening-hours-status-closed {
+          color: #dc3545; // Red for closed
+        }
+      }
+      
+      .oum-opening-hours-toggle-icon {
+        width: 16px;
+        height: 16px;
+        margin-left: auto;
+        transition: transform 0.2s ease;
+        opacity: 0.7;
+      }
+      
+      // Rotate icon when expanded
+      &.oum-opening-hours-expanded .oum-opening-hours-toggle-icon {
+        transform: rotate(180deg);
+      }
+    }
+    
+    .oum-opening-hours-wrapper {
+      margin-top: 8px;
+      
+      &.oum-opening-hours-expanded {
+        display: block !important;
+      }
+      
+      .oum-opening-hours-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 5px;
+        font-size: 13px;
+
+        &:has(.closed) {
+          opacity: 0.5;
+        }
+
+        .oum-opening-hours-day-name {
+          margin-right: 10px;
+        }
+        
+        .oum-opening-hours-times,
+        .oum-opening-hours-status {
+          text-align: right;
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  // Star Rating Styles for shortcode output
+  .oum_star_rating_wrap {
+    .oum_star_rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+
+      .oum_stars {
+        display: inline-flex;
+        gap: 2px;
+        cursor: pointer;
+
+        .oum_star {
+          color: #ddd;
+          font-size: 18px;
+          line-height: 1;
+          transition: color 0.2s ease;
+          user-select: none;
+
+          &.active {
+            color: #ffc107;
+          }
+
+          &.hover {
+            color: #ff9800;
+          }
+
+          &.half {
+            background: linear-gradient(90deg, #ffc107 50%, #ddd 50%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+        }
+      }
+
+      .oum_star_rating_count {
+        color: #6c757d;
+        font-size: 12px;
+      }
+    }
+  }
 }
 
 .oum-location-value[data-value=type] {
   display: inline-block;
   border-radius: 99px;
-  padding: 0 0.8rem;
+  padding: 0 13px;
   border: 1px solid;
-  font-size: 0.8rem;
+  font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -3072,7 +3669,85 @@ $search_input_width: 300px;
     }
   }
 }
+.oum-location-value[data-value=map] {
+  .leaflet-map {
+    a {
+      text-decoration: none !important;
+      padding: 0;
+      margin: 0;
+    }
 
+    .leaflet-tile-pane img.leaflet-tile {
+      box-shadow: none;
+      padding: 0;
+      margin: 0;
+      border: none;
+      border-radius: unset;
+    }
+
+    .leaflet-marker-icon:not(.marker-cluster) {
+      height: 40px !important;
+      width: 40px !important;
+      margin-top: -40px !important;
+      margin-left: -20px !important;
+      object-fit: contain;
+      object-position: center bottom;
+
+      &:hover {
+        width: 44px !important;
+        height: 44px !important;
+        margin-top: -44px !important;
+        margin-left: -22px !important;
+      }
+    }
+
+    &.map-style_Custom1 {
+      // map tiles
+      .leaflet-tile-pane .leaflet-layer:first-of-type .leaflet-tile {
+        filter: saturate(3);
+      }
+      // label tiles
+    }
+
+    &.map-style_Custom2 {
+      // map tiles
+      .leaflet-tile-pane .leaflet-layer:first-of-type .leaflet-tile {
+        filter: sepia(1) invert(0) saturate(28) hue-rotate(-53deg);
+      }
+
+      // label tiles
+      .leaflet-tile-pane .leaflet-layer:nth-child(2) .leaflet-tile {
+        filter: sepia(0) contrast(1) invert(1) brightness(2);
+      }
+    }
+
+    &.map-style_Custom3 {
+      // map tiles
+      .leaflet-tile-pane .leaflet-layer:first-of-type .leaflet-tile {
+        filter: sepia(1) invert(1) saturate(100) brightness(1) hue-rotate(-300deg);
+      }
+
+      // label tiles
+      .leaflet-tile-pane .leaflet-layer:nth-child(2) .leaflet-tile {
+        filter: sepia(0) contrast(1) invert(1) brightness(2);
+      }
+    }
+
+    .leaflet-control-zoom {
+      a {
+        background-color: #fff;
+
+        &:hover {
+          background-color: #f4f4f4;
+        }
+      }
+    }
+
+    .leaflet-control-attribution {
+      font-size: 10px;
+    }
+  }
+}
 
 body.oum-location-opened {
   @media (max-width: 768px) {
@@ -3173,6 +3848,7 @@ body.oum-add-location-opened {
       max-height: none;
       overflow: visible;
       padding: 0;
+      background: transparent;
 
       #close-add-location-overlay {
         display: none;
@@ -3185,5 +3861,427 @@ body.oum-add-location-opened {
 .oum-hide-map {
   .box-wrap {
     display: none;
+  }
+}
+
+// Advanced Filter Interface Styles
+.oum-advanced-filter-sidebar {
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+
+  .oum-advanced-filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 0;
+    margin-bottom: 0;
+    flex-shrink: 0;
+
+    .oum-advanced-filter-title {
+      font-size: 20px;
+      flex: 1;
+    }
+  }
+
+  .oum-advanced-filter-separator {
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin: 12px 0;
+    flex-shrink: 0;
+  }
+
+  .oum-filter-section {
+    margin-bottom: 20px;
+
+    .oum-custom-field-filter {
+      .oum-label {
+        display: block;
+        font-weight: bold;
+        margin: 0 0 8px 0px;
+        line-height: 1.5;
+        color: #333;
+        font-size: 15px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      input[type="url"],
+      textarea,
+      select {
+        font-family: inherit;
+        margin: 0;
+        font-size: 16px;
+        border: 1px solid #bbb;
+        border-radius: 2px;
+        color: #333;
+        background-color: #fff;
+        outline: none;
+        line-height: 1;
+        padding: 14px;
+        width: 100%;
+        box-sizing: border-box;
+
+        &:focus {
+          border-color: map-get($colors, "primary");
+          box-shadow: 0 0 0 2px rgba(232, 44, 113, 0.1);
+        }
+
+        @media screen and (max-width: 480px) {
+          font-size: 16px; // Prevent zoom on iOS
+          padding: 12px;
+        }
+      }
+
+      select {
+        appearance: none;
+        background-image: url(data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0Ljk1IDEwIj48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6I2ZmZjt9LmNscy0ye2ZpbGw6IzQ0NDt9PC9zdHlsZT48L2RlZnM+PHRpdGxlPmFycm93czwvdGl0bGU+PHJlY3QgY2xhc3M9ImNscy0xIiB3aWR0aD0iNC45NSIgaGVpZ2h0PSIxMCIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMiIgcG9pbnRzPSIxLjQxIDQuNjcgMi40OCAzLjE4IDMuNTQgNC42NyAxLjQxIDQuNjciLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMy41NCA1LjMzIDIuNDggNi44MiAxLjQxIDUuMzMgMy41NCA1LjMzIi8+PC9zdmc+);
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 20px;
+        line-height: 1.1;
+        height: auto;
+        border-color: #bbb;
+      }
+
+      fieldset {
+        display: flex;
+        flex-wrap: wrap;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font-size: 15px;
+        color: #333;
+        background-color: transparent;
+        width: 100%;
+
+        legend {
+          padding: 0;
+          margin: 0 0 8px 0px;
+          font-weight: bold;
+          font-size: 15px;
+          line-height: 1.5;
+        }
+
+        >div {
+          margin: 0 10px 10px 0;
+
+          label {
+            display: flex;
+            align-items: center;
+            margin-left: 6px;
+            margin-right: 10px;
+            cursor: pointer;
+            color: #333;
+      
+            @media screen and (max-width: 768px) {
+              display: block;
+              margin-left: 0;
+              margin-bottom: 5px;
+            }
+          }
+        }
+
+        input[type=checkbox] {
+          appearance: auto;
+          accent-color: #e82c71;
+          position: relative;
+          width: 20px;
+          height: 20px;
+          margin: 0 7px 0 0;
+
+          &::before,
+          &::after {
+            display: none;
+          }
+        }
+
+        input[type=radio] {
+          appearance: auto;
+          accent-color: #e82c71;
+          position: relative;
+          width: 20px;
+          height: 20px;
+          margin: 0 10px 0 0;
+
+          &::before,
+          &::after {
+            display: none;
+          }
+        }
+      }
+
+      // Opening hours open_now checkbox styling (matches fieldset checkbox styles)
+      > div {
+        margin: 0 10px 10px 0;
+
+        label {
+          display: flex;
+          align-items: center;
+          margin-left: 6px;
+          margin-right: 10px;
+          cursor: pointer;
+          color: #333;
+    
+          @media screen and (max-width: 768px) {
+            display: block;
+            margin-left: 0;
+            margin-bottom: 5px;
+          }
+        }
+
+        input[type=checkbox] {
+          appearance: auto;
+          accent-color: #e82c71;
+          position: relative;
+          width: 20px;
+          height: 20px;
+          margin: 0 7px 0 0;
+
+          &::before,
+          &::after {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+
+  .oum-filter-reset-section {
+    padding-top: 5px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    text-align: center;
+
+    .oum-reset-button {
+      cursor: pointer;
+      font-size: 16px;
+      background: none;
+      border: none;
+      color: map-get($colors, "primary");
+      text-decoration: none;
+      padding: 0;
+      line-height: 1;
+
+      &:hover {
+        color: darken(map-get($colors, "primary"), 10%);
+        text-decoration: underline;
+      }
+
+      &:active {
+        color: darken(map-get($colors, "primary"), 20%);
+      }
+    }
+  }
+}
+
+// Button Layout for Advanced Filter
+// Position relative to map container
+.oum-map-container {
+  position: relative; // Ensure button filter can be positioned relative to this
+}
+
+.oum-advanced-filter-button {
+  position: relative;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 8px;
+
+  &.active {
+    width: 250px;
+  }
+
+  .oum-advanced-filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    width: 44px;
+    height: 44px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    cursor: pointer;
+    color: #333;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 1);
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .oum-advanced-filter-content {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+
+    .oum-advanced-filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px 0 15px;
+      height: 44px;
+      flex-shrink: 0;
+
+      .oum-advanced-filter-title {
+        font-size: 20px;
+        flex: 1;
+      }
+
+      .close-advanced-filter {
+        cursor: pointer;
+        font-size: 18px;
+        color: #333;
+        line-height: 1;
+        padding: 0;
+        margin: 0;
+        margin-left: auto;
+        background: none;
+        border: none;
+        flex-shrink: 0;
+
+        &:hover {
+          color: map-get($colors, 'primary');
+        }
+      }
+    }
+
+    .oum-advanced-filter-separator {
+      height: 1px;
+      background-color: rgba(0, 0, 0, 0.1);
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    .oum-advanced-filter-sidebar {
+      border: none;
+      background: transparent;
+      margin: 0;
+    }
+  }
+
+  &:not(.use-collapse) {
+    .oum-advanced-filter-toggle {
+      display: none;
+    }
+  }
+
+  &.use-collapse {
+    .oum-advanced-filter-content {
+      display: none;
+    }
+
+    &.active {
+      .oum-advanced-filter-content {
+        display: flex;
+      }
+      .oum-advanced-filter-toggle {
+        display: none;
+      }
+    }
+  }
+
+  // Hide toggle when active (regardless of use-collapse)
+  &.active {
+    .oum-advanced-filter-toggle {
+      display: none;
+    }
+  }
+}
+
+// Panel Layout for Advanced Filter - similar to button but toggle looks like header
+.oum-advanced-filter-panel {
+  @extend .oum-advanced-filter-button;
+
+  .oum-advanced-filter-toggle {
+    box-sizing: border-box;
+    width: 250px;
+    height: 48px;
+    justify-content: space-between;
+    padding: 2px 13px 2px 15px;
+
+    .oum-advanced-filter-toggle-label {
+      font-size: 20px;
+      flex: 1;
+    }
+  }
+}
+
+// When button or panel layout is used, the filter is positioned absolutely inside the map container
+// No additional styles needed here as it's handled by .oum-advanced-filter-button and .oum-advanced-filter-panel
+
+// Responsive layout for map with sidebar
+.oum-map-with-sidebar {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+
+  &:has(.map-size-fullwidth) {
+    width: 100vw;
+    margin-left: 50% !important;
+    transform: translateX(-50%);
+    max-width: none;
+
+    .box-wrap.map-size-fullwidth {
+      width: 100%;
+      margin: 0;
+      transform: none;
+    }
+  }
+
+  .oum-map-container {
+    flex: 1;
+    width: 100%;
+    min-width: 0; // Allow flex item to shrink below content size
+  }
+
+  .oum-sidebar {
+    width: 25%;
+    flex-shrink: 0;
+
+    &.oum-sidebar-left {
+      order: -1;
+    }
+
+    &.oum-sidebar-right {
+      order: 1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+
+    .oum-sidebar {
+      width: 100%;
+      order: 0;
+      margin-bottom: 15px;
+    }
+
+    .oum-map-container {
+      order: 1;
+    }
+  }
+
+  // Additional responsive improvements for very small screens
+  @media (max-width: 480px) {
+    gap: 10px;
+
+    .oum-sidebar {
+      padding: 15px;
+      margin-bottom: 10px;
+    }
   }
 }

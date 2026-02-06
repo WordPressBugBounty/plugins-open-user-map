@@ -1,10 +1,52 @@
-//Dismiss
+//Dismiss Getting Started Notice
 jQuery(document).on('click', '.oum-getting-started-notice .notice-dismiss', function() {
     jQuery.ajax({
         url: ajaxurl,
         data: {
             action: 'oum_dismiss_getting_started_notice'
         }
+    });
+});
+
+//Dismiss Update Notice
+jQuery(document).on('click', '.oum-update-notice .notice-dismiss', function(e) {
+    // Prevent WordPress default dismiss handler from interfering
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    
+    var $notice = jQuery(this).closest('.oum-update-notice');
+    var version = $notice.attr('data-version') || $notice.data('version') || '';
+    
+    if (!version) {
+        console.error('Update notice: Version data missing');
+        // Still allow WordPress to dismiss the notice visually
+        return;
+    }
+    
+    // Make AJAX call to save dismissed version
+    jQuery.ajax({
+        url: ajaxurl,
+        type: 'POST',
+        data: {
+            action: 'oum_dismiss_update_notice',
+            version: version
+        },
+        success: function(response) {
+            if (response && response.success) {
+                // Option saved successfully
+                // WordPress will handle hiding the notice via CSS
+            } else {
+                console.error('Failed to dismiss update notice:', response ? response.data : 'Unknown error');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX error dismissing update notice:', error);
+        }
+    });
+    
+    // Manually hide the notice since we prevented default
+    $notice.fadeOut(100, function() {
+        jQuery(this).remove();
     });
 });
 
@@ -193,6 +235,9 @@ jQuery(function($){
         button.prop('disabled', true);
 
         // Import CSV with PHP
+        // Get the publish immediately checkbox value
+        var publish_immediately = $('#oum_csv_import_publish_immediately').is(':checked') ? 'on' : '';
+        
         jQuery.ajax({
             url: ajaxurl,
             type: 'POST',
@@ -201,6 +246,7 @@ jQuery(function($){
                 'action': 'oum_csv_import',
                 'oum_location_nonce': oum_ajax.oum_location_nonce,
                 'url': attachment.url,
+                'oum_csv_import_publish_immediately': publish_immediately,
             },
             success: function (response, textStatus, XMLHttpRequest) {
                 // Hide loading spinner
@@ -226,6 +272,22 @@ jQuery(function($){
     })
     .open();
   });
+
+  // Shortcode Display Auto Width
+  jQuery(document).ready(function ($) {
+    $('.shortcode-display').each(function() {
+      var input = this;
+      var span = document.createElement('span');
+      span.style.visibility = 'hidden';
+      span.style.whiteSpace = 'pre';
+      span.style.font = getComputedStyle(input).font;
+      document.body.appendChild(span);
+      span.textContent = input.value;
+      input.style.width = (span.offsetWidth + 16) + 'px'; // padding allowance
+      span.remove();
+    });
+  });
+
 });
 
 function oumRemoveVideoUpload() {

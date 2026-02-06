@@ -1,3 +1,34 @@
+<?php
+
+/**
+ * Add Location Form Overlay & Fullscreen Popup Container
+ * 
+ * Footer containers used by all maps. Self-contained template that
+ * fetches data from options and has access to $this (BaseController).
+ */
+// Fetch required settings
+$map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'Esri.WorldStreetMap' );
+$oum_ui_color = ( get_option( 'oum_ui_color' ) ? get_option( 'oum_ui_color' ) : $this->oum_ui_color_default );
+$oum_title_label = ( get_option( 'oum_title_label' ) ? get_option( 'oum_title_label' ) : $this->oum_get_default_label( 'title' ) );
+$oum_map_label = ( get_option( 'oum_map_label' ) ? get_option( 'oum_map_label' ) : $this->oum_get_default_label( 'map' ) );
+$oum_address_label = ( get_option( 'oum_address_label' ) ? get_option( 'oum_address_label' ) : $this->oum_get_default_label( 'address' ) );
+$oum_description_label = ( get_option( 'oum_description_label' ) ? get_option( 'oum_description_label' ) : $this->oum_get_default_label( 'description' ) );
+$oum_upload_media_label = ( get_option( 'oum_upload_media_label' ) ? get_option( 'oum_upload_media_label' ) : $this->oum_get_default_label( 'upload_media' ) );
+$oum_marker_types_label = ( get_option( 'oum_marker_types_label' ) ? get_option( 'oum_marker_types_label' ) : $this->oum_get_default_label( 'marker_types' ) );
+$oum_enable_user_notification = get_option( 'oum_enable_user_notification' );
+$text_notify_me_on_publish_label = ( get_option( 'oum_user_notification_label' ) ? get_option( 'oum_user_notification_label' ) : $this->oum_get_default_label( 'user_notification' ) );
+$text_notify_me_on_publish_name = __( 'Your name', 'open-user-map' );
+$text_notify_me_on_publish_email = __( 'Your email', 'open-user-map' );
+$thankyou_headline = get_option( 'oum_thankyou_headline' );
+$thankyou_text = get_option( 'oum_thankyou_text' );
+// Get marker types for selection
+$types = get_terms( array(
+    'taxonomy'   => 'oum-type',
+    'hide_empty' => false,
+) );
+// Get custom fields configuration
+$oum_custom_fields = get_option( 'oum_custom_fields' );
+?>
 <div class="open-user-map oum-container-for-fullscreen">
   <div id="add-location-overlay" class="add-location">
     <div class="location-overlay-content">
@@ -19,16 +50,17 @@ if ( get_option( 'oum_enable_title', 'on' ) ) {
           <?php 
     $maxlength = ( get_option( 'oum_title_maxlength' ) > 0 ? 'maxlength="' . get_option( 'oum_title_maxlength' ) . '"' : '' );
     ?>
+          <label class="oum-label" for="oum_location_title"><?php 
+    echo $oum_title_label;
+    if ( get_option( 'oum_title_required', 'on' ) ) {
+        ?><span class="oum-required-indicator">*</span><?php 
+    }
+    ?></label>
           <input type="text" id="oum_location_title" name="oum_location_title" <?php 
     if ( get_option( 'oum_title_required', 'on' ) ) {
         ?>required<?php 
     }
-    ?> placeholder="<?php 
-    echo $oum_title_label;
-    if ( get_option( 'oum_title_required', 'on' ) ) {
-        ?>*<?php 
-    }
-    ?>" <?php 
+    ?> <?php 
     echo $maxlength;
     ?> />
         <?php 
@@ -37,11 +69,13 @@ if ( get_option( 'oum_enable_title', 'on' ) ) {
         
         <label class="oum-label"><?php 
 echo $oum_map_label;
-?></label>
+?><span class="oum-required-indicator">*</span></label>
         <div class="map-wrap">
           <div id="mapGetLocation" class="leaflet-map map-style_<?php 
 echo $map_style;
-?>"></div>
+?>"<?php 
+echo $this->get_tile_provider_data_attribute( $map_style, 'container' );
+?>></div>
         </div>
         <input type="hidden" id="oum_location_lat" name="oum_location_lat" required placeholder="<?php 
 echo __( 'Latitude', 'open-user-map' );
@@ -58,9 +92,6 @@ echo __( 'Longitude', 'open-user-map' );
 
         
         <?php 
-$oum_custom_fields = get_option( 'oum_custom_fields' );
-?>
-        <?php 
 if ( is_array( $oum_custom_fields ) ) {
     ?>
           <div class="oum_custom_fields_wrapper">
@@ -73,7 +104,7 @@ if ( is_array( $oum_custom_fields ) ) {
         }
         $custom_field['fieldtype'] = ( isset( $custom_field['fieldtype'] ) ? $custom_field['fieldtype'] : 'text' );
         $custom_field['description'] = ( isset( $custom_field['description'] ) ? $custom_field['description'] : '' );
-        $label = esc_attr( $custom_field['label'] ) . (( isset( $custom_field['required'] ) ? '*' : '' ));
+        $label = esc_attr( $custom_field['label'] ) . (( isset( $custom_field['required'] ) ? '<span class="oum-required-indicator">*</span>' : '' ));
         $description = ( $custom_field['description'] ? '<div class="oum_custom_field_description">' . wp_kses_post( $custom_field['description'] ) . '</div>' : '' );
         $maxlength = ( $custom_field['maxlength'] ? 'maxlength="' . $custom_field['maxlength'] . '"' : '' );
         $html = ( $custom_field['html'] ? $custom_field['html'] : '' );
@@ -82,12 +113,15 @@ if ( is_array( $oum_custom_fields ) ) {
             <?php 
         if ( $custom_field['fieldtype'] == 'text' ) {
             ?>
-              <div>
+              <div data-custom-field-label="<?php 
+            echo esc_attr( $custom_field['label'] );
+            ?>">
+                <label class="oum-label"><?php 
+            echo $label;
+            ?></label>
                 <input type="text" name="oum_location_custom_fields[<?php 
             echo $index;
-            ?>]" placeholder="<?php 
-            echo $label;
-            ?>" <?php 
+            ?>]" <?php 
             echo ( isset( $custom_field['required'] ) ? 'required' : '' );
             ?> value="" <?php 
             echo $maxlength;
@@ -103,12 +137,15 @@ if ( is_array( $oum_custom_fields ) ) {
             <?php 
         if ( $custom_field['fieldtype'] == 'link' ) {
             ?>
-              <div>
+              <div data-custom-field-label="<?php 
+            echo esc_attr( $custom_field['label'] );
+            ?>">
+                <label class="oum-label"><?php 
+            echo $label;
+            ?></label>
                 <input type="url" name="oum_location_custom_fields[<?php 
             echo $index;
-            ?>]" placeholder="<?php 
-            echo $label;
-            ?>" <?php 
+            ?>]" <?php 
             echo ( isset( $custom_field['required'] ) ? 'required' : '' );
             ?> value="" <?php 
             echo $maxlength;
@@ -124,12 +161,15 @@ if ( is_array( $oum_custom_fields ) ) {
             <?php 
         if ( $custom_field['fieldtype'] == 'email' ) {
             ?>
-              <div>
+              <div data-custom-field-label="<?php 
+            echo esc_attr( $custom_field['label'] );
+            ?>">
+                <label class="oum-label"><?php 
+            echo $label;
+            ?></label>
                 <input type="email" name="oum_location_custom_fields[<?php 
             echo $index;
-            ?>]" placeholder="<?php 
-            echo $label;
-            ?>" <?php 
+            ?>]" <?php 
             echo ( isset( $custom_field['required'] ) ? 'required' : '' );
             ?> value="" <?php 
             echo $maxlength;
@@ -145,7 +185,9 @@ if ( is_array( $oum_custom_fields ) ) {
             <?php 
         if ( $custom_field['fieldtype'] == 'checkbox' ) {
             ?>
-              <div>
+              <div data-custom-field-label="<?php 
+            echo esc_attr( $custom_field['label'] );
+            ?>">
                 <fieldset class="oum-checkbox-group <?php 
             echo ( isset( $custom_field['required'] ) ? 'is-required' : '' );
             ?>">
@@ -187,7 +229,9 @@ if ( is_array( $oum_custom_fields ) ) {
             <?php 
         if ( $custom_field['fieldtype'] == 'radio' ) {
             ?>
-              <div>
+              <div data-custom-field-label="<?php 
+            echo esc_attr( $custom_field['label'] );
+            ?>">
                 <fieldset class="<?php 
             echo ( isset( $custom_field['required'] ) ? 'is-required' : '' );
             ?>">
@@ -229,14 +273,20 @@ if ( is_array( $oum_custom_fields ) ) {
             <?php 
         if ( $custom_field['fieldtype'] == 'select' ) {
             ?>
-              <div>
+              <div data-custom-field-label="<?php 
+            echo esc_attr( $custom_field['label'] );
+            ?>">
                 <label class="oum-label"><?php 
-            echo esc_attr( $label );
+            echo $label;
             ?></label>
                 <select name="oum_location_custom_fields[<?php 
             echo $index;
-            ?>]" <?php 
+            ?>]<?php 
+            echo ( isset( $custom_field['multiple'] ) ? '[]' : '' );
+            ?>" <?php 
             echo ( isset( $custom_field['required'] ) ? 'required' : '' );
+            ?> <?php 
+            echo ( isset( $custom_field['multiple'] ) ? 'multiple' : '' );
             ?>>
                   <?php 
             $options = ( isset( $custom_field['options'] ) ? explode( '|', $custom_field['options'] ) : array() );
@@ -276,6 +326,47 @@ if ( is_array( $oum_custom_fields ) ) {
         }
         ?>
 
+            <?php 
+        if ( $custom_field['fieldtype'] == 'opening_hours' ) {
+            ?>
+              <?php 
+            $use12hour = isset( $custom_field['use12hour'] ) && $custom_field['use12hour'];
+            $placeholder = ( $use12hour ? 'Mo 9:00 AM-5:00 PM | Tu 9:00 AM-11:00 AM | Tu 1:00 PM-5:00 PM' : 'Mo 09:00-18:00 | Tu 09:00-11:00 | Tu 13:00-18:00' );
+            $format_hint = ( $use12hour ? __( 'Enter the day (Mo–Su) and opening hours in 12-hour format with AM/PM (e.g. 9:00 AM–5:00 PM). Use | to separate multiple time blocks.', 'open-user-map' ) : __( 'Enter the day (Mo–Su) and opening hours in 24-hour format (e.g. 09:00–18:00). Use | to separate multiple time blocks.', 'open-user-map' ) );
+            // Use format_hint as default description if description is empty
+            $final_description = ( empty( $description ) ? '<div class="oum_custom_field_description">' . wp_kses_post( $format_hint ) . '</div>' : $description );
+            ?>
+              <div data-custom-field-label="<?php 
+            echo esc_attr( $custom_field['label'] );
+            ?>" data-custom-field-type="opening_hours" data-custom-field-index="<?php 
+            echo $index;
+            ?>" data-use12hour="<?php 
+            echo ( $use12hour ? '1' : '0' );
+            ?>" class="oum-opening-hours-field">
+                <label class="oum-label"><?php 
+            echo $label;
+            ?></label>
+                <input type="text" 
+                  name="oum_location_custom_fields[<?php 
+            echo $index;
+            ?>][hours]" 
+                  class="oum-opening-hours-input" 
+                  placeholder="<?php 
+            echo esc_attr( $placeholder );
+            ?>" 
+                  <?php 
+            echo ( isset( $custom_field['required'] ) ? 'required' : '' );
+            ?> 
+                  value="" 
+                />
+                <?php 
+            echo $final_description;
+            ?>
+              </div>
+            <?php 
+        }
+        ?>
+
           <?php 
     }
     ?>
@@ -288,9 +379,10 @@ if ( is_array( $oum_custom_fields ) ) {
         <?php 
 if ( get_option( 'oum_enable_address', 'on' ) === 'on' ) {
     ?>
-          <input type="text" id="oum_location_address" name="oum_location_address" placeholder="<?php 
+          <label class="oum-label" for="oum_location_address"><?php 
     echo $oum_address_label;
-    ?>" />
+    ?></label>
+          <input type="text" id="oum_location_address" name="oum_location_address" />
         <?php 
 }
 ?>
@@ -298,10 +390,11 @@ if ( get_option( 'oum_enable_address', 'on' ) === 'on' ) {
         <?php 
 if ( get_option( 'oum_enable_description', 'on' ) === 'on' ) {
     ?>
-          <textarea id="oum_location_text" name="oum_location_text" placeholder="<?php 
+          <label class="oum-label" for="oum_location_text"><?php 
     echo $oum_description_label;
-    echo ( get_option( 'oum_description_required' ) ? '*' : '' );
-    ?>" <?php 
+    echo ( get_option( 'oum_description_required' ) ? '<span class="oum-required-indicator">*</span>' : '' );
+    ?></label>
+          <textarea id="oum_location_text" name="oum_location_text" <?php 
     echo ( get_option( 'oum_description_required' ) ? 'required' : '' );
     ?>></textarea>
         <?php 

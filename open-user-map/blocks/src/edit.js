@@ -6,7 +6,6 @@ import {
 } from '@wordpress/block-editor';
 
 import { 
-    Dashicon,
     TextControl, 
     SelectControl,
     PanelBody,
@@ -14,6 +13,8 @@ import {
     Button,
     ButtonGroup 
 } from '@wordpress/components';
+
+import { mapMarker, cog } from '@wordpress/icons';
 
 export default function Edit(props) {
     const {
@@ -144,14 +145,14 @@ export default function Edit(props) {
                         { __('This block will show your location markers on a map in the front end.', 'open-user-map') } 
                     </p>
                     <Button
-                        icon="location-alt"
+                        icon={mapMarker}
                         variant="primary"
                         onClick={() => window.location.href = 'edit.php?post_type=oum-location'}
                     >
                         { __('Manage Locations', 'open-user-map') }
                     </Button>
                     <Button
-                        icon="admin-settings"
+                        icon={cog}
                         variant="secondary"
                         onClick={() => window.location.href = 'edit.php?post_type=oum-location&page=open-user-map-settings'}
                     >

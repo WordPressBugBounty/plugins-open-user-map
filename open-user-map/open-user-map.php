@@ -8,7 +8,7 @@ Plugin Name: Open User Map
 Plugin URI: https://wordpress.org/plugins/open-user-map/
 Description: Engage your visitors with an interactive map – let them add markers instantly or create a custom map showcasing your favorite spots.
 Author: 100plugins
-Version: 1.4.15
+Version: 1.4.29
 Author URI: https://www.open-user-map.com/
 License: GPLv3 or later
 Text Domain: open-user-map
@@ -28,7 +28,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-Copyright 2025 100plugins
+Copyright 2026 100plugins
 */
 defined( 'ABSPATH' ) or die( 'Direct access is not allowed.' );
 if ( function_exists( 'oum_fs' ) ) {
@@ -40,12 +40,8 @@ if ( function_exists( 'oum_fs' ) ) {
         function oum_fs() {
             global $oum_fs;
             if ( !isset( $oum_fs ) ) {
-                // Enable the new Freemius Garbage Collector (Beta)
-                // if ( ! defined( 'WP_FS__ENABLE_GARBAGE_COLLECTOR' ) ) {
-                //     define( 'WP_FS__ENABLE_GARBAGE_COLLECTOR', true );
-                // }
                 // Include Freemius SDK.
-                require_once dirname( __FILE__ ) . '/freemius/start.php';
+                require_once dirname( __FILE__ ) . '/vendor/freemius/start.php';
                 $oum_fs = fs_dynamic_init( array(
                     'id'             => '9083',
                     'slug'           => 'open-user-map',
@@ -53,6 +49,7 @@ if ( function_exists( 'oum_fs' ) ) {
                     'type'           => 'plugin',
                     'public_key'     => 'pk_e4bbeb52c0d44fa562ba49d2c632d',
                     'is_premium'     => false,
+                    'premium_suffix' => 'PRO',
                     'has_addons'     => false,
                     'has_paid_plans' => true,
                     'trial'          => array(
@@ -109,9 +106,11 @@ if ( function_exists( 'oum_fs' ) ) {
         echo '</div></div>';
     } );
     // ... Your plugin's main file logic ...
-    // Require once the composer autoload
-    if ( file_exists( dirname( __FILE__ ) . '/vendor/autoload.php' ) ) {
-        require_once dirname( __FILE__ ) . '/vendor/autoload.php';
+    // Initialize custom lightweight autoloader (replaces Composer)
+    // This autoloader ONLY loads OpenUserMapPlugin classes and prevents interference with other plugins
+    if ( file_exists( dirname( __FILE__ ) . '/inc/Autoloader.php' ) ) {
+        require_once dirname( __FILE__ ) . '/inc/Autoloader.php';
+        OpenUserMapPlugin\Autoloader::init( dirname( __FILE__ ) );
     }
     /**
      * The code that runs during plugin activation
@@ -155,7 +154,7 @@ if ( function_exists( 'oum_fs' ) ) {
      * - type
      * - type_icons
      * - map
-     * - address
+     * - subtitle (preferred label, replaces the former "address" label)
      * - lat
      * - lng
      * - route

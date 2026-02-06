@@ -4,7 +4,7 @@
   <div class="add-user-location">
     <label><?php echo $oum_map_label; ?></label>
     <div class="map-wrap">
-      <div id="mapGetLocation" class="leaflet-map map-style_<?php echo $map_style; ?>"></div>
+      <div id="mapGetLocation" class="leaflet-map map-style_<?php echo $map_style; ?>"<?php echo $this->get_tile_provider_data_attribute( $map_style, 'container' ); ?>></div>
     </div>
     <input type="hidden" id="oum_location_lat" name="oum_location_lat" required placeholder="<?php echo __('Latitude', 'open-user-map'); ?>*" />
     <input type="hidden" id="oum_location_lng" name="oum_location_lng" required placeholder="<?php echo __('Longitude', 'open-user-map'); ?>*" />

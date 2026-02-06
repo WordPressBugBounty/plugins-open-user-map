@@ -21,6 +21,8 @@ const showMapControls = (mapId) => {
 
   const loadingOverlay = mapWrap.querySelector('.oum-loading-overlay');
   const filterControls = mapWrap.querySelector('.oum-filter-controls');
+  const sidebar = document.querySelector('.oum-sidebar');
+  const advancedFilterFloatingControls = mapWrap.querySelector('.oum-advanced-filter-button, .oum-advanced-filter-panel');
   const addLocationBtn = mapWrap.querySelector('.open-add-location-overlay');
   const filterMarkersInput = mapWrap.querySelector('#oum_filter_markers');
 
@@ -35,6 +37,16 @@ const showMapControls = (mapId) => {
     if (filterControls) {
       filterControls.classList.remove('oum-hidden');
       filterControls.classList.add('visible');
+    }
+
+    if (sidebar) {
+      sidebar.classList.remove('oum-hidden');
+      sidebar.classList.add('visible');
+    }
+
+    if (advancedFilterFloatingControls) {
+      advancedFilterFloatingControls.classList.remove('oum-hidden');
+      advancedFilterFloatingControls.classList.add('visible');
     }
 
     // Remove the oum-hidden class and add visible class for add location button

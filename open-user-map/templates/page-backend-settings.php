@@ -7,6 +7,14 @@ settings_errors( 'oum_messages' );
 
 <form method="post" action="options.php">
     
+    <!-- Hidden field to preserve active tab after form submission -->
+    <?php 
+// Determine active tab from URL parameter or default to tab-1
+$active_tab = ( isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'tab-1' );
+?>
+    <input type="hidden" name="oum_active_tab" id="oum_active_tab" value="<?php 
+echo esc_attr( $active_tab );
+?>">
 
     <?php 
 if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable_add_location' ) !== '' ) {
@@ -53,7 +61,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Interactive Map', 'open-user-map' );
     ?></h2>
                   <p><?php 
-    echo __( 'Create a community map! Visitors to your page can add new location markers to the map. You will receive a notification to approve each location before it is published.', 'open-user-map' );
+    echo __( 'Create a community map! Visitors can add their own markers with the "+" button. Each new location remains <strong>Pending</strong> until you approve it.', 'open-user-map' );
     ?></p>
                 </div>
               </label>
@@ -125,7 +133,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
           
             <ol class="next-steps">
               <li><?php 
-        echo __( 'Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page.<br>Alternatively, you can use the shortcode <code>[open-user-map]</code>.', 'open-user-map' );
+        echo __( 'Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page.<br>Alternatively, you can use the shortcode <input class="shortcode-display" type="text" readonly value=\'[open-user-map]\' />.', 'open-user-map' );
         ?></li>
               <li><?php 
         echo __( 'Your website visitors will see a <div class="oum-inline-plus">+</div> button in the upper right corner of the map, which they can use to propose their own location markers. New location proposals will appear with the status <b>Pending</b> until you review and approve them in the <i>Open User Map > All Locations</i> menu.', 'open-user-map' );
@@ -144,7 +152,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         echo sprintf( __( 'Add your first Location under <a href="%s">Open User Map > Add Location</a>', 'open-user-map' ), 'post-new.php?post_type=oum-location' );
         ?></li>
               <li><?php 
-        echo __( 'Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page.<br>Alternatively, you can use the shortcode <code>[open-user-map]</code>.', 'open-user-map' );
+        echo __( 'Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page.<br>Alternatively, you can use the shortcode <input class="shortcode-display" type="text" readonly value=\'[open-user-map]\' />.', 'open-user-map' );
         ?></li>
               <li><?php 
         echo __( 'To customize styles, enable features, or get help, go to <i>Open User Map > Settings</i>', 'open-user-map' );
@@ -181,32 +189,48 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
 
       <!-- NAV -->
       <nav class="oum-nav-tab-wrapper nav-tab-wrapper">
-        <a href="#tab-1" class="nav-tab nav-tab-active"><?php 
+        <a href="#tab-1" class="nav-tab <?php 
+    echo ( $active_tab === 'tab-1' ? 'nav-tab-active' : '' );
+    ?>"><?php 
     echo __( 'Map Settings', 'open-user-map' );
     ?></a>
-        <a href="#tab-2" class="nav-tab"><?php 
+        <a href="#tab-2" class="nav-tab <?php 
+    echo ( $active_tab === 'tab-2' ? 'nav-tab-active' : '' );
+    ?>"><?php 
     echo __( 'Form Settings', 'open-user-map' );
     ?></a>
-        <a href="#tab-3" class="nav-tab"><?php 
+        <a href="#tab-3" class="nav-tab <?php 
+    echo ( $active_tab === 'tab-3' ? 'nav-tab-active' : '' );
+    ?>"><?php 
     echo __( 'Filters & Categories', 'open-user-map' );
     ?></a>
-        <a href="#tab-4" class="nav-tab"><?php 
+        <a href="#tab-4" class="nav-tab <?php 
+    echo ( $active_tab === 'tab-4' ? 'nav-tab-active' : '' );
+    ?>"><?php 
     echo __( 'Regions', 'open-user-map' );
     ?></a>
-        <a href="#tab-5" class="nav-tab"><?php 
+        <a href="#tab-5" class="nav-tab <?php 
+    echo ( $active_tab === 'tab-5' ? 'nav-tab-active' : '' );
+    ?>"><?php 
     echo __( 'Advanced', 'open-user-map' );
     ?></a>
-        <a href="#tab-6" class="nav-tab"><?php 
+        <a href="#tab-6" class="nav-tab <?php 
+    echo ( $active_tab === 'tab-6' ? 'nav-tab-active' : '' );
+    ?>"><?php 
     echo __( 'Import & Export', 'open-user-map' );
     ?></a>
-        <a href="#tab-7" class="nav-tab"><?php 
+        <a href="#tab-7" class="nav-tab <?php 
+    echo ( $active_tab === 'tab-7' ? 'nav-tab-active' : '' );
+    ?>"><?php 
     echo __( 'Help & Getting Started', 'open-user-map' );
     ?></a>
         <?php 
     if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
         ?>
           <!-- PRO Trial Tab -->
-          <a href="#tab-pro-trial" class="nav-tab oum-pro-trial-tab">
+          <a href="#tab-pro-trial" class="nav-tab oum-pro-trial-tab <?php 
+        echo ( $active_tab === 'tab-pro-trial' ? 'nav-tab-active' : '' );
+        ?>">
             ✨ <?php 
         echo __( 'Try PRO 7 Days Free!', 'open-user-map' );
         ?>
@@ -214,19 +238,48 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         <?php 
     }
     ?>
+        <?php 
+    // Determine plugin type (Free, Trial, or PRO) and corresponding color
+    $plugin_type = 'Free';
+    $plugin_color = '#46b450';
+    // Green for Free
+    if ( oum_fs()->is_trial() ) {
+        // User is in trial period
+        $plugin_type = 'Trial';
+        $plugin_color = '#ff9800';
+        // Orange for Trial
+    } elseif ( oum_fs()->is_premium() && oum_fs()->is_plan_or_trial( 'pro' ) ) {
+        // User has PRO plan and is using premium version
+        $plugin_type = 'PRO';
+        $plugin_color = '#dc3232';
+        // Red for PRO
+    }
+    ?>
+        <span class="oum-plugin-info" style="float: right; margin-top: 8px; margin-right: 10px; font-size: 12px;">
+          <strong style="color: <?php 
+    echo esc_attr( $plugin_color );
+    ?>;"><?php 
+    echo esc_html( $plugin_type );
+    ?></strong> <span style="color: #666;">v<?php 
+    echo esc_html( $this->plugin_version );
+    ?></span>
+        </span>
       </nav>
 
 
       <!-- TABS -->
       <div class="oum-tab-content">
         
-        <div id="tab-1" class="oum-tab-pane active">
+        <div id="tab-1" class="oum-tab-pane <?php 
+    echo ( $active_tab === 'tab-1' ? 'active' : '' );
+    ?>">
           <table class="form-table">
 
             <tr valign="top">
               <?php 
     $oum_enable_add_location = get_option( 'oum_enable_add_location', 'on' );
     $oum_plus_button_label = get_option( 'oum_plus_button_label' );
+    $oum_enable_auto_publish = get_option( 'oum_enable_auto_publish', 'on' );
     ?>
               <th scope="row">
                 <?php 
@@ -251,7 +304,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Interactive Map', 'open-user-map' );
     ?></h2>
                           <p><?php 
-    echo __( 'Create a community map! Visitors to your page can add new location markers to the map. You will receive a notification to approve each location before it is published.', 'open-user-map' );
+    echo __( 'Create a community map! Visitors can add their own markers with the "+" button. Each new location remains <strong>Pending</strong> until you approve it.', 'open-user-map' );
     ?></p>
                           <div id="plus_button_label">
                             <strong><?php 
@@ -262,6 +315,27 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>" value="<?php 
     echo esc_textarea( $oum_plus_button_label );
     ?>"></input>
+                          </div>
+                          <div>
+                            <input class="oum-switch" type="checkbox" id="oum_enable_auto_publish" name="oum_enable_auto_publish" <?php 
+    echo ( $oum_enable_auto_publish == 'on' ? 'checked' : '' );
+    ?>>
+                            <label for="oum_enable_auto_publish">
+                              <?php 
+    echo __( 'Registered users can add locations without approval', 'open-user-map' );
+    ?>
+                              <span class="oum-tooltip">
+                                <span class="oum-tooltip-trigger">?</span>
+                                <div class="oum-tooltip-content">
+                                  <h4><?php 
+    echo __( 'Auto-Publish for registered users', 'open-user-map' );
+    ?></h4>
+                                  <p><?php 
+    echo __( 'When enabled, users with the <strong>“edit_posts”</strong> capability can publish locations directly. All other submissions stay <strong>Pending</strong> until you publish them.', 'open-user-map' );
+    ?></p>                                
+                                </div>
+                              </span>
+                            </label>
                           </div>
                         </div>
                       </label>
@@ -329,6 +403,16 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         echo '<label class="' . $selected . '"><div class="map_style_preview commercial" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( $label ) . '</div></div><input type="radio" name="oum_map_style" ' . $selected . ' value="' . esc_attr( $val ) . '"></label>';
     }
     ?>
+
+                <?php 
+    //pro map styles (PRO only)
+    $pro_items = $this->pro_map_styles;
+    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+        foreach ( $pro_items as $val => $label ) {
+            echo '<label class="pro-only"><div class="map_style_preview pro" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( $label ) . ' <span class="oum-pro">PRO</span></div></div></label>';
+        }
+    }
+    ?>
                 </div>
 
                 <div class="wrap-tile-provider-settings">
@@ -346,6 +430,222 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                     <span class="description"><?php 
     echo sprintf( __( 'You can get a MapBox API key <a href="%s">here</a>. It is free to use with up to 200,000 map tile requests per month. Please attribute MapBox service if you use their free plan.', 'open-user-map' ), 'https://account.mapbox.com/signup/' );
     ?></span><br>
+                  </div>
+                </div>
+
+                <!-- Custom Image Settings -->
+                <div class="wrap-custom-image-settings" style="display: <?php 
+    echo ( $map_style === 'CustomImage' ? 'block' : 'none' );
+    ?>;">
+                  <h2><?php 
+    echo __( 'Custom Image Overlay', 'open-user-map' );
+    ?></h2>
+                  <p class="description" style="margin-bottom: 15px;"><?php 
+    echo __( 'Upload a custom image or SVG to display as a map overlay. Perfect for historical maps, custom territories, or specialized visualizations.', 'open-user-map' );
+    ?></p>
+                  
+                  <?php 
+    $custom_image_url = get_option( 'oum_custom_image_url', '' );
+    $custom_image_bounds = get_option( 'oum_custom_image_bounds', '' );
+    // Parse bounds for form fields
+    $bounds = array(
+        'north' => '90',
+        'south' => '-90',
+        'east'  => '180',
+        'west'  => '-180',
+    );
+    if ( !empty( $custom_image_bounds ) ) {
+        $parsed_bounds = maybe_unserialize( $custom_image_bounds );
+        if ( is_array( $parsed_bounds ) ) {
+            $bounds = array_merge( $bounds, $parsed_bounds );
+        }
+    }
+    // Ensure all values use period as decimal separator (normalize after merge)
+    foreach ( $bounds as $key => $value ) {
+        $bounds[$key] = str_replace( ',', '.', (string) $value );
+    }
+    ?>
+                  
+                  <!-- Image Upload Section -->
+                  <div class="custom-image-upload-section">
+                    <h4><?php 
+    echo __( '1. Upload Your Image', 'open-user-map' );
+    ?></h4>
+                    
+                    <!-- Hidden input for storing the image URL -->
+                    <input type="url" id="oum_custom_image_url" name="oum_custom_image_url" value="<?php 
+    echo esc_attr( $custom_image_url );
+    ?>" style="display: none;">
+                    
+                    <div style="margin-bottom: 15px;">
+                      <p class="description"><?php 
+    echo __( 'Supports JPG, PNG, WebP, and SVG files. SVG files will be rendered as interactive elements.', 'open-user-map' );
+    ?></p>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                      <button type="button" id="upload_image_button" class="button button-primary"><?php 
+    echo __( 'Choose Image', 'open-user-map' );
+    ?></button>
+                      <?php 
+    if ( !empty( $custom_image_url ) ) {
+        ?>
+                        <button type="button" id="remove_image_button" class="button" style="margin-left: 10px;"><?php 
+        echo __( 'Remove', 'open-user-map' );
+        ?></button>
+                      <?php 
+    }
+    ?>
+                    </div>
+                    
+                    <!-- Image preview container (always present) -->
+                    <div id="image_preview" style="margin-top: 15px; <?php 
+    echo ( empty( $custom_image_url ) ? 'display: none;' : '' );
+    ?>">
+                      <?php 
+    if ( !empty( $custom_image_url ) ) {
+        ?>
+                        <img src="<?php 
+        echo esc_url( $custom_image_url );
+        ?>" alt="Custom Map Image">
+                      <?php 
+    }
+    ?>
+                    </div>
+                  </div>
+                  
+                  <!-- Image Position Section -->
+                  <div class="image-bounds-section">
+                    <h4><?php 
+    echo __( '2. Position Image on Map', 'open-user-map' );
+    ?></h4>
+                    <p class="description"><?php 
+    echo __( 'Use the visual editor below to position and scale your image overlay. Drag the image to move it, and drag the corner handles to resize it. Hold Shift while resizing to maintain the image\'s aspect ratio.', 'open-user-map' );
+    ?></p>
+                    
+                    <!-- Visual Position Editor -->
+                    <div id="oum-image-position-editor" style="margin-top: 20px; <?php 
+    echo ( empty( $custom_image_url ) ? 'display: none;' : '' );
+    ?>">
+                      <!-- Editor will be initialized here -->
+                    </div>
+                    
+                    <?php 
+    // Enqueue editor script and dependencies
+    wp_enqueue_media();
+    // Required for wp.media uploader
+    wp_enqueue_script(
+        'oum_backend_image_position_editor_js',
+        $this->plugin_url . 'src/js/backend-image-position-editor.js',
+        array('oum_global_leaflet_js'),
+        $this->plugin_version
+    );
+    // Localize script with translated strings
+    wp_localize_script( 'oum_backend_image_position_editor_js', 'oumImagePositionEditorStrings', array(
+        'chooseImageTitle' => __( 'Choose Custom Map Image', 'open-user-map' ),
+        'useImageText'     => __( 'Use this image', 'open-user-map' ),
+    ) );
+    ?>
+                    
+                    <!-- Manual Input Fields (collapsible, shown for user reference and manual editing) -->
+                    <div id="manual-bounds-inputs" style="margin-top: 20px;">
+                      <div style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;" onclick="toggleManualBoundsInputs()">
+                        <span id="manual-bounds-toggle-icon" style="margin-right: 8px; font-size: 12px;">▶</span>
+                        <p class="description" style="margin: 0;"><?php 
+    echo __( 'Position coordinates (updated automatically when using the visual editor above, or edit manually):', 'open-user-map' );
+    ?></p>
+                      </div>
+                      <div id="manual-bounds-inputs-content" style="display: none;">
+                      <div class="grid-inputs">
+                        <div class="input-group">
+                          <label for="image_bounds_north"><?php 
+    echo __( 'North:', 'open-user-map' );
+    ?></label>
+                          <input type="text" id="image_bounds_north" name="image_bounds_north" value="<?php 
+    echo esc_attr( $bounds['north'] );
+    ?>" pattern="-?[0-9]+\.?[0-9]*" inputmode="decimal" lang="en" placeholder="90">
+                          <small><?php 
+    echo __( 'Latitude', 'open-user-map' );
+    ?></small>
+                        </div>
+                        <div class="input-group">
+                          <label for="image_bounds_west"><?php 
+    echo __( 'West:', 'open-user-map' );
+    ?></label>
+                          <input type="text" id="image_bounds_west" name="image_bounds_west" value="<?php 
+    echo esc_attr( $bounds['west'] );
+    ?>" pattern="-?[0-9]+\.?[0-9]*" inputmode="decimal" lang="en" placeholder="-180">
+                          <small><?php 
+    echo __( 'Longitude', 'open-user-map' );
+    ?></small>
+                        </div>
+                      </div>
+                      <div class="grid-inputs">
+                        <div class="input-group">
+                          <label for="image_bounds_south"><?php 
+    echo __( 'South:', 'open-user-map' );
+    ?></label>
+                          <input type="text" id="image_bounds_south" name="image_bounds_south" value="<?php 
+    echo esc_attr( $bounds['south'] );
+    ?>" pattern="-?[0-9]+\.?[0-9]*" inputmode="decimal" lang="en" placeholder="-90">
+                          <small><?php 
+    echo __( 'Latitude', 'open-user-map' );
+    ?></small>
+                        </div>
+                        <div class="input-group">
+                          <label for="image_bounds_east"><?php 
+    echo __( 'East:', 'open-user-map' );
+    ?></label>
+                          <input type="text" id="image_bounds_east" name="image_bounds_east" value="<?php 
+    echo esc_attr( $bounds['east'] );
+    ?>" pattern="-?[0-9]+\.?[0-9]*" inputmode="decimal" lang="en" placeholder="180">
+                          <small><?php 
+    echo __( 'Longitude', 'open-user-map' );
+    ?></small>
+                        </div>
+                      </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Hidden field to store bounds as JSON -->
+                    <input type="hidden" id="oum_custom_image_bounds" name="oum_custom_image_bounds" value="<?php 
+    echo esc_attr( $custom_image_bounds );
+    ?>">
+                  </div>
+                  
+                  <!-- Display Options -->
+                  <div class="image-display-options">
+                    <h4><?php 
+    echo __( '3. Display Options', 'open-user-map' );
+    ?></h4>
+                    
+                    <div class="custom-image-hide-tiles-option">
+                      <input class="oum-switch" type="checkbox" name="oum_custom_image_hide_tiles" id="oum_custom_image_hide_tiles" value="on" <?php 
+    checked( get_option( 'oum_custom_image_hide_tiles', '' ), 'on' );
+    ?>>
+                      <label for="oum_custom_image_hide_tiles"><?php 
+    echo __( 'Hide default map tiles', 'open-user-map' );
+    ?></label>
+                      <p class="description"><?php 
+    echo __( 'Show only your custom image without any background map tiles.', 'open-user-map' );
+    ?></p>
+                    </div>
+                    
+                    <div>
+                      <label for="oum_custom_image_background_color"><?php 
+    echo __( 'Background Color:', 'open-user-map' );
+    ?></label>
+                      <div id="oum_custom_image_background_color_wrap" style="margin-top: 8px;">
+                        <input type="text" class="oum_colorpicker" name="oum_custom_image_background_color" id="oum_custom_image_background_color" value="<?php 
+    echo esc_attr( get_option( 'oum_custom_image_background_color', '#ffffff' ) );
+    ?>" placeholder="<?php 
+    echo esc_attr( get_option( 'oum_custom_image_background_color', '#ffffff' ) );
+    ?>"></input>
+                      </div>
+                      <p class="description"><?php 
+    echo __( 'Background color when map tiles are hidden.', 'open-user-map' );
+    ?></p>
+                    </div>
                   </div>
                 </div>
 
@@ -635,7 +935,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
 
                     <script type="text/javascript" data-category="functional" class="cmplz-native" id="oum-inline-js">
                     const lat = '<?php 
-    echo ( esc_attr( $start_lat ) ? esc_attr( $start_lat ) : '28' );
+    echo ( esc_attr( $start_lat ) ? esc_attr( $start_lat ) : '26' );
     ?>';
                     const lng = '<?php 
     echo ( esc_attr( $start_lng ) ? esc_attr( $start_lng ) : '0' );
@@ -665,6 +965,30 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                     const oum_searchaddress_label = `<?php 
     echo esc_attr( $oum_searchaddress_label );
     ?>`;
+                    
+                    // Custom Image data
+                    window.oum_custom_image_url = `<?php 
+    echo esc_js( get_option( 'oum_custom_image_url', '' ) );
+    ?>`;
+                    window.oum_custom_image_bounds = <?php 
+    $bounds = get_option( 'oum_custom_image_bounds', '' );
+    if ( empty( $bounds ) ) {
+        echo '{}';
+    } else {
+        $bounds_array = maybe_unserialize( $bounds );
+        if ( is_array( $bounds_array ) ) {
+            echo json_encode( $bounds_array );
+        } else {
+            echo '{}';
+        }
+    }
+    ?>;
+                    window.oum_custom_image_hide_tiles = <?php 
+    echo ( get_option( 'oum_custom_image_hide_tiles', '' ) === 'on' ? 'true' : 'false' );
+    ?>;
+                    window.oum_custom_image_background_color = `<?php 
+    echo esc_js( get_option( 'oum_custom_image_background_color', '#ffffff' ) );
+    ?>`;
                     </script>
 
                     <?php 
@@ -682,7 +1006,8 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
             'oum_leaflet_fullscreen_js',
             'oum_leaflet_search_js',
             'oum_leaflet_gesture_js',
-            'oum_global_leaflet_js'
+            'oum_global_leaflet_js',
+            'oum_backend_image_position_editor_js'
         ),
         $this->plugin_version
     );
@@ -718,7 +1043,11 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                 <input class="oum-switch" type="checkbox" name="oum_enable_scrollwheel_zoom_map" id="oum_enable_scrollwheel_zoom_map" <?php 
     echo ( $oum_enable_scrollwheel_zoom_map === 'on' ? 'checked' : '' );
     ?>>
-                <label for="oum_enable_scrollwheel_zoom_map"></label><br><br>
+                <label for="oum_enable_scrollwheel_zoom_map"></label>
+                <br><br>
+                <span class="description"><?php 
+    echo __( '<strong>Tip:</strong> Not recommended for full-width maps, as scrolling the page may cause the map to zoom unintentionally.', 'open-user-map' );
+    ?></span><br>
               </td>
             </tr>
 
@@ -811,7 +1140,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
           </table>
         </div>
 
-        <div id="tab-2" class="oum-tab-pane">
+        <div id="tab-2" class="oum-tab-pane <?php 
+    echo ( $active_tab === 'tab-2' ? 'active' : '' );
+    ?>">
 
           <table class="form-table">
 
@@ -913,7 +1244,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <a class="oum-gopro-text" href="<?php 
         echo oum_fs()->get_upgrade_url();
         ?>"><?php 
-        echo __( 'Upgrade to PRO to use various field types like links, checkboxes, radio buttons and dropdowns', 'open-user-map' );
+        echo __( 'Upgrade to PRO to use various field types like links, checkboxes, radio buttons, dropdowns, and Opening Hours', 'open-user-map' );
         ?></a>
 
                 <?php 
@@ -960,7 +1291,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                       <?php 
         foreach ( $oum_custom_fields as $index => $custom_field ) {
             ?>
-                        <tr>
+                        <tr data-field-id="<?php 
+            echo esc_attr( $index );
+            ?>">
                           <td>
                             <input type="text" class="field-type-text field-type-link field-type-email field-type-checkbox field-type-radio field-type-select" name="oum_custom_fields[<?php 
             echo $index;
@@ -1039,12 +1372,26 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
             ?> ><?php 
             echo __( 'add empty option', 'open-user-map' );
             ?></label>
+                            <label class="field-type-select oum-custom-field-allow-multiple"><input class="field-type-select" type="checkbox" name="oum_custom_fields[<?php 
+            echo $index;
+            ?>][multiple]" <?php 
+            echo ( isset( $custom_field['multiple'] ) ? 'checked' : '' );
+            ?> ><?php 
+            echo __( 'allow multiple', 'open-user-map' );
+            ?></label>
                             <label class="field-type-link oum-custom-field-use-label-as-text"><input class="field-type-link" type="checkbox" name="oum_custom_fields[<?php 
             echo $index;
             ?>][uselabelastextoption]" <?php 
             echo ( isset( $custom_field['uselabelastextoption'] ) ? 'checked' : '' );
             ?> ><?php 
             echo __( 'use label as text', 'open-user-map' );
+            ?></label>
+                            <label class="field-type-opening-hours oum-custom-field-use-12hour"><input class="field-type-opening-hours" type="checkbox" name="oum_custom_fields[<?php 
+            echo $index;
+            ?>][use12hour]" <?php 
+            echo ( isset( $custom_field['use12hour'] ) ? 'checked' : '' );
+            ?> ><?php 
+            echo __( 'use 12-hour format', 'open-user-map' );
             ?></label>
                             <textarea class="regular-text field-type-html" name="oum_custom_fields[<?php 
             echo $index;
@@ -1091,9 +1438,10 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $oum_hide_address = get_option( 'oum_hide_address' );
     $oum_enable_gmaps_link = get_option( 'oum_enable_gmaps_link', 'on' );
     $oum_address_label = get_option( 'oum_address_label' );
+    $oum_enable_address_autofill = get_option( 'oum_enable_address_autofill' );
     ?>
               <th scope="row"><?php 
-    echo __( '"Subtitle" field', 'open-user-map' );
+    echo __( '"Subtitle" / "Address" field', 'open-user-map' );
     ?></th>
               <td>
                 <input class="oum-switch" type="checkbox" name="oum_enable_address" id="oum_enable_address" <?php 
@@ -1101,6 +1449,13 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>>
                 <label for="oum_enable_address"><?php 
     echo __( 'Enable', 'open-user-map' );
+    ?></label><br>
+
+                <input class="oum-switch" type="checkbox" name="oum_enable_address_autofill" id="oum_enable_address_autofill" <?php 
+    echo ( $oum_enable_address_autofill === 'on' ? 'checked' : '' );
+    ?>>
+                <label for="oum_enable_address_autofill"><?php 
+    echo __( 'Auto-generate address from marker location (Reverse Geocoding)', 'open-user-map' );
     ?></label><br>
 
                 <input class="oum-switch" type="checkbox" name="oum_hide_address" id="oum_hide_address" <?php 
@@ -1447,7 +1802,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
 
         </div>
 
-        <div id="tab-3" class="oum-tab-pane">
+        <div id="tab-3" class="oum-tab-pane <?php 
+    echo ( $active_tab === 'tab-3' ? 'active' : '' );
+    ?>">
           <table class="form-table">
 
             <?php 
@@ -1682,10 +2039,61 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     }
     ?>
 
+            <!-- Advanced Filter Interface Settings -->
+            <?php 
+    ?>
+
+            <?php 
+    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+        ?>
+              
+              <tr valign="top" class="oum-gopro-tr">
+                <th scope="row">
+                  <?php 
+        echo __( 'Advanced Filter Interface', 'open-user-map' );
+        ?>
+                  <span class="oum-tooltip">
+                    <span class="oum-tooltip-trigger">?</span>
+                    <div class="oum-tooltip-content">
+                      <h4><?php 
+        echo __( 'Advanced Filter Interface', 'open-user-map' );
+        ?></h4>
+                      <p><?php 
+        echo __( 'Let visitors filter locations by your custom fields. Create filter sections for any custom field type (text, select, checkbox, etc.) to help users find exactly what they\'re looking for.', 'open-user-map' );
+        ?></p>
+                      <p><a href="https://www.open-user-map.com/knowledge-base/advanced-filter-interface/?ref=pluginsettings" target="_blank"><?php 
+        echo __( 'Learn more about the Advanced Filter Interface →', 'open-user-map' );
+        ?></a></p>
+                    </div>
+                  </span>
+                  <br><span class="oum-pro">PRO</span><br>
+                  <a class="oum-gopro-text" href="<?php 
+        echo oum_fs()->get_upgrade_url();
+        ?>"><?php 
+        echo __( 'Upgrade to PRO to add a powerful filter sidebar next to your map.', 'open-user-map' );
+        ?></a>
+                </th>
+                <td>
+                  <input class="oum-switch" type="checkbox" disabled>
+                  <label></label><br><br>
+                  <span class="description">
+                    <?php 
+        echo __( 'Add a customizable filter sidebar that lets visitors easily find locations by filtering through your custom fields. Perfect for creating interactive maps with searchable categories, tags, or any custom data you\'ve added to your locations.', 'open-user-map' );
+        ?>
+                  </span><br><br>
+                </td>
+              </tr>
+
+            <?php 
+    }
+    ?>
+
           </table>
         </div>
 
-        <div id="tab-4" class="oum-tab-pane">
+        <div id="tab-4" class="oum-tab-pane <?php 
+    echo ( $active_tab === 'tab-4' ? 'active' : '' );
+    ?>">
           <table class="form-table">
 
             <tr valign="top">
@@ -1740,7 +2148,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
           </table>
         </div>
 
-        <div id="tab-5" class="oum-tab-pane">
+        <div id="tab-5" class="oum-tab-pane <?php 
+    echo ( $active_tab === 'tab-5' ? 'active' : '' );
+    ?>">
 
           <table class="form-table">
 
@@ -1823,25 +2233,40 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               <tr valign="top" class="oum-gopro-tr">
                 <th scope="row">
                   <?php 
-        echo __( 'Votes', 'open-user-map' );
+        echo __( 'Upvotes & Star Rating', 'open-user-map' );
         ?>
                   <br><span class="oum-pro">PRO</span><br>
                   <a class="oum-gopro-text" href="<?php 
         echo oum_fs()->get_upgrade_url();
         ?>"><?php 
-        echo __( 'Upgrade to PRO to enable public votes for Locations.', 'open-user-map' );
+        echo __( 'Upgrade to PRO to enable upvotes and star rating for Locations.', 'open-user-map' );
         ?></a>
                 </th>
                 <td>
                   <input class="oum-switch" type="checkbox" disabled>
                   <label></label><br><br>
                   <span class="description"><?php 
-        echo __( 'Adds a customizable feedback button to each location popup. You can use it for likes, voting, or flagging. The counter is hidden when there are no votes.', 'open-user-map' );
+        echo __( 'Adds a customizable feedback button to each location popup. You can use it for likes, upvotes, flagging, or star rating (1-5 stars). The counter is hidden when there are no votes.', 'open-user-map' );
         ?></span><br><br>
                   <strong><?php 
-        echo __( 'Vote Button Label:', 'open-user-map' );
+        echo __( 'Vote Type:', 'open-user-map' );
+        ?></strong><br>
+                  <select disabled>
+                    <option><?php 
+        echo __( 'Upvote', 'open-user-map' );
+        ?></option>
+                    <option><?php 
+        echo __( 'Star Rating (1-5 stars)', 'open-user-map' );
+        ?></option>
+                  </select>
+                  <br><br>
+                  <strong><?php 
+        echo __( 'Upvote Button Label:', 'open-user-map' );
         ?></strong><br>
                   <input class="regular-text" type="text" value="👍" disabled>
+                  <span class="description"><?php 
+        echo __( '(Only used for Upvote type)', 'open-user-map' );
+        ?></span>
                   <br><br>
                   <strong><?php 
         echo __( 'Prevent Multiple Votes:', 'open-user-map' );
@@ -1918,38 +2343,6 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <label><?php 
         echo __( 'Redirect "Add location"-Button to registration page' );
         ?></label><br><br>
-                </td>
-              </tr>
-
-            <?php 
-    }
-    ?>
-
-            <?php 
-    ?>
-
-            <?php 
-    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
-        ?>
-              
-              <tr valign="top" class="oum-gopro-tr">
-                <th scope="row">
-                  <?php 
-        echo __( 'Auto-Publish for registered users', 'open-user-map' );
-        ?>
-                  <br><span class="oum-pro">PRO</span><br>
-                  <a class="oum-gopro-text" href="<?php 
-        echo oum_fs()->get_upgrade_url();
-        ?>"><?php 
-        echo __( 'Upgrade to PRO to auto-publish location proposals from registered users without your approval!', 'open-user-map' );
-        ?></a>
-                </th>
-                <td>
-                  <input class="oum-switch" type="checkbox" disabled>
-                  <label></label><br><br>
-                  <span class="description"><?php 
-        echo __( 'This works only for users with "edit posts" capabilities.', 'open-user-map' );
-        ?></span><br><br>
                 </td>
               </tr>
 
@@ -2131,11 +2524,36 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                 </td>
               </tr>
 
+            <tr valign="top" >
+                <?php 
+    $oum_custom_css = get_option( 'oum_custom_css' );
+    ?>
+                <th scope="row">
+                  <?php 
+    echo __( 'Custom CSS', 'open-user-map' );
+    ?>
+                </th>
+                <td>
+                  <strong><?php 
+    echo __( 'This CSS will be rendered inline with the frontend styles:' );
+    ?></strong><br>
+                  <textarea class="regular-text" name="oum_custom_css" id="oum_custom_css" rows="8" cols="50" placeholder="<?php 
+    echo __( "e.g. .open-user-map { border: 10px solid red; }", "open-user-map" );
+    ?>"><?php 
+    echo esc_textarea( $oum_custom_css );
+    ?></textarea><br><br>
+                  <span class="description"></span>
+                  <br><br>
+                </td>
+              </tr>
+
           </table>
 
         </div>
 
-        <div id="tab-6" class="oum-tab-pane">
+        <div id="tab-6" class="oum-tab-pane <?php 
+    echo ( $active_tab === 'tab-6' ? 'active' : '' );
+    ?>">
 
           <table class="form-table">
 
@@ -2213,7 +2631,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                         <li>Comma or Semicolon work as delimiter</li>
                         <li>Non-existing Marker Categories will be created automatically</li>
                         <li>Multiselect values need to be written like so: Red|Green|Blue</li>
-                        <li>All imported locations will have status "Draft". You need to publish them yourself.</li>
+                        <li>By default, all imported locations will have status "Draft". You can enable an option to publish them immediately.</li>
                       </ul>
                     </div>
                   </div>
@@ -2228,7 +2646,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
 
         </div>
         
-        <div id="tab-7" class="oum-tab-pane">
+        <div id="tab-7" class="oum-tab-pane <?php 
+    echo ( $active_tab === 'tab-7' ? 'active' : '' );
+    ?>">
 
           <table class="form-table">
 
@@ -2240,7 +2660,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               </th>
               <td class="top-padding-20">
                 <?php 
-    echo sprintf( __( '<ol><li>Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page. Alternatively, you can use the shortcode <code>[open-user-map]</code>.</li><li>You can <a href="%s">Manage Markers</a> under <i>Open User Map > All Locations</i></li><li><a href="%s">Customize</a> map styles, enable features, or get help via <i>Open User Map > Settings</i></li></ol>', 'open-user-map' ), 'edit.php?post_type=oum-location', 'edit.php?post_type=oum-location&page=open-user-map-settings' );
+    echo sprintf( __( '<ol><li>Use the WordPress block editor (or Elementor) to insert the <b>Open User Map</b> block onto a page. Alternatively, you can use the shortcode <input class="shortcode-display" type="text" readonly value=\'[open-user-map]\' />.</li><li>You can <a href="%s">Manage Markers</a> under <i>Open User Map > All Locations</i></li><li><a href="%s">Customize</a> map styles, enable features, or get help via <i>Open User Map > Settings</i></li></ol>', 'open-user-map' ), 'edit.php?post_type=oum-location', 'edit.php?post_type=oum-location&page=open-user-map-settings' );
     ?>
               </td>
             </tr>
@@ -2277,7 +2697,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></th>
               <td class="top-padding-20">
                 <strong>Shortcode:</strong><br><br>
-                <code>[open-user-map]</code> or with PHP <code>&lt;?php echo do_shortcode('[open-user-map]'); ?&gt;</code><br><br>
+                <input class="shortcode-display" type="text" readonly value="[open-user-map]" /> or with PHP <input class="shortcode-display" type="text" readonly value="&lt;?php echo do_shortcode('[open-user-map]'); ?&gt;" /><br><br>
                 <p class="hint"><?php 
     echo __( 'Displays the Map with all locations.', 'open-user-map' );
     ?></p>
@@ -2381,6 +2801,18 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></td>
                             </tr>
                             <tr>
+                                <td><code>date-filter</code></td>
+                                <td>
+                                    <code>date-filter="after:2025-10-03"</code><br>
+                                    <code>date-filter="before:2025-11-03"</code><br>
+                                    <code>date-filter="2025-11-03"</code><br>
+                                    <code>date-filter="after:2025-10-03;before:2025-11-03"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Filter by date using keywords. Use after:YYYY-MM-DD for newer than, before:YYYY-MM-DD for older than, a bare YYYY-MM-DD for an exact day, or combine with semicolons for a range. Uses modified or created date based on your settings.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
                                 <td><code>user</code> <span class="oum-pro">PRO</span></td>
                                 <td>
                                     <code>user="current"</code><br>
@@ -2389,6 +2821,26 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                                 </td>
                                 <td><?php 
     echo __( 'Filter locations by user. Use "current" to show only locations from the currently logged-in user, a specific user ID, or "role:rolename" to show locations from users with a specific role.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>custom-fields-filter</code></td>
+                                <td>
+                                    <code>custom-fields-filter="Color:Red|Blue:OR; Size:M"</code><br>
+                                    <code>custom-fields-filter="Website:https\://example.com"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Filter locations by custom field values. Format: LABEL:VALUE1|VALUE2:RELATION. Multiple filters separated by semicolon. RELATION defaults to OR. To include a colon in a value (e.g., URLs), escape it with a backslash, e.g. <code>https\\://example.com</code>.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>custom-fields-filter-relation</code></td>
+                                <td>
+                                    <code>custom-fields-filter-relation="AND"</code><br>
+                                    <code>custom-fields-filter-relation="OR"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Relation between multiple custom field filter groups. Default is AND (all groups must match). Set to OR if any group may match.', 'open-user-map' );
     ?></td>
                             </tr>
                         </tbody>
@@ -2538,6 +2990,38 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></td>
                             </tr>
                             <tr>
+                                <td><code>hide_filterbox</code></td>
+                                <td>
+                                    <code>hide_filterbox="true"</code><br>
+                                    <code>hide_filterbox="false"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Hide the Marker Categories filterbox.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>enable_advanced_filter</code> <span class="oum-pro">PRO</span></td>
+                                <td>
+                                    <code>enable_advanced_filter="true"</code><br>
+                                    <code>enable_advanced_filter="false"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Override the Advanced Filter Interface toggle for this shortcode, regardless of the global setting.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>advanced_filter_layout</code> <span class="oum-pro">PRO</span></td>
+                                <td>
+                                    <code>advanced_filter_layout="left"</code><br>
+                                    <code>advanced_filter_layout="right"</code><br>
+                                    <code>advanced_filter_layout="button"</code><br>
+                                    <code>advanced_filter_layout="panel"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Force a specific Advanced Filter layout (sidebar, button, or panel) just for this shortcode.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
                                 <td><code>enable_currentlocation</code></td>
                                 <td>
                                     <code>enable_currentlocation="true"</code><br>
@@ -2589,7 +3073,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Additional Shortcodes', 'open-user-map' );
     ?></th>
               <td class="top-padding-20">
-                <code>[open-user-map-form]</code> 
+                <input class="shortcode-display" type="text" readonly value="[open-user-map-form]" />
                 <br><br>
                 <span class="hint"><?php 
     echo __( 'Display the "Add Location" form inline instead of within a popup. The form will be displayed directly on the page without the map.', 'open-user-map' );
@@ -2597,11 +3081,26 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                 <br><br>
                 <br><br>
 
-                <span class="oum-pro">PRO</span> <code>[open-user-map-location value="Favorite color" post_id="12345"]</code> 
+                <span class="oum-pro">PRO</span> <input class="shortcode-display" type="text" readonly value='[open-user-map-location value="Favorite color" post_id="12345"]' /> 
                 <br><br>
                 <span class="hint"><?php 
-    echo __( 'Display specific values from a location. The POST_ID attribute is optional. Alternatively use the PHP function <code>oum_get_location_value( $value, $post_id )</code> in case you just want to return the value.', 'open-user-map' );
+    echo __( 'Display specific values from a location. The POST_ID attribute is optional. Alternatively use the PHP function <input class="shortcode-display" type="text" readonly value="oum_get_location_value( $value, $post_id )" /> in case you just want to return the value.', 'open-user-map' );
     ?></span>
+                <br><br>
+                <strong><?php 
+    echo __( 'Available shortcodeattributes:', 'open-user-map' );
+    ?></strong>
+                <ul>
+                  <li><input class="shortcode-display" type="text" readonly value='format="object"' /> - <?php 
+    echo __( 'Returns JSON data without wrapper div. Perfect for embedding in HTML attributes or custom JavaScript. If "value" attribute is provided, returns that single value as an object. If no "value" attribute is provided, returns all location data as an object.', 'open-user-map' );
+    ?></li>
+                  <li><input class="shortcode-display" type="text" readonly value='post_id="12345"' /> - <?php 
+    echo __( 'The post ID of the location. If omitted, uses the current post ID.', 'open-user-map' );
+    ?></li>
+                  <li><input class="shortcode-display" type="text" readonly value='value="Favorite color"' /> - <?php 
+    echo __( 'The specific value to display. See list below for available values.', 'open-user-map' );
+    ?></li>
+                </ul>
                 <br><br>
                 <strong><?php 
     echo __( 'These values are available:', 'open-user-map' );
@@ -2611,9 +3110,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <li>images</li>
                   <li>audio</li>
                   <li>video</li>
-                  <li>type</li>
+                  <li>type (Marker Categories)</li>
                   <li>map</li>
-                  <li>address</li>
+                  <li>subtitle (replaces the former "address" label)</li>
                   <li>lat</li>
                   <li>lng</li>
                   <li>route</li>
@@ -2627,7 +3126,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                 </ul>
                 <br><br>
 
-                <span class="oum-pro">PRO</span> <code>[open-user-map-gallery]</code> 
+                <span class="oum-pro">PRO</span> <input class="shortcode-display" type="text" readonly value="[open-user-map-gallery]" />
                 <br><br>
                 <span class="hint"><?php 
     echo __( 'Get a nice gallery view of all the location images. Each image is linked to the location marker on the map.', 'open-user-map' );
@@ -2637,19 +3136,19 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Available attributes:', 'open-user-map' );
     ?></strong>
                 <ul>
-                  <li><code>url="https://mysite.com/"</code> - <?php 
+                  <li><input class="shortcode-display" type="text" readonly value='url="https://mysite.com/"' /> - <?php 
     echo __( 'Link the images to another page.', 'open-user-map' );
     ?></li>
-                  <li><code>number="10"</code> - <?php 
+                  <li><input class="shortcode-display" type="text" readonly value='number="10"' /> - <?php 
     echo __( 'Limit the number of images displayed.', 'open-user-map' );
     ?></li>
-                  <li><code>user="current"</code> - <?php 
+                  <li><input class="shortcode-display" type="text" readonly value='user="current"' /> - <?php 
     echo __( 'Filter images by user. Accepts "current", a user ID, or "role:rolename".', 'open-user-map' );
     ?></li>
                 </ul>
                 <br><br>
 
-                <span class="oum-pro">PRO</span> <code>[open-user-map-list]</code> 
+                <span class="oum-pro">PRO</span> <input class="shortcode-display" type="text" readonly value="[open-user-map-list]" />
                 <br><br>
                 <span class="hint"><?php 
     echo __( 'Get a list view of all the locations. The list view is paginated. This number of items per page can be adjusted under <i>Settings > Reading</i>.', 'open-user-map' );
@@ -2659,17 +3158,26 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Available attributes:', 'open-user-map' );
     ?></strong>
                 <ul>
-                  <li><code>user="current"</code> - <?php 
+                  <li><input class="shortcode-display" type="text" readonly value='user="current"' /> - <?php 
     echo __( 'Filter locations by user. Accepts "current", a user ID, or "role:rolename".', 'open-user-map' );
     ?></li>
-                  <li><code>types="food|drinks"</code> - <?php 
+                  <li><input class="shortcode-display" type="text" readonly value='types="food|drinks"' /> - <?php 
     echo __( 'Filter by marker categories. Separate multiple types with a | symbol.', 'open-user-map' );
     ?></li>
-                  <li><code>types-relation="AND"</code> - <?php 
+                  <li><input class="shortcode-display" type="text" readonly value='types-relation="AND"' /> - <?php 
     echo __( 'All types must match (AND). By default or any type can match (OR).', 'open-user-map' );
     ?></li>
-                  <li><code>ids="123|456"</code> - <?php 
+                  <li><input class="shortcode-display" type="text" readonly value='ids="123|456"' /> - <?php 
     echo __( 'Filter by location IDs. Separate multiple IDs with a | symbol.', 'open-user-map' );
+    ?></li>
+                  <li><input class="shortcode-display" type="text" readonly value='date-filter="after:2025-10-03"' /> - <?php 
+    echo __( 'Filter by date using keywords. Use after:YYYY-MM-DD for newer than, before:YYYY-MM-DD for older than, a bare YYYY-MM-DD for an exact day, or combine with ";" for ranges. Uses modified or created date based on settings.', 'open-user-map' );
+    ?></li>
+                  <li><input class="shortcode-display" type="text" readonly value='custom-fields-filter="Color:Red|Blue:OR;Size:M"' /> - <?php 
+    echo __( 'Filter by custom field values. Format: LABEL:VALUE1|VALUE2:RELATION. Multiple filters separated by semicolon. RELATION defaults to OR. To include a colon in a value (e.g., URLs), escape it with a backslash: <code>Website:https\\://example.com</code>', 'open-user-map' );
+    ?></li>
+                  <li><input class="shortcode-display" type="text" readonly value='custom-fields-filter-relation="AND"' /> - <?php 
+    echo __( 'Relation between multiple custom field filters. Default is AND. Set to OR if any filter group should match.', 'open-user-map' );
     ?></li>
                 </ul>
                 <br><br>
@@ -2681,10 +3189,10 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'URL parameters', 'open-user-map' );
     ?></th>
               <td class="top-padding-20">
-                <code>?markerid=123</code> <span class="hint"><?php 
+                <input class="shortcode-display" type="text" readonly value='?markerid=123' /> <span class="hint"><?php 
     echo __( '123 can be the post_id of any public location. Add the parameter to the URL to auto-open a specific location.', 'open-user-map' );
     ?></span><br><br>
-                <code>?region=Europe</code> <span class="hint"><?php 
+                <input class="shortcode-display" type="text" readonly value='?region=Europe' /> <span class="hint"><?php 
     echo __( 'Pre-select a region.', 'open-user-map' );
     ?> <?php 
     echo __( 'This works only if you enabled the regions feature in the settings.', 'open-user-map' );
@@ -2694,31 +3202,74 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
 
             <tr valign="top">
               <th scope="row"><?php 
-    echo __( 'Conditional Fields (experimental)', 'open-user-map' );
+    echo __( 'JavaScript API', 'open-user-map' );
     ?></th>
               <td class="top-padding-20">
+                <p class="hint"><?php 
+    echo __( 'Extend the map on the frontend with custom JavaScript. These helpers are available after the map finished loading.', 'open-user-map' );
+    ?></p>
+                <br><br>
+                <strong><?php 
+    echo __( 'Marker & filter helpers:', 'open-user-map' );
+    ?></strong><br><br>
+                <div class="oum-code-snippet">
+                  <div class="oum-code-label">JavaScript</div>
+<textarea readonly wrap="off" rows="9" cols="100" class="code-display">
+// Returns the number of markers currently visible (honors all filters)
+OUMMarkers.getFilteredMarkersCount();
+
+// Inspect the active filter state (searchtext, categories, customfields)
+OUMMarkers.getFilterState();
+
+// Access the raw location data array (helpful for custom UIs)
+OUMMarkers.getAllLocations();
+</textarea>
+                </div>
+                <br><br>
+                <br><br>
+                <strong><?php 
+    echo __( 'Conditional Fields', 'open-user-map' );
+    ?></strong><br>
                 <span class="hint"><?php 
-    echo __( 'Show or Hide a Custom Field based on the selected value of a field.', 'open-user-map' );
+    echo __( 'Show or hide a custom form field based on the selected value of another field.', 'open-user-map' );
     ?></span><br><br>
+                <div class="oum-code-snippet">
+                  <div class="oum-code-label">JavaScript</div>
+<textarea readonly wrap="off" rows="10" cols="100" class="code-display">
+/**
+ * OUM: Conditional Field
+ * 
+ * sourceField   Element that defines the condition
+ * targetField   Element to show or hide
+ * condShow      Array of values that lead to show
+ * condHide      (Optional) Array of values that lead to hide. If empty/omitted, the field will be hidden when condShow is not met.
+*/
+
+oumConditionalField(sourceField, targetField, condShow, condHide);
+</textarea>
+                </div>
+                <br><br>
                 <strong><?php 
-    echo __( 'Use this Javascript function in your template:', 'open-user-map' );
+    echo __( 'Examples:', 'open-user-map' );
     ?></strong><br><br>
-                <code class="block">/**
-                  * OUM: Conditional Field
-                  * 
-                  * sourceField   Element that defines the condition
-                  * targetField   Element to show or hide
-                  * condShow      Array of values that lead to show
-                  * condHide      Array of values that lead to hide
-                  */
-                  oumConditionalField(sourceField, targetField, condShow, condHide);
-                </code><br><br>
-                <strong><?php 
-    echo __( 'Example:', 'open-user-map' );
-    ?></strong><br><br>
-                <code>
-                  oumConditionalField('[name="oum_marker_icon[]"]', '[name="oum_location_custom_fields[1645650268221]"]', ['1', '2'], ['3', '']);
-                </code>
+                <div class="oum-code-snippet">
+                  <div class="oum-code-label">JavaScript</div>
+<textarea readonly wrap="off" rows="4" cols="100" class="code-display">
+// With condHide: Show field when value is '1' or '2', hide when value is '3' or empty
+
+oumConditionalField('[name="oum_marker_icon[]"]', '[name="oum_location_custom_fields[1645650268221]"]', ['1', '2'], ['3', '']);
+
+</textarea>
+                </div>
+                <div class="oum-code-snippet">
+                  <div class="oum-code-label">JavaScript</div>
+<textarea readonly wrap="off" rows="4" cols="100" class="code-display">
+// Without condHide: Show field only when value is '1' or '2', hide otherwise
+
+oumConditionalField('[name="oum_marker_icon[]"]', '[name="oum_location_custom_fields[1645650268221]"]', ['1', '2']);
+
+</textarea>
+                </div>
               </td>
             </tr>
 
@@ -2737,46 +3288,88 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                 <strong><?php 
     echo __( 'Customize location bubble content:', 'open-user-map' );
     ?></strong><br><br>
-                <code class="block"><pre>add_filter('oum_location_bubble_content', function ( $content, $location ) {
+<div class="oum-code-snippet">
+  <div class="oum-code-label">PHP</div>
+<textarea readonly wrap="off" rows="8" cols="100" class="code-display">
+add_filter('oum_location_bubble_content', function ( $content, $location ) {
 
   // extend or change content
   $content .= 'Post ID: ' . $location['post_id'];
 
   return $content;
-}, 10, 2);</pre></code>
+}, 10, 2);
+</textarea>
+  </div>
                 <br><br><br>
                 <strong><?php 
-    echo __( 'Customize the default location content:', 'open-user-map' );
+    echo __( 'Customize the template for single location pages:', 'open-user-map' );
     ?></strong><br><br>
-                <code class="block"><pre>add_filter('oum_default_location_content', function ($default_content, $post_id) {
+<div class="oum-code-snippet">
+  <div class="oum-code-label">PHP</div>
+<textarea readonly wrap="off" rows="8" cols="100" class="code-display">
+add_filter('oum_default_location_content', function ($default_content, $post_id) {
 
     // Your custom content here
     $my_custom_default_content = 'WRITE YOUR CUSTOM CONTENT HERE';
    
     return $my_custom_default_content;
-}, 10, 2);</pre></code>
+}, 10, 2);
+</textarea>
+  </div>
                 <br><br><br>
                 <span class="oum-pro">PRO</span> <strong><?php 
     echo __( 'Customize location list item content:', 'open-user-map' );
     ?></strong><br><br>
-                <code class="block"><pre>add_filter('oum_location_list_item_content', function ( $content, $location ) {
+<div class="oum-code-snippet">
+  <div class="oum-code-label">PHP</div>
+<textarea readonly wrap="off" rows="8" cols="100" class="code-display">
+add_filter('oum_location_list_item_content', function ( $content, $location ) {
 
   // extend or change content
   $content .= 'Post ID: ' . $location['post_id'];
 
   return $content;
-}, 10, 2);</pre></code>
+}, 10, 2);
+</textarea>
+  </div>
                 <br><br><br>
                 <strong><?php 
     echo __( 'Customize location bubble image (eg. to add a lightbox):', 'open-user-map' );
     ?></strong><br><br>
-                <code class="block"><pre>add_filter('oum_location_bubble_image', function ( $image, $location ) {
+<div class="oum-code-snippet">
+  <div class="oum-code-label">PHP</div>
+<textarea readonly wrap="off" rows="8" cols="100" class="code-display">
+add_filter('oum_location_bubble_image', function ( $image, $location ) {
 
   // extend or change image
   $image = '&lt;a class=&quot;lightbox&quot; href=&quot;' . $location['image'] . '&quot;&gt;' . $image . '&lt;/a&gt;';
 
   return $image;
-}, 10, 2);</pre></code>
+}, 10, 2);
+</textarea>
+  </div>
+                <br><br><br>
+                <strong><?php 
+    echo __( 'Modify location data before rendering (map & list view, eg. customize marker icon):', 'open-user-map' );
+    ?></strong><br><br>
+<div class="oum-code-snippet">
+  <div class="oum-code-label">PHP</div>
+<textarea readonly wrap="off" rows="14" cols="100" class="code-display">
+add_filter('oum_location_data', function ( $location_data, $post_id ) {
+
+  // Example: Change marker icon based on custom logic
+  if ( $post_id == 123 ) {
+    $location_data['icon'] = 'https://example.com/custom-marker.png';
+  }
+
+  // You can modify any property of $location_data:
+  // - icon: marker icon URL (works for map markers and list view)
+  // - title, lat, lng, zoom, content, types, post_id, address, text, image, audio, video, custom_fields, votes, etc.
+
+  return $location_data;
+}, 10, 2);
+</textarea>
+  </div>
                 <br><br><br>
               </td>
             </tr>
@@ -2802,7 +3395,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               </th>
               <td class="top-padding-20">
                 <?php 
-    echo __( 'You can copy & paste this info and send it as email to our support in case we need to debug something:', 'open-user-map' );
+    echo __( 'You can copy & paste or screenshot this info and send it as email to our support in case we need to debug something:', 'open-user-map' );
     ?><br><br>
                 <div class="oum-debug-info">
                   <ul>
@@ -2844,10 +3437,211 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></li>
                     <li>
                       <br>
-                      Last PHP error/warning:
-                      <pre><?php 
-    print_r( error_get_last() );
-    ?></pre>
+                      <strong>Error Logging Configuration:</strong>
+                      <div class="oum-error-config">
+                        <?php 
+    $wp_debug = defined( 'WP_DEBUG' ) && WP_DEBUG;
+    $wp_debug_log = defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG;
+    $php_log_errors = ini_get( 'log_errors' );
+    $php_error_log = ini_get( 'error_log' );
+    // Helper function for status badges
+    if ( !function_exists( 'oum_status_badge' ) ) {
+        function oum_status_badge(  $enabled, $label  ) {
+            $badge_class = ( $enabled ? 'enabled' : 'disabled' );
+            $icon = ( $enabled ? '✓' : '✗' );
+            return '<span class="oum-status-badge ' . $badge_class . '">' . $icon . ' ' . esc_html( $label ) . '</span>';
+        }
+
+    }
+    echo oum_status_badge( $wp_debug, 'WP_DEBUG' );
+    echo oum_status_badge( $wp_debug_log, 'WP_DEBUG_LOG' );
+    echo oum_status_badge( $php_log_errors, 'PHP log_errors' );
+    ?>
+                        
+                        <?php 
+    if ( $wp_debug_log || $php_error_log ) {
+        ?>
+                        <div class="oum-log-paths">
+                          <?php 
+        if ( $wp_debug_log ) {
+            $wp_debug_log_path = WP_CONTENT_DIR . '/debug.log';
+            ?>
+                            <strong>WordPress debug.log:</strong> <?php 
+            echo esc_html( $wp_debug_log_path );
+            ?>
+                            <?php 
+            if ( file_exists( $wp_debug_log_path ) ) {
+                ?>
+                              <span class="status-icon success">✓</span>
+                            <?php 
+            } else {
+                ?>
+                              <span class="status-icon warning">⚠</span>
+                            <?php 
+            }
+            ?>
+                            <br>
+                          <?php 
+        }
+        ?>
+                          
+                          <?php 
+        if ( $php_error_log ) {
+            ?>
+                            <strong>PHP error_log:</strong> <?php 
+            echo esc_html( $php_error_log );
+            ?>
+                            <?php 
+            if ( file_exists( $php_error_log ) ) {
+                ?>
+                              <span class="status-icon success">✓</span>
+                            <?php 
+            } else {
+                ?>
+                              <span class="status-icon warning">⚠</span>
+                            <?php 
+            }
+            ?>
+                          <?php 
+        }
+        ?>
+                        </div>
+                        <?php 
+    }
+    ?>
+                      </div>
+                    </li>
+                    <li>
+                      <br>
+                      <strong>Recent PHP Errors:</strong>
+                      <div class="oum-errors-container">
+                      <?php 
+    // Safely read recent PHP errors from log files (filtered to show only errors, no warnings)
+    // This function is wrapped in try-catch to prevent any issues on different server configurations
+    try {
+        $errors_to_display = [];
+        $max_errors = 10;
+        $log_source = '';
+        // Helper function to safely read and filter error log
+        // Returns array of error messages or empty array on failure
+        if ( !function_exists( 'oum_read_error_log' ) ) {
+            function oum_read_error_log(  $file_path, $max_errors = 10  ) {
+                try {
+                    $errors = [];
+                    // Safety checks
+                    if ( empty( $file_path ) || !file_exists( $file_path ) || !is_readable( $file_path ) ) {
+                        return $errors;
+                    }
+                    // Additional safety: check file size (skip if > 10MB to avoid memory issues)
+                    if ( filesize( $file_path ) > 10 * 1024 * 1024 ) {
+                        return $errors;
+                    }
+                    // Safely read the last 100 lines from the error log
+                    $file = new SplFileObject($file_path, 'r');
+                    $file->seek( PHP_INT_MAX );
+                    $last_line = $file->key();
+                    $start_line = max( 0, $last_line - 100 );
+                    $file->seek( $start_line );
+                    while ( !$file->eof() ) {
+                        $line = trim( $file->current() );
+                        if ( !empty( $line ) ) {
+                            // Filter to only include actual errors (not warnings, notices, deprecated)
+                            if ( preg_match( '/PHP (Fatal error|Parse error|Error|Catchable fatal error):/i', $line ) ) {
+                                $errors[] = $line;
+                                if ( count( $errors ) >= $max_errors ) {
+                                    break;
+                                }
+                            }
+                        }
+                        $file->next();
+                    }
+                    // Return errors in reverse order (most recent first)
+                    return array_reverse( $errors );
+                } catch ( Exception $e ) {
+                    // Silently fail - return empty array
+                    return [];
+                }
+            }
+
+        }
+        // Check WordPress debug constants
+        $wp_debug_log_enabled = defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG;
+        // Priority 1: Check WordPress debug.log if WP_DEBUG_LOG is enabled
+        if ( $wp_debug_log_enabled ) {
+            $wp_debug_log_path = WP_CONTENT_DIR . '/debug.log';
+            $errors_to_display = oum_read_error_log( $wp_debug_log_path, $max_errors );
+            if ( !empty( $errors_to_display ) ) {
+                $log_source = 'WordPress debug.log';
+            }
+        }
+        // Priority 2: Check PHP error_log if no errors found yet
+        if ( empty( $errors_to_display ) ) {
+            $error_log_path = ini_get( 'error_log' );
+            if ( !empty( $error_log_path ) ) {
+                $errors_to_display = oum_read_error_log( $error_log_path, $max_errors );
+                if ( !empty( $errors_to_display ) ) {
+                    $log_source = 'PHP error_log';
+                }
+            }
+        }
+        // Priority 3: Fallback to error_get_last()
+        if ( empty( $errors_to_display ) ) {
+            $last_error = error_get_last();
+            if ( $last_error && isset( $last_error['type'] ) && in_array( $last_error['type'], [
+                E_ERROR,
+                E_PARSE,
+                E_CORE_ERROR,
+                E_COMPILE_ERROR,
+                E_USER_ERROR,
+                E_RECOVERABLE_ERROR
+            ] ) ) {
+                $errors_to_display[] = sprintf(
+                    '[%s] %s in %s on line %d',
+                    date( 'Y-m-d H:i:s' ),
+                    $last_error['message'],
+                    $last_error['file'],
+                    $last_error['line']
+                );
+                $log_source = 'Last error in memory';
+            }
+        }
+        // Display the errors with improved styling
+        if ( !empty( $errors_to_display ) ) {
+            echo '<div class="oum-error-alert warning">';
+            echo '<strong>⚠ ' . count( $errors_to_display ) . ' Error(s) Found</strong>';
+            if ( $log_source ) {
+                echo ' <span class="source-label">(from ' . esc_html( $log_source ) . ')</span>';
+            }
+            echo '</div>';
+            echo '<pre class="oum-error-log">';
+            foreach ( $errors_to_display as $error ) {
+                echo esc_html( $error ) . "\n";
+            }
+            echo '</pre>';
+        } else {
+            // No errors found - show appropriate message
+            $php_error_log_enabled = ini_get( 'log_errors' ) && ini_get( 'error_log' );
+            $any_logging_enabled = $wp_debug_log_enabled || $php_error_log_enabled;
+            if ( !$any_logging_enabled ) {
+                echo '<div class="oum-error-alert warning">';
+                echo '<strong>⚠ Error logging is not enabled</strong><br>';
+                echo '<span class="help-text">To capture PHP errors, please enable error logging. <a href="https://www.open-user-map.com/knowledge-base/how-to-debug-wordpress/" target="_blank">Learn how to enable error logging →</a></span>';
+                echo '</div>';
+            } else {
+                echo '<div class="oum-error-alert success">';
+                echo '<strong>✓ No recent errors detected</strong><br>';
+                echo '<span class="success-text">Your site is running smoothly!</span>';
+                echo '</div>';
+            }
+        }
+    } catch ( Exception $e ) {
+        // Ultimate fallback - if anything goes wrong, show a safe error message
+        echo '<div class="oum-error-alert info">';
+        echo '<em>Unable to retrieve error log information.</em>';
+        echo '</div>';
+    }
+    ?>
+                      </div>
                     </li>
                   </ul>
                 </div>
@@ -2861,7 +3655,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
         ?>
         <!-- PRO Trial Tab Pane -->
-        <div id="tab-pro-trial" class="oum-tab-pane">
+        <div id="tab-pro-trial" class="oum-tab-pane <?php 
+        echo ( $active_tab === 'tab-pro-trial' ? 'active' : '' );
+        ?>">
           <h2><?php 
         echo __( 'Try PRO Free for 7 Days', 'open-user-map' );
         ?></h2>
@@ -2938,6 +3734,15 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         ?></p>
               </li>
 
+              <li>
+                <p><strong><?php 
+        echo __( 'Upvote & Star Rating', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo __( 'Add a customizable feedback button for likes, upvotes, flagging, or star rating (1-5 stars). Let visitors interact with locations and provide valuable feedback.', 'open-user-map' );
+        ?></p>
+              </li>
+
               <!-- HIDDEN FEATURES -->
 
               <li class="hidden-feature">
@@ -2945,7 +3750,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         echo __( 'More custom field types', 'open-user-map' );
         ?></strong><br>
                 <?php 
-        echo __( 'Add custom fields like links, radio buttons, checkboxes, dropdowns and even HTML. Social media links will automatically be rendered as icons.', 'open-user-map' );
+        echo __( 'Add custom fields like links, radio buttons, checkboxes, dropdowns, Opening Hours, and even HTML. Social media links will automatically be rendered as icons.', 'open-user-map' );
         ?></p>
               </li>
 
@@ -3121,6 +3926,57 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     <?php 
 }
 ?>
+
+    <script>
+    // Tooltips
+    const tooltipTriggers = document.querySelectorAll('.oum-tooltip');
+    
+    tooltipTriggers.forEach(function(trigger) {
+        const tooltip = trigger.querySelector('.oum-tooltip-content');
+        let timeout;
+        const tooltipLinks = tooltip ? tooltip.querySelectorAll('a') : [];
+        
+        trigger.addEventListener('mouseenter', function() {
+            clearTimeout(timeout);
+            tooltip.style.display = 'block';
+        });
+        
+        trigger.addEventListener('mouseleave', function() {
+            timeout = setTimeout(function() {
+                tooltip.style.display = 'none';
+            }, 100);
+        });
+        
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Toggle tooltip visibility
+            if (tooltip.style.display === 'block') {
+                tooltip.style.display = 'none';
+            } else {
+                tooltip.style.display = 'block';
+            }
+        });
+
+        // Allow links inside the tooltip content to be clickable without closing the tooltip.
+        tooltipLinks.forEach(function(link) {
+            link.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        });
+    });
+    
+    // Close tooltips when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.oum-tooltip')) {
+            tooltipTriggers.forEach(function(trigger) {
+                const tooltip = trigger.querySelector('.oum-tooltip-content');
+                tooltip.style.display = 'none';
+            });
+        }
+    });
+    </script>
 
 </form>
 </div>
