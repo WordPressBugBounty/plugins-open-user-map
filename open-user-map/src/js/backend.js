@@ -149,65 +149,144 @@ jQuery(function($){
   $('body').on('click', '.oum_export_csv_button', function(e){
     e.preventDefault();
 
-    jQuery.ajax({
+    var $button = $(this);
+    var page = 1;
+    var perPage = 200;
+    var allRows = [];
+    var csvHeader = null;
+    var datetime = null;
+
+    // Create simple export progress UI once.
+    var $progressWrap = $('.oum-export-progress-wrap');
+    if (!$progressWrap.length) {
+      $progressWrap = $(
+        '<div class="oum-export-progress-wrap" style="display:none; margin-top:10px;">' +
+          '<progress class="oum-export-progress" value="0" max="100" style="width:320px;"></progress>' +
+          '<div class="oum-export-progress-text" style="margin-top:6px;">Preparing export...</div>' +
+        '</div>'
+      );
+      $button.after($progressWrap);
+    }
+
+    var $progressBar = $progressWrap.find('.oum-export-progress');
+    var $progressText = $progressWrap.find('.oum-export-progress-text');
+
+    $button.prop('disabled', true);
+    $progressWrap.show();
+    $progressText.text('Preparing export...');
+    $progressBar.attr('value', 0).attr('max', 100);
+
+    const download = function (data) {
+      const blob = new Blob([data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', 'oum-locations_' + datetime + '.csv');
+      a.click();
+      window.URL.revokeObjectURL(url);
+    };
+
+    const escapeCsv = function (value) {
+      // Keep CSV valid even with commas, quotes or line breaks.
+      var stringValue = (value === null || typeof value === 'undefined') ? '' : String(value);
+      return '"' + stringValue.replace(/"/g, '""') + '"';
+    };
+
+    const csvmaker = function (header, rows) {
+      var csvRows = [];
+      csvRows.push(header.map(escapeCsv).join(','));
+      rows.forEach(function(row) {
+        csvRows.push(row.map(escapeCsv).join(','));
+      });
+      return csvRows.join('\r\n');
+    };
+
+    const finalizeExport = function () {
+      if (!csvHeader || allRows.length === 0) {
+        alert('Something went wrong. Please see errors in console.');
+        console.error('OUM: No public locations available to export.');
+        $button.prop('disabled', false);
+        $progressWrap.hide();
+        return;
+      }
+
+      var csvdata = csvmaker(csvHeader, allRows);
+      download(csvdata);
+
+      $progressText.text('Export complete.');
+      $button.prop('disabled', false);
+
+      // Keep "complete" visible shortly for better UX, then hide.
+      setTimeout(function() {
+        $progressWrap.hide();
+        $progressBar.attr('value', 0).attr('max', 100);
+      }, 1200);
+    };
+
+    const fetchChunk = function () {
+      jQuery.ajax({
         url: ajaxurl,
         type: 'POST',
         dataType: 'json',
         data: {
-            'action': 'oum_csv_export',
+          action: 'oum_csv_export',
+          oum_location_nonce: oum_ajax.oum_location_nonce,
+          page: page,
+          per_page: perPage
         },
-        success: function (response, textStatus, XMLHttpRequest) {
-            console.log(response);
-            console.log(textStatus);
+        success: function(response) {
+          if (!response || !response.success || !response.data) {
+            alert('Something went wrong. Please see errors in console.');
+            console.error('OUM: Export response invalid.', response);
+            $button.prop('disabled', false);
+            $progressWrap.hide();
+            return;
+          }
 
-            // locations from PHP
-            var $locations_list = response.data.locations;
-            var datetime = response.data.datetime;
+          var locations = response.data.locations || [];
+          var total = parseInt(response.data.total || 0, 10);
+          var exported = parseInt(response.data.exported || 0, 10);
+          var hasMore = !!response.data.has_more;
 
-            // EXIT, if no locations
-            if($locations_list.length === 0) {
-                alert('Something went wrong. Please see errors in console.');
-                console.error('OUM: No public locations available to export.');
-                return;
-            } 
+          if (!datetime) {
+            datetime = response.data.datetime;
+          }
 
-            const download = function (data) {
-              const blob = new Blob([data], { type: 'text/csv' });
-              const url = window.URL.createObjectURL(blob)
-              const a = document.createElement('a')
-              a.setAttribute('href', url)
-              a.setAttribute('download', 'oum-locations_' + datetime + '.csv');
-              a.click()
-            }
+          if (!csvHeader && locations.length > 0) {
+            csvHeader = Object.keys(locations[0]);
+          }
 
-            const csvmaker = function (data) {
-              csvRows = [];
-              let headerValues = '';
-              for (let col of data.header) { headerValues += '"' + col + '"' + ','; }
-              csvRows.push(headerValues.slice(0, -1));
-              data.rows.forEach(row => {
-                let locationValues = '';
-                for (let col of row) { locationValues += '"' + col + '"' + ','; }
-                csvRows.push(locationValues.slice(0, -1));
-              });
-              return csvRows.join('\r\n')
-            }
+          locations.forEach(function(locationRow) {
+            allRows.push(Object.values(locationRow));
+          });
 
-            const get = function () {
-              const data = {};
-              data.header = Object.keys($locations_list[0]);
-              data.rows = [];
-              $locations_list.forEach(location_row => {
-                data.rows.push(Object.values(location_row))
-              });
-              console.log(data);
-              const csvdata = csvmaker(data);
-              download(csvdata);
-            }
-            
-            get();
+          if (total > 0) {
+            $progressBar.attr('max', total);
+            $progressBar.attr('value', Math.min(exported, total));
+            $progressText.text('Exporting ' + Math.min(exported, total) + ' of ' + total + ' locations...');
+          } else {
+            $progressBar.attr('max', 100);
+            $progressBar.attr('value', 0);
+            $progressText.text('No published locations found.');
+          }
+
+          if (hasMore) {
+            page++;
+            fetchChunk();
+          } else {
+            finalizeExport();
+          }
+        },
+        error: function(xhr, status, error) {
+          alert('Something went wrong. Please try again.');
+          console.error('OUM: AJAX export error:', status, error);
+          $button.prop('disabled', false);
+          $progressWrap.hide();
         }
-    });
+      });
+    };
+
+    fetchChunk();
   });
 
   // Import CSV

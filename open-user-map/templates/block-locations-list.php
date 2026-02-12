@@ -8,8 +8,12 @@ if ( !function_exists( 'clean_utf8' ) ) {
         if ( is_array( $value ) ) {
             return array_map( 'clean_utf8', $value );
         } elseif ( is_string( $value ) ) {
-            return mb_convert_encoding( $value, 'UTF-8', 'UTF-8' );
-            // Re-encode to valid UTF-8
+            // Guard against environments where mbstring is disabled.
+            if ( function_exists( 'mb_convert_encoding' ) ) {
+                return mb_convert_encoding( $value, 'UTF-8', 'UTF-8' );
+                // Re-encode to valid UTF-8
+            }
+            return $value;
         } else {
             return $value;
         }
@@ -258,6 +262,91 @@ if ( !function_exists( 'oum_parse_custom_fields_filter' ) ) {
     }
 
 }
+/**
+ * Helper function to normalize custom field values for sorting.
+ *
+ * @param mixed $field_value The raw custom field value from location meta.
+ * @return string Normalized value used in comparison.
+ */
+if ( !function_exists( 'oum_normalize_custom_field_sort_value' ) ) {
+    function oum_normalize_custom_field_sort_value(  $field_value  ) {
+        if ( is_array( $field_value ) ) {
+            $field_value = implode( '|', array_map( 'strval', $field_value ) );
+        }
+        if ( $field_value === null ) {
+            return '';
+        }
+        return trim( wp_strip_all_tags( (string) $field_value ) );
+    }
+
+}
+/**
+ * Compare two normalized sort values with numeric fallback support.
+ *
+ * @param string $a First normalized value.
+ * @param string $b Second normalized value.
+ * @param string $direction ASC or DESC.
+ * @return int Comparison result for usort.
+ */
+if ( !function_exists( 'oum_compare_sort_values' ) ) {
+    function oum_compare_sort_values(  $a, $b, $direction = 'ASC'  ) {
+        if ( is_numeric( $a ) && is_numeric( $b ) ) {
+            $result = (float) $a <=> (float) $b;
+        } else {
+            $result = strnatcasecmp( (string) $a, (string) $b );
+        }
+        if ( $result === 0 ) {
+            return 0;
+        }
+        return ( $direction === 'DESC' ? -$result : $result );
+    }
+
+}
+// Get active custom fields once (needed for filtering and custom-field sorting)
+$active_custom_fields = get_option( 'oum_custom_fields', array() );
+// Custom Attribute: Sort list view by title/date/custom field label (e.g. "Title:DESC")
+$sort_field_label = '';
+$sort_direction = 'ASC';
+$sort_type = '';
+$sort_custom_field_index = null;
+if ( isset( $block_attributes['sort'] ) && trim( (string) $block_attributes['sort'] ) !== '' ) {
+    $sort_attr = html_entity_decode( trim( (string) $block_attributes['sort'] ), ENT_QUOTES, 'UTF-8' );
+    $separator_pos = strrpos( $sort_attr, ':' );
+    if ( $separator_pos !== false ) {
+        $sort_field_label = trim( substr( $sort_attr, 0, $separator_pos ) );
+        $sort_direction_candidate = strtoupper( trim( substr( $sort_attr, $separator_pos + 1 ) ) );
+    } else {
+        $sort_field_label = trim( $sort_attr );
+        $sort_direction_candidate = 'ASC';
+    }
+    if ( $sort_direction_candidate === 'DESC' || $sort_direction_candidate === 'ASC' ) {
+        $sort_direction = $sort_direction_candidate;
+    }
+    if ( $sort_field_label !== '' ) {
+        $normalized_sort_field = strtolower( $sort_field_label );
+        if ( $normalized_sort_field === 'title' ) {
+            $sort_type = 'native_title';
+            $query['orderby'] = 'title';
+            $query['order'] = $sort_direction;
+        } elseif ( $normalized_sort_field === 'date' ) {
+            $sort_type = 'native_date';
+            $query['orderby'] = ( $oum_location_date_type === 'created' ? 'date' : 'modified' );
+            $query['order'] = $sort_direction;
+        } else {
+            // Try to resolve the custom field by label (case-insensitive)
+            foreach ( $active_custom_fields as $index => $custom_field ) {
+                if ( !isset( $custom_field['label'] ) ) {
+                    continue;
+                }
+                if ( strtolower( trim( (string) $custom_field['label'] ) ) === $normalized_sort_field ) {
+                    $sort_type = 'custom_field';
+                    $sort_custom_field_index = (int) $index;
+                    break;
+                }
+            }
+        }
+    }
+}
 // Parse custom fields filter attributes
 $custom_fields_filter_config = array();
 $custom_fields_filter_relation = 'AND';
@@ -274,11 +363,10 @@ if ( isset( $block_attributes['custom-fields-filter-relation'] ) && $block_attri
 // Init WP_Query (with custom-fields pagination handling)
 $pagination_total_pages = 0;
 // fallback to real query pages when 0
-// Get active custom fields once (needed for filtering)
-$active_custom_fields = get_option( 'oum_custom_fields', array() );
-if ( !empty( $custom_fields_filter_config ) ) {
-    // We need accurate pagination after PHP-side filtering.
-    // Strategy: fetch all candidate IDs, apply filter, then slice IDs for current page and run a second query on the slice.
+if ( !empty( $custom_fields_filter_config ) || $sort_type === 'custom_field' && $sort_custom_field_index !== null ) {
+    // We need accurate pagination after PHP-side filtering/sorting.
+    // Strategy: fetch all candidate IDs, apply optional filter + optional custom-field sorting,
+    // then slice IDs for current page and run a second query on the slice.
     $all_query = $query;
     $all_query['posts_per_page'] = -1;
     unset($all_query['paged']);
@@ -286,18 +374,44 @@ if ( !empty( $custom_fields_filter_config ) ) {
     $matched_ids = array();
     if ( $all_locations_query->have_posts() ) {
         foreach ( $all_locations_query->posts as $post_id ) {
+            $post_id = (int) $post_id;
             $location_meta_for_match = get_post_meta( $post_id, '_oum_location_key', true );
-            if ( oum_location_matches_custom_field_filter(
-                $location_meta_for_match,
-                $custom_fields_filter_config,
-                $active_custom_fields,
-                $custom_fields_filter_relation
-            ) ) {
-                $matched_ids[] = (int) $post_id;
+            if ( !empty( $custom_fields_filter_config ) ) {
+                if ( !oum_location_matches_custom_field_filter(
+                    $location_meta_for_match,
+                    $custom_fields_filter_config,
+                    $active_custom_fields,
+                    $custom_fields_filter_relation
+                ) ) {
+                    continue;
+                }
             }
+            $matched_ids[] = $post_id;
         }
     }
     wp_reset_postdata();
+    // Sort by custom field after filtering so pagination stays correct.
+    if ( $sort_type === 'custom_field' && $sort_custom_field_index !== null && !empty( $matched_ids ) ) {
+        $sort_value_cache = array();
+        usort( $matched_ids, function ( $a, $b ) use(&$sort_value_cache, $sort_custom_field_index, $sort_direction) {
+            if ( !array_key_exists( $a, $sort_value_cache ) ) {
+                $meta_a = get_post_meta( $a, '_oum_location_key', true );
+                $raw_value_a = ( is_array( $meta_a ) && isset( $meta_a['custom_fields'][$sort_custom_field_index] ) ? $meta_a['custom_fields'][$sort_custom_field_index] : '' );
+                $sort_value_cache[$a] = oum_normalize_custom_field_sort_value( $raw_value_a );
+            }
+            if ( !array_key_exists( $b, $sort_value_cache ) ) {
+                $meta_b = get_post_meta( $b, '_oum_location_key', true );
+                $raw_value_b = ( is_array( $meta_b ) && isset( $meta_b['custom_fields'][$sort_custom_field_index] ) ? $meta_b['custom_fields'][$sort_custom_field_index] : '' );
+                $sort_value_cache[$b] = oum_normalize_custom_field_sort_value( $raw_value_b );
+            }
+            $result = oum_compare_sort_values( $sort_value_cache[$a], $sort_value_cache[$b], $sort_direction );
+            if ( $result === 0 ) {
+                return $a <=> $b;
+                // stable fallback for equal values
+            }
+            return $result;
+        } );
+    }
     // Compute pagination based on matched IDs
     $per_page = get_option( 'posts_per_page', 10 );
     $current_page = max( 1, (int) get_query_var( 'paged' ), (int) get_query_var( 'page' ) );

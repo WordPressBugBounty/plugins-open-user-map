@@ -28,16 +28,25 @@ window.addEventListener('load', function(e) {
 
   function switchTab(event) {
     event.preventDefault();
-    document.querySelector(".oum-nav-tab-wrapper > .nav-tab.nav-tab-active").classList.remove("nav-tab-active");
-    document.querySelector(".oum-tab-pane.active").classList.remove("active");
+    const activeTab = document.querySelector(".oum-nav-tab-wrapper > .nav-tab.nav-tab-active");
+    const activePane = document.querySelector(".oum-tab-pane.active");
+    if (activeTab) {
+      activeTab.classList.remove("nav-tab-active");
+    }
+    if (activePane) {
+      activePane.classList.remove("active");
+    }
 
     let clickedTab = event.currentTarget;
-    let anchor = event.target;
+    let anchor = event.currentTarget;
     let activePaneID = anchor.getAttribute("href");
     let tabId = activePaneID.replace('#', '');
 
     clickedTab.classList.add("nav-tab-active");
-    document.querySelector(activePaneID).classList.add("active");
+    const paneToActivate = document.querySelector(activePaneID);
+    if (paneToActivate) {
+      paneToActivate.classList.add("active");
+    }
 
     // Update hidden input field to preserve active tab on form submission
     if (activeTabInput) {

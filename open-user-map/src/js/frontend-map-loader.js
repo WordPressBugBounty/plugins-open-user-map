@@ -16,7 +16,10 @@ document.addEventListener('oum:map_initialized', (event) => {
 const showMapControls = (mapId) => {
   if (!mapId) return;
 
-  const mapWrap = document.getElementById(mapId).closest('.map-wrap');
+  const mapElement = document.getElementById(mapId);
+  if (!mapElement) return;
+
+  const mapWrap = mapElement.closest('.map-wrap');
   if (!mapWrap) return;
 
   const loadingOverlay = mapWrap.querySelector('.oum-loading-overlay');

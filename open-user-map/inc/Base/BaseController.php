@@ -962,7 +962,15 @@ class BaseController {
                         $new_image_mapping = array();
                         // Store mapping of original filename to new URL
                         // First, handle new uploaded images to create the mapping
-                        if ( isset( $_FILES['oum_location_images'] ) ) {
+                        $has_new_images = isset( $_FILES['oum_location_images']['name'] ) && is_array( $_FILES['oum_location_images']['name'] ) && !empty( array_filter( $_FILES['oum_location_images']['name'] ) );
+                        if ( $has_new_images ) {
+                            $upload_dir = wp_upload_dir();
+                            if ( !empty( $upload_dir['error'] ) || empty( $upload_dir['basedir'] ) || empty( $upload_dir['baseurl'] ) ) {
+                                $this->safe_log( 'Open User Map: upload directory unavailable for image upload. Error: ' . (( !empty( $upload_dir['error'] ) ? $upload_dir['error'] : 'Unknown' )) );
+                                $error->add( '010', __( 'Upload directory is not available. Please check your WordPress uploads configuration.', 'open-user-map' ) );
+                                wp_send_json_error( $error );
+                                return;
+                            }
                             $valid_extensions = array(
                                 'jpeg',
                                 'jpg',
@@ -994,13 +1002,12 @@ class BaseController {
                                         continue;
                                     }
                                     // Process the upload
-                                    $uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'oum-useruploads/';
+                                    $uploads_dir = trailingslashit( $upload_dir['basedir'] ) . 'oum-useruploads/';
                                     wp_mkdir_p( $uploads_dir );
                                     $unique_filename = uniqid() . '.' . $ext;
                                     $file_fullpath = $uploads_dir . $unique_filename;
                                     if ( move_uploaded_file( $tmp, $file_fullpath ) ) {
                                         // Store relative path in the mapping with original filename as key
-                                        $upload_dir = wp_upload_dir();
                                         $relative_upload_path = str_replace( site_url(), '', $upload_dir['baseurl'] );
                                         $relative_url = $relative_upload_path . '/oum-useruploads/' . $unique_filename;
                                         $new_image_mapping[$name] = $relative_url;
@@ -1112,14 +1119,20 @@ class BaseController {
                             delete_post_meta( $post_id, '_oum_location_audio' );
                         }
                         if ( isset( $data['oum_location_audio_src'] ) && isset( $data['oum_location_audio_ext'] ) ) {
+                            $upload_dir = wp_upload_dir();
+                            if ( !empty( $upload_dir['error'] ) || empty( $upload_dir['basedir'] ) || empty( $upload_dir['baseurl'] ) ) {
+                                $this->safe_log( 'Open User Map: upload directory unavailable for audio upload. Error: ' . (( !empty( $upload_dir['error'] ) ? $upload_dir['error'] : 'Unknown' )) );
+                                $error->add( '011', __( 'Upload directory is not available. Please check your WordPress uploads configuration.', 'open-user-map' ) );
+                                wp_send_json_error( $error );
+                                return;
+                            }
                             //set uploads dir
-                            $uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'oum-useruploads/';
+                            $uploads_dir = trailingslashit( $upload_dir['basedir'] ) . 'oum-useruploads/';
                             wp_mkdir_p( $uploads_dir );
                             $file_name = $post_id . '.' . $data['oum_location_audio_ext'];
                             $file_fullpath = $uploads_dir . $file_name;
                             // save file to wp-content/uploads/oum-useruploads/
                             if ( move_uploaded_file( $data['oum_location_audio_src'], $file_fullpath ) ) {
-                                $upload_dir = wp_upload_dir();
                                 $relative_upload_path = str_replace( site_url(), '', $upload_dir['baseurl'] );
                                 $relative_url = $relative_upload_path . '/oum-useruploads/' . $file_name;
                                 $data_audio = esc_url_raw( $relative_url );
@@ -1150,6 +1163,13 @@ class BaseController {
         if ( get_option( 'oum_enable_vote_feature' ) !== 'on' ) {
             wp_send_json_error( array(
                 'message' => __( 'Vote feature is disabled.', 'open-user-map' ),
+            ) );
+            return;
+        }
+        // Validate required request keys before accessing $_POST values.
+        if ( !isset( $_POST['nonce'] ) || !isset( $_POST['post_id'] ) ) {
+            wp_send_json_error( array(
+                'message' => __( 'Missing required parameters.', 'open-user-map' ),
             ) );
             return;
         }
@@ -1332,6 +1352,13 @@ class BaseController {
         if ( get_option( 'oum_enable_vote_feature' ) !== 'on' ) {
             wp_send_json_error( array(
                 'message' => __( 'Vote feature is disabled.', 'open-user-map' ),
+            ) );
+            return;
+        }
+        // Validate required request keys before accessing $_POST values.
+        if ( !isset( $_POST['nonce'] ) || !isset( $_POST['post_id'] ) ) {
+            wp_send_json_error( array(
+                'message' => __( 'Missing required parameters.', 'open-user-map' ),
             ) );
             return;
         }

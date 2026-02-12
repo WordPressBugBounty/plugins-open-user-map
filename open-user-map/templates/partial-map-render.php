@@ -9,8 +9,12 @@ if ( !function_exists( 'clean_utf8' ) ) {
         if ( is_array( $value ) ) {
             return array_map( 'clean_utf8', $value );
         } elseif ( is_string( $value ) ) {
-            return mb_convert_encoding( $value, 'UTF-8', 'UTF-8' );
-            // Re-encode to valid UTF-8
+            // Guard against environments where mbstring is disabled.
+            if ( function_exists( 'mb_convert_encoding' ) ) {
+                return mb_convert_encoding( $value, 'UTF-8', 'UTF-8' );
+                // Re-encode to valid UTF-8
+            }
+            return $value;
         } else {
             return $value;
         }
@@ -410,7 +414,7 @@ if ( $has_floating_filter || $show_marker_filters ) {
     <?php 
 ?>
 
-    <script type="text/javascript" id="oum-init-map"<?php 
+    <script type="text/javascript" id="oum-init-map" data-category="functional" class="cmplz-native"<?php 
 echo $this->get_tile_provider_data_attribute( $map_style, 'script' );
 ?>>
 

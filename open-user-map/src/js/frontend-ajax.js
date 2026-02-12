@@ -9,7 +9,11 @@ jQuery('#oum_add_location').submit(function(event) {
   const openingHoursInputs = document.querySelectorAll('.oum-opening-hours-input');
   openingHoursInputs.forEach(function(input) {
     const fieldName = input.name;
-    const fieldIndex = fieldName.match(/\[(\d+)\]/)[1];
+    const fieldIndexMatch = fieldName.match(/\[(\d+)\]/);
+    if (!fieldIndexMatch) {
+      return;
+    }
+    const fieldIndex = fieldIndexMatch[1];
     const hoursValue = input.value.trim();
 
     // Remove the original field from formData
@@ -40,7 +44,11 @@ jQuery('#oum_add_location').submit(function(event) {
     previewItems.forEach((item, index) => {
       if (item.classList.contains('existing-image')) {
         // For existing images, get the URL from the hidden input
-        let imgUrl = item.querySelector('[name="existing_images[]"]').value;
+        const existingImageInput = item.querySelector('[name="existing_images[]"]');
+        if (!existingImageInput) {
+          return;
+        }
+        let imgUrl = existingImageInput.value;
         
         // Fix for handling URLs - extract just the path portion if it's a full URL
         if (imgUrl.startsWith('http')) {
@@ -88,9 +96,11 @@ jQuery('#oum_add_location').submit(function(event) {
       }
       if(response.success == true) {
         jQuery('#oum_add_location').trigger('reset');
+        const deleteLocationInput = document.getElementById('oum_delete_location');
+        const postIdInput = document.getElementById('oum_post_id');
         
         // Determine message type based on action
-        if (document.getElementById('oum_delete_location').value === 'true') {
+        if (deleteLocationInput && deleteLocationInput.value === 'true') {
             // For deletion
             OUMFormController.showFormMessage(
                 'success',
@@ -101,7 +111,7 @@ jQuery('#oum_add_location').submit(function(event) {
                     window.location.reload();
                 }
             );
-        } else if (document.getElementById('oum_post_id').value) {
+        } else if (postIdInput && postIdInput.value) {
             // For edits
             OUMFormController.showFormMessage(
                 'success',

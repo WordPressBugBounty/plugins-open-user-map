@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
 Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 1.4.29
+Stable tag: 1.4.30
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -281,8 +281,24 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.30 =
+* NEW: Sort lists by title, date or custom fields (shortcode attribute)
+* Improved: Handling of output buffer enhancements (automatic opt out for OUM outputs)
+* Improved: CSV exports in chunks now allows very large datasets to be processed
+* Improved: Compatibility with Complianz plugin
+* Improved: Location search in the dashboard
+* Bugfix: Prevent JS crash when fullscreen popup container is missing
+* Bugfix: Prevent JS crash when map element is missing during loader initialization
+* Bugfix: Prevent fatal error when mbstring extension is unavailable
+* Bugfix: Prevent vote AJAX warnings on malformed requests
+* Bugfix: Prevent opening-hours parser crash on unexpected field names
+* Bugfix: Handle unavailable WordPress upload directories in upload flows
+* Bugfix: Add defensive DOM guards for frontend form and backend settings interactions
+* Bugfix: Prevent CSV import crashes when file handles cannot be opened
+* Bugfix: Harden CSV import against malformed and empty rows
+
 = 1.4.29 =
-* Opt-in for handling output buffering layers
+* Temporary Fix: Manual opt in for handling output buffering layers
 
 = 1.4.28 =
 * Revert changes related to handling output buffering layers (1.4.25 and 1.4.26)

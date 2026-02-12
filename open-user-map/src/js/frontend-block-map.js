@@ -1125,13 +1125,19 @@ const OUMMarkers = (function () {
       const el = document.querySelector(
         ".open-user-map #location-fullscreen-container"
       );
-      el.querySelector(".location-content-wrap").innerHTML =
-        locationBubble.popup.getContent();
-      el.classList.add("visible");
-      document.querySelector("body").classList.add("oum-location-opened");
+      const locationContentWrap = el ? el.querySelector(".location-content-wrap") : null;
+      if (locationContentWrap) {
+        locationContentWrap.innerHTML = locationBubble.popup.getContent();
+      }
+      if (el) {
+        el.classList.add("visible");
+        document.querySelector("body").classList.add("oum-location-opened");
+      }
       
       // Check edit permissions and inject edit button if allowed (for fullscreen container)
-      checkEditPermissionAndInjectButton(el.querySelector(".location-content-wrap"));
+      if (locationContentWrap) {
+        checkEditPermissionAndInjectButton(locationContentWrap);
+      }
       
       // Also check for the Leaflet popup itself (the small popup on the map)
       const popupContent = locationBubble.popup.getElement();
@@ -1146,7 +1152,7 @@ const OUMMarkers = (function () {
       
       // Initialize vote counts from data for the newly opened popup
       if (window.OUMVoteHandler && window.OUMVoteHandler.initializeVoteCountsFromData) {
-        const voteButtons = el.querySelectorAll('.oum_vote_button');
+        const voteButtons = el ? el.querySelectorAll('.oum_vote_button') : [];
         if (voteButtons.length > 0) {
           // For popups, use the updated location data to initialize vote counts
           // This avoids AJAX calls while ensuring we have the latest vote data
@@ -1156,7 +1162,7 @@ const OUMMarkers = (function () {
       
       // Initialize star ratings from data for the newly opened popup
       if (window.OUMVoteHandler && window.OUMVoteHandler.initializeStarRatings) {
-        const starRatings = el.querySelectorAll('.oum_star_rating');
+        const starRatings = el ? el.querySelectorAll('.oum_star_rating') : [];
         if (starRatings.length > 0) {
           // For popups, use the updated location data to initialize star ratings
           // This avoids AJAX calls while ensuring we have the latest star rating data
@@ -1165,7 +1171,9 @@ const OUMMarkers = (function () {
       }
       
       // Setup opening hours toggle functionality for fullscreen container
-      OUMOpeningHours.setupToggle(el.querySelector(".location-content-wrap"));
+      if (locationContentWrap) {
+        OUMOpeningHours.setupToggle(locationContentWrap);
+      }
       
       // Setup opening hours toggle for popup content
       if (popupContent) {
@@ -1178,10 +1186,14 @@ const OUMMarkers = (function () {
       const el = document.querySelector(
         ".open-user-map #location-fullscreen-container"
       );
-      // Clear the content to stop any media playback (YouTube, Vimeo, etc.)
-      el.querySelector(".location-content-wrap").innerHTML = '';
-      
-      el.classList.remove("visible");
+      if (el) {
+        // Clear the content to stop any media playback (YouTube, Vimeo, etc.)
+        const locationContentWrap = el.querySelector(".location-content-wrap");
+        if (locationContentWrap) {
+          locationContentWrap.innerHTML = '';
+        }
+        el.classList.remove("visible");
+      }
       document.querySelector("body").classList.remove("oum-location-opened");
     });
   }

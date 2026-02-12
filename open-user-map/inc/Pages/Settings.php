@@ -687,18 +687,42 @@ class Settings extends BaseController {
         if ( isset( $_POST['action'] ) && $_POST['action'] == 'oum_csv_export' ) {
             // Initialize error handling
             $error = new \WP_Error();
-            // TODO: Exit if no nonce
+            // Security: Check user capabilities
+            if ( !current_user_can( 'manage_options' ) ) {
+                $error->add( '003', 'Insufficient permissions. Only administrators can export CSV files.' );
+            }
+            // Security: Require nonce
+            if ( !isset( $_POST['oum_location_nonce'] ) ) {
+                $error->add( '002', 'Not allowed' );
+            } else {
+                $nonce = sanitize_text_field( $_POST['oum_location_nonce'] );
+                if ( !wp_verify_nonce( $nonce, 'oum_location' ) ) {
+                    $error->add( '002', 'Not allowed' );
+                }
+            }
             if ( $error->has_errors() ) {
                 // Return errors
                 wp_send_json_error( $error );
             } else {
-                // EXPORT
+                // Chunked export (prevents memory spikes on large datasets)
+                $page = ( isset( $_POST['page'] ) ? max( 1, intval( $_POST['page'] ) ) : 1 );
+                $per_page = ( isset( $_POST['per_page'] ) ? intval( $_POST['per_page'] ) : 200 );
+                $per_page = max( 50, min( 500, $per_page ) );
+                $offset = ($page - 1) * $per_page;
+                $published_count = wp_count_posts( 'oum-location' );
+                $total_locations = ( isset( $published_count->publish ) ? intval( $published_count->publish ) : 0 );
                 $all_oum_locations = get_posts( array(
                     'post_type'      => 'oum-location',
-                    'posts_per_page' => -1,
+                    'post_status'    => 'publish',
+                    'posts_per_page' => $per_page,
+                    'offset'         => $offset,
+                    'orderby'        => 'ID',
+                    'order'          => 'ASC',
                     'fields'         => 'ids',
                 ) );
                 $locations_list = array();
+                $available_custom_fields = get_option( 'oum_custom_fields', array() );
+                // all available custom fields
                 foreach ( $all_oum_locations as $post_id ) {
                     // get fields
                     $location = array(
@@ -716,14 +740,12 @@ class Settings extends BaseController {
                         'notification'      => oum_get_location_value( 'notification', $post_id ),
                         'author_name'       => oum_get_location_value( 'author_name', $post_id ),
                         'author_email'      => oum_get_location_value( 'author_email', $post_id ),
-                        'votes'             => oum_get_location_value( 'votes', $post_id ),
+                        'votes'             => oum_get_location_value( 'votes', $post_id, true ),
                         'star_rating_avg'   => oum_get_location_value( 'star_rating_avg', $post_id ),
                         'star_rating_count' => oum_get_location_value( 'star_rating_count', $post_id ),
                     );
                     //get custom fields
                     $location_customfields = array();
-                    $available_custom_fields = get_option( 'oum_custom_fields', array() );
-                    // all available custom fields
                     foreach ( $available_custom_fields as $custom_field_id => $custom_field ) {
                         $value = oum_get_location_value( $custom_field['label'], $post_id, true );
                         // transform array to pipe-separated string (also empty array)
@@ -735,18 +757,17 @@ class Settings extends BaseController {
                     $location_data = array_merge( $location, $location_customfields );
                     $locations_list[] = $location_data;
                 }
-                //preparing values for CSV
-                foreach ( $locations_list as $i => $row ) {
-                    foreach ( $row as $j => $val ) {
-                        //escape "
-                        $locations_list[$i][$j] = str_replace( '"', '""', $val );
-                    }
-                }
                 $datetime = date( 'Y-m-d_His' );
                 // Format: YYYY-MM-DD_HHMMSS
+                $exported = min( $offset + count( $locations_list ), $total_locations );
                 $response = array(
                     'locations' => $locations_list,
                     'datetime'  => $datetime,
+                    'page'      => $page,
+                    'per_page'  => $per_page,
+                    'total'     => $total_locations,
+                    'exported'  => $exported,
+                    'has_more'  => $exported < $total_locations,
                 );
                 wp_send_json_success( $response );
             }
@@ -760,8 +781,14 @@ class Settings extends BaseController {
             "\t" => 0,
         );
         $handle = fopen( $csvFile, "r" );
+        if ( $handle === false ) {
+            return false;
+        }
         $firstLine = fgets( $handle );
         fclose( $handle );
+        if ( $firstLine === false ) {
+            return false;
+        }
         foreach ( $delimiters as $delimiter => &$count ) {
             $count = count( str_getcsv( $firstLine, $delimiter ) );
         }
@@ -797,6 +824,11 @@ class Settings extends BaseController {
                 $upload_url = sanitize_text_field( $_POST['url'] );
                 // Get uploads directory information
                 $upload_dir = wp_get_upload_dir();
+                if ( !empty( $upload_dir['error'] ) || empty( $upload_dir['basedir'] ) || empty( $upload_dir['baseurl'] ) ) {
+                    $error->add( '004', 'Upload directory is not available. Please check your WordPress uploads configuration.' );
+                    wp_send_json_error( $error );
+                    return;
+                }
                 $upload_basedir = $upload_dir['basedir'];
                 $upload_baseurl = $upload_dir['baseurl'];
                 // Verify that the URL is within the uploads directory
@@ -845,24 +877,55 @@ class Settings extends BaseController {
                 // Use the resolved real path for file operations
                 $csv_file = $real_csv_file;
                 $delimiter = $this->detectDelimiter( $csv_file );
+                if ( $delimiter === false ) {
+                    $error->add( '008', 'CSV file could not be read.' );
+                    wp_send_json_error( $error );
+                    return;
+                }
                 // parse csv file to array
                 $file_to_read = fopen( $csv_file, 'r' );
-                while ( !feof( $file_to_read ) ) {
-                    $rows[] = fgetcsv( $file_to_read, 99999, $delimiter );
+                if ( $file_to_read === false ) {
+                    $error->add( '009', 'CSV file could not be opened for reading.' );
+                    wp_send_json_error( $error );
+                    return;
+                }
+                $rows = array();
+                while ( ($row = fgetcsv( $file_to_read, 99999, $delimiter )) !== false ) {
+                    $rows[] = $row;
                 }
                 fclose( $file_to_read );
-                // build assoziative array
-                array_walk( $rows, function ( &$a ) use($rows) {
-                    // Check if the line is empty or not an array
-                    if ( is_array( $a ) && !empty( array_filter( $a, 'strlen' ) ) ) {
-                        $a = array_combine( $rows[0], $a );
-                    } else {
+                if ( empty( $rows ) || !is_array( $rows[0] ) ) {
+                    $error->add( '010', 'CSV file is empty or has an invalid header row.' );
+                    wp_send_json_error( $error );
+                    return;
+                }
+                $header = $rows[0];
+                $locations = array();
+                foreach ( array_slice( $rows, 1 ) as $row ) {
+                    $row_has_content = is_array( $row ) && !empty( array_filter( $row, function ( $value ) {
+                        if ( $value === null ) {
+                            return false;
+                        }
+                        if ( is_string( $value ) ) {
+                            return $value !== '';
+                        }
+                        return true;
+                    } ) );
+                    if ( !$row_has_content ) {
                         $this->safe_log( 'Open User Map: an empty line or a row not of type array detected and skipped' );
+                        continue;
                     }
-                } );
-                array_shift( $rows );
-                # remove column header
-                $locations = $rows;
+                    if ( count( $header ) !== count( $row ) ) {
+                        $this->safe_log( 'Open User Map: malformed CSV row with mismatched column count detected and skipped' );
+                        continue;
+                    }
+                    $location = array_combine( $header, $row );
+                    if ( $location === false ) {
+                        $this->safe_log( 'Open User Map: malformed CSV row could not be mapped to header and was skipped' );
+                        continue;
+                    }
+                    $locations[] = $location;
+                }
                 // Create or Update the posts
                 // Determine post status based on POST data (from checkbox)
                 // Read directly from POST to use immediate value without saving first
@@ -872,7 +935,7 @@ class Settings extends BaseController {
                 $cnt_imported_locations = 0;
                 foreach ( $locations as $location ) {
                     // Marker categories
-                    $types = $location['type'];
+                    $types = ( isset( $location['type'] ) ? (string) $location['type'] : '' );
                     if ( $types ) {
                         $types = explode( '|', $types );
                         // Convert term names to term IDs for hierarchical taxonomy compatibility
@@ -898,17 +961,19 @@ class Settings extends BaseController {
                         // Use IDs instead of names for wp_insert_post
                     }
                     // update or insert post
-                    if ( $location['post_id'] == '' ) {
-                        $location['post_id'] = 0;
+                    $location_post_id = ( isset( $location['post_id'] ) ? $location['post_id'] : 0 );
+                    if ( $location_post_id == '' ) {
+                        $location_post_id = 0;
                     }
+                    $location_title = ( isset( $location['title'] ) ? $location['title'] : '' );
                     // author
                     $wp_author_id = ( isset( $location['wp_author_id'] ) && $location['wp_author_id'] != '' ? $location['wp_author_id'] : get_current_user_id() );
                     $insert_post = wp_insert_post( array(
-                        'ID'          => $location['post_id'],
+                        'ID'          => $location_post_id,
                         'post_author' => $wp_author_id,
                         'post_type'   => 'oum-location',
-                        'post_title'  => $location['title'],
-                        'post_name'   => sanitize_title( $location['title'] ),
+                        'post_title'  => $location_title,
+                        'post_name'   => sanitize_title( $location_title ),
                         'post_status' => $post_status,
                         'tax_input'   => array(
                             'oum-type' => $types,
@@ -924,16 +989,16 @@ class Settings extends BaseController {
                         }
                         $fields = array(
                             'oum_location_nonce'             => $nonce,
-                            'oum_location_image'             => $location['image'],
-                            'oum_location_video'             => $location['video'],
-                            'oum_location_audio'             => $location['audio'],
+                            'oum_location_image'             => ( isset( $location['image'] ) ? $location['image'] : '' ),
+                            'oum_location_video'             => ( isset( $location['video'] ) ? $location['video'] : '' ),
+                            'oum_location_audio'             => ( isset( $location['audio'] ) ? $location['audio'] : '' ),
                             'oum_location_address'           => $subtitle_value,
-                            'oum_location_lat'               => $location['lat'],
-                            'oum_location_lng'               => $location['lng'],
-                            'oum_location_text'              => $location['text'],
-                            'oum_location_notification'      => $location['notification'],
-                            'oum_location_author_name'       => $location['author_name'],
-                            'oum_location_author_email'      => $location['author_email'],
+                            'oum_location_lat'               => ( isset( $location['lat'] ) ? $location['lat'] : '' ),
+                            'oum_location_lng'               => ( isset( $location['lng'] ) ? $location['lng'] : '' ),
+                            'oum_location_text'              => ( isset( $location['text'] ) ? $location['text'] : '' ),
+                            'oum_location_notification'      => ( isset( $location['notification'] ) ? $location['notification'] : '' ),
+                            'oum_location_author_name'       => ( isset( $location['author_name'] ) ? $location['author_name'] : '' ),
+                            'oum_location_author_email'      => ( isset( $location['author_email'] ) ? $location['author_email'] : '' ),
                             'oum_location_votes'             => ( isset( $location['votes'] ) ? $location['votes'] : '' ),
                             'oum_location_star_rating_avg'   => ( isset( $location['star_rating_avg'] ) ? $location['star_rating_avg'] : '' ),
                             'oum_location_star_rating_count' => ( isset( $location['star_rating_count'] ) ? $location['star_rating_count'] : '' ),
@@ -943,7 +1008,11 @@ class Settings extends BaseController {
                             return strpos( $key, 'CUSTOMFIELD' ) === 0;
                         }, ARRAY_FILTER_USE_BOTH );
                         foreach ( $customfields as $key => $val ) {
-                            $id = explode( '_', $key )[1];
+                            $key_parts = explode( '_', $key );
+                            if ( !isset( $key_parts[1] ) || $key_parts[1] === '' ) {
+                                continue;
+                            }
+                            $id = $key_parts[1];
                             // transform pipe-separated string to array
                             if ( $val && strpos( $val, '|' ) !== false ) {
                                 $val = explode( '|', $val );

@@ -6,13 +6,20 @@
 namespace OpenUserMapPlugin\Pages;
 
 use OpenUserMapPlugin\Base\BaseController;
+use OpenUserMapPlugin\Base\DiagnosticsReporter;
+use OpenUserMapPlugin\Base\OptOutFromTemplateEnhancement;
 class Frontend extends BaseController {
     public function register() {
-        // WordPress 6.9 compatibility fix (OPT-IN ONLY)
-        // Check at template_redirect to ensure functions.php has loaded
-        add_action( 'template_redirect', array($this, 'maybe_enable_wp69_fix'), 1 );
+        // WP 6.9 compatibility:
+        // Automatically opt out of template enhancement buffer when OUM output
+        // is likely to render on the current request.
+        $opt_out_from_template_enhancement = new OptOutFromTemplateEnhancement();
+        add_action( 'wp', array($opt_out_from_template_enhancement, 'maybe_disable_wp69_template_enhancement_buffer'), 1 );
         // Shortcodes
         add_action( 'init', array($this, 'set_shortcodes') );
+        // Print concise diagnostics in page source when ?oum_debug=1 is present.
+        $diagnostics_reporter = new DiagnosticsReporter($opt_out_from_template_enhancement);
+        add_action( 'wp_footer', array($diagnostics_reporter, 'print_frontend_diagnostics_comment'), PHP_INT_MAX );
         // Footer containers (add-location form & fullscreen popup)
         // Rendered globally to work with page builder caching
         add_action( 'wp_footer', array($this, 'render_footer_containers') );
@@ -178,79 +185,6 @@ class Frontend extends BaseController {
             $blocks[] = 'open-user-map/map';
             return $blocks;
         } );
-    }
-
-    /**
-     * Check if WP 6.9 fix should be enabled
-     * Runs at template_redirect to ensure functions.php has loaded
-     * 
-     * @return void
-     */
-    public function maybe_enable_wp69_fix() {
-        // Check both URL parameter and filter (filter is checked late so functions.php has loaded)
-        $enable_via_url = isset( $_GET['oum_test_wp69_fix'] ) && $_GET['oum_test_wp69_fix'] == '1';
-        $enable_via_filter = apply_filters( 'oum_enable_wp69_buffer_fix', false );
-        if ( $enable_via_url || $enable_via_filter ) {
-            add_action( 'wp_footer', array($this, 'reduce_ob_level_for_scripts'), 1 );
-        }
-    }
-
-    /**
-     * WordPress 6.9 Compatibility Fix (OPT-IN ONLY)
-     * 
-     * WordPress 6.9 introduced a "template enhancement output buffer" feature that can cause
-     * blank pages on some site configurations when combined with output buffering at level 2+.
-     * 
-     * @see https://make.wordpress.org/core/2025/11/18/wordpress-6-9-frontend-performance-field-guide/
-     * 
-     * This fix is OPT-IN and must be explicitly enabled via filter:
-     * add_filter('oum_enable_wp69_buffer_fix', '__return_true');
-     * 
-     * @return void
-     */
-    public function reduce_ob_level_for_scripts() {
-        $initial_level = ob_get_level();
-        // Only proceed if output buffering is at level 2 or higher
-        if ( $initial_level < 2 ) {
-            return;
-        }
-        // Step 1: Print any late-enqueued OUM styles before flushing buffers
-        global $wp_styles;
-        if ( $wp_styles instanceof \WP_Styles ) {
-            // List of all OUM style handles (must match handles in BaseController.php and Enqueue.php)
-            $oum_style_handles = array(
-                'oum_frontend_css',
-                'oum_style',
-                'oum_leaflet_css',
-                'oum_leaflet_gesture_css',
-                'oum_leaflet_markercluster_css',
-                'oum_leaflet_markercluster_default_css',
-                'oum_leaflet_geosearch_css',
-                'oum_leaflet_fullscreen_css',
-                'oum_leaflet_locate_css',
-                'oum_leaflet_search_css',
-                'oum_leaflet_responsivepopup_css'
-            );
-            foreach ( $oum_style_handles as $handle ) {
-                // Check if style is enqueued but not yet printed
-                if ( wp_style_is( $handle, 'enqueued' ) && !wp_style_is( $handle, 'done' ) ) {
-                    $wp_styles->do_item( $handle );
-                }
-            }
-        }
-        // Step 2: Flush output buffers to reduce level to 1
-        $levels_closed = 0;
-        while ( ob_get_level() > 1 ) {
-            ob_end_flush();
-            $levels_closed++;
-        }
-        // Step 3: Restore buffer structure after scripts have printed
-        // This runs at priority 1000 (after wp_print_scripts at priority 20)
-        add_action( 'wp_footer', function () use($levels_closed) {
-            for ($i = 0; $i < $levels_closed; $i++) {
-                ob_start();
-            }
-        }, 1000 );
     }
 
 }

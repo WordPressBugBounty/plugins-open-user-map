@@ -3179,6 +3179,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <li><input class="shortcode-display" type="text" readonly value='custom-fields-filter-relation="AND"' /> - <?php 
     echo __( 'Relation between multiple custom field filters. Default is AND. Set to OR if any filter group should match.', 'open-user-map' );
     ?></li>
+                  <li><input class="shortcode-display" type="text" readonly value='sort="Title:DESC"' /> - <?php 
+    echo __( 'Sort list view by title, date, or custom field label. Format: FIELD:ORDER (ASC or DESC), e.g. <code>sort="Date:ASC"</code> or <code>sort="Custom Field Label:DESC"</code>.', 'open-user-map' );
+    ?></li>
                 </ul>
                 <br><br>
               </td>

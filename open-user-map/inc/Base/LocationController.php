@@ -647,9 +647,16 @@ class LocationController extends BaseController {
                 function ( $search, $query ) use($search_term) {
                     global $wpdb;
                     if ( $search_term ) {
-                        $escaped_term = '%' . $wpdb->esc_like( $search_term ) . '%';
-                        // Combine search conditions for post title, content, and author fields
-                        $search .= " AND ({$wpdb->posts}.post_title LIKE '{$escaped_term}' \n                                    OR {$wpdb->posts}.post_content LIKE '{$escaped_term}' \n                                    OR u.user_login LIKE '{$escaped_term}' \n                                    OR u.user_email LIKE '{$escaped_term}') ";
+                        $like_term = '%' . $wpdb->esc_like( $search_term ) . '%';
+                        // Combine search conditions for post title, content, and author fields.
+                        // Use prepared placeholders to avoid SQL injection via search input.
+                        $search .= $wpdb->prepare(
+                            " AND ({$wpdb->posts}.post_title LIKE %s\n                                    OR {$wpdb->posts}.post_content LIKE %s\n                                    OR u.user_login LIKE %s\n                                    OR u.user_email LIKE %s) ",
+                            $like_term,
+                            $like_term,
+                            $like_term,
+                            $like_term
+                        );
                     }
                     return $search;
                 },
@@ -820,6 +827,7 @@ class LocationController extends BaseController {
         } elseif ( $attr == 'votes' ) {
             // Get vote type setting (default: upvote)
             $vote_type = get_option( 'oum_vote_type', 'upvote' );
+            $votes = ( isset( $location['votes'] ) ? intval( $location['votes'] ) : 0 );
             if ( $vote_type === 'star_rating' ) {
                 // GET STAR RATING
                 $star_rating_avg = ( isset( $location['star_rating_avg'] ) ? floatval( $location['star_rating_avg'] ) : 0 );
@@ -843,12 +851,12 @@ class LocationController extends BaseController {
                     $value .= '</div>';
                     $value .= '</div>';
                 } else {
-                    // Raw output: return average and count
-                    $value = $star_rating_avg . '|' . $star_rating_count;
+                    // Raw output should always return the stored DB value for votes.
+                    // This keeps exports/imports consistent and avoids synthesized values.
+                    $value = $votes;
                 }
             } else {
                 // GET VOTES (upvote type)
-                $votes = ( isset( $location['votes'] ) ? intval( $location['votes'] ) : 0 );
                 $value = $votes;
             }
         } elseif ( $attr == 'star_rating_avg' ) {
