@@ -1763,6 +1763,11 @@ const OUMFormMap = (function () {
       isAdjusting = false;
     });
 
+    // Keep the hidden zoom input in sync with the current form map zoom.
+    formMap.on("zoomend", function () {
+      syncLocationZoomField();
+    });
+
     // Update minZoom when fixed bounds are enabled
     // This prevents users from zooming out too far
     updateMinZoom();
@@ -1956,11 +1961,20 @@ const OUMFormMap = (function () {
   function setLocationLatLng(markerLatLng, address) {
     document.getElementById("oum_location_lat").value = markerLatLng.lat;
     document.getElementById("oum_location_lng").value = markerLatLng.lng;
+    syncLocationZoomField();
     
     // Only perform reverse geocoding if both subtitle field and autofill are enabled
     if (shouldPerformReverseGeocoding()) {
       reverseGeocode(markerLatLng.lat, markerLatLng.lng, address);
     }
+  }
+
+  function syncLocationZoomField() {
+    const zoomField = document.getElementById("oum_location_zoom");
+    if (!zoomField || !formMap) {
+      return;
+    }
+    zoomField.value = formMap.getZoom();
   }
 
   /**
@@ -2261,6 +2275,7 @@ const OUMFormMap = (function () {
     setView: function(lat, lng, zoom) {
       if (formMap) {
         formMap.setView([lat, lng], zoom);
+        syncLocationZoomField();
       }
     },
     setViewToMatchMainMap: function(mainMap) {
@@ -2958,7 +2973,8 @@ const OUMFormController = (function () {
 
     // Set map view to location
     if (location.lat && location.lng) {
-      OUMFormMap.setView(location.lat, location.lng, 16);
+      const locationZoom = location.zoom ? Number(location.zoom) : 12;
+      OUMFormMap.setView(location.lat, location.lng, locationZoom);
       OUMFormMap.setLocation(location.lat, location.lng);
     }
 

@@ -83,6 +83,7 @@ echo __( 'Latitude', 'open-user-map' );
         <input type="hidden" id="oum_location_lng" name="oum_location_lng" required placeholder="<?php 
 echo __( 'Longitude', 'open-user-map' );
 ?>*" />
+        <input type="hidden" id="oum_location_zoom" name="oum_location_zoom" value="" />
 
         <input type="hidden" id="oum_post_id" name="oum_post_id" value="">
         <input type="hidden" id="oum_delete_location" name="oum_delete_location" value="">
@@ -402,7 +403,7 @@ if ( get_option( 'oum_enable_description', 'on' ) === 'on' ) {
 ?>
         
         <?php 
-if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_audio', 'on' ) === 'on' || oum_fs()->is__premium_only() && oum_fs()->can_use_premium_code() && get_option( 'oum_enable_video' ) === 'on' ) {
+if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_audio', '' ) === 'on' || oum_fs()->is__premium_only() && oum_fs()->can_use_premium_code() && get_option( 'oum_enable_video' ) === 'on' ) {
     ?>
           <label class="oum-label"><?php 
     echo $oum_upload_media_label;
@@ -463,7 +464,7 @@ if ( get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_
     ?>
 
           <?php 
-    if ( get_option( 'oum_enable_audio', 'on' ) === 'on' ) {
+    if ( get_option( 'oum_enable_audio', '' ) === 'on' ) {
         ?>
             <div class="media-upload oum-audio-upload">
               <label style="color: #e82c71" for="oum_location_audio" title="<?php 

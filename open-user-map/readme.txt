@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
 Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 1.4.30
+Stable tag: 1.4.31
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -281,6 +281,13 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.31 =
+* Improved: Auto-publish workflow is now consistent - admins always auto-publish, other roles depend on "Registered users can add locations without approval" (default: off)
+* Improved: Flush rewrite rules when toggling single-page mode so location permalinks update immediately
+* Improved: Store individual zoom levels with locations
+* Improved: Fast zoom for maps in settings
+* Improved: Wizard & Settings UI
+
 = 1.4.30 =
 * NEW: Sort lists by title, date or custom fields (shortcode attribute)
 * Improved: Handling of output buffer enhancements (automatic opt out for OUM outputs)

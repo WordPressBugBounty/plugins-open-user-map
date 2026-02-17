@@ -5,9 +5,45 @@ window.addEventListener('load', function(e) {
 
   const map = L.map('mapGetInitial', {
       scrollWheelZoom: false,
+      touchZoom: true,
       zoomSnap: 0.1,
       zoomDelta: 0.1,
   });
+
+  // Add coarse zoom controls as a quick alternative to precise 0.1 zoom steps.
+  const FastZoomControl = L.Control.extend({
+    options: {
+      position: 'topleft'
+    },
+    onAdd: function() {
+      const container = L.DomUtil.create('div', 'leaflet-bar oum-fast-zoom-control');
+
+      const zoomInFast = L.DomUtil.create('a', '', container);
+      zoomInFast.innerHTML = '++';
+      zoomInFast.href = '#';
+      zoomInFast.title = 'Zoom in faster';
+      zoomInFast.style.fontWeight = 'bold';
+
+      const zoomOutFast = L.DomUtil.create('a', '', container);
+      zoomOutFast.innerHTML = '--';
+      zoomOutFast.href = '#';
+      zoomOutFast.title = 'Zoom out faster';
+      zoomOutFast.style.fontWeight = 'bold';
+
+      L.DomEvent.disableClickPropagation(container);
+      L.DomEvent.on(zoomInFast, 'click', function(e) {
+        L.DomEvent.preventDefault(e);
+        map.setZoom(map.getZoom() + 1);
+      });
+      L.DomEvent.on(zoomOutFast, 'click', function(e) {
+        L.DomEvent.preventDefault(e);
+        map.setZoom(map.getZoom() - 1);
+      });
+
+      return container;
+    }
+  });
+  map.addControl(new FastZoomControl());
 
   // prevent moving/zoom outside main world bounds
   let world_bounds = L.latLngBounds(L.latLng(-85, -200), L.latLng(85, 200));
@@ -92,12 +128,37 @@ window.addEventListener('load', function(e) {
     }
   }
 
-  // Map type selector
-  jQuery('.map-types input[name=oum_map_type]').on('change', function() {
-    if(this.value == 1) {
-      jQuery('#oum_enable_add_location').prop('checked', true);
-    }else{
-      jQuery('#oum_enable_add_location').prop('checked', false);
+  // Settings: Community Contributions (progressive disclosure)
+  if(jQuery('#oum_enable_add_location_toggle').length > 0) {
+    toggleCommunityContributionSettings(jQuery('#oum_enable_add_location_toggle').is(':checked'));
+
+    jQuery('#oum_enable_add_location_toggle').on('change', function() {
+      toggleCommunityContributionSettings(this.checked);
+    });
+
+    function toggleCommunityContributionSettings(isEnabled) {
+      if(isEnabled) {
+        jQuery('.community-enabled-tip').show();
+        jQuery('.community-disabled-tip').hide();
+        jQuery('.wrap-community-tab-settings').show();
+        jQuery('.community-tab-disabled-message').hide();
+      } else {
+        jQuery('.community-enabled-tip').hide();
+        jQuery('.community-disabled-tip').show();
+        jQuery('.wrap-community-tab-settings').hide();
+        jQuery('.community-tab-disabled-message').show();
+      }
+    }
+  }
+
+  // Location Submissions tab: smooth scroll for quick links
+  jQuery(document).on('click', '.community-quick-links a[href^="#"]', function(e) {
+    const id = this.getAttribute('href');
+    if (id === '#') return;
+    const target = document.querySelector(id);
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
 

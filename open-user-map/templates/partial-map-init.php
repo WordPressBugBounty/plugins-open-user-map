@@ -40,7 +40,7 @@ $oum_description_label = ( get_option( 'oum_description_label' ) ? get_option( '
 $oum_upload_media_label = ( get_option( 'oum_upload_media_label' ) ? get_option( 'oum_upload_media_label' ) : $this->oum_get_default_label( 'upload_media' ) );
 $oum_enable_fixed_map_bounds = get_option( 'oum_enable_fixed_map_bounds' );
 $oum_enable_multiple_marker_types = ( get_option( 'oum_enable_multiple_marker_types', false ) ? 'true' : 'false' );
-$oum_enable_searchbar = ( get_option( 'oum_enable_searchbar', 'on' ) === 'on' ? 'true' : 'false' );
+$oum_enable_searchbar = ( get_option( 'oum_enable_searchbar', '' ) === 'on' ? 'true' : 'false' );
 $oum_searchbar_type = ( get_option( 'oum_searchbar_type' ) ? get_option( 'oum_searchbar_type' ) : 'address' );
 $oum_enable_searchmarkers_button = ( get_option( 'oum_enable_searchmarkers_button', 'on' ) === 'on' ? 'true' : 'false' );
 $oum_searchmarkers_label = ( get_option( 'oum_searchmarkers_label' ) ? get_option( 'oum_searchmarkers_label' ) : $this->oum_get_default_label( 'searchmarkers' ) );
@@ -617,7 +617,7 @@ foreach ( $posts as $post ) {
         'address'           => $address,
         'lat'               => $location_meta['lat'],
         'lng'               => $location_meta['lng'],
-        'zoom'              => ( isset( $location_meta['zoom'] ) ? $location_meta['zoom'] : '16' ),
+        'zoom'              => ( isset( $location_meta['zoom'] ) ? $location_meta['zoom'] : '12' ),
         'text'              => $text,
         'images'            => $absolute_images,
         'audio'             => $absolute_audio,

@@ -51,7 +51,7 @@ echo esc_attr( $lng );
 echo __( 'Zoom Level', 'open-user-map' );
 ?>
                                         </label>
-                                        <input type="number" class="widefat" id="oum_location_zoom" name="oum_location_zoom" min="0" max="20" value="<?php 
+                                        <input type="number" class="widefat" id="oum_location_zoom" name="oum_location_zoom" min="0" max="20" step="any" value="<?php 
 echo esc_attr( $zoom );
 ?>"></input>
                                     </div>

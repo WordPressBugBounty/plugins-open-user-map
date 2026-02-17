@@ -148,7 +148,7 @@ class LocationController extends BaseController {
         $address = ( isset( $data['address'] ) ? $data['address'] : '' );
         $lat = ( isset( $data['lat'] ) ? $data['lat'] : '' );
         $lng = ( isset( $data['lng'] ) ? $data['lng'] : '' );
-        $zoom = ( isset( $data['zoom'] ) ? $data['zoom'] : '16' );
+        $zoom = ( isset( $data['zoom'] ) ? $data['zoom'] : '12' );
         $text = ( isset( $data['text'] ) ? $data['text'] : '' );
         $video = ( isset( $data['video'] ) ? $data['video'] : '' );
         $has_video = ( isset( $video ) && $video != '' ? 'has-video' : '' );
@@ -311,7 +311,7 @@ class LocationController extends BaseController {
         // Continue with regular save operation
         $lat_validated = ( isset( $location_data['oum_location_lat'] ) ? floatval( str_replace( ',', '.', sanitize_text_field( $location_data['oum_location_lat'] ) ) ) : '' );
         $lng_validated = ( isset( $location_data['oum_location_lng'] ) ? floatval( str_replace( ',', '.', sanitize_text_field( $location_data['oum_location_lng'] ) ) ) : '' );
-        $zoom_validated = ( isset( $location_data['oum_location_zoom'] ) ? intval( sanitize_text_field( $location_data['oum_location_zoom'] ) ) : 13 );
+        $zoom_validated = ( isset( $location_data['oum_location_zoom'] ) ? intval( sanitize_text_field( $location_data['oum_location_zoom'] ) ) : 12 );
         // Get existing location data to preserve vote count and other existing fields
         // This prevents vote counts from being lost when editing locations
         $existing_data = get_post_meta( $post_id, '_oum_location_key', true );
@@ -916,7 +916,7 @@ class LocationController extends BaseController {
             $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
             $lat = $location['lat'];
             $lng = $location['lng'];
-            $zoom = ( isset( $location['zoom'] ) ? $location['zoom'] : '16' );
+            $zoom = ( isset( $location['zoom'] ) ? $location['zoom'] : '12' );
             // Get location types
             $location_types = ( get_the_terms( $post_id, 'oum-type' ) && !is_wp_error( get_the_terms( $post_id, 'oum-type' ) ) ? get_the_terms( $post_id, 'oum-type' ) : false );
             // Determine marker icon based on location type or settings

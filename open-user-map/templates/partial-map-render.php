@@ -286,7 +286,9 @@ if ( $oum_enable_searchbar === 'true' && $oum_searchbar_type == 'live_filter' ) 
 ?>
 
     <?php 
-if ( $oum_enable_add_location === 'on' ) {
+// Show "Add Location" when visitors are allowed, or when "Just Me" is selected and the current user is an Admin.
+$oum_show_add_location_button = $oum_enable_add_location === 'on' || current_user_can( 'manage_options' );
+if ( $oum_show_add_location_button ) {
     ?>
     
       <?php 

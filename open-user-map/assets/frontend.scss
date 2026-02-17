@@ -551,6 +551,7 @@ $search_input_width: 300px;
           margin-left: -20px !important;
           object-fit: contain;
           object-position: center bottom;
+          outline: none !important;
 
           &:hover {
             width: 44px !important;
@@ -3030,6 +3031,7 @@ $search_input_width: 300px;
     margin-left: -20px !important;
     object-fit: contain;
     object-position: center bottom;
+    outline: none !important;
 
     &:hover {
       width: 44px !important;
@@ -3692,6 +3694,7 @@ $search_input_width: 300px;
       margin-left: -20px !important;
       object-fit: contain;
       object-position: center bottom;
+      outline: none !important;
 
       &:hover {
         width: 44px !important;

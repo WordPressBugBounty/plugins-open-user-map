@@ -139,7 +139,7 @@
 }
 @media screen and (max-width: 768px) {
   .post-php.post-type-oum-location .geo-coordinates-wrap .map-wrap #mapGetLocation .leaflet-control-geosearch.leaflet-geosearch-bar form input[type=text],
-.post-new-php.post-type-oum-location .geo-coordinates-wrap .map-wrap #mapGetLocation .leaflet-control-geosearch.leaflet-geosearch-bar form input[type=text] {
+  .post-new-php.post-type-oum-location .geo-coordinates-wrap .map-wrap #mapGetLocation .leaflet-control-geosearch.leaflet-geosearch-bar form input[type=text] {
     font-size: 16px;
   }
 }
@@ -229,13 +229,13 @@
 }
 @media (max-width: 768px) {
   .post-php.post-type-oum-location .geo-coordinates-wrap,
-.post-new-php.post-type-oum-location .geo-coordinates-wrap {
+  .post-new-php.post-type-oum-location .geo-coordinates-wrap {
     flex-direction: column;
   }
   .post-php.post-type-oum-location .geo-coordinates-wrap .map-wrap,
-.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap,
-.post-new-php.post-type-oum-location .geo-coordinates-wrap .map-wrap,
-.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap {
+  .post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap,
+  .post-new-php.post-type-oum-location .geo-coordinates-wrap .map-wrap,
+  .post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap {
     width: 100%;
   }
 }
@@ -790,7 +790,7 @@
     flex-direction: column;
   }
   .taxonomy-oum-region .geo-coordinates-wrap .map-wrap,
-.taxonomy-oum-region .geo-coordinates-wrap .input-wrap {
+  .taxonomy-oum-region .geo-coordinates-wrap .input-wrap {
     width: 100%;
   }
   .taxonomy-oum-region .geo-coordinates-wrap .input-wrap {
@@ -798,13 +798,19 @@
   }
 }
 
+.oum-location_page_open-user-map-settings,
+.toplevel_page_open-user-map {
+  /* Custom fields wrapper table keeps default column widths */
+  /* Community Contributions card (General tab) */
+  /* Location Submissions tab */
+}
 .oum-location_page_open-user-map-settings.oum-settings-wizard,
 .toplevel_page_open-user-map.oum-settings-wizard {
   background: #fff;
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard #adminmenu li#menu-settings a::after,
 .toplevel_page_open-user-map.oum-settings-wizard #adminmenu li#menu-settings a::after {
-  border-right-color: #6dbde6;
+  border-right-color: rgb(109, 189, 230);
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard #wpwrap,
 .toplevel_page_open-user-map.oum-settings-wizard #wpwrap {
@@ -831,7 +837,8 @@
 .toplevel_page_open-user-map.oum-settings-wizard .oum-wizard > * {
   display: flex;
   flex-direction: column;
-  padding: 30vh 9% 9% 9%;
+  justify-content: center;
+  padding: 9%;
   box-sizing: border-box;
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .oum-inline-plus,
@@ -917,6 +924,7 @@
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .intro,
 .toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .intro {
   margin-bottom: 30px;
+  text-align: center;
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types,
 .toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types {
@@ -931,6 +939,7 @@
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types .option label,
 .toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types .option label {
+  cursor: pointer;
   display: block;
   height: calc(100% - 8px);
   position: relative;
@@ -947,7 +956,7 @@
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types .option label .map-type-preview[data-type=interactive],
 .toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types .option label .map-type-preview[data-type=interactive] {
-  background-image: url(images/map_type_interactive.jpg);
+  background-image: url(images/map_type_interactive_2.png);
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types .option label .map-type-preview[data-type=simple],
 .toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types .option label .map-type-preview[data-type=simple] {
@@ -962,6 +971,26 @@
 .toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types .option label .label-text h2 {
   margin-top: 0;
   margin-bottom: 6px;
+}
+.oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types .option label .label-text p,
+.toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types .option label .label-text p {
+  margin: 0 0 10px 0;
+}
+.oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types .option label .label-text ul,
+.toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types .option label .label-text ul {
+  margin: 0 0 10px 18px;
+  list-style: disc;
+}
+.oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types .option label .label-text li,
+.toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types .option label .label-text li {
+  margin-bottom: 6px;
+}
+.oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types .option label .label-text p.description,
+.toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types .option label .label-text p.description {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #666;
+  font-style: normal;
 }
 .oum-location_page_open-user-map-settings.oum-settings-wizard .oum-wizard .step-content .map-types .option label .label-text input[type=radio],
 .toplevel_page_open-user-map.oum-settings-wizard .oum-wizard .step-content .map-types .option label .label-text input[type=radio] {
@@ -1032,6 +1061,14 @@
 .toplevel_page_open-user-map .oum_support_hint {
   opacity: 0.7;
   margin-left: 5px;
+}
+.oum-location_page_open-user-map-settings .form-table th,
+.toplevel_page_open-user-map .form-table th {
+  width: 230px;
+}
+.oum-location_page_open-user-map-settings .oum_custom_fields_wrapper table th,
+.toplevel_page_open-user-map .oum_custom_fields_wrapper table th {
+  width: auto;
 }
 .oum-location_page_open-user-map-settings .form-table td,
 .toplevel_page_open-user-map .form-table td {
@@ -1151,7 +1188,7 @@
 }
 .oum-location_page_open-user-map-settings .map-types .option label .map-type-preview[data-type=interactive],
 .toplevel_page_open-user-map .map-types .option label .map-type-preview[data-type=interactive] {
-  background-image: url(images/map_type_interactive.jpg);
+  background-image: url(images/map_type_interactive_2.png);
 }
 .oum-location_page_open-user-map-settings .map-types .option label .map-type-preview[data-type=simple],
 .toplevel_page_open-user-map .map-types .option label .map-type-preview[data-type=simple] {
@@ -1200,10 +1237,196 @@
 .toplevel_page_open-user-map #oum_enable_add_location {
   display: none;
 }
+.oum-location_page_open-user-map-settings .oum-community-contributions-card,
+.toplevel_page_open-user-map .oum-community-contributions-card {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  max-width: 1070px;
+  padding: 24px;
+  background: #fff;
+  outline: 1px solid #d0d7de;
+  border-radius: 6px;
+  /* Toggle uses existing input.oum-switch[type=checkbox] + label styles */
+}
+.oum-location_page_open-user-map-settings .oum-community-contributions-card .oum-community-contributions-content,
+.toplevel_page_open-user-map .oum-community-contributions-card .oum-community-contributions-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.oum-location_page_open-user-map-settings .oum-community-contributions-card .oum-community-contributions-title,
+.toplevel_page_open-user-map .oum-community-contributions-card .oum-community-contributions-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d2327;
+}
+.oum-location_page_open-user-map-settings .oum-community-contributions-card .oum-community-contributions-intro,
+.toplevel_page_open-user-map .oum-community-contributions-card .oum-community-contributions-intro {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #50575e;
+}
+.oum-location_page_open-user-map-settings .oum-community-contributions-card .oum-community-contributions-toggle-wrap,
+.toplevel_page_open-user-map .oum-community-contributions-card .oum-community-contributions-toggle-wrap {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.oum-location_page_open-user-map-settings .oum-community-contributions-card .community-enabled-tip,
+.oum-location_page_open-user-map-settings .oum-community-contributions-card .community-disabled-tip,
+.toplevel_page_open-user-map .oum-community-contributions-card .community-enabled-tip,
+.toplevel_page_open-user-map .oum-community-contributions-card .community-disabled-tip {
+  margin: 0 0 40px 0;
+}
+.oum-location_page_open-user-map-settings .oum-community-contributions-card .oum-community-contributions-advanced,
+.toplevel_page_open-user-map .oum-community-contributions-card .oum-community-contributions-advanced {
+  margin: auto 0 0 0;
+  font-size: 13px;
+  color: #646970;
+  border-top: 1px solid #dee4ea;
+  padding-top: 10px;
+}
+.oum-location_page_open-user-map-settings .oum-community-contributions-card .oum-community-contributions-teaser,
+.toplevel_page_open-user-map .oum-community-contributions-card .oum-community-contributions-teaser {
+  flex-shrink: 0;
+  width: 350px;
+}
+.oum-location_page_open-user-map-settings .oum-community-contributions-card .oum-community-contributions-teaser .oum-community-contributions-teaser-img,
+.toplevel_page_open-user-map .oum-community-contributions-card .oum-community-contributions-teaser .oum-community-contributions-teaser-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 4px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.oum-location_page_open-user-map-settings #oum_plus_button_label,
+.toplevel_page_open-user-map #oum_plus_button_label {
+  max-width: 100%;
+}
+.oum-location_page_open-user-map-settings .community-tab-disabled-message,
+.toplevel_page_open-user-map .community-tab-disabled-message {
+  margin: 20px 0;
+  max-width: 700px;
+  padding: 12px 14px;
+  border-left: 4px solid #dba617;
+  background: #fff8e5;
+}
+.oum-location_page_open-user-map-settings .community-quick-links,
+.toplevel_page_open-user-map .community-quick-links {
+  margin: 10px 0 18px;
+  padding: 10px 14px;
+  border: 1px solid #dcdcde;
+  background: #fff;
+  max-width: 860px;
+  border-radius: 4px;
+}
+.oum-location_page_open-user-map-settings .community-quick-links strong,
+.toplevel_page_open-user-map .community-quick-links strong {
+  margin-right: 8px;
+}
+.oum-location_page_open-user-map-settings .community-quick-links a,
+.toplevel_page_open-user-map .community-quick-links a {
+  margin-right: 10px;
+  text-decoration: none;
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.oum-location_page_open-user-map-settings .community-quick-links a:hover,
+.toplevel_page_open-user-map .community-quick-links a:hover {
+  background: #f6f7f7;
+}
+.oum-location_page_open-user-map-settings .community-quick-links a:focus, .oum-location_page_open-user-map-settings .community-quick-links a:active, .oum-location_page_open-user-map-settings .community-quick-links a:focus-visible,
+.toplevel_page_open-user-map .community-quick-links a:focus,
+.toplevel_page_open-user-map .community-quick-links a:active,
+.toplevel_page_open-user-map .community-quick-links a:focus-visible {
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+}
+.oum-location_page_open-user-map-settings .community-group-heading td,
+.toplevel_page_open-user-map .community-group-heading td {
+  padding: 0 !important;
+  border-top: 0 !important;
+}
+.oum-location_page_open-user-map-settings .community-group-heading .community-group-heading-inner,
+.toplevel_page_open-user-map .community-group-heading .community-group-heading-inner {
+  padding: 20px;
+  border-bottom: 1px solid #e2e5e8;
+  background: #f8f9fb;
+}
+.oum-location_page_open-user-map-settings .community-group-heading .community-group-heading-inner h3,
+.toplevel_page_open-user-map .community-group-heading .community-group-heading-inner h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #1d2327;
+}
+.oum-location_page_open-user-map-settings .community-group-heading .community-group-heading-inner p,
+.toplevel_page_open-user-map .community-group-heading .community-group-heading-inner p {
+  margin: 0;
+  color: #50575e;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.oum-location_page_open-user-map-settings .wrap-community-tab-settings .form-table,
+.toplevel_page_open-user-map .wrap-community-tab-settings .form-table {
+  display: flex;
+  flex-direction: column;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 0;
+}
+.oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box,
+.toplevel_page_open-user-map .wrap-community-tab-settings .community-group-box {
+  display: table;
+  width: 100%;
+  background: #fff;
+  outline: 1px solid #d0d7de;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box:last-child,
+.toplevel_page_open-user-map .wrap-community-tab-settings .community-group-box:last-child {
+  margin-bottom: 0;
+}
+.oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box > tr > th,
+.oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box > tr > td,
+.toplevel_page_open-user-map .wrap-community-tab-settings .community-group-box > tr > th,
+.toplevel_page_open-user-map .wrap-community-tab-settings .community-group-box > tr > td {
+  background: #fff;
+  padding: 30px 20px 30px;
+}
+.oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box td .community-guest-publish-warning,
+.toplevel_page_open-user-map .wrap-community-tab-settings .community-group-box td .community-guest-publish-warning {
+  color: #646970;
+  font-style: italic;
+}
+.oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box td .description,
+.toplevel_page_open-user-map .wrap-community-tab-settings .community-group-box td .description {
+  margin-bottom: 4px;
+  display: block;
+}
+.oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box td strong,
+.toplevel_page_open-user-map .wrap-community-tab-settings .community-group-box td strong {
+  margin-top: 10px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+.oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box td strong:first-of-type,
+.toplevel_page_open-user-map .wrap-community-tab-settings .community-group-box td strong:first-of-type {
+  margin-top: 0;
+}
 .oum-location_page_open-user-map-settings .map_styles,
 .toplevel_page_open-user-map .map_styles {
   display: flex;
   flex-wrap: wrap;
+  gap: 10px;
 }
 .oum-location_page_open-user-map-settings .map_styles label,
 .toplevel_page_open-user-map .map_styles label {
@@ -1211,7 +1434,6 @@
   height: 208px;
   overflow: hidden;
   border: 4px solid white;
-  margin: 5px;
   position: relative;
 }
 .oum-location_page_open-user-map-settings .map_styles label input,
@@ -1652,7 +1874,7 @@
 }
 @media screen and (max-width: 768px) {
   .oum-location_page_open-user-map-settings .geo-coordinates-wrap .map-wrap #mapGetInitial .leaflet-control-geosearch.leaflet-geosearch-bar form input[type=text],
-.toplevel_page_open-user-map .geo-coordinates-wrap .map-wrap #mapGetInitial .leaflet-control-geosearch.leaflet-geosearch-bar form input[type=text] {
+  .toplevel_page_open-user-map .geo-coordinates-wrap .map-wrap #mapGetInitial .leaflet-control-geosearch.leaflet-geosearch-bar form input[type=text] {
     font-size: 16px;
   }
 }
@@ -1740,17 +1962,17 @@
 }
 @media (max-width: 768px) {
   .oum-location_page_open-user-map-settings .geo-coordinates-wrap,
-.toplevel_page_open-user-map .geo-coordinates-wrap {
+  .toplevel_page_open-user-map .geo-coordinates-wrap {
     flex-direction: column;
   }
   .oum-location_page_open-user-map-settings .geo-coordinates-wrap .map-wrap,
-.oum-location_page_open-user-map-settings .geo-coordinates-wrap .input-wrap,
-.toplevel_page_open-user-map .geo-coordinates-wrap .map-wrap,
-.toplevel_page_open-user-map .geo-coordinates-wrap .input-wrap {
+  .oum-location_page_open-user-map-settings .geo-coordinates-wrap .input-wrap,
+  .toplevel_page_open-user-map .geo-coordinates-wrap .map-wrap,
+  .toplevel_page_open-user-map .geo-coordinates-wrap .input-wrap {
     width: 100%;
   }
   .oum-location_page_open-user-map-settings .geo-coordinates-wrap .input-wrap,
-.toplevel_page_open-user-map .geo-coordinates-wrap .input-wrap {
+  .toplevel_page_open-user-map .geo-coordinates-wrap .input-wrap {
     padding: 0;
   }
 }
@@ -2221,23 +2443,21 @@
 .toplevel_page_open-user-map #tab-pro-trial #oum-pro-features-list {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  /* 3 equal columns */
-  gap: 30px 40px;
-  /* row-gap | column-gap */
+  grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+  gap: 30px 40px; /* row-gap | column-gap */
   list-style: none;
   padding: 0;
   margin: 0;
 }
 @media (max-width: 1000px) {
   .oum-location_page_open-user-map-settings #tab-pro-trial #oum-pro-features-list,
-.toplevel_page_open-user-map #tab-pro-trial #oum-pro-features-list {
+  .toplevel_page_open-user-map #tab-pro-trial #oum-pro-features-list {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (max-width: 768px) {
   .oum-location_page_open-user-map-settings #tab-pro-trial #oum-pro-features-list,
-.toplevel_page_open-user-map #tab-pro-trial #oum-pro-features-list {
+  .toplevel_page_open-user-map #tab-pro-trial #oum-pro-features-list {
     grid-template-columns: repeat(1, 1fr);
   }
 }
@@ -2616,4 +2836,4 @@
 .oum-image-upload-wrap .oum-image-upload-description {
   font-size: 12px;
   color: #666;
-}
+}/*# sourceMappingURL=style.css.map */

@@ -625,11 +625,32 @@ class BaseController {
         add_action( 'oum_fs_loaded', array($this, 'on_freemius_loaded') );
     }
 
+    /**
+     * Determine whether the current submission should be auto-published.
+     *
+     * Admin users are always allowed to auto-publish. Other logged-in users
+     * depend on the "Registered users can add locations without approval" option.
+     *
+     * @return bool
+     */
+    protected function should_auto_publish_for_current_user() {
+        // Guests are never covered by the registered-user auto-publish option.
+        if ( !is_user_logged_in() ) {
+            return false;
+        }
+        // Administrators should always publish directly.
+        if ( current_user_can( 'manage_options' ) ) {
+            return true;
+        }
+        // Other roles require capability + explicitly enabled option (default: off).
+        return get_option( 'oum_enable_auto_publish', '' ) === 'on' && current_user_can( 'edit_oum-locations' );
+    }
+
     public function oum_init() {
         $this->post_status = 'pending';
         if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
-            // Auto-Publish for registered users
-            if ( get_option( 'oum_enable_auto_publish', 'on' ) && current_user_can( 'edit_oum-locations' ) ) {
+            // Auto-Publish decision for registered users
+            if ( $this->should_auto_publish_for_current_user() ) {
                 $this->post_status = 'publish';
             }
             // Default: Allow Frontend Adding for everyone
@@ -809,6 +830,7 @@ class BaseController {
             $data['oum_location_title'] = ( isset( $_POST['oum_location_title'] ) && $_POST['oum_location_title'] != '' ? sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_title'] ) ) : time() );
             $data['oum_location_lat'] = sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_lat'] ) );
             $data['oum_location_lng'] = sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_lng'] ) );
+            $data['oum_location_zoom'] = ( isset( $_POST['oum_location_zoom'] ) ? sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_zoom'] ) ) : '' );
             $data['oum_location_address'] = ( isset( $_POST['oum_location_address'] ) ? sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_address'] ) ) : '' );
             $data['oum_location_text'] = ( isset( $_POST['oum_location_text'] ) ? wp_kses_post( $_POST['oum_location_text'] ) : '' );
             $data['oum_location_notification'] = ( isset( $_POST['oum_location_notification'] ) ? $_POST['oum_location_notification'] : '' );
@@ -1080,6 +1102,14 @@ class BaseController {
                         if ( !$lng_validated ) {
                             $lng_validated = '';
                         }
+                        $zoom_validated = '';
+                        if ( isset( $data['oum_location_zoom'] ) && $data['oum_location_zoom'] !== '' ) {
+                            $zoom_validated = floatval( str_replace( ',', '.', $data['oum_location_zoom'] ) );
+                            // Keep zoom in Leaflet's valid range.
+                            if ( !is_numeric( $zoom_validated ) || $zoom_validated < 1 || $zoom_validated > 20 ) {
+                                $zoom_validated = '';
+                            }
+                        }
                         // Get existing location data to preserve vote count and other existing fields
                         // This prevents vote counts from being lost when editing locations via AJAX
                         $existing_data = get_post_meta( $post_id, '_oum_location_key', true );
@@ -1093,6 +1123,13 @@ class BaseController {
                             'text'    => $data['oum_location_text'],
                             'video'   => $data['oum_location_video'],
                         );
+                        // Persist per-location zoom when available (frontend submissions).
+                        if ( $zoom_validated !== '' ) {
+                            $data_meta['zoom'] = $zoom_validated;
+                        } elseif ( isset( $existing_data['zoom'] ) && $existing_data['zoom'] !== '' ) {
+                            // Keep existing zoom on edits from older clients that don't submit zoom.
+                            $data_meta['zoom'] = $existing_data['zoom'];
+                        }
                         // Preserve existing vote count if it exists
                         if ( isset( $existing_data['votes'] ) ) {
                             $data_meta['votes'] = $existing_data['votes'];

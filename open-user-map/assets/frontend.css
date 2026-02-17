@@ -313,6 +313,7 @@
   margin-left: -20px !important;
   object-fit: contain;
   object-position: center bottom;
+  outline: none !important;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-marker-icon:not(.marker-cluster):hover {
   width: 44px !important;
@@ -2642,6 +2643,7 @@
   margin-left: -20px !important;
   object-fit: contain;
   object-position: center bottom;
+  outline: none !important;
 }
 .open-user-map-location-map .leaflet-marker-icon:not(.marker-cluster):hover {
   width: 44px !important;
@@ -3446,6 +3448,7 @@
   margin-left: -20px !important;
   object-fit: contain;
   object-position: center bottom;
+  outline: none !important;
 }
 .oum-location-value[data-value=map] .leaflet-map .leaflet-marker-icon:not(.marker-cluster):hover {
   width: 44px !important;

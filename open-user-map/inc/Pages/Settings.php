@@ -26,6 +26,13 @@ class Settings extends BaseController {
             10,
             3
         );
+        // Rebuild rewrite rules when single-page mode changes (slug/rewrite can change).
+        add_action(
+            'update_option_oum_enable_single_page',
+            array($this, 'flush_rewrite_rules_for_single_page_setting'),
+            10,
+            3
+        );
         add_filter(
             'wp_redirect',
             array($this, 'preserve_active_tab_in_redirect'),
@@ -660,25 +667,23 @@ class Settings extends BaseController {
     }
 
     public function process_wizard_usecase( $input ) {
-        // Adjust OUM settings based on the wizard
+        // Adjust OUM settings based on the setup wizard choice.
+        // Important: This is a one-time preset and should not affect later manual settings changes.
         if ( $input == 1 ) {
-            // everybody
+            // Enable visitor contributions.
             update_option( 'oum_enable_add_location', 'on' );
         } elseif ( $input == 2 ) {
-            //just me
+            // Disable visitor contributions.
             update_option( 'oum_enable_add_location', '' );
-            //disable fullscreen button
+            // Apply a minimal "business-style" preset for initial setup only.
             update_option( 'oum_enable_fullscreen', '' );
-            //disable searchbar
             update_option( 'oum_enable_searchbar', '' );
-            //disable search address button
             update_option( 'oum_enable_searchaddress_button', '' );
-            //disable search markers button
             update_option( 'oum_enable_searchmarkers_button', '' );
-            //disable current location button
             update_option( 'oum_enable_currentlocation', '' );
-            //disable location date
             update_option( 'oum_enable_location_date', '' );
+            update_option( 'oum_enable_marker_types', '' );
+            update_option( 'oum_enable_advanced_filter', '' );
         }
         return $input;
     }
@@ -736,6 +741,7 @@ class Settings extends BaseController {
                         'subtitle'          => oum_get_location_value( 'subtitle', $post_id ),
                         'lat'               => oum_get_location_value( 'lat', $post_id ),
                         'lng'               => oum_get_location_value( 'lng', $post_id ),
+                        'zoom'              => oum_get_location_value( 'zoom', $post_id ),
                         'text'              => oum_get_location_value( 'text', $post_id ),
                         'notification'      => oum_get_location_value( 'notification', $post_id ),
                         'author_name'       => oum_get_location_value( 'author_name', $post_id ),
@@ -995,6 +1001,7 @@ class Settings extends BaseController {
                             'oum_location_address'           => $subtitle_value,
                             'oum_location_lat'               => ( isset( $location['lat'] ) ? $location['lat'] : '' ),
                             'oum_location_lng'               => ( isset( $location['lng'] ) ? $location['lng'] : '' ),
+                            'oum_location_zoom'              => ( isset( $location['zoom'] ) ? $location['zoom'] : '' ),
                             'oum_location_text'              => ( isset( $location['text'] ) ? $location['text'] : '' ),
                             'oum_location_notification'      => ( isset( $location['notification'] ) ? $location['notification'] : '' ),
                             'oum_location_author_name'       => ( isset( $location['author_name'] ) ? $location['author_name'] : '' ),
@@ -1077,6 +1084,24 @@ class Settings extends BaseController {
             __( 'Settings Saved', 'open-user-map' ),
             'updated'
         );
+    }
+
+    /**
+     * Flush rewrite rules when the single-page setting changes.
+     *
+     * This ensures location permalinks start/stop working immediately after
+     * enabling or disabling single pages.
+     *
+     * @param mixed  $old_value Previous option value.
+     * @param mixed  $value     New option value.
+     * @param string $option    Option name.
+     */
+    public function flush_rewrite_rules_for_single_page_setting( $old_value, $value, $option ) {
+        // Only flush when the value actually changed.
+        if ( $old_value === $value ) {
+            return;
+        }
+        flush_rewrite_rules();
     }
 
     /**

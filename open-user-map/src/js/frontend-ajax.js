@@ -3,6 +3,13 @@ jQuery('#oum_add_location').submit(function(event) {
   jQuery('#oum_submit_btn').addClass('oum-loading');
   
   event.preventDefault();
+  // Persist the current map zoom with the submission.
+  if (window.oumMap2 && typeof window.oumMap2.getZoom === 'function') {
+    const zoomField = document.getElementById('oum_location_zoom');
+    if (zoomField) {
+      zoomField.value = window.oumMap2.getZoom();
+    }
+  }
   let formData = new FormData(this);
 
   // Process opening hours fields - validate and convert to JSON

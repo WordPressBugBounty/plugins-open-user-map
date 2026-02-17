@@ -5,9 +5,45 @@
 
   const map = L.map('mapGetRegion', {
     scrollWheelZoom: false,
+    touchZoom: true,
     zoomSnap: 0.1,
     zoomDelta: 0.1,
   });
+
+  // Add coarse zoom controls as a quick alternative to precise 0.1 zoom steps.
+  const FastZoomControl = L.Control.extend({
+    options: {
+      position: 'topleft'
+    },
+    onAdd: function() {
+      const container = L.DomUtil.create('div', 'leaflet-bar oum-fast-zoom-control');
+
+      const zoomInFast = L.DomUtil.create('a', '', container);
+      zoomInFast.innerHTML = '++';
+      zoomInFast.href = '#';
+      zoomInFast.title = 'Zoom in faster';
+      zoomInFast.style.fontWeight = 'bold';
+
+      const zoomOutFast = L.DomUtil.create('a', '', container);
+      zoomOutFast.innerHTML = '--';
+      zoomOutFast.href = '#';
+      zoomOutFast.title = 'Zoom out faster';
+      zoomOutFast.style.fontWeight = 'bold';
+
+      L.DomEvent.disableClickPropagation(container);
+      L.DomEvent.on(zoomInFast, 'click', function(e) {
+        L.DomEvent.preventDefault(e);
+        map.setZoom(map.getZoom() + 1);
+      });
+      L.DomEvent.on(zoomOutFast, 'click', function(e) {
+        L.DomEvent.preventDefault(e);
+        map.setZoom(map.getZoom() - 1);
+      });
+
+      return container;
+    }
+  });
+  map.addControl(new FastZoomControl());
 
   // prevent moving/zoom outside main world bounds
   let world_bounds = L.latLngBounds(L.latLng(-85, -200), L.latLng(85, 200));
