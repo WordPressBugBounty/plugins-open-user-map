@@ -8,7 +8,7 @@ Plugin Name: Open User Map
 Plugin URI: https://wordpress.org/plugins/open-user-map/
 Description: Engage your visitors with an interactive map – let them add markers instantly or create a custom map showcasing your favorite spots.
 Author: 100plugins
-Version: 1.4.31
+Version: 1.4.32
 Author URI: https://www.open-user-map.com/
 License: GPLv3 or later
 Text Domain: open-user-map
@@ -43,26 +43,27 @@ if ( function_exists( 'oum_fs' ) ) {
                 // Include Freemius SDK.
                 require_once dirname( __FILE__ ) . '/vendor/freemius/start.php';
                 $oum_fs = fs_dynamic_init( array(
-                    'id'             => '9083',
-                    'slug'           => 'open-user-map',
-                    'premium_slug'   => 'open-user-map-pro',
-                    'type'           => 'plugin',
-                    'public_key'     => 'pk_e4bbeb52c0d44fa562ba49d2c632d',
-                    'is_premium'     => false,
-                    'premium_suffix' => 'PRO',
-                    'has_addons'     => false,
-                    'has_paid_plans' => true,
-                    'trial'          => array(
+                    'id'               => '9083',
+                    'slug'             => 'open-user-map',
+                    'premium_slug'     => 'open-user-map-pro',
+                    'type'             => 'plugin',
+                    'public_key'       => 'pk_e4bbeb52c0d44fa562ba49d2c632d',
+                    'is_premium'       => false,
+                    'premium_suffix'   => 'PRO',
+                    'has_addons'       => false,
+                    'has_paid_plans'   => true,
+                    'trial'            => array(
                         'days'               => 7,
                         'is_require_payment' => false,
                     ),
-                    'menu'           => array(
+                    'menu'             => array(
                         'slug'       => 'edit.php?post_type=oum-location',
                         'first-path' => 'edit.php?post_type=oum-location&page=open-user-map-settings',
                         'contact'    => false,
                         'support'    => false,
                     ),
-                    'is_live'        => true,
+                    'is_live'          => true,
+                    'is_org_compliant' => true,
                 ) );
             }
             return $oum_fs;

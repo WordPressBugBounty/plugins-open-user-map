@@ -77,7 +77,7 @@ class LocationController extends BaseController {
             'publicly_queryable'  => false,
             'exclude_from_search' => true,
             'show_in_rest'        => true,
-            'show_in_nav_menus'   => false,
+            'show_in_nav_menus'   => true,
             'has_archive'         => false,
             'rewrite'             => false,
         );

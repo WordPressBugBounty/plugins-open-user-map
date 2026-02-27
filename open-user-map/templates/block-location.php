@@ -89,9 +89,19 @@ if ($requested_value === '') {
 
 $value = oum_get_location_value($requested_value, $post_id);
 
+// Escape only plain-text user fields to prevent XSS. HTML-producing values (e.g. map, image) are output as-is.
+$plain_text_attrs = array('notification', 'author_name', 'author_email', 'address', 'subtitle', 'title');
+if (in_array($requested_value, $plain_text_attrs, true)) {
+    $value_safe = esc_html($value);
+} elseif ($requested_value === 'text') {
+    $value_safe = wp_kses_post($value);
+} else {
+    $value_safe = $value;
+}
+
 ?>
 
-<div class="oum-location-value" data-value="<?php echo $block_attributes['value']; ?>"><?php echo $value; ?></div>
+<div class="oum-location-value" data-value="<?php echo esc_attr($block_attributes['value']); ?>"><?php echo $value_safe; ?></div>
 
 <?php
 // Initialize opening hours toggle if opening hours are present

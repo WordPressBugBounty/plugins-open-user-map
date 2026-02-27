@@ -833,7 +833,7 @@ class BaseController {
             $data['oum_location_zoom'] = ( isset( $_POST['oum_location_zoom'] ) ? sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_zoom'] ) ) : '' );
             $data['oum_location_address'] = ( isset( $_POST['oum_location_address'] ) ? sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_address'] ) ) : '' );
             $data['oum_location_text'] = ( isset( $_POST['oum_location_text'] ) ? wp_kses_post( $_POST['oum_location_text'] ) : '' );
-            $data['oum_location_notification'] = ( isset( $_POST['oum_location_notification'] ) ? $_POST['oum_location_notification'] : '' );
+            $data['oum_location_notification'] = ( isset( $_POST['oum_location_notification'] ) ? sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_notification'] ) ) : '' );
             $data['oum_location_author_name'] = ( isset( $_POST['oum_location_notification'] ) ? sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_author_name'] ) ) : '' );
             $data['oum_location_author_email'] = ( isset( $_POST['oum_location_notification'] ) ? sanitize_email( wp_strip_all_tags( $_POST['oum_location_author_email'] ) ) : '' );
             $data['oum_location_video'] = ( isset( $_POST['oum_location_video'] ) ? sanitize_url( wp_strip_all_tags( $_POST['oum_location_video'] ) ) : '' );
