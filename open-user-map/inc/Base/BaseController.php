@@ -804,7 +804,9 @@ class BaseController {
         wp_enqueue_script( 'oum_frontend_carousel_js' );
         ob_start();
         require oum_get_template( 'block-map.php' );
-        return ob_get_clean();
+        // Ensure we always return a string so theme filters (e.g. lazyload on the_content) never receive null/false
+        $output = ob_get_clean();
+        return ( is_string( $output ) ? $output : '' );
     }
 
     /**
