@@ -727,6 +727,24 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
             </tr>
 
             <tr valign="top">
+              <?php 
+    $oum_hide_location_popup = get_option( 'oum_hide_location_popup', '' );
+    ?>
+              <th scope="row"><?php 
+    echo __( 'Hide Marker Popups', 'open-user-map' );
+    ?></th>
+              <td>
+                <input class="oum-switch" type="checkbox" name="oum_hide_location_popup" id="oum_hide_location_popup" <?php 
+    echo ( $oum_hide_location_popup === 'on' ? 'checked' : '' );
+    ?>>
+                <label for="oum_hide_location_popup"></label><br><br>
+                <span class="description"><?php 
+    echo __( 'If enabled, clicking a marker does not open a popup.', 'open-user-map' );
+    ?></span><br><br>
+              </td>
+            </tr>
+
+            <tr valign="top">
               <th scope="row">
                 <?php 
     echo __( 'Image Size in Popup', 'open-user-map' );
@@ -3183,6 +3201,16 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Enable or disable the fullscreen button.', 'open-user-map' );
     ?></td>
                             </tr>
+                            <tr>
+                                <td><code>hide_location_popup</code></td>
+                                <td>
+                                    <code>hide_location_popup="true"</code><br>
+                                    <code>hide_location_popup="false"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'If "true", clicking a marker does not open a popup. Useful for simple maps (e.g. next to a contact form) where you only want to show marker positions.', 'open-user-map' );
+    ?></td>
+                            </tr>
                         </tbody>
                     </table>
                     
@@ -3197,12 +3225,17 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                         <code>[open-user-map lat="51.50665" long="-0.12752" zoom="13" types="food" size="fullwidth" height="500px"]</code>
                         
                         <p><strong><?php 
-    echo __( 'Example 2: Simple map showing only locations from the current user', 'open-user-map' );
+    echo __( 'Example 2: Map with markers only (no popup on click)', 'open-user-map' );
+    ?></strong></p>
+                        <code>[open-user-map hide_location_popup="true"]</code>
+                        
+                        <p><strong><?php 
+    echo __( 'Example 3: Simple map showing only locations from the current user', 'open-user-map' );
     ?></strong> <span class="oum-pro">PRO</span></p>
                         <code>[open-user-map map_type="simple" user="current" enable_fullscreen="true" enable_searchbar="false"]</code>
                         
                         <p><strong><?php 
-    echo __( 'Example 3: Interactive map for a specific region with custom appearance', 'open-user-map' );
+    echo __( 'Example 4: Interactive map for a specific region with custom appearance', 'open-user-map' );
     ?></strong></p>
                         <code>[open-user-map region="Europe" map_type="interactive" height="600px" enable_cluster="false" enable_currentlocation="true"]</code>
                     </div>

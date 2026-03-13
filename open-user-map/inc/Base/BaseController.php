@@ -1611,7 +1611,9 @@ class BaseController {
         }
         ob_start();
         require oum_get_template( 'block-form.php' );
-        return ob_get_clean();
+        // Ensure we always return a string so theme filters (e.g. lazyload on the_content) never receive null/false
+        $output = ob_get_clean();
+        return ( is_string( $output ) ? $output : '' );
     }
 
 }

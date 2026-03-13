@@ -580,6 +580,9 @@ echo $oum_enable_multiple_marker_types;
         var oum_hide_filterbox = <?php 
 echo $oum_hide_filterbox;
 ?>;
+        var oum_hide_location_popup = <?php 
+echo ( isset( $oum_hide_location_popup ) && $oum_hide_location_popup === 'true' ? 'true' : 'false' );
+?>;
         var oum_enable_address = `<?php 
 echo $oum_enable_address;
 ?>`;

@@ -8,6 +8,7 @@ import {
 import { 
     TextControl, 
     SelectControl,
+    ToggleControl,
     PanelBody,
     PanelRow,
     Button,
@@ -135,6 +136,14 @@ export default function Edit(props) {
                             placeholder="e.g. 1|2|3"
                         />
                     </PanelRow>
+                </PanelBody>
+                <PanelBody title={ __('Marker Popups', 'open-user-map') } initialOpen={ false }>
+                    <ToggleControl 
+                        label={ __('Hide', 'open-user-map') }
+                        checked={attributes.hide_location_popup === 'true'}
+                        onChange={(checked) =>
+                            setAttributes({ hide_location_popup: checked ? 'true' : '' })}
+                    />
                 </PanelBody>
             </InspectorControls>
 

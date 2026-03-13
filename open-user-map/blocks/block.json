@@ -36,6 +36,9 @@
         },
         "height_mobile": {
             "type": "string"
+        },
+        "hide_location_popup": {
+            "type": "string"
         }
     }
 }

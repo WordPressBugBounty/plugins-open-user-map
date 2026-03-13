@@ -1113,8 +1113,11 @@ const OUMMarkers = (function () {
       types: location.types || [],
     });
 
-    let popup = L.responsivePopup().setContent(location.content);
-    marker.bindPopup(popup);
+    // Only bind popup when "hide location popup" is off (e.g. for simple maps next to contact form)
+    if (typeof oum_hide_location_popup === "undefined" || !oum_hide_location_popup) {
+      let popup = L.responsivePopup().setContent(location.content);
+      marker.bindPopup(popup);
+    }
 
     return marker;
   }
@@ -1562,21 +1565,16 @@ const OUMMarkers = (function () {
   function handleAutoOpenMarker(markerId) {
     const targetMarker = allMarkers.find((m) => m.options.post_id === markerId);
     if (targetMarker) {
-
+      const openPopup = typeof oum_hide_location_popup === "undefined" || !oum_hide_location_popup;
       if (oum_enable_cluster) {
-
-        // Wait a bit for the clustering to update
-
         setTimeout(() => {
-          // Try to zoom to the specific marker and show it
           markersLayer.zoomToShowLayer(targetMarker, () => {
-            targetMarker.openPopup();
+            if (openPopup) targetMarker.openPopup();
           });
         }, 500);
       } else {
-        // For non-clustered markers, we can open the popup directly and use the zoom level from the marker data
         map.setView(targetMarker.getLatLng(), targetMarker.options.zoom);
-        targetMarker.openPopup();
+        if (openPopup) targetMarker.openPopup();
       }
     }
   }

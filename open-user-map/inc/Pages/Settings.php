@@ -205,6 +205,9 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_enable_fullscreen', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'open-user-map-settings-group', 'oum_hide_location_popup', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
         register_setting( 'open-user-map-settings-group', 'oum_enable_currentlocation', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );

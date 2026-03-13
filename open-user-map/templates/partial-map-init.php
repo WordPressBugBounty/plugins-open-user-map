@@ -6,6 +6,7 @@ $oum_enable_regions = get_option( 'oum_enable_regions' );
 $oum_regions_layout_style = get_option( 'oum_regions_layout_style', 'layout-1' );
 $oum_enable_cluster = ( get_option( 'oum_enable_cluster', 'on' ) === 'on' ? 'true' : 'false' );
 $oum_enable_fullscreen = ( get_option( 'oum_enable_fullscreen', 'on' ) === 'on' ? 'true' : 'false' );
+$oum_hide_location_popup = ( get_option( 'oum_hide_location_popup', '' ) === 'on' ? 'true' : 'false' );
 $oum_enable_gmaps_link = get_option( 'oum_enable_gmaps_link', 'on' );
 $oum_enable_address_autofill = get_option( 'oum_enable_address_autofill' );
 $oum_max_image_filesize = ( !empty( get_option( 'oum_max_image_filesize' ) ) ? get_option( 'oum_max_image_filesize' ) : 10 );
@@ -96,6 +97,10 @@ if ( isset( $block_attributes['map_type'] ) && $block_attributes['map_type'] != 
 // Custom Attribute: Fullscreen (true|false)
 if ( isset( $block_attributes['enable_fullscreen'] ) && $block_attributes['enable_fullscreen'] != '' ) {
     $oum_enable_fullscreen = ( $block_attributes['enable_fullscreen'] === 'true' ? 'true' : 'false' );
+}
+// Custom Attribute: Hide location popup on marker click (true|false)
+if ( isset( $block_attributes['hide_location_popup'] ) && $block_attributes['hide_location_popup'] != '' ) {
+    $oum_hide_location_popup = ( $block_attributes['hide_location_popup'] === 'true' ? 'true' : 'false' );
 }
 // Custom Attribute: Searchbar (true|false)
 if ( isset( $block_attributes['enable_searchbar'] ) && $block_attributes['enable_searchbar'] != '' ) {

@@ -162,6 +162,27 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 
 		$this->end_controls_section();
 
+		$this->start_controls_section(
+			'section_marker_popups',
+			[
+				'label' => esc_html__( 'Marker Popups', 'open-user-map' ),
+				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+			]
+		);
+
+		$this->add_control(
+			'hide_location_popup',
+			[
+				'label' => esc_html__( 'Hide', 'open-user-map' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'return_value' => 'true',
+				'default' => '',
+				'description' => esc_html__( 'If enabled, clicking a marker does not open a popup.', 'open-user-map' ),
+			]
+		);
+
+		$this->end_controls_section();
+
 		// Content Tab End
 
 
@@ -210,6 +231,13 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 
 		// Style Tab End
 
+	}
+
+	/**
+	 * Declare the widget as dynamic so Elementor treats it as dynamic content (e.g. for caching).
+	 */
+	protected function is_dynamic_content(): bool {
+		return true;
 	}
 
 	protected function render() {
@@ -339,7 +367,9 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 			$height = $settings['oum_map_height'] ? 'height="'.$settings['oum_map_height'].'px"' : '';
 			$height_mobile = $settings['oum_map_height_mobile'] ? 'height_mobile="'.$settings['oum_map_height_mobile'].'px"' : '';
 			
-			echo do_shortcode('[open-user-map '. $lat . ' ' . $long . ' ' . $zoom . ' ' . $region . ' '. $types . ' '. $ids . ' '. $size .' '. $height .' '. $height_mobile .']'); 
+			$hide_location_popup = (isset($settings['hide_location_popup']) && $settings['hide_location_popup'] === 'true') ? 'hide_location_popup="true"' : '';
+			
+			echo do_shortcode('[open-user-map '. $lat . ' ' . $long . ' ' . $zoom . ' ' . $region . ' '. $types . ' '. $ids . ' '. $size .' '. $height .' '. $height_mobile .' '. $hide_location_popup .']'); 
 			?>
 
 		<?php endif; ?>
