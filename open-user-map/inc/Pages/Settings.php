@@ -996,14 +996,24 @@ class Settings extends BaseController {
                         } elseif ( isset( $location['address'] ) ) {
                             $subtitle_value = $location['address'];
                         }
+                        // Support both "lng" and "long" for longitude (CSV export/Sheets often use "long")
+                        $lat_value = ( isset( $location['lat'] ) ? $location['lat'] : '' );
+                        $lng_value = ( isset( $location['lng'] ) ? $location['lng'] : (( isset( $location['long'] ) ? $location['long'] : '' )) );
+                        // Normalize decimal separator: comma to period (e.g. European "51,5706508" -> "51.5706508")
+                        if ( $lat_value !== '' ) {
+                            $lat_value = str_replace( ',', '.', trim( $lat_value ) );
+                        }
+                        if ( $lng_value !== '' ) {
+                            $lng_value = str_replace( ',', '.', trim( $lng_value ) );
+                        }
                         $fields = array(
                             'oum_location_nonce'             => $nonce,
                             'oum_location_image'             => ( isset( $location['image'] ) ? $location['image'] : '' ),
                             'oum_location_video'             => ( isset( $location['video'] ) ? $location['video'] : '' ),
                             'oum_location_audio'             => ( isset( $location['audio'] ) ? $location['audio'] : '' ),
                             'oum_location_address'           => $subtitle_value,
-                            'oum_location_lat'               => ( isset( $location['lat'] ) ? $location['lat'] : '' ),
-                            'oum_location_lng'               => ( isset( $location['lng'] ) ? $location['lng'] : '' ),
+                            'oum_location_lat'               => $lat_value,
+                            'oum_location_lng'               => $lng_value,
                             'oum_location_zoom'              => ( isset( $location['zoom'] ) ? $location['zoom'] : '' ),
                             'oum_location_text'              => ( isset( $location['text'] ) ? $location['text'] : '' ),
                             'oum_location_notification'      => ( isset( $location['notification'] ) ? $location['notification'] : '' ),

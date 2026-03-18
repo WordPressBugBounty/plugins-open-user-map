@@ -1083,8 +1083,8 @@ const OUMMarkers = (function () {
       ? L.layerGroup({ chunkedLoading: true })
       : L.markerClusterGroup({
           showCoverageOnHover: false,
-          removeOutsideVisibleBounds: false,
-          maxClusterRadius: 40,
+          removeOutsideVisibleBounds: true,
+          maxClusterRadius: 100,
           chunkedLoading: true,
         });
   }
@@ -1270,7 +1270,7 @@ const OUMMarkers = (function () {
     }
 
     markersLayer.clearLayers();
-    visibleMarkersCount = 0;
+    const filteredMarkers = [];
 
     allMarkers.forEach((marker) => {
       if (
@@ -1278,14 +1278,32 @@ const OUMMarkers = (function () {
         markerMatchesCategoriesFilter(marker) &&
         markerMatchesCustomfieldsFilter(marker)
       ) {
-        markersLayer.addLayer(marker);
-        visibleMarkersCount += 1;
+        filteredMarkers.push(marker);
       }
     });
+
+    visibleMarkersCount = filteredMarkers.length;
+    addMarkersToLayer(filteredMarkers);
 
     if (oum_enable_cluster && typeof markersLayer.refreshClusters === "function") {
       markersLayer.refreshClusters();
     }
+  }
+
+  function addMarkersToLayer(markers) {
+    if (!markersLayer || !markers.length) {
+      return;
+    }
+
+    // Batch marker insertion when supported to improve large dataset performance.
+    if (typeof markersLayer.addLayers === "function") {
+      markersLayer.addLayers(markers);
+      return;
+    }
+
+    markers.forEach((marker) => {
+      markersLayer.addLayer(marker);
+    });
   }
 
   function markerMatchesSearchtextFilter(marker) {
@@ -1607,10 +1625,9 @@ const OUMMarkers = (function () {
         const marker = createMarker(location);
         allMarkers.push(marker);
         locationsById[String(location.post_id)] = location;
-        markersLayer.addLayer(marker);
       });
 
-      // Re-run filters so that advanced filter state or search/category selections stay in sync
+      // Apply markers once so filters and clustering can batch-add visible markers.
       applyFilters();
 
       // After adding all markers, check if we need to auto-open one

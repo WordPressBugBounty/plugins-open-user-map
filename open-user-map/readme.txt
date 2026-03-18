@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
 Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 1.4.34
+Stable tag: 1.4.35
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -281,6 +281,11 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.35 =
+* Improved: Increased Cluster Radius
+* Improved: Coordinates Sanitization (Import)
+* Improved: Faster Batch Loading for Markers
+
 = 1.4.34 =
 * NEW: Setting to disable marker popups
 * Improved: Compatibility with lazyloads
