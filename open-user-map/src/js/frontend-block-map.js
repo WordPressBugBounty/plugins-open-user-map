@@ -1295,6 +1295,16 @@ const OUMMarkers = (function () {
       return;
     }
 
+    // Batch addLayers() sometimes draws no marker when only one exists; one addLayer() avoids that bug.
+    if (
+      oum_enable_cluster &&
+      markers.length === 1 &&
+      typeof markersLayer.addLayer === "function"
+    ) {
+      markersLayer.addLayer(markers[0]);
+      return;
+    }
+
     // Batch marker insertion when supported to improve large dataset performance.
     if (typeof markersLayer.addLayers === "function") {
       markersLayer.addLayers(markers);
