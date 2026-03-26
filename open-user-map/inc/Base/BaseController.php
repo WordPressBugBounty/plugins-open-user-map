@@ -106,6 +106,20 @@ class BaseController {
     private static $custom_js_localization_filter_added = false;
 
     /**
+     * admin-ajax URL and nonces shared by frontend-ajax.js and map lazy-loaded bubbles.
+     *
+     * @return array<string, string>
+     */
+    protected function oum_ajax_localization_data() {
+        return array(
+            'ajaxurl'              => admin_url( 'admin-ajax.php' ),
+            'refresh_nonce_action' => 'oum_refresh_location_nonce',
+            'bubble_nonce'         => wp_create_nonce( 'oum_location_bubble' ),
+            'bubble_action'        => 'oum_get_location_bubble',
+        );
+    }
+
+    /**
      * Enqueue and localize the AJAX script with required data
      * 
      * This helper method ensures the AJAX script is properly enqueued and localized
@@ -121,13 +135,7 @@ class BaseController {
         $custom_strings_data = $this->oum_custom_strings();
         // Localize with custom strings (must happen immediately after enqueue)
         wp_localize_script( 'oum_frontend_ajax_js', 'oum_custom_strings', $custom_strings_data );
-        // Localize with AJAX URL and nonce action
-        $ajax_data = array(
-            'ajaxurl'              => admin_url( 'admin-ajax.php' ),
-            'refresh_nonce_action' => 'oum_refresh_location_nonce',
-            'bubble_nonce'         => wp_create_nonce( 'oum_location_bubble' ),
-            'bubble_action'        => 'oum_get_location_bubble',
-        );
+        $ajax_data = $this->oum_ajax_localization_data();
         // Localize the script (primary method)
         wp_localize_script( 'oum_frontend_ajax_js', 'oum_ajax', $ajax_data );
         // Add a filter as a safety net to ensure localization happens even if script is already output
@@ -149,12 +157,7 @@ class BaseController {
                     // This ensures the variables exist when the deferred script runs
                     // Get fresh data each time to ensure we have the latest values
                     if ( strpos( $tag, 'defer' ) !== false || strpos( $tag, 'async' ) !== false ) {
-                        $ajax_data = array(
-                            'ajaxurl'              => admin_url( 'admin-ajax.php' ),
-                            'refresh_nonce_action' => 'oum_refresh_location_nonce',
-                            'bubble_nonce'         => wp_create_nonce( 'oum_location_bubble' ),
-                            'bubble_action'        => 'oum_get_location_bubble',
-                        );
+                        $ajax_data = $controller_instance->oum_ajax_localization_data();
                         $custom_strings_data = $controller_instance->oum_custom_strings();
                         $inline_scripts = sprintf( '<script>window.oum_ajax = window.oum_ajax || %s; window.oum_custom_strings = window.oum_custom_strings || %s;</script>', wp_json_encode( $ajax_data ), wp_json_encode( $custom_strings_data ) );
                         return $inline_scripts . $tag;
@@ -236,9 +239,10 @@ class BaseController {
     protected function ensure_custom_js_localization() {
         // Only add the filter once to avoid duplicates
         if ( !self::$custom_js_localization_filter_added ) {
+            $controller_instance = $this;
             add_filter(
                 'script_loader_tag',
-                function ( $tag, $handle, $src ) {
+                function ( $tag, $handle, $src ) use($controller_instance) {
                     // Only process our frontend block map script
                     if ( $handle !== 'oum_frontend_block_map_js' ) {
                         return $tag;
@@ -255,10 +259,11 @@ class BaseController {
                     $custom_js_data = array(
                         'snippet' => $custom_js_snippet,
                     );
+                    $ajax_data = $controller_instance->oum_ajax_localization_data();
                     // Inject as inline script that runs immediately (not deferred)
-                    // This ensures the variable exists when the main script runs
-                    // Check if custom_js is not already defined to avoid overwriting
-                    $inline_script = sprintf( '<script>window.custom_js = window.custom_js || %s;</script>', wp_json_encode( $custom_js_data ) );
+                    // Ensures custom_js exists; oum_ajax exists for lazy-loaded bubbles if oum_frontend_ajax_js
+                    // is missing, deferred oddly, or stripped by optimizers/consent tools.
+                    $inline_script = sprintf( '<script>window.custom_js = window.custom_js || %s; window.oum_ajax = window.oum_ajax || %s;</script>', wp_json_encode( $custom_js_data ), wp_json_encode( $ajax_data ) );
                     return $inline_script . $tag;
                 },
                 20,
@@ -795,6 +800,7 @@ class BaseController {
         wp_enqueue_script( 'oum_frontend_block_map_js' );
         // Localize custom strings
         wp_localize_script( 'oum_frontend_block_map_js', 'oum_custom_strings', $this->oum_custom_strings() );
+        wp_localize_script( 'oum_frontend_block_map_js', 'oum_ajax', $this->oum_ajax_localization_data() );
         // Add custom js to frontend-block-map.js
         // Decode HTML entities before passing to wp_localize_script to ensure
         // raw characters (like > in arrow functions) are preserved
@@ -1616,6 +1622,7 @@ class BaseController {
         wp_enqueue_script( 'oum_frontend_block_map_js' );
         // Localize block map script
         wp_localize_script( 'oum_frontend_block_map_js', 'oum_custom_strings', $this->oum_custom_strings() );
+        wp_localize_script( 'oum_frontend_block_map_js', 'oum_ajax', $this->oum_ajax_localization_data() );
         // Decode HTML entities before passing to wp_localize_script to ensure
         // raw characters (like > in arrow functions) are preserved
         $custom_js_snippet = get_option( 'oum_custom_js' );

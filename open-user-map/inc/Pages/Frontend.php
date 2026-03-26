@@ -40,13 +40,7 @@ class Frontend extends BaseController {
         if ( !$this->is_script_ready_for_localization( 'oum_frontend_ajax_js', 'oum_ajax' ) ) {
             return;
         }
-        $ajax_data = array(
-            'ajaxurl'              => admin_url( 'admin-ajax.php' ),
-            'refresh_nonce_action' => 'oum_refresh_location_nonce',
-            'bubble_nonce'         => wp_create_nonce( 'oum_location_bubble' ),
-            'bubble_action'        => 'oum_get_location_bubble',
-        );
-        wp_localize_script( 'oum_frontend_ajax_js', 'oum_ajax', $ajax_data );
+        wp_localize_script( 'oum_frontend_ajax_js', 'oum_ajax', $this->oum_ajax_localization_data() );
         wp_localize_script( 'oum_frontend_ajax_js', 'oum_custom_strings', $this->oum_custom_strings() );
     }
 
