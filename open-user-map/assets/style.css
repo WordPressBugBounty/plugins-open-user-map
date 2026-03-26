@@ -798,12 +798,6 @@
   }
 }
 
-.oum-location_page_open-user-map-settings,
-.toplevel_page_open-user-map {
-  /* Custom fields wrapper table keeps default column widths */
-  /* Community Contributions card (General tab) */
-  /* Location Submissions tab */
-}
 .oum-location_page_open-user-map-settings.oum-settings-wizard,
 .toplevel_page_open-user-map.oum-settings-wizard {
   background: #fff;
@@ -1066,6 +1060,10 @@
 .toplevel_page_open-user-map .form-table th {
   width: 230px;
 }
+.oum-location_page_open-user-map-settings,
+.toplevel_page_open-user-map {
+  /* Custom fields wrapper table keeps default column widths */
+}
 .oum-location_page_open-user-map-settings .oum_custom_fields_wrapper table th,
 .toplevel_page_open-user-map .oum_custom_fields_wrapper table th {
   width: auto;
@@ -1237,6 +1235,10 @@
 .toplevel_page_open-user-map #oum_enable_add_location {
   display: none;
 }
+.oum-location_page_open-user-map-settings,
+.toplevel_page_open-user-map {
+  /* Community Contributions card (General tab) */
+}
 .oum-location_page_open-user-map-settings .oum-community-contributions-card,
 .toplevel_page_open-user-map .oum-community-contributions-card {
   display: flex;
@@ -1247,7 +1249,6 @@
   background: #fff;
   outline: 1px solid #d0d7de;
   border-radius: 6px;
-  /* Toggle uses existing input.oum-switch[type=checkbox] + label styles */
 }
 .oum-location_page_open-user-map-settings .oum-community-contributions-card .oum-community-contributions-content,
 .toplevel_page_open-user-map .oum-community-contributions-card .oum-community-contributions-content {
@@ -1269,6 +1270,10 @@
   font-size: 14px;
   line-height: 1.5;
   color: #50575e;
+}
+.oum-location_page_open-user-map-settings .oum-community-contributions-card,
+.toplevel_page_open-user-map .oum-community-contributions-card {
+  /* Toggle uses existing input.oum-switch[type=checkbox] + label styles */
 }
 .oum-location_page_open-user-map-settings .oum-community-contributions-card .oum-community-contributions-toggle-wrap,
 .toplevel_page_open-user-map .oum-community-contributions-card .oum-community-contributions-toggle-wrap {
@@ -1301,6 +1306,10 @@
   height: auto;
   border: 4px solid white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.oum-location_page_open-user-map-settings,
+.toplevel_page_open-user-map {
+  /* Location Submissions tab */
 }
 .oum-location_page_open-user-map-settings #oum_plus_button_label,
 .toplevel_page_open-user-map #oum_plus_button_label {
@@ -2414,18 +2423,15 @@
 .toplevel_page_open-user-map .oum-pro-trial-tab {
   background: linear-gradient(90deg, #ff9800 0%, #ffc107 100%);
 }
-.oum-location_page_open-user-map-settings #tab-pro-trial,
-.toplevel_page_open-user-map #tab-pro-trial {
-  /* Card-style box around feature list */
-  /* Grid layout for features */
-  /* Toggle visibility for hidden items */
-  /* Show/hide link */
-}
 .oum-location_page_open-user-map-settings #tab-pro-trial .oum-trial-cta,
 .toplevel_page_open-user-map #tab-pro-trial .oum-trial-cta {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+.oum-location_page_open-user-map-settings #tab-pro-trial,
+.toplevel_page_open-user-map #tab-pro-trial {
+  /* Card-style box around feature list */
 }
 .oum-location_page_open-user-map-settings #tab-pro-trial .wrap-pro-feature-list,
 .toplevel_page_open-user-map #tab-pro-trial .wrap-pro-feature-list {
@@ -2438,6 +2444,10 @@
   margin-top: 20px;
   margin-bottom: 500px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.oum-location_page_open-user-map-settings #tab-pro-trial,
+.toplevel_page_open-user-map #tab-pro-trial {
+  /* Grid layout for features */
 }
 .oum-location_page_open-user-map-settings #tab-pro-trial #oum-pro-features-list,
 .toplevel_page_open-user-map #tab-pro-trial #oum-pro-features-list {
@@ -2496,9 +2506,17 @@
   left: 0;
   top: 0;
 }
+.oum-location_page_open-user-map-settings #tab-pro-trial,
+.toplevel_page_open-user-map #tab-pro-trial {
+  /* Toggle visibility for hidden items */
+}
 .oum-location_page_open-user-map-settings #tab-pro-trial .hidden-feature,
 .toplevel_page_open-user-map #tab-pro-trial .hidden-feature {
   display: none;
+}
+.oum-location_page_open-user-map-settings #tab-pro-trial,
+.toplevel_page_open-user-map #tab-pro-trial {
+  /* Show/hide link */
 }
 .oum-location_page_open-user-map-settings #tab-pro-trial .toggle-pro-feature-list-wrapper,
 .toplevel_page_open-user-map #tab-pro-trial .toggle-pro-feature-list-wrapper {

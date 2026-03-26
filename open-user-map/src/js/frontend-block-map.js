@@ -1089,12 +1089,84 @@ const OUMMarkers = (function () {
         });
   }
 
+  function oumBubbleLoadingHtml() {
+    const label =
+      typeof oum_custom_strings !== "undefined" && oum_custom_strings.bubble_loading
+        ? String(oum_custom_strings.bubble_loading)
+            .replace(/\\/g, "\\\\")
+            .replace(/"/g, "&quot;")
+        : "Loading";
+    return (
+      '<div class="oum-bubble-loading" role="status" aria-live="polite" aria-busy="true" aria-label="' +
+      label +
+      '"><span class="oum-bubble-loading-spinner" aria-hidden="true"></span></div>'
+    );
+  }
+
+  function oumBubbleErrorHtml() {
+    const msg =
+      typeof oum_custom_strings !== "undefined" && oum_custom_strings.bubble_load_error
+        ? oum_custom_strings.bubble_load_error
+        : "Unable to load location details.";
+    return '<div class="oum-bubble-error" role="alert">' + msg + "</div>";
+  }
+
+  /**
+   * After popup HTML is set: fullscreen mirror, edit button, votes/stars, opening hours.
+   */
+  function finalizeMarkerBubbleUI(popup) {
+    const el = document.querySelector(".open-user-map #location-fullscreen-container");
+    const locationContentWrap = el ? el.querySelector(".location-content-wrap") : null;
+    if (locationContentWrap) {
+      locationContentWrap.innerHTML = popup.getContent();
+    }
+    if (el) {
+      el.classList.add("visible");
+      document.querySelector("body").classList.add("oum-location-opened");
+    }
+
+    if (locationContentWrap) {
+      checkEditPermissionAndInjectButton(locationContentWrap);
+    }
+
+    const popupContent = popup.getElement();
+    if (popupContent) {
+      checkEditPermissionAndInjectButton(popupContent);
+    }
+
+    if (window.OUMVoteHandler && window.OUMVoteHandler.updateVoteButtonStates) {
+      window.OUMVoteHandler.updateVoteButtonStates();
+    }
+
+    if (window.OUMVoteHandler && window.OUMVoteHandler.initializeVoteCountsFromData) {
+      const voteButtons = el ? el.querySelectorAll(".oum_vote_button") : [];
+      if (voteButtons.length > 0) {
+        window.OUMVoteHandler.initializeVoteCountsFromData();
+      }
+    }
+
+    if (window.OUMVoteHandler && window.OUMVoteHandler.initializeStarRatings) {
+      const starRatings = el ? el.querySelectorAll(".oum_star_rating") : [];
+      if (starRatings.length > 0) {
+        window.OUMVoteHandler.initializeStarRatings();
+      }
+    }
+
+    if (locationContentWrap) {
+      OUMOpeningHours.setupToggle(locationContentWrap);
+    }
+    if (popupContent) {
+      OUMOpeningHours.setupToggle(popupContent);
+    }
+  }
+
   function createMarker(location) {
-    const contentText = (
-      location.title +
-      " | " +
-      location.content.replace(/(<([^>]+)>)/gi, " ").replace(/\s\s+/g, " ")
-    ).toLowerCase();
+    // location.content is plain search text from PHP; strip tags keeps backward compatibility if HTML slips in.
+    const searchBody = (location.content || "")
+      .toString()
+      .replace(/(<([^>]+)>)/gi, " ")
+      .replace(/\s\s+/g, " ");
+    const contentText = (location.title + " | " + searchBody).toLowerCase();
 
     let marker = L.marker([location.lat, location.lng], {
       title: location.title,
@@ -1113,9 +1185,9 @@ const OUMMarkers = (function () {
       types: location.types || [],
     });
 
-    // Only bind popup when "hide location popup" is off (e.g. for simple maps next to contact form)
+    // Lazy-load full bubble HTML on popup open; placeholder until AJAX returns.
     if (typeof oum_hide_location_popup === "undefined" || !oum_hide_location_popup) {
-      let popup = L.responsivePopup().setContent(location.content);
+      const popup = L.responsivePopup().setContent(oumBubbleLoadingHtml());
       marker.bindPopup(popup);
     }
 
@@ -1123,65 +1195,75 @@ const OUMMarkers = (function () {
   }
 
   function setupMarkerEvents() {
-    // Event: Open Location Bubble
     map.on("popupopen", function (locationBubble) {
-      const el = document.querySelector(
-        ".open-user-map #location-fullscreen-container"
-      );
-      const locationContentWrap = el ? el.querySelector(".location-content-wrap") : null;
-      if (locationContentWrap) {
-        locationContentWrap.innerHTML = locationBubble.popup.getContent();
-      }
-      if (el) {
-        el.classList.add("visible");
-        document.querySelector("body").classList.add("oum-location-opened");
-      }
-      
-      // Check edit permissions and inject edit button if allowed (for fullscreen container)
-      if (locationContentWrap) {
-        checkEditPermissionAndInjectButton(locationContentWrap);
-      }
-      
-      // Also check for the Leaflet popup itself (the small popup on the map)
-      const popupContent = locationBubble.popup.getElement();
-      if (popupContent) {
-        checkEditPermissionAndInjectButton(popupContent);
-      }
-      
-      // Update vote button states for the newly opened popup
-      if (window.OUMVoteHandler && window.OUMVoteHandler.updateVoteButtonStates) {
-        window.OUMVoteHandler.updateVoteButtonStates();
-      }
-      
-      // Initialize vote counts from data for the newly opened popup
-      if (window.OUMVoteHandler && window.OUMVoteHandler.initializeVoteCountsFromData) {
-        const voteButtons = el ? el.querySelectorAll('.oum_vote_button') : [];
-        if (voteButtons.length > 0) {
-          // For popups, use the updated location data to initialize vote counts
-          // This avoids AJAX calls while ensuring we have the latest vote data
-          window.OUMVoteHandler.initializeVoteCountsFromData();
+      const popup = locationBubble.popup;
+      const marker = popup._source;
+
+      const applyBubbleHtml = (html) => {
+        popup.setContent(html);
+        if (typeof popup.update === "function") {
+          popup.update();
         }
+        finalizeMarkerBubbleUI(popup);
+      };
+
+      if (!marker || !marker.options || !marker.options.post_id) {
+        finalizeMarkerBubbleUI(popup);
+        return;
       }
-      
-      // Initialize star ratings from data for the newly opened popup
-      if (window.OUMVoteHandler && window.OUMVoteHandler.initializeStarRatings) {
-        const starRatings = el ? el.querySelectorAll('.oum_star_rating') : [];
-        if (starRatings.length > 0) {
-          // For popups, use the updated location data to initialize star ratings
-          // This avoids AJAX calls while ensuring we have the latest star rating data
-          window.OUMVoteHandler.initializeStarRatings();
-        }
+
+      if (marker._oumBubbleHtmlCache) {
+        applyBubbleHtml(marker._oumBubbleHtmlCache);
+        return;
       }
-      
-      // Setup opening hours toggle functionality for fullscreen container
-      if (locationContentWrap) {
-        OUMOpeningHours.setupToggle(locationContentWrap);
+
+      marker._oumBubbleFetchId = (marker._oumBubbleFetchId || 0) + 1;
+      const myFetchId = marker._oumBubbleFetchId;
+      const postId = marker.options.post_id;
+
+      popup.setContent(oumBubbleLoadingHtml());
+      if (typeof popup.update === "function") {
+        popup.update();
       }
-      
-      // Setup opening hours toggle for popup content
-      if (popupContent) {
-        OUMOpeningHours.setupToggle(popupContent);
+      finalizeMarkerBubbleUI(popup);
+
+      if (
+        typeof jQuery === "undefined" ||
+        !oum_ajax ||
+        !oum_ajax.ajaxurl ||
+        !oum_ajax.bubble_nonce
+      ) {
+        applyBubbleHtml(oumBubbleErrorHtml());
+        return;
       }
+
+      jQuery.ajax({
+        type: "POST",
+        url: oum_ajax.ajaxurl,
+        dataType: "json",
+        data: {
+          action: oum_ajax.bubble_action || "oum_get_location_bubble",
+          nonce: oum_ajax.bubble_nonce,
+          post_id: postId,
+        },
+        success: function (response) {
+          if (myFetchId !== marker._oumBubbleFetchId) {
+            return;
+          }
+          if (response && response.success && response.data && response.data.html) {
+            marker._oumBubbleHtmlCache = response.data.html;
+            applyBubbleHtml(response.data.html);
+          } else {
+            applyBubbleHtml(oumBubbleErrorHtml());
+          }
+        },
+        error: function () {
+          if (myFetchId !== marker._oumBubbleFetchId) {
+            return;
+          }
+          applyBubbleHtml(oumBubbleErrorHtml());
+        },
+      });
     });
 
     // Event: Close Location Bubble
@@ -1676,6 +1758,16 @@ const OUMMarkers = (function () {
     },
     getFilteredMarkersCount: function () {
       return visibleMarkersCount;
+    },
+    /** Clear lazy-loaded popup HTML so the next open refetches (e.g. after vote count changes). */
+    invalidateBubbleHtmlCacheForPost: function (postId) {
+      const id = String(postId);
+      allMarkers.forEach((m) => {
+        if (m && m.options && String(m.options.post_id) === id) {
+          delete m._oumBubbleHtmlCache;
+          m._oumBubbleFetchId = 0;
+        }
+      });
     },
   };
 })();

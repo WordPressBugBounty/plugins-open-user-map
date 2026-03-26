@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
 Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 1.4.36
+Stable tag: 1.4.37
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -30,9 +30,11 @@ The map is based on [Leaflet Map JS](https://leafletjs.com/) and offers you many
 ✅ **Works with Gutenberg, Elementor & Shortcodes** – easily embed maps anywhere.
 ✅ **Perfect for directories, community maps, travel blogs, and business locations.**
 
-https://www.youtube.com/watch?v=FRUkzKSZeL8&ab_channel=100plugins
+= Get a Map in 1 Minute =
 
-🍿 Watch Video on YouTube: [What is Open User Map?](https://www.youtube.com/watch?v=FRUkzKSZeL8&ab_channel=100plugins)
+https://www.youtube.com/watch?v=jcRkPlwdXO4&ab_channel=100plugins
+
+🍿 Watch Video on YouTube: [Getting Started with Open User Map](https://www.youtube.com/watch?v=jcRkPlwdXO4&ab_channel=100plugins)
 
 
 = With Open User Map, you can easily create: =
@@ -281,6 +283,11 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.37 =
+* Improved: Font size in geosearch results
+* Improved: Better performance through lazy loading for location popups
+* Freemius SDK update
+
 = 1.4.36 =
 * Bugfix: Faster Batch Loading failed for single markers
 

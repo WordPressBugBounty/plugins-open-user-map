@@ -3532,7 +3532,7 @@ add_filter('oum_location_bubble_image', function ( $image, $location ) {
     ?></strong><br><br>
 <div class="oum-code-snippet">
   <div class="oum-code-label">PHP</div>
-<textarea readonly wrap="off" rows="14" cols="100" class="code-display">
+<textarea readonly wrap="off" rows="17" cols="100" class="code-display">
 add_filter('oum_location_data', function ( $location_data, $post_id ) {
 
   // Example: Change marker icon based on custom logic
@@ -3542,7 +3542,9 @@ add_filter('oum_location_data', function ( $location_data, $post_id ) {
 
   // You can modify any property of $location_data:
   // - icon: marker icon URL (works for map markers and list view)
-  // - title, lat, lng, zoom, content, types, post_id, address, text, image, audio, video, custom_fields, votes, etc.
+  // - title, lat, lng, zoom, types, post_id, address, text, image, audio, video, custom_fields, votes, etc.
+  // - content: plain text for the map marker search only (not the popup HTML). Full bubble markup is built
+  //   on the server and can be changed with the oum_location_bubble_content filter (or oum_location_bubble_image).
 
   return $location_data;
 }, 10, 2);

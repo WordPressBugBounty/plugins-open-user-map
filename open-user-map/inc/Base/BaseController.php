@@ -125,6 +125,8 @@ class BaseController {
         $ajax_data = array(
             'ajaxurl'              => admin_url( 'admin-ajax.php' ),
             'refresh_nonce_action' => 'oum_refresh_location_nonce',
+            'bubble_nonce'         => wp_create_nonce( 'oum_location_bubble' ),
+            'bubble_action'        => 'oum_get_location_bubble',
         );
         // Localize the script (primary method)
         wp_localize_script( 'oum_frontend_ajax_js', 'oum_ajax', $ajax_data );
@@ -150,6 +152,8 @@ class BaseController {
                         $ajax_data = array(
                             'ajaxurl'              => admin_url( 'admin-ajax.php' ),
                             'refresh_nonce_action' => 'oum_refresh_location_nonce',
+                            'bubble_nonce'         => wp_create_nonce( 'oum_location_bubble' ),
+                            'bubble_action'        => 'oum_get_location_bubble',
                         );
                         $custom_strings_data = $controller_instance->oum_custom_strings();
                         $inline_scripts = sprintf( '<script>window.oum_ajax = window.oum_ajax || %s; window.oum_custom_strings = window.oum_custom_strings || %s;</script>', wp_json_encode( $ajax_data ), wp_json_encode( $custom_strings_data ) );
@@ -584,6 +588,8 @@ class BaseController {
             'max_files_exceeded'      => __( 'Maximum %1$d images allowed. Only the first %2$d new images will be used.', 'open-user-map' ),
             'max_filesize_exceeded'   => __( 'The following images exceed the maximum file size of %1$dMB:\\n%2$s', 'open-user-map' ),
             'edit_location'           => __( 'Edit location', 'open-user-map' ),
+            'bubble_load_error'       => __( 'Unable to load location details.', 'open-user-map' ),
+            'bubble_loading'          => __( 'Loading location', 'open-user-map' ),
         );
     }
 
@@ -666,6 +672,9 @@ class BaseController {
         // AJAX: Provide a fresh nonce for cached frontend forms
         add_action( 'wp_ajax_oum_refresh_location_nonce', array($this, 'ajax_refresh_location_nonce') );
         add_action( 'wp_ajax_nopriv_oum_refresh_location_nonce', array($this, 'ajax_refresh_location_nonce') );
+        // AJAX: Lazy-load full map popup HTML (oum_all_locations.content is plain search text only)
+        add_action( 'wp_ajax_oum_get_location_bubble', array($this, 'ajax_get_location_bubble') );
+        add_action( 'wp_ajax_nopriv_oum_get_location_bubble', array($this, 'ajax_get_location_bubble') );
     }
 
     /**
@@ -1517,6 +1526,31 @@ class BaseController {
     public function ajax_refresh_location_nonce() {
         wp_send_json_success( array(
             'nonce' => wp_create_nonce( 'oum_location' ),
+        ) );
+    }
+
+    /**
+     * AJAX: return full popup bubble HTML for one published location (lazy load).
+     */
+    public function ajax_get_location_bubble() {
+        check_ajax_referer( 'oum_location_bubble', 'nonce' );
+        $post_id = ( isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0 );
+        if ( $post_id < 1 ) {
+            wp_send_json_error( array(
+                'message' => __( 'Invalid location.', 'open-user-map' ),
+            ) );
+            return;
+        }
+        $row = LocationMapBubbleBuilder::location_row_from_post_id( $post_id, $this->plugin_url, $this->oum_marker_multicategories_icon_default );
+        if ( $row === null ) {
+            wp_send_json_error( array(
+                'message' => __( 'Location not found.', 'open-user-map' ),
+            ) );
+            return;
+        }
+        $html = LocationMapBubbleBuilder::build_html( $row, $this->plugin_url );
+        wp_send_json_success( array(
+            'html' => $html,
         ) );
     }
 

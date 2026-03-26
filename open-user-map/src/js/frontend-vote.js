@@ -167,6 +167,9 @@ const OUMVoteHandler = (function () {
         window.oum_all_locations[locationIndex].votes = voteCount;
       }
     }
+    if (typeof OUMMarkers !== 'undefined' && OUMMarkers.invalidateBubbleHtmlCacheForPost) {
+      OUMMarkers.invalidateBubbleHtmlCacheForPost(postId);
+    }
   }
 
   function handleVoteClick(button) {
@@ -569,6 +572,9 @@ const OUMVoteHandler = (function () {
         window.oum_all_locations[locationIndex].star_rating_avg = average;
         window.oum_all_locations[locationIndex].star_rating_count = count;
       }
+    }
+    if (typeof OUMMarkers !== 'undefined' && OUMMarkers.invalidateBubbleHtmlCacheForPost) {
+      OUMMarkers.invalidateBubbleHtmlCacheForPost(postId);
     }
   }
 

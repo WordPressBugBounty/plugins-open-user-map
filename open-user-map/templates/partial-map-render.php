@@ -22,177 +22,29 @@ if ( !function_exists( 'clean_utf8' ) ) {
 
 }
 foreach ( $locations_list as $location ) {
-    if ( get_option( 'oum_enable_location_date' ) === 'on' ) {
-        $date_tag = '<div class="oum_location_date">' . wp_kses_post( $location['date'] ) . '</div>';
-    } else {
-        $date_tag = '';
-    }
-    // Get and display assigned categories as icons inline with title
-    $name_tag = '';
-    if ( get_option( 'oum_enable_title', 'on' ) == 'on' ) {
-        $title_wrapper_content = '';
-        // Add the title
-        $title_wrapper_content .= '<h3 class="oum_location_name">' . esc_attr( $location['title'] ) . '</h3>';
-        // Add category icons after the title if setting is enabled
-        if ( get_option( 'oum_enable_category_icons_in_title', 'on' ) === 'on' && isset( $location['post_id'] ) && $location['post_id'] ) {
-            $category_icons = oum_get_location_value( 'type_icons', $location['post_id'] );
-            if ( $category_icons ) {
-                $title_wrapper_content .= $category_icons;
-            }
-        }
-        $name_tag = '<div class="oum_location_title">' . $title_wrapper_content . '</div>';
-    }
-    $media_tag = '';
-    if ( isset( $location['images'] ) && !empty( $location['images'] ) ) {
-        // Get the image size setting
-        $oum_popup_image_size = ( get_option( 'oum_popup_image_size' ) ? get_option( 'oum_popup_image_size' ) : 'original' );
-        $media_tag = '<div class="oum-carousel popup-image-size-' . esc_attr( $oum_popup_image_size ) . '">';
-        $media_tag .= '<div class="oum-carousel-inner">';
-        foreach ( $location['images'] as $index => $image_url ) {
-            $active_class = ( $index === 0 ? ' active' : '' );
-            $media_tag .= '<div class="oum-carousel-item' . $active_class . '">';
-            $media_tag .= '<img class="skip-lazy" src="' . esc_url_raw( $image_url ) . '" alt="' . esc_attr( $location['title'] ) . '">';
-            $media_tag .= '</div>';
-        }
-        $media_tag .= '</div>';
-        $media_tag .= '</div>';
-    }
-    // HOOK: modify location image
-    $media_tag = apply_filters( 'oum_location_bubble_image', $media_tag, $location );
-    $audio_tag = ( $location['audio'] ? '<audio controls="controls" style="width:100%"><source type="audio/mp4" src="' . $location['audio'] . '"><source type="audio/mpeg" src="' . $location['audio'] . '"><source type="audio/wav" src="' . $location['audio'] . '"></audio>' : '' );
-    $address_tag = '';
-    if ( get_option( 'oum_enable_address', 'on' ) === 'on' ) {
-        $address_tag = ( $location['address'] && !get_option( 'oum_hide_address' ) ? esc_attr( $location['address'] ) : '' );
-        if ( $oum_enable_gmaps_link === 'on' && $address_tag ) {
-            $address_tag = '<a title="' . __( 'go to Google Maps', 'open-user-map' ) . '" href="https://www.google.com/maps/search/?api=1&amp;query=' . esc_attr( $location['lat'] ) . '%2C' . esc_attr( $location['lng'] ) . '" target="_blank">' . $address_tag . '</a>';
-        }
-    }
-    $address_tag = ( $address_tag != '' ? '<div class="oum_location_address">' . $address_tag . '</div>' : '' );
-    if ( get_option( 'oum_enable_description', 'on' ) === 'on' ) {
-        $description_tag = '<div class="oum_location_description">' . wp_kses_post( $location['text'] ) . '</div>';
-    } else {
-        $description_tag = '';
-    }
-    $custom_fields = '';
-    if ( isset( $location['custom_fields'] ) && is_array( $location['custom_fields'] ) ) {
-        $fields_html = [];
-        foreach ( $location['custom_fields'] as $custom_field ) {
-            if ( empty( $custom_field['val'] ) ) {
-                continue;
-            }
-            // Handle opening hours field type (returns complete HTML)
-            if ( $custom_field['fieldtype'] == 'opening_hours' ) {
-                $field_html = \OpenUserMapPlugin\Base\LocationController::format_opening_hours_for_display( $custom_field['val'], $custom_field, $this->plugin_url );
-            } else {
-                $field_html = '<div data-custom-field-label="' . esc_attr( $custom_field['label'] ) . '" class="oum_custom_field  oum_custom_field_type_' . esc_attr( $custom_field['fieldtype'] ) . '">';
-                // Handle array values (like multiple select)
-                if ( is_array( $custom_field['val'] ) ) {
-                    $values = array_map( function ( $x ) {
-                        return '<span data-value="' . esc_attr( $x ) . '">' . esc_html( $x ) . '</span>';
-                    }, $custom_field['val'] );
-                    $field_html .= '<strong>' . esc_html( $custom_field['label'] ) . ':</strong> ' . implode( ' ', $values );
-                } elseif ( strpos( $custom_field['val'], '|' ) !== false ) {
-                    $field_html .= '<strong>' . esc_html( $custom_field['label'] ) . ':</strong> ';
-                    $entries = array_map( 'trim', explode( '|', $custom_field['val'] ) );
-                    $formatted_entries = [];
-                    foreach ( $entries as $entry ) {
-                        if ( filter_var( $entry, FILTER_VALIDATE_URL ) ) {
-                            $formatted_entries[] = sprintf( '<a href="%s">%s</a>', esc_url( $entry ), esc_html( $entry ) );
-                        } elseif ( $custom_field['fieldtype'] == 'email' && is_email( $entry ) ) {
-                            $formatted_entries[] = sprintf( '<a target="_blank" href="mailto:%s">%s</a>', esc_attr( $entry ), esc_html( $entry ) );
-                        } else {
-                            $formatted_entries[] = sprintf( '<span data-value="%s">%s</span>', esc_attr( $entry ), esc_html( $entry ) );
-                        }
-                    }
-                    $field_html .= implode( ' ', $formatted_entries );
-                } else {
-                    $value = $custom_field['val'];
-                    if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
-                        if ( !empty( $custom_field['uselabelastextoption'] ) ) {
-                            $field_html .= sprintf( '<a href="%s">%s</a>', esc_url( $value ), esc_html( $custom_field['label'] ) );
-                        } else {
-                            $field_html .= sprintf(
-                                '<strong>%s:</strong> <a href="%s">%s</a>',
-                                esc_html( $custom_field['label'] ),
-                                esc_url( $value ),
-                                esc_html( $value )
-                            );
-                        }
-                    } elseif ( $custom_field['fieldtype'] == 'email' && is_email( $value ) ) {
-                        $field_html .= sprintf(
-                            '<strong>%s:</strong> <a target="_blank" href="mailto:%s">%s</a>',
-                            esc_html( $custom_field['label'] ),
-                            esc_attr( $value ),
-                            esc_html( $value )
-                        );
-                    } else {
-                        $field_html .= sprintf(
-                            '<strong>%s:</strong> <span data-value="%s">%s</span>',
-                            esc_html( $custom_field['label'] ),
-                            esc_attr( $value ),
-                            esc_html( $value )
-                        );
-                    }
-                }
-                $field_html .= '</div>';
-            }
-            $fields_html[] = $field_html;
-        }
-        if ( !empty( $fields_html ) ) {
-            $custom_fields = '<div class="oum_location_custom_fields">' . implode( '', $fields_html ) . '</div>';
-        }
-    }
-    if ( get_option( 'oum_enable_single_page' ) ) {
-        $link_tag = '<div class="oum_read_more"><a href="' . get_the_permalink( $location['post_id'] ) . '">' . __( 'Read more', 'open-user-map' ) . '</a></div>';
-    } else {
-        $link_tag = '';
-    }
-    // Add placeholder for edit button (will be injected by JS if user has permission)
-    // This prevents caching issues with Elementor and other page builders
-    $edit_button = '<div class="edit-location-button-placeholder" data-post-id="' . esc_attr( $location['post_id'] ) . '"></div>';
-    // Add words that are not visible to the user but can be used for search
-    $additional_search_meta = '<div style="display: none">' . get_post_field( 'post_name', $location['post_id'] ) . '</div>';
-    // Add vote button or star rating if feature is enabled
-    $vote_button = '';
-    // building bubble block content
-    $content = $media_tag;
-    $content .= '<div class="oum_location_text">';
-    $content .= $date_tag;
-    $content .= $address_tag;
-    $content .= $name_tag;
-    $content .= $custom_fields;
-    $content .= $description_tag;
-    $content .= $audio_tag;
-    $content .= '<div class="oum_location_text_bottom">' . $vote_button . $link_tag . '</div>';
-    $content .= '</div>';
-    $content .= $edit_button;
-    $content .= $additional_search_meta;
-    // removing backslash escape
-    $content = str_replace( "\\", "", $content );
-    // HOOK: modify location bubble content
-    $content = apply_filters( 'oum_location_bubble_content', $content, $location );
-    // set location
-    $oum_location = [
+    // Full bubble HTML (filters: oum_location_bubble_image, oum_location_bubble_content) — used only to derive plain search text here; actual HTML loads via AJAX on popup open.
+    $bubble_html = \OpenUserMapPlugin\Base\LocationMapBubbleBuilder::build_html( $location, $this->plugin_url );
+    $content_plain = \OpenUserMapPlugin\Base\LocationMapBubbleBuilder::plain_search_text( $bubble_html );
+    $oum_location = array(
         'title'             => html_entity_decode( esc_attr( $location['title'] ) ),
-        'lat'               => esc_attr( $location["lat"] ),
-        'lng'               => esc_attr( $location["lng"] ),
-        'zoom'              => esc_attr( $location["zoom"] ),
-        'content'           => $content,
-        'icon'              => esc_attr( $location["icon"] ),
-        'types'             => ( isset( $location["types"] ) ? $location["types"] : [] ),
-        'post_id'           => esc_attr( $location["post_id"] ),
-        'address'           => esc_attr( $location["address"] ),
-        'text'              => wp_kses_post( $location["text"] ),
+        'lat'               => esc_attr( $location['lat'] ),
+        'lng'               => esc_attr( $location['lng'] ),
+        'zoom'              => esc_attr( $location['zoom'] ),
+        'content'           => $content_plain,
+        'icon'              => esc_attr( $location['icon'] ),
+        'types'             => ( isset( $location['types'] ) ? $location['types'] : array() ),
+        'post_id'           => esc_attr( $location['post_id'] ),
+        'address'           => esc_attr( $location['address'] ),
+        'text'              => wp_kses_post( $location['text'] ),
         'image'             => ( isset( $location['images'] ) && !empty( $location['images'] ) ? implode( '|', array_map( 'esc_url', $location['images'] ) ) : '' ),
-        'audio'             => esc_url( $location["audio"] ),
-        'video'             => esc_url( $location["video"] ),
+        'audio'             => esc_url( $location['audio'] ),
+        'video'             => esc_url( $location['video'] ),
         'custom_fields'     => $location['custom_fields'],
         'votes'             => ( isset( $location['votes'] ) ? intval( $location['votes'] ) : 0 ),
         'star_rating_avg'   => ( isset( $location['star_rating_avg'] ) ? floatval( $location['star_rating_avg'] ) : 0 ),
         'star_rating_count' => ( isset( $location['star_rating_count'] ) ? intval( $location['star_rating_count'] ) : 0 ),
-    ];
-    // HOOK: modify location data before rendering to DOM and map
-    // This allows developers to customize marker icons, add custom data, etc.
+    );
+    // Adjust marker payload (not for replacing popup HTML; use oum_location_bubble_content for that).
     $oum_location = apply_filters( 'oum_location_data', $oum_location, $location['post_id'] );
     $oum_all_locations[] = $oum_location;
 }

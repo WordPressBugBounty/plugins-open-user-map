@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Open User Map 1.4.33\n"
+"Project-Id-Version: Open User Map 1.4.37\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/open-user-map\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-12T11:43:32+00:00\n"
+"POT-Creation-Date: 2026-03-26T07:20:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: open-user-map\n"
@@ -192,82 +192,90 @@ msgstr ""
 msgid "Filter by POST IDs"
 msgstr ""
 
-#: inc/Base/BaseController.php:448
+#: inc/Base/BaseController.php:452
 msgid "This shortcode will render in the frontend only."
 msgstr ""
 
-#: inc/Base/BaseController.php:619
+#: inc/Base/BaseController.php:623
 msgid "Delete this location?"
 msgstr ""
 
-#: inc/Base/BaseController.php:620
+#: inc/Base/BaseController.php:624
 msgid "This action cannot be undone. The location will be permanently removed from the map."
 msgstr ""
 
-#: inc/Base/BaseController.php:621
+#: inc/Base/BaseController.php:625
 msgid "Yes, delete location"
 msgstr ""
 
-#: inc/Base/BaseController.php:622
+#: inc/Base/BaseController.php:626
 msgid "Location deleted"
 msgstr ""
 
-#: inc/Base/BaseController.php:623
+#: inc/Base/BaseController.php:627
 msgid "The location has been successfully removed from the map."
 msgstr ""
 
-#: inc/Base/BaseController.php:624
+#: inc/Base/BaseController.php:628
 msgid "An error occurred while deleting the location. Please try again."
 msgstr ""
 
-#: inc/Base/BaseController.php:625
+#: inc/Base/BaseController.php:629
 #: templates/page-backend-settings.php:1417
 msgid "Close and refresh map"
 msgstr ""
 
-#: inc/Base/BaseController.php:626
+#: inc/Base/BaseController.php:630
 msgid "Changes saved"
 msgstr ""
 
-#: inc/Base/BaseController.php:627
+#: inc/Base/BaseController.php:631
 msgid "Your changes have been saved and will be visible after we reviewed them."
 msgstr ""
 
-#: inc/Base/BaseController.php:628
+#: inc/Base/BaseController.php:632
 #: templates/page-backend-settings.php:1415
 #: templates/partial-map-add-location.php:385
 msgid "Thank you!"
 msgstr ""
 
-#: inc/Base/BaseController.php:629
+#: inc/Base/BaseController.php:633
 #: templates/page-backend-settings.php:1416
 #: templates/partial-map-add-location.php:386
 msgid "We will check your location suggestion and release it as soon as possible."
 msgstr ""
 
-#: inc/Base/BaseController.php:630
+#: inc/Base/BaseController.php:634
 #, php-format
 msgid "Maximum %1$d images allowed. Only the first %2$d new images will be used."
 msgstr ""
 
-#: inc/Base/BaseController.php:631
+#: inc/Base/BaseController.php:635
 #, php-format
 msgid "The following images exceed the maximum file size of %1$dMB:\\n%2$s"
 msgstr ""
 
-#: inc/Base/BaseController.php:632
+#: inc/Base/BaseController.php:636
 msgid "Edit location"
 msgstr ""
 
+#: inc/Base/BaseController.php:637
+msgid "Unable to load location details."
+msgstr ""
+
 #: inc/Base/BaseController.php:638
+msgid "Loading location"
+msgstr ""
+
+#: inc/Base/BaseController.php:644
 msgid "Title"
 msgstr ""
 
-#: inc/Base/BaseController.php:639
+#: inc/Base/BaseController.php:645
 msgid "Click on the map to set a marker"
 msgstr ""
 
-#: inc/Base/BaseController.php:640
+#: inc/Base/BaseController.php:646
 #: templates/page-backend-location.php:156
 #: templates/page-backend-settings.php:1095
 #: templates/page-backend-settings.php:2511
@@ -277,77 +285,82 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: inc/Base/BaseController.php:641
+#: inc/Base/BaseController.php:647
 msgid "Upload media"
 msgstr ""
 
-#: inc/Base/BaseController.php:642
+#: inc/Base/BaseController.php:648
 #: inc/Base/LocationController.php:604
 #: templates/page-backend-location.php:99
 msgid "Subtitle"
 msgstr ""
 
-#: inc/Base/BaseController.php:643
+#: inc/Base/BaseController.php:649
 #: templates/page-backend-settings.php:1938
 msgid "Type"
 msgstr ""
 
-#: inc/Base/BaseController.php:644
+#: inc/Base/BaseController.php:650
 msgid "Search for address"
 msgstr ""
 
-#: inc/Base/BaseController.php:645
+#: inc/Base/BaseController.php:651
 msgid "Find marker"
 msgstr ""
 
-#: inc/Base/BaseController.php:646
+#: inc/Base/BaseController.php:652
 msgid "Notify me when it is published"
 msgstr ""
 
-#: inc/Base/BaseController.php:1199
-#: inc/Base/BaseController.php:1396
+#: inc/Base/BaseController.php:1209
+#: inc/Base/BaseController.php:1406
 msgid "Upload directory is not available. Please check your WordPress uploads configuration."
 msgstr ""
 
-#: inc/Base/BaseController.php:1229
+#: inc/Base/BaseController.php:1239
 #, php-format
 msgid "Image \"%s\" is too large. Maximum file size is %d MB."
 msgstr ""
 
-#: inc/Base/BaseController.php:1479
-#: inc/Base/BaseController.php:1655
+#: inc/Base/BaseController.php:1489
+#: inc/Base/BaseController.php:1665
 msgid "Vote feature is disabled."
 msgstr ""
 
-#: inc/Base/BaseController.php:1485
-#: inc/Base/BaseController.php:1661
+#: inc/Base/BaseController.php:1495
+#: inc/Base/BaseController.php:1671
 msgid "Missing required parameters."
 msgstr ""
 
-#: inc/Base/BaseController.php:1491
-#: inc/Base/BaseController.php:1667
+#: inc/Base/BaseController.php:1501
+#: inc/Base/BaseController.php:1677
 msgid "Security check failed."
 msgstr ""
 
-#: inc/Base/BaseController.php:1498
-#: inc/Base/BaseController.php:1674
+#: inc/Base/BaseController.php:1508
+#: inc/Base/BaseController.php:1684
+#: inc/Base/BaseController.php:1806
 msgid "Invalid location."
 msgstr ""
 
-#: inc/Base/BaseController.php:1520
+#: inc/Base/BaseController.php:1530
 msgid "Invalid rating. Please select 1-5 stars."
 msgstr ""
 
-#: inc/Base/BaseController.php:1585
+#: inc/Base/BaseController.php:1595
 msgid "Rating saved!"
 msgstr ""
 
-#: inc/Base/BaseController.php:1611
+#: inc/Base/BaseController.php:1621
 msgid "Location unvoted."
 msgstr ""
 
-#: inc/Base/BaseController.php:1620
+#: inc/Base/BaseController.php:1630
 msgid "Location voted!"
+msgstr ""
+
+#: inc/Base/BaseController.php:1817
+msgid "Location not found."
 msgstr ""
 
 #: inc/Base/LocationController.php:42
@@ -427,8 +440,8 @@ msgid "Votes"
 msgstr ""
 
 #: inc/Base/LocationController.php:951
+#: inc/Base/LocationMapBubbleBuilder.php:287
 #: templates/block-locations-list.php:887
-#: templates/partial-map-render.php:254
 #, php-format
 msgid "Rate %d stars"
 msgstr ""
@@ -438,8 +451,8 @@ msgid "Route on Google Maps"
 msgstr ""
 
 #: inc/Base/LocationController.php:1078
+#: inc/Base/LocationMapBubbleBuilder.php:166
 #: templates/block-locations-list.php:772
-#: templates/partial-map-render.php:105
 msgid "go to Google Maps"
 msgstr ""
 
@@ -458,6 +471,20 @@ msgstr ""
 
 #: inc/Base/LocationController.php:1580
 msgid "Location not found"
+msgstr ""
+
+#: inc/Base/LocationMapBubbleBuilder.php:269
+#: templates/block-locations-list.php:866
+msgid "Read more"
+msgstr ""
+
+#: inc/Base/LocationMapBubbleBuilder.php:298
+#: inc/Base/LocationMapBubbleBuilder.php:299
+#: templates/block-locations-list.php:900
+#: templates/block-locations-list.php:903
+#: templates/page-backend-settings.php:2161
+#: templates/page-backend-settings.php:2180
+msgid "👍"
 msgstr ""
 
 #: inc/Base/TaxController.php:55
@@ -632,7 +659,7 @@ msgstr ""
 msgid "Update notice dismissed."
 msgstr ""
 
-#: inc/Pages/Settings.php:1051
+#: inc/Pages/Settings.php:1062
 msgid "Settings Saved"
 msgstr ""
 
@@ -650,20 +677,6 @@ msgstr ""
 
 #: templates/block-image-gallery.php:105
 msgid "Next &raquo;"
-msgstr ""
-
-#: templates/block-locations-list.php:866
-#: templates/partial-map-render.php:222
-msgid "Read more"
-msgstr ""
-
-#: templates/block-locations-list.php:900
-#: templates/block-locations-list.php:903
-#: templates/page-backend-settings.php:2161
-#: templates/page-backend-settings.php:2180
-#: templates/partial-map-render.php:267
-#: templates/partial-map-render.php:270
-msgid "👍"
 msgstr ""
 
 #: templates/page-backend-add-region.php:18
@@ -1631,7 +1644,7 @@ msgstr ""
 #: templates/page-backend-settings.php:1868
 #: templates/page-backend-settings.php:2016
 #: templates/page-backend-settings.php:2020
-#: templates/page-backend-settings.php:3278
+#: templates/page-backend-settings.php:3280
 msgid "Advanced Filter Interface"
 msgstr ""
 
@@ -2321,259 +2334,259 @@ msgstr ""
 msgid "Modify location data before rendering (map & list view, eg. customize marker icon):"
 msgstr ""
 
-#: templates/page-backend-settings.php:3006
+#: templates/page-backend-settings.php:3008
 msgid "Support"
 msgstr ""
 
-#: templates/page-backend-settings.php:3009
+#: templates/page-backend-settings.php:3011
 msgid "Please have a look at our <a href=\"https://www.open-user-map.com/support/knowledge-base/\" target=\"_blank\">Knowledge Base</a> and the <a href=\"https://wordpress.org/plugins/open-user-map/#faq\" target=\"_blank\">FAQ</a>. We keep it up to date."
 msgstr ""
 
-#: templates/page-backend-settings.php:3015
+#: templates/page-backend-settings.php:3017
 msgid "Debug Info"
 msgstr ""
 
-#: templates/page-backend-settings.php:3018
+#: templates/page-backend-settings.php:3020
 msgid "You can copy & paste or screenshot this info and send it as email to our support in case we need to debug something:"
 msgstr ""
 
-#: templates/page-backend-settings.php:3232
+#: templates/page-backend-settings.php:3234
 msgid "Try PRO Free for 7 Days"
 msgstr ""
 
-#: templates/page-backend-settings.php:3233
+#: templates/page-backend-settings.php:3235
 msgid "Unlock advanced features like custom markers, CSV import/export, and live filters. Enjoy full access, no credit card needed."
 msgstr ""
 
-#: templates/page-backend-settings.php:3236
+#: templates/page-backend-settings.php:3238
 msgid "Start Free Trial"
 msgstr ""
 
-#: templates/page-backend-settings.php:3236
+#: templates/page-backend-settings.php:3238
 msgid "or"
 msgstr ""
 
-#: templates/page-backend-settings.php:3236
+#: templates/page-backend-settings.php:3238
 msgid "Learn More"
 msgstr ""
 
-#: templates/page-backend-settings.php:3243
+#: templates/page-backend-settings.php:3245
 msgid "Filterable Marker Categories"
 msgstr ""
 
-#: templates/page-backend-settings.php:3244
+#: templates/page-backend-settings.php:3246
 msgid "Organize locations in multiple filterable marker groups. Each group (category) can have an individual marker icon and will be accessible to visitors."
 msgstr ""
 
-#: templates/page-backend-settings.php:3248
+#: templates/page-backend-settings.php:3250
 msgid "Export &amp; Import locations"
 msgstr ""
 
-#: templates/page-backend-settings.php:3249
+#: templates/page-backend-settings.php:3251
 msgid "Maybe you already have a list of places you need to show on the map. No problem – just make use of the CSV Export &amp; Import feature. This also comes in handy for bulk editing a lot of locations."
 msgstr ""
 
-#: templates/page-backend-settings.php:3253
+#: templates/page-backend-settings.php:3255
 msgid "Allow registered users to edit their locations"
 msgstr ""
 
-#: templates/page-backend-settings.php:3254
+#: templates/page-backend-settings.php:3256
 msgid "The editing capability allows users to update their existing locations, ensuring the map always reflects the most current information."
 msgstr ""
 
-#: templates/page-backend-settings.php:3258
+#: templates/page-backend-settings.php:3260
 msgid "Custom marker icons"
 msgstr ""
 
-#: templates/page-backend-settings.php:3259
+#: templates/page-backend-settings.php:3261
 msgid "Use your own custom marker icon."
 msgstr ""
 
-#: templates/page-backend-settings.php:3263
+#: templates/page-backend-settings.php:3265
 msgid "Live Marker Filter"
 msgstr ""
 
-#: templates/page-backend-settings.php:3264
+#: templates/page-backend-settings.php:3266
 msgid "Use the search bar to filter markers as you type. Instantly see relevant locations on the map."
 msgstr ""
 
-#: templates/page-backend-settings.php:3268
+#: templates/page-backend-settings.php:3270
 msgid "Pre-Filter locations by user or role"
 msgstr ""
 
-#: templates/page-backend-settings.php:3269
+#: templates/page-backend-settings.php:3271
 msgid "Shortcode Attribute to filter locations by current user, user_id or a role. Works for map, list and gallery."
 msgstr ""
 
-#: templates/page-backend-settings.php:3273
+#: templates/page-backend-settings.php:3275
 msgid "Upvote & Star Rating"
 msgstr ""
 
-#: templates/page-backend-settings.php:3274
+#: templates/page-backend-settings.php:3276
 msgid "Add a customizable feedback button for likes, upvotes, flagging, or star rating (1-5 stars). Let visitors interact with locations and provide valuable feedback."
 msgstr ""
 
-#: templates/page-backend-settings.php:3279
+#: templates/page-backend-settings.php:3281
 msgid "Create a filter sidebar next to your map so visitors can filter locations by any custom field. Add custom HTML sections for branding or extra information."
 msgstr ""
 
-#: templates/page-backend-settings.php:3283
+#: templates/page-backend-settings.php:3285
 msgid "Custom Image as Map"
 msgstr ""
 
-#: templates/page-backend-settings.php:3284
+#: templates/page-backend-settings.php:3286
 msgid "Use a custom image as your map layer (e.g. floor plans or event maps). Keep all interactions, clustering and popups while displaying your own image."
 msgstr ""
 
-#: templates/page-backend-settings.php:3288
+#: templates/page-backend-settings.php:3290
 msgid "Opening Hours"
 msgstr ""
 
-#: templates/page-backend-settings.php:3289
+#: templates/page-backend-settings.php:3291
 msgid "Add an Opening Hours custom field type. Visitors see structured opening times; you can manage weekly schedules and special days in the location form."
 msgstr ""
 
-#: templates/page-backend-settings.php:3295
+#: templates/page-backend-settings.php:3297
 msgid "More custom field types"
 msgstr ""
 
-#: templates/page-backend-settings.php:3296
+#: templates/page-backend-settings.php:3298
 msgid "Add custom fields like links, radio buttons, checkboxes, dropdowns, Opening Hours, and even HTML. Social media links will automatically be rendered as icons."
 msgstr ""
 
-#: templates/page-backend-settings.php:3300
+#: templates/page-backend-settings.php:3302
 msgid "Additional geosearch providers (Geoapify, Here, MapBox)"
 msgstr ""
 
-#: templates/page-backend-settings.php:3304
+#: templates/page-backend-settings.php:3306
 msgid "Videos from YouTube &amp; Vimeo"
 msgstr ""
 
-#: templates/page-backend-settings.php:3305
+#: templates/page-backend-settings.php:3307
 msgid "Use videos instead of images to highlight each location."
 msgstr ""
 
-#: templates/page-backend-settings.php:3309
+#: templates/page-backend-settings.php:3311
 msgid "Email user notification"
 msgstr ""
 
-#: templates/page-backend-settings.php:3310
+#: templates/page-backend-settings.php:3312
 msgid "Users get notified by email after their location has been approved."
 msgstr ""
 
-#: templates/page-backend-settings.php:3314
+#: templates/page-backend-settings.php:3316
 msgid "Email Admin notification"
 msgstr ""
 
-#: templates/page-backend-settings.php:3315
+#: templates/page-backend-settings.php:3317
 msgid "Send notifications to an Admin email account on incoming location proposals."
 msgstr ""
 
-#: templates/page-backend-settings.php:3319
+#: templates/page-backend-settings.php:3321
 msgid "Zapier/Webhook Integration"
 msgstr ""
 
-#: templates/page-backend-settings.php:3320
+#: templates/page-backend-settings.php:3322
 msgid "Trigger an external webhook on new or updated locations."
 msgstr ""
 
-#: templates/page-backend-settings.php:3324
+#: templates/page-backend-settings.php:3326
 msgid "User restriction"
 msgstr ""
 
-#: templates/page-backend-settings.php:3325
+#: templates/page-backend-settings.php:3327
 msgid "Restrict “Add location” feature to registered users only. Redirect your visitors to the registration form."
 msgstr ""
 
-#: templates/page-backend-settings.php:3329
+#: templates/page-backend-settings.php:3331
 msgid "Auto-publish"
 msgstr ""
 
-#: templates/page-backend-settings.php:3330
+#: templates/page-backend-settings.php:3332
 msgid "When activated registered users will publish directly without admin approval. This can also be enabled for unregistered users."
 msgstr ""
 
-#: templates/page-backend-settings.php:3334
+#: templates/page-backend-settings.php:3336
 msgid "Extend user registration"
 msgstr ""
 
-#: templates/page-backend-settings.php:3335
+#: templates/page-backend-settings.php:3337
 msgid "Integrate the “Add location” feature to the WordPress user registration form."
 msgstr ""
 
-#: templates/page-backend-settings.php:3339
+#: templates/page-backend-settings.php:3341
 msgid "Custom filesizes"
 msgstr ""
 
-#: templates/page-backend-settings.php:3340
+#: templates/page-backend-settings.php:3342
 msgid "Customize max. filesize for image/audio uploads (default: 10MB)."
 msgstr ""
 
-#: templates/page-backend-settings.php:3344
+#: templates/page-backend-settings.php:3346
 msgid "Custom UI Elements color"
 msgstr ""
 
-#: templates/page-backend-settings.php:3345
+#: templates/page-backend-settings.php:3347
 msgid "Pick a color for buttons and icons that fits your theme."
 msgstr ""
 
-#: templates/page-backend-settings.php:3349
+#: templates/page-backend-settings.php:3351
 msgid "Current location"
 msgstr ""
 
-#: templates/page-backend-settings.php:3350
+#: templates/page-backend-settings.php:3352
 msgid "Add a button that relocates the map to the users current location."
 msgstr ""
 
-#: templates/page-backend-settings.php:3354
+#: templates/page-backend-settings.php:3356
 msgid "Limit visible locations"
 msgstr ""
 
-#: templates/page-backend-settings.php:3355
+#: templates/page-backend-settings.php:3357
 msgid "You can limit the locations to be shown by marker categories and by post ids. So it is possible to show only locations of a specific type or to render only one single location. This can be done in the block settings or with shortcode attributes."
 msgstr ""
 
-#: templates/page-backend-settings.php:3359
+#: templates/page-backend-settings.php:3361
 msgid "Single pages for locations"
 msgstr ""
 
-#: templates/page-backend-settings.php:3360
+#: templates/page-backend-settings.php:3362
 msgid "Per default locations will not have a single page. This should ensure that all the locations wont negatively affect your SEO. But if you’d like to add more content to locations you can easily enable it in the PRO version."
 msgstr ""
 
-#: templates/page-backend-settings.php:3364
+#: templates/page-backend-settings.php:3366
 msgid "Default template for Single pages"
 msgstr ""
 
-#: templates/page-backend-settings.php:3365
+#: templates/page-backend-settings.php:3367
 msgid "If Single pages are enabled locations will automatically have a post thumbnail, an excerpt as well as a default content template. And you can show locations within query loop blocks to setup your own list or grid view."
 msgstr ""
 
-#: templates/page-backend-settings.php:3369
+#: templates/page-backend-settings.php:3371
 msgid "Shortcodes for single location values"
 msgstr ""
 
-#: templates/page-backend-settings.php:3370
+#: templates/page-backend-settings.php:3372
 msgid "Use the shortcode [open-user-map-location value=”YOUR VALUE” post_id=”POST ID (optional)”] to easily display a value from a location. You will need this when creating single pages for locations. See all the available values in the Help section of the plugin settings (Open User Map > Settings > Help)."
 msgstr ""
 
-#: templates/page-backend-settings.php:3374
+#: templates/page-backend-settings.php:3376
 msgid "Show all location images as gallery"
 msgstr ""
 
-#: templates/page-backend-settings.php:3375
+#: templates/page-backend-settings.php:3377
 msgid "Use the shortcode [open-user-map-gallery] to get a nice gallery view of all the location images. Each image is linked to the location marker on the map."
 msgstr ""
 
-#: templates/page-backend-settings.php:3379
+#: templates/page-backend-settings.php:3381
 msgid "Show all locations as list or grid"
 msgstr ""
 
-#: templates/page-backend-settings.php:3380
+#: templates/page-backend-settings.php:3382
 msgid "Use the shortcode [open-user-map-list] to get a list view of all the locations. Alternatively you can use the native query loops block to build a custom list or grid."
 msgstr ""
 
-#: templates/page-backend-settings.php:3386
+#: templates/page-backend-settings.php:3388
 msgid "↓ Show all PRO features"
 msgstr ""
 
@@ -2610,7 +2623,7 @@ msgstr ""
 msgid "Add location"
 msgstr ""
 
-#: templates/partial-map-render.php:451
+#: templates/partial-map-render.php:173
 msgid "Select all"
 msgstr ""
 
