@@ -397,6 +397,42 @@ const OUMMap = (function () {
     }
   }
 
+  // Leaflet.markercluster expects discrete zoom steps to keep cluster membership stable.
+  function isClusterZoomLocked() {
+    return !!oum_enable_cluster;
+  }
+
+  // Normalize programmatic zoom values so clustered maps never start on fractional zooms.
+  function normalizeMainMapZoom(zoom) {
+    const parsedZoom = Number(zoom);
+    if (isNaN(parsedZoom)) {
+      return zoom;
+    }
+
+    return isClusterZoomLocked() ? Math.round(parsedZoom) : parsedZoom;
+  }
+
+  // Route main-map setView calls through the same zoom normalization logic.
+  function setMainMapView(center, zoom, options = {}) {
+    map.setView(center, normalizeMainMapZoom(zoom), options);
+  }
+
+  // Keep animated moves aligned with the integer zoom used by clustered maps.
+  function flyMainMapTo(center, zoom, options = {}) {
+    map.flyTo(center, normalizeMainMapZoom(zoom), options);
+  }
+
+  // Clamp flyToBounds to an integer max zoom so cluster refreshes stay deterministic.
+  function flyMainMapToBounds(bounds, options = {}) {
+    const flyOptions = { ...options };
+
+    if (isClusterZoomLocked()) {
+      flyOptions.maxZoom = normalizeMainMapZoom(map.getBoundsZoom(bounds, false));
+    }
+
+    map.flyToBounds(bounds, flyOptions);
+  }
+
   function setupMapBounds() {
     // Set bounds if fixed map bounds is enabled
     if (oum_enable_fixed_map_bounds) {
@@ -475,7 +511,7 @@ const OUMMap = (function () {
         }
 
         if (needsAdjustment) {
-          map.setView([newLat, newLng], zoom, { animate: false });
+          setMainMapView([newLat, newLng], zoom, { animate: false });
         }
       }
 
@@ -860,14 +896,14 @@ const OUMMap = (function () {
       } else {
         // Handle valid search result
         if (e.location.bounds) {
-          map.flyToBounds(e.location.bounds);
+          flyMainMapToBounds(e.location.bounds);
         } else if (e.location.raw && e.location.raw.mapView) {
-          map.flyToBounds([
+          flyMainMapToBounds([
             [e.location.raw.mapView.south, e.location.raw.mapView.west],
             [e.location.raw.mapView.north, e.location.raw.mapView.east]
           ]);
         } else {
-          map.flyTo([e.location.y, e.location.x], 17);
+          flyMainMapTo([e.location.y, e.location.x], 17);
         }
       }
     });
@@ -923,7 +959,7 @@ const OUMMap = (function () {
           }
 
           // Center Map
-          map.flyTo([region_lat, region_lng], region_bounds_zoom);
+          flyMainMapTo([region_lat, region_lng], region_bounds_zoom);
 
           // Update active state
           document
@@ -952,7 +988,7 @@ const OUMMap = (function () {
         map = L.map(mapEl, {
           gestureHandling: oum_enable_scrollwheel_zoom_map ? false : true,
           minZoom: 1, // Set default minimum zoom
-          zoomSnap: 0.01, // Allow fractional zoom levels (0.01 steps)
+          zoomSnap: isClusterZoomLocked() ? 1 : 0.01, // MarkerCluster needs integer zoom steps.
           zoomDelta: 1, // Zoom step size for controls
           attributionControl: true,
           fullscreenControl: oum_enable_fullscreen,
@@ -1018,10 +1054,11 @@ const OUMMap = (function () {
           // This will fit the bounds but may show slightly different area due to aspect ratio
           targetZoom = map.getBoundsZoom(settingsBounds, false);
         }
+        targetZoom = normalizeMainMapZoom(targetZoom);
         
         // Use setView with the calculated zoom level to show the same geographic area
         // This ensures the same geographic bounds are visible regardless of frontend map size
-        map.setView([startPosition.lat, startPosition.lng], targetZoom, {
+        setMainMapView([startPosition.lat, startPosition.lng], targetZoom, {
           animate: false
         });
 

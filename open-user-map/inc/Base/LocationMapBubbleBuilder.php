@@ -178,6 +178,10 @@ class LocationMapBubbleBuilder {
 		if ( isset( $location['custom_fields'] ) && is_array( $location['custom_fields'] ) ) {
 			$fields_html = array();
 			foreach ( $location['custom_fields'] as $custom_field ) {
+				// Private fields may be included in the map payload for editors only; never show them in the popup.
+				if ( ! empty( $custom_field['private'] ) ) {
+					continue;
+				}
 				if ( empty( $custom_field['val'] ) ) {
 					continue;
 				}

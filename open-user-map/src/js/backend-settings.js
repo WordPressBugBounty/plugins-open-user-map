@@ -140,12 +140,13 @@ window.addEventListener('load', function(e) {
       if(isEnabled) {
         jQuery('.community-enabled-tip').show();
         jQuery('.community-disabled-tip').hide();
-        jQuery('.wrap-community-tab-settings').show();
+        // Hide visitor-only settings; submission form stays visible (.wrap-community-tab-submission-form).
+        jQuery('.wrap-community-tab-gated').show();
         jQuery('.community-tab-disabled-message').hide();
       } else {
         jQuery('.community-enabled-tip').hide();
         jQuery('.community-disabled-tip').show();
-        jQuery('.wrap-community-tab-settings').hide();
+        jQuery('.wrap-community-tab-gated').hide();
         jQuery('.community-tab-disabled-message').show();
       }
     }

@@ -2,9 +2,9 @@
 Contributors: 100plugins
 Tags: map, interactive map, leaflet, pins, mapbox
 Requires at least: 5.5
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.4.38
+Stable tag: 1.4.39
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -283,6 +283,11 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.39 =
+* Bugfix: Missing markers when Marker Clustering was enabled
+* Bugfix: Private custom fields appear empty on Edit
+* Improved: Location Submissions Settings
+
 = 1.4.38 =
 * Improved: Better performance through lazy loading for location popups
 

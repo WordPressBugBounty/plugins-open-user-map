@@ -1526,10 +1526,6 @@
       overflow: hidden;
       margin-bottom: 24px;
 
-      &:last-child {
-        margin-bottom: 0;
-      }
-
       > tr > th,
       > tr > td {
         background: #fff;
@@ -1556,6 +1552,12 @@
         }
       }
     }
+  }
+
+  // Location Submissions tab uses several .wrap-community-tab-settings blocks; only the final group
+  // should drop its bottom margin (same as one big table before the split).
+  #tab-2 > .wrap-community-tab-settings:last-child .community-group-box:last-child {
+    margin-bottom: 0;
   }
 
   .map_styles {

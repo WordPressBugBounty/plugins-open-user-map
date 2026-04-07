@@ -1400,10 +1400,6 @@
   overflow: hidden;
   margin-bottom: 24px;
 }
-.oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box:last-child,
-.toplevel_page_open-user-map .wrap-community-tab-settings .community-group-box:last-child {
-  margin-bottom: 0;
-}
 .oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box > tr > th,
 .oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box > tr > td,
 .toplevel_page_open-user-map .wrap-community-tab-settings .community-group-box > tr > th,
@@ -1430,6 +1426,10 @@
 .oum-location_page_open-user-map-settings .wrap-community-tab-settings .community-group-box td strong:first-of-type,
 .toplevel_page_open-user-map .wrap-community-tab-settings .community-group-box td strong:first-of-type {
   margin-top: 0;
+}
+.oum-location_page_open-user-map-settings #tab-2 > .wrap-community-tab-settings:last-child .community-group-box:last-child,
+.toplevel_page_open-user-map #tab-2 > .wrap-community-tab-settings:last-child .community-group-box:last-child {
+  margin-bottom: 0;
 }
 .oum-location_page_open-user-map-settings .map_styles,
 .toplevel_page_open-user-map .map_styles {

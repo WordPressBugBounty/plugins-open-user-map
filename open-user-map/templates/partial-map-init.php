@@ -542,11 +542,17 @@ foreach ( $posts as $post ) {
     // Optimized custom fields processing
     $custom_fields = [];
     $meta_custom_fields = ( isset( $location_meta['custom_fields'] ) ? $location_meta['custom_fields'] : false );
+    // Private custom fields are hidden from public map data, but the edit form needs their stored values.
+    // Expose private values only when the current user may edit this location (matches ajax_check_edit_permission in LocationController).
+    $has_general_edit = current_user_can( 'edit_oum-locations' );
+    $is_location_author = (int) get_current_user_id() === (int) get_post_field( 'post_author', $post_id );
+    $can_edit_this_post = current_user_can( 'edit_post', $post_id );
+    $include_private_custom_fields = $has_general_edit && ($is_location_author || $can_edit_this_post);
     if ( is_array( $meta_custom_fields ) && is_array( $active_custom_fields ) ) {
         // Iterate over active_custom_fields to maintain order
         foreach ( $active_custom_fields as $index => $custom_field ) {
-            // Skip if field is marked as private
-            if ( isset( $custom_field['private'] ) ) {
+            // Skip private fields for users who cannot edit (do not leak private data in page HTML/JSON).
+            if ( isset( $custom_field['private'] ) && !$include_private_custom_fields ) {
                 continue;
             }
             // Skip if no value exists for this field
@@ -560,6 +566,7 @@ foreach ( $posts as $post ) {
                 'fieldtype'            => ( isset( $custom_field['fieldtype'] ) ? $custom_field['fieldtype'] : 'text' ),
                 'uselabelastextoption' => ( isset( $custom_field['uselabelastextoption'] ) ? $custom_field['uselabelastextoption'] : false ),
                 'use12hour'            => ( isset( $custom_field['use12hour'] ) ? $custom_field['use12hour'] : false ),
+                'private'              => !empty( $custom_field['private'] ),
             ];
             // Calculate open_now for opening_hours fields
             if ( $custom_field['fieldtype'] === 'opening_hours' ) {

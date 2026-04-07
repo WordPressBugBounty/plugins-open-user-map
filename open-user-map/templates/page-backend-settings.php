@@ -1136,12 +1136,16 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo ( $oum_enable_add_location === 'on' ? 'style="display:none;"' : '' );
     ?>>
             <p class="description"><?php 
-    echo __( 'Community contributions are currently disabled. Enable "Allow visitors to add locations" in the General tab to configure Location Submissions settings.', 'open-user-map' );
+    echo __( 'Visitor submissions are currently disabled. The Submission Form section below still applies when administrators add locations. Enable "Allow visitors to add locations" in the General tab to configure access, moderation, after-submission behavior, and notifications.', 'open-user-map' );
     ?></p>
           </div>
 
-          <div class="wrap-community-tab-settings" <?php 
-    echo ( $oum_enable_add_location === 'on' ? '' : 'style="display:none;"' );
+          <?php 
+    // Access, moderation, after-submit, and notifications only apply when visitors may add locations.
+    $oum_community_gated_style = ( $oum_enable_add_location === 'on' ? '' : 'style="display:none;"' );
+    ?>
+          <div class="wrap-community-tab-settings wrap-community-tab-gated" <?php 
+    echo $oum_community_gated_style;
     ?>>
           <div class="community-quick-links">
             <strong><?php 
@@ -1277,6 +1281,14 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
             </tr>
           </tbody>
 
+          </table>
+          </div>
+
+          <?php 
+    // Submission form: always shown so admins can configure fields while visitor adds are disabled.
+    ?>
+          <div class="wrap-community-tab-settings wrap-community-tab-submission-form">
+          <table class="form-table">
           <tbody class="community-group-box">
             <tr class="community-group-heading" id="community-section-form">
               <td colspan="2">
@@ -1844,6 +1856,13 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>
           </tbody>
 
+          </table>
+          </div>
+
+          <div class="wrap-community-tab-settings wrap-community-tab-gated" <?php 
+    echo $oum_community_gated_style;
+    ?>>
+          <table class="form-table">
           <tbody class="community-group-box">
             <tr class="community-group-heading" id="community-section-submit">
               <td colspan="2">
