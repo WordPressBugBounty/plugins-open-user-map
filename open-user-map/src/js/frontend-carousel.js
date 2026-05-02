@@ -3,36 +3,16 @@
  */
 const OUMCarousel = (function () {
   function initializeCarousel() {
-    // Initialize carousels in map popups and mobile fullscreen container
+    // Initialize carousels that are added later, including lazy-loaded popup content.
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.addedNodes.length) {
           mutation.addedNodes.forEach((node) => {
-            // Handle regular popup carousels
-            if (node.classList && node.classList.contains("leaflet-popup")) {
-              const carousel = node.querySelector(".oum-carousel");
-              if (carousel) {
-                setupCarousel(carousel);
-              }
-            }
-            
-            // Handle mobile fullscreen container carousels
-            if (node.classList && node.classList.contains("location-content-wrap")) {
-              const carousel = node.querySelector(".oum-carousel");
-              if (carousel) {
-                setupCarousel(carousel);
-              }
-            }
+            setupCarouselsInNode(node);
           });
         }
 
-        // Also check for changes in content of location-content-wrap
-        if (mutation.target.classList && mutation.target.classList.contains("location-content-wrap")) {
-          const carousel = mutation.target.querySelector(".oum-carousel");
-          if (carousel) {
-            setupCarousel(carousel);
-          }
-        }
+        setupCarouselsInNode(mutation.target);
       });
     });
 
@@ -54,11 +34,26 @@ const OUMCarousel = (function () {
     });
   }
 
+  function setupCarouselsInNode(node) {
+    if (!node || node.nodeType !== 1) return;
+
+    if (node.classList && node.classList.contains("oum-carousel")) {
+      setupCarousel(node);
+    }
+
+    node.querySelectorAll(".oum-carousel").forEach((carousel) => {
+      setupCarousel(carousel);
+    });
+  }
+
   function setupCarousel(carouselEl) {
     if (!carouselEl) return;
+    if (carouselEl.dataset.oumCarouselInitialized === "1") return;
 
     const items = carouselEl.querySelectorAll(".oum-carousel-item");
     if (items.length <= 1) return;
+
+    carouselEl.dataset.oumCarouselInitialized = "1";
 
     let currentIndex = 0;
 

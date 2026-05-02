@@ -153,6 +153,10 @@ class LocationController extends BaseController {
         $video = ( isset( $data['video'] ) ? $data['video'] : '' );
         $has_video = ( isset( $video ) && $video != '' ? 'has-video' : '' );
         $video_tag = ( $has_video ? apply_filters( 'the_content', esc_attr( $video ) ) : '' );
+        $votes = ( isset( $data['votes'] ) ? intval( $data['votes'] ) : 0 );
+        $star_rating_avg = ( isset( $data['star_rating_avg'] ) ? floatval( $data['star_rating_avg'] ) : 0 );
+        $star_rating_count = ( isset( $data['star_rating_count'] ) ? intval( $data['star_rating_count'] ) : 0 );
+        $show_vote_settings = get_option( 'oum_enable_vote_feature' ) === 'on';
         $image = get_post_meta( $post->ID, '_oum_location_image', true );
         // Convert relative paths to absolute URLs for preview
         if ( $image ) {
@@ -230,6 +234,11 @@ class LocationController extends BaseController {
         }
         // Dont save if wordpress just auto-saves
         if ( defined( 'DOING AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return $post_id;
+        }
+        // WordPress creates revisions during admin saves. Updating meta for a
+        // revision redirects to the parent post and can overwrite location data.
+        if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) || get_post_type( $post_id ) !== 'oum-location' ) {
             return $post_id;
         }
         // Dont save if user is not allowed to do

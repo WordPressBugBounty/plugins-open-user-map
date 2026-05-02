@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Open User Map 1.4.38\n"
+"Project-Id-Version: Open User Map 1.4.40\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/open-user-map\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-07T08:02:49+00:00\n"
+"POT-Creation-Date: 2026-05-02T08:23:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: open-user-map\n"
@@ -31,7 +31,7 @@ msgstr ""
 
 #. Description of the plugin
 #: open-user-map.php
-msgid "Engage your visitors with an interactive map – let them add markers instantly or create a custom map showcasing your favorite spots."
+msgid "Create beautiful interactive maps with frontend marker submissions, approval workflow, search, filters and no Google Maps API key."
 msgstr ""
 
 #. Author of the plugin
@@ -290,7 +290,7 @@ msgid "Upload media"
 msgstr ""
 
 #: inc/Base/BaseController.php:654
-#: inc/Base/LocationController.php:604
+#: inc/Base/LocationController.php:614
 #: templates/page-backend-location.php:99
 msgid "Subtitle"
 msgstr ""
@@ -410,66 +410,67 @@ msgstr ""
 msgid "Open User Map Location Settings"
 msgstr ""
 
-#: inc/Base/LocationController.php:224
+#: inc/Base/LocationController.php:228
 #: templates/partial-map-add-location.php:20
 #: templates/partial-map-init.php:27
 msgid "Your name"
 msgstr ""
 
-#: inc/Base/LocationController.php:225
+#: inc/Base/LocationController.php:229
 #: templates/partial-map-add-location.php:21
 #: templates/partial-map-init.php:28
 msgid "Your email"
 msgstr ""
 
-#: inc/Base/LocationController.php:606
+#: inc/Base/LocationController.php:616
 msgid "Text"
 msgstr ""
 
-#: inc/Base/LocationController.php:607
+#: inc/Base/LocationController.php:617
 #: inc/Base/TaxController.php:277
 msgid "Coordinates"
 msgstr ""
 
-#: inc/Base/LocationController.php:614
+#: inc/Base/LocationController.php:624
 msgid "Star Rating"
 msgstr ""
 
-#: inc/Base/LocationController.php:616
+#: inc/Base/LocationController.php:626
+#: templates/page-backend-location.php:178
 msgid "Votes"
 msgstr ""
 
-#: inc/Base/LocationController.php:951
+#: inc/Base/LocationController.php:961
 #: inc/Base/LocationMapBubbleBuilder.php:291
 #: templates/block-locations-list.php:887
 #, php-format
 msgid "Rate %d stars"
 msgstr ""
 
-#: inc/Base/LocationController.php:1077
+#: inc/Base/LocationController.php:1087
 msgid "Route on Google Maps"
 msgstr ""
 
-#: inc/Base/LocationController.php:1078
+#: inc/Base/LocationController.php:1088
 #: inc/Base/LocationMapBubbleBuilder.php:166
 #: templates/block-locations-list.php:772
 msgid "go to Google Maps"
 msgstr ""
 
-#: inc/Base/LocationController.php:1366
+#: inc/Base/LocationController.php:1376
 #: templates/partial-map-advanced-filter.php:182
 msgid "Open now"
 msgstr ""
 
-#: inc/Base/LocationController.php:1366
+#: inc/Base/LocationController.php:1376
 msgid "Closed now"
 msgstr ""
 
-#: inc/Base/LocationController.php:1574
+#: inc/Base/LocationController.php:1584
 msgid "Invalid location ID"
 msgstr ""
 
-#: inc/Base/LocationController.php:1580
+#: inc/Base/LocationController.php:1590
 msgid "Location not found"
 msgstr ""
 
@@ -789,17 +790,33 @@ msgstr ""
 msgid "Upload Audio"
 msgstr ""
 
-#: templates/page-backend-location.php:322
+#: templates/page-backend-location.php:174
+msgid "Votes / Rating"
+msgstr ""
+
+#: templates/page-backend-location.php:184
+msgid "Star rating average"
+msgstr ""
+
+#: templates/page-backend-location.php:187
+msgid "Value must be between 0 and 5."
+msgstr ""
+
+#: templates/page-backend-location.php:191
+msgid "Star rating count"
+msgstr ""
+
+#: templates/page-backend-location.php:353
 #: templates/partial-map-add-location.php:255
 msgid "Enter the day (Mo–Su) and opening hours in 12-hour format with AM/PM (e.g. 9:00 AM–5:00 PM). Use | to separate multiple time blocks."
 msgstr ""
 
-#: templates/page-backend-location.php:323
+#: templates/page-backend-location.php:354
 #: templates/partial-map-add-location.php:256
 msgid "Enter the day (Mo–Su) and opening hours in 24-hour format (e.g. 09:00–18:00). Use | to separate multiple time blocks."
 msgstr ""
 
-#: templates/page-backend-location.php:348
+#: templates/page-backend-location.php:379
 msgid "User email notification"
 msgstr ""
 

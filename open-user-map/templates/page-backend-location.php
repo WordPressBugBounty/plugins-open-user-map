@@ -254,6 +254,9 @@ wp_editor( $text, 'oum_location_text', array(
         </tr>
 
         <?php 
+?>
+
+        <?php 
 if ( is_array( $active_custom_fields ) ) {
     ?>
             <?php 
