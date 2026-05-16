@@ -1267,8 +1267,7 @@ const OUMMarkers = (function () {
       if (
         typeof jQuery === "undefined" ||
         !oum_ajax ||
-        !oum_ajax.ajaxurl ||
-        !oum_ajax.bubble_nonce
+        !oum_ajax.ajaxurl
       ) {
         applyBubbleHtml(oumBubbleErrorHtml());
         return;
@@ -1280,7 +1279,6 @@ const OUMMarkers = (function () {
         dataType: "json",
         data: {
           action: oum_ajax.bubble_action || "oum_get_location_bubble",
-          nonce: oum_ajax.bubble_nonce,
           post_id: postId,
         },
         success: function (response) {

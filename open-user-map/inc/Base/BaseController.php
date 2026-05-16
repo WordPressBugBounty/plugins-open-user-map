@@ -1539,7 +1539,7 @@ class BaseController {
      * AJAX: return full popup bubble HTML for one published location (lazy load).
      */
     public function ajax_get_location_bubble() {
-        check_ajax_referer( 'oum_location_bubble', 'nonce' );
+        // Public read-only endpoint: only published OUM locations can be resolved below.
         $post_id = ( isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0 );
         if ( $post_id < 1 ) {
             wp_send_json_error( array(

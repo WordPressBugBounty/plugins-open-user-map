@@ -1,14 +1,14 @@
 === Open User Map ===
 Contributors: 100plugins
-Tags: map, interactive map, leaflet, pins, mapbox
+Tags: map, interactive map, leaflet, maps, openstreetmap
 Requires at least: 5.5
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.4.40
+Stable tag: 1.4.41
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Create beautiful interactive maps with frontend marker submissions, approval workflow, search, filters and no Google Maps API key.
+Create custom interactive maps with free Leaflet-based styles, no Google Maps API key, frontend marker submissions, search and filters.
 
 == Description ==
 
@@ -16,11 +16,11 @@ Open User Map is a flexible map plugin for creating custom maps, community maps,
 
 You can add your own markers — or let website visitors submit new markers directly from the frontend. New submissions can wait for your approval before they appear on the map, so you stay in full control.
 
-No Google Maps API key is required. Open User Map is based on [Leaflet Map JS](https://leafletjs.com/) and includes free map styles, marker styles, address search and flexible embed options for Gutenberg, Elementor and shortcodes.
+No Google Maps API key is required. Open User Map is based on [Leaflet Map JS](https://leafletjs.com/) and includes free OpenStreetMap and MapBox based map styles, marker styles, address search and flexible embed options for Gutenberg, Elementor and shortcodes.
 
 Want to test all premium features? Start the **7-day Open User Map PRO Trial** — no credit card required.
 
-🚀 [Start 7-day PRO Trial (No Credit Card)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free) | 🔥 [See Live Demos](https://www.open-user-map.com/demo/) | 📖 [More Info](https://www.open-user-map.com/) | ❓ [Help](https://www.open-user-map.com/support/knowledge-base/)
+🚀 [Start 7-day PRO Trial (No Credit Card)](https://www.open-user-map.com/?start_trial=1) | 🔥 [See Live Demos](https://www.open-user-map.com/demo/) | 📖 [More Info](https://www.open-user-map.com/) | ❓ [Help](https://www.open-user-map.com/support/knowledge-base/)
 
 
 = What can you build with Open User Map? =
@@ -149,147 +149,147 @@ Open User Map PRO gives you more control, more automation and more flexibility f
 
 You can try all PRO features for 7 days — no credit card required.
 
-🔥 [Start 7-day PRO Trial (No Credit Card)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free)
+🔥 [Start 7-day PRO Trial (No Credit Card)](https://www.open-user-map.com/?start_trial=1)
 
 
-- **Filterable Marker Categories**
+= ⭐️ Filterable Marker Categories =
 
 Organize locations in multiple filterable marker groups. Each group category can have an individual marker icon and will be accessible to visitors.
 
 
-- **Live Marker Filter**
+= ⭐️ Live Marker Filter =
 
 Use the search bar to filter markers as you type. Instantly see relevant locations on the map.
 
 
-- **Advanced Filter Interface**
+= ⭐️ Advanced Filter Interface =
 
 Create a filter sidebar next to your map and let visitors filter locations by any custom field you have configured. You can also add custom HTML content sections to display additional information or branding.
 
 [Video](https://www.youtube.com/watch?v=0aiLxhs5zls)
 
 
-- **Custom Image Map Style**
+= ⭐️ Custom Image Map Style =
 
 Add a custom image layer to your map or replace the map entirely with a custom image, such as a floor plan, event map, seating plan or fantasy map, while keeping interactions, clustering and popups.
 
 
-- **Pre-filter locations by user or role**
+= ⭐️ Pre-filter locations by user or role =
 
 Use shortcode attributes to filter locations by current user, user ID or role. This works for maps, lists and galleries.
 
 
-- **Vote button for locations**
+= ⭐️ Vote button for locations =
 
 Add a customizable button for likes, upvotes or flagging, with flexible privacy controls.
 
 
-- **Star Rating**
+= ⭐️ Star Rating =
 
 Let visitors rate locations with a customizable star rating system.
 
 
-- **More custom field types**
+= ⭐️ More custom field types =
 
 Add custom fields such as links, radio buttons, checkboxes, dropdowns, opening hours and HTML. Social media links can automatically be rendered as icons.
 
 
-- **Additional geosearch providers**
+= ⭐️ Additional geosearch providers =
 
 Use additional geosearch providers including Geoapify, HERE and MapBox.
 
 
-- **Videos from YouTube & Vimeo**
+= ⭐️ Videos from YouTube & Vimeo =
 
 Use videos instead of images to highlight each location.
 
 
-- **Export & Import locations**
+= ⭐️ Export & Import locations =
 
 Already have a list of places you want to show on the map? Use CSV export and import to add, move or bulk edit locations more easily.
 
 
-- **Email user notification**
+= ⭐️ Email user notification =
 
 Notify users by email after their location has been approved.
 
 
-- **Email admin notification**
+= ⭐️ Email admin notification =
 
 Send notifications to an admin email address when new location proposals are submitted.
 
 
-- **Zapier/Webhook Integration**
+= ⭐️ Zapier/Webhook Integration =
 
 Trigger an external webhook when locations are created or updated.
 
 
-- **User restriction**
+= ⭐️ User restriction =
 
 Restrict the "Add location" feature to registered users only and redirect visitors to your registration form.
 
 
-- **Auto-publish**
+= ⭐️ Auto-publish =
 
 Let registered users publish directly without admin approval. This can also be enabled for unregistered users.
 
 
-- **Extend user registration**
+= ⭐️ Extend user registration =
 
 Add the "Add location" feature to the WordPress user registration form.
 
 
-- **Custom filesizes**
+= ⭐️ Custom filesizes =
 
 Customize the maximum filesize for image and audio uploads. The default is 10 MB.
 
 
-- **Custom marker icons**
+= ⭐️ Custom marker icons =
 
 Use your own custom marker icons.
 
 
-- **Current location**
+= ⭐️ Current location =
 
 Add a button that moves the map to the visitor's current location.
 
 
-- **Limit visible locations**
+= ⭐️ Limit visible locations =
 
 Limit the locations shown on a map by marker categories or post IDs. This makes it possible to show only locations of a specific type or render a single location. This can be done in the block settings or with shortcode attributes.
 
 
-- **Single pages for locations**
+= ⭐️ Single pages for locations =
 
 By default, locations do not have single pages. This helps prevent large numbers of location posts from negatively affecting your SEO. If you want to add more content to locations, you can enable single pages in Open User Map PRO.
 
 
-- **Default template for single pages**
+= ⭐️ Default template for single pages =
 
 When single pages are enabled, locations automatically get a post thumbnail, an excerpt and a default content template. You can also show locations within query loop blocks to create your own list or grid view.
 
 
-- **Shortcodes for single location values**
+= ⭐️ Shortcodes for single location values =
 
 Use the shortcode [open-user-map-location value="YOUR VALUE" post_id="POST ID (optional)"] to display a value from a location. This is useful when creating single pages for locations. You can find all available values in the Help section of the plugin settings under Open User Map > Settings > Help.
 
 
-- **Show all location images as gallery**
+= ⭐️ Show all location images as gallery =
 
 Use the shortcode [open-user-map-gallery] to display a gallery view of all location images. Each image links to the corresponding location marker on the map.
 
 
-- **Show all locations as list or grid**
+= ⭐️ Show all locations as list or grid =
 
 Use the shortcode [open-user-map-list] to display all locations as a list. Alternatively, you can use native query loop blocks to build a custom list or grid.
 
 
-- **Allow registered users to edit their locations**
+= ⭐️ Allow registered users to edit their locations =
 
 Open User Map PRO extends WordPress capabilities to allow backend access. If assigned to the user role, registered users can read, edit and delete their own locations from within the map.
 
 
-🔥 [Start 7-day PRO Trial (No Credit Card)](https://checkout.freemius.com/mode/dialog/plugin/9083/plan/16065/?trial=free)
+🔥 [Start 7-day PRO Trial (No Credit Card)](https://www.open-user-map.com/?start_trial=1)
 
 
 === Use Cases ===
@@ -357,32 +357,76 @@ From your WordPress dashboard
 6. You can manage styles and features under "Open User Map > Settings".
 
 == Frequently Asked Questions ==
-= Where do I report security bugs found in this plugin? =
 
-Please report security bugs found in the source code of the Open User Map plugin through the [Patchstack Vulnerability Disclosure  Program](https://patchstack.com/database/vdp/f3028dd8-ee74-4254-999d-bb1b553ab477). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+= Do I need Google Maps or a Google Maps API key? =
 
-= How to integrate the map? =
-Use the Block Editor or Elementor to insert the "Open User Map" block or just place the shortcode `[open-user-map]` anywhere in your content. Or integrate it within your theme template with PHP:
+No. Open User Map is a WordPress map plugin based on Leaflet, OpenStreetMap and MapBox based map styles. You can create custom interactive maps without setting up a Google Maps API key.
+
+= Can I create a custom map with Leaflet, OpenStreetMap or MapBox styles? =
+
+Yes. Open User Map includes free Leaflet-based map styles and supports OpenStreetMap and MapBox based styles. You can use it as a simple custom map plugin or as an interactive community map.
+
+= Can visitors submit markers from the frontend? =
+
+Yes. Website visitors can add new markers or location submissions directly from the frontend. You can enable or disable frontend marker submissions in the settings.
+
+= Can I approve marker submissions before they appear on the map? =
+
+Yes. New frontend location submissions can wait for your approval before they are published. This makes Open User Map useful for moderated community maps, directories and collaborative projects.
+
+= Can I create a simple custom map without visitor submissions? =
+
+Yes. You can disable frontend submissions and use Open User Map as a simple custom map to show your own markers, business locations, travel spots, event places or other locations.
+
+= Can I add marker search, address search and filters to my map? =
+
+Yes. Open User Map supports marker search, address search and filter options. You can help visitors find locations on the map and organize markers with categories and custom fields.
+
+= Can I use marker categories or filter markers by category? =
+
+Yes. Marker categories can be used to group, style and filter locations. In Open User Map PRO, marker categories can also have custom icons and advanced filtering options.
+
+= Can I embed the map with Gutenberg, Elementor or a shortcode? =
+
+Yes. Use the WordPress Block Editor, Elementor Widget or the shortcode `[open-user-map]` to embed your map. You can also use the shortcode in a theme template with PHP:
 
 `echo do_shortcode("[open-user-map]")`
 
-= Do I need an API Key or some external registration? =
-No, the plugin is based on Leaflet.js and offers you free map styles that don’t need any kind of registration.
+= Can I create a store locator, business directory or community map? =
 
-= The map doesn't show up with content preloading. =
-Some themes/plugins make use of content preloading. This can break the loading of the OUM map. In this rare case please disable preloading for the map section. Alternatively you could manually trigger the oumMap.invalidateSize() method after the content has been loaded. This reinits the OUM map.
+Yes. Open User Map can be used for store locators, business directories, community maps, travel maps, event maps, real estate maps and other location-based projects.
 
-= Can I use custom fields? =
-Yes. You can add custom fields in the settings and use them instead of "subtitle" and "description".
+= Can I import or export map locations? =
 
-= Can I use Elementor? =
-Yes! You will find the "Open User Map"-Widget. The minimum required Elementor version is 3.7.0. PHP needs to be at least version 7.3.
+Yes. Open User Map PRO includes CSV import and export for locations. This is useful if you already have a list of places, want to bulk edit markers or need to migrate location data.
 
-= Can I use custom styles? =
-Yes, we encourage you to do so. This plugin is supposed to be developer friendly. Feel free to override the .open-user-map class in css to create your own awesome design.
+= Can I show only specific markers, categories or locations? =
 
-= Where do I find help? =
-Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledge-base/) and search the [Support Forum](https://wordpress.org/support/plugin/open-user-map/).
+Yes. You can limit visible locations by marker categories, post IDs and shortcode attributes. This is useful for showing different maps, directory sections or location groups on different pages.
+
+= Can users upload images, audio or videos to markers? =
+
+Yes. Locations can include descriptions, images and audio. Open User Map PRO also supports videos from YouTube and Vimeo, plus additional media and field options.
+
+= Can registered users edit or delete their own locations? =
+
+Yes. Open User Map supports frontend editing for registered users. Depending on your settings and capabilities, users can edit or delete their own submitted locations.
+
+= Can I show the visitor's current location on the map? =
+
+Yes. You can enable a current location button so visitors can move the map to their own position. This is useful for local maps, nearby places, directories and store locator use cases.
+
+= Can I customize marker icons, colors and map styles? =
+
+Yes. Open User Map includes multiple marker styles, map styles and UI color options. Open User Map PRO adds custom marker icons and additional styling options.
+
+= Can I use custom fields and developer hooks? =
+
+Yes. You can add custom fields to collect the exact location data you need. Developers can also use WordPress hooks, custom CSS and custom JavaScript to adapt the map output.
+
+= Where do I find help or report security bugs? =
+
+Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledge-base/) and search the [Support Forum](https://wordpress.org/support/plugin/open-user-map/). Security bugs can be reported through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/f3028dd8-ee74-4254-999d-bb1b553ab477).
 
 == Screenshots ==
 1. Website visitors can add locations
@@ -394,6 +438,9 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.41 =
+* Bugfix: Caching issues with loading location data
+
 = 1.4.40 =
 * Bugfix: Votes/Rating got reset when updating location in the backend
 * Bugfix: Image Slider in Location popup was missing
