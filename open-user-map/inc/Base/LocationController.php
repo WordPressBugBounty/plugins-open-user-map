@@ -149,6 +149,8 @@ class LocationController extends BaseController {
         $lat = ( isset( $data['lat'] ) ? $data['lat'] : '' );
         $lng = ( isset( $data['lng'] ) ? $data['lng'] : '' );
         $zoom = ( isset( $data['zoom'] ) ? $data['zoom'] : '12' );
+        $geometry_type = ( isset( $data['geometry_type'] ) && in_array( $data['geometry_type'], array('polyline', 'polygon'), true ) ? $data['geometry_type'] : 'point' );
+        $geometry = ( isset( $data['geometry'] ) && is_array( $data['geometry'] ) ? wp_json_encode( $data['geometry'] ) : '' );
         $text = ( isset( $data['text'] ) ? $data['text'] : '' );
         $video = ( isset( $data['video'] ) ? $data['video'] : '' );
         $has_video = ( isset( $video ) && $video != '' ? 'has-video' : '' );
@@ -219,6 +221,93 @@ class LocationController extends BaseController {
     }
 
     /**
+     * Sanitize a submitted GeoJSON LineString or Polygon geometry.
+     *
+     * @param string|array $geometry_json Raw JSON string or decoded geometry.
+     * @return array|false Sanitized GeoJSON geometry, or false when invalid.
+     */
+    public static function sanitize_location_geometry( $geometry_json ) {
+        $geometry = ( is_array( $geometry_json ) ? $geometry_json : json_decode( (string) $geometry_json, true ) );
+        if ( !is_array( $geometry ) || !isset( $geometry['type'], $geometry['coordinates'] ) || !is_array( $geometry['coordinates'] ) ) {
+            return false;
+        }
+        $geometry_type = $geometry['type'];
+        if ( $geometry_type !== 'LineString' && $geometry_type !== 'Polygon' ) {
+            return false;
+        }
+        $raw_coordinates = ( $geometry_type === 'Polygon' ? ( isset( $geometry['coordinates'][0] ) && is_array( $geometry['coordinates'][0] ) ? $geometry['coordinates'][0] : array() ) : $geometry['coordinates'] );
+        $coordinates = array();
+        $max_points = (int) apply_filters( 'oum_polyline_max_points', 500 );
+        foreach ( $raw_coordinates as $coordinate ) {
+            if ( !is_array( $coordinate ) || count( $coordinate ) < 2 ) {
+                return false;
+            }
+            $lng = (float) str_replace( ',', '.', (string) $coordinate[0] );
+            $lat = (float) str_replace( ',', '.', (string) $coordinate[1] );
+            if ( !is_finite( $lat ) || !is_finite( $lng ) || $lat < -90 || $lat > 90 || $lng < -180 || $lng > 180 ) {
+                return false;
+            }
+            $coordinates[] = array($lng, $lat);
+            if ( count( $coordinates ) > $max_points ) {
+                return false;
+            }
+        }
+        if ( count( $coordinates ) < 2 ) {
+            return false;
+        }
+        if ( $geometry_type === 'Polygon' ) {
+            if ( count( $coordinates ) < 3 ) {
+                return false;
+            }
+            // GeoJSON polygons should be closed. Accept imports that omit the
+            // closing coordinate by closing the outer ring server-side.
+            if ( $coordinates[0] !== $coordinates[count( $coordinates ) - 1] ) {
+                $coordinates[] = $coordinates[0];
+            }
+            return array(
+                'type'        => 'Polygon',
+                'coordinates' => array($coordinates),
+            );
+        }
+        return array(
+            'type'        => 'LineString',
+            'coordinates' => $coordinates,
+        );
+    }
+
+    /**
+     * Derive a stable center point from a sanitized LineString.
+     *
+     * @param array $geometry Sanitized GeoJSON LineString.
+     * @return array{lat: float, lng: float}|false
+     */
+    public static function get_location_geometry_center( $geometry ) {
+        if ( !is_array( $geometry ) || empty( $geometry['coordinates'] ) || !is_array( $geometry['coordinates'] ) ) {
+            return false;
+        }
+        $min_lat = 90;
+        $max_lat = -90;
+        $min_lng = 180;
+        $max_lng = -180;
+        $coordinates = ( isset( $geometry['type'] ) && $geometry['type'] === 'Polygon' && isset( $geometry['coordinates'][0] ) && is_array( $geometry['coordinates'][0] ) ? $geometry['coordinates'][0] : $geometry['coordinates'] );
+        foreach ( $coordinates as $coordinate ) {
+            if ( !is_array( $coordinate ) || count( $coordinate ) < 2 ) {
+                return false;
+            }
+            $lng = (float) $coordinate[0];
+            $lat = (float) $coordinate[1];
+            $min_lat = min( $min_lat, $lat );
+            $max_lat = max( $max_lat, $lat );
+            $min_lng = min( $min_lng, $lng );
+            $max_lng = max( $max_lng, $lng );
+        }
+        return array(
+            'lat' => ($min_lat + $max_lat) / 2,
+            'lng' => ($min_lng + $max_lng) / 2,
+        );
+    }
+
+    /**
      * Save Location Fields (Backend)
      */
     public static function save_fields( $post_id, $fields = array() ) {
@@ -233,7 +322,7 @@ class LocationController extends BaseController {
             return $post_id;
         }
         // Dont save if wordpress just auto-saves
-        if ( defined( 'DOING AUTOSAVE' ) && DOING_AUTOSAVE ) {
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
             return $post_id;
         }
         // WordPress creates revisions during admin saves. Updating meta for a
@@ -321,22 +410,56 @@ class LocationController extends BaseController {
         $lat_validated = ( isset( $location_data['oum_location_lat'] ) ? floatval( str_replace( ',', '.', sanitize_text_field( $location_data['oum_location_lat'] ) ) ) : '' );
         $lng_validated = ( isset( $location_data['oum_location_lng'] ) ? floatval( str_replace( ',', '.', sanitize_text_field( $location_data['oum_location_lng'] ) ) ) : '' );
         $zoom_validated = ( isset( $location_data['oum_location_zoom'] ) ? intval( sanitize_text_field( $location_data['oum_location_zoom'] ) ) : 12 );
-        // Get existing location data to preserve vote count and other existing fields
-        // This prevents vote counts from being lost when editing locations
+        // Get existing location data before geometry validation so invalid
+        // imports/updates cannot accidentally downgrade stored lines or areas.
         $existing_data = get_post_meta( $post_id, '_oum_location_key', true );
         if ( !is_array( $existing_data ) ) {
             $existing_data = array();
         }
+        $submitted_geometry_type = ( isset( $location_data['oum_geometry_type'] ) ? sanitize_key( $location_data['oum_geometry_type'] ) : 'point' );
+        $geometry_type = ( self::oum_location_type_enabled( $submitted_geometry_type ) ? $submitted_geometry_type : self::oum_default_location_type() );
+        $geometry = false;
+        if ( $submitted_geometry_type !== 'point' && $geometry_type !== $submitted_geometry_type && isset( $existing_data['geometry_type'], $existing_data['geometry'] ) && $existing_data['geometry_type'] === $submitted_geometry_type && is_array( $existing_data['geometry'] ) ) {
+            $geometry_type = $submitted_geometry_type;
+            $geometry = $existing_data['geometry'];
+        }
+        if ( $geometry_type !== 'point' ) {
+            if ( !$geometry ) {
+                $geometry = ( isset( $location_data['oum_location_geometry'] ) ? self::sanitize_location_geometry( wp_unslash( $location_data['oum_location_geometry'] ) ) : false );
+            }
+            if ( $geometry && ($geometry_type === 'polygon') === ($geometry['type'] === 'Polygon') ) {
+                $center = self::get_location_geometry_center( $geometry );
+                if ( $center ) {
+                    $lat_validated = $center['lat'];
+                    $lng_validated = $center['lng'];
+                }
+            } else {
+                $existing_geometry_type = ( isset( $existing_data['geometry_type'] ) && in_array( $existing_data['geometry_type'], array('polyline', 'polygon'), true ) ? $existing_data['geometry_type'] : 'point' );
+                if ( $submitted_geometry_type === $existing_geometry_type && isset( $existing_data['geometry'] ) && is_array( $existing_data['geometry'] ) ) {
+                    // Preserve existing geometry when an update/import submits
+                    // invalid geometry for the same non-point type.
+                    $geometry_type = $existing_geometry_type;
+                    $geometry = $existing_data['geometry'];
+                } else {
+                    // Invalid new backend geometry falls back to the established point behavior.
+                    $geometry_type = 'point';
+                }
+            }
+        }
         $data = array(
-            'address'      => ( isset( $location_data['oum_location_address'] ) ? sanitize_text_field( $location_data['oum_location_address'] ) : '' ),
-            'lat'          => $lat_validated,
-            'lng'          => $lng_validated,
-            'zoom'         => $zoom_validated,
-            'text'         => ( isset( $location_data['oum_location_text'] ) ? wp_kses_post( $location_data['oum_location_text'] ) : '' ),
-            'author_name'  => ( isset( $location_data['oum_location_author_name'] ) ? sanitize_text_field( $location_data['oum_location_author_name'] ) : '' ),
-            'author_email' => ( isset( $location_data['oum_location_author_email'] ) ? sanitize_text_field( $location_data['oum_location_author_email'] ) : '' ),
-            'video'        => ( isset( $location_data['oum_location_video'] ) ? sanitize_text_field( $location_data['oum_location_video'] ) : '' ),
+            'address'       => ( isset( $location_data['oum_location_address'] ) ? sanitize_text_field( $location_data['oum_location_address'] ) : '' ),
+            'lat'           => $lat_validated,
+            'lng'           => $lng_validated,
+            'zoom'          => $zoom_validated,
+            'text'          => ( isset( $location_data['oum_location_text'] ) ? wp_kses_post( $location_data['oum_location_text'] ) : '' ),
+            'author_name'   => ( isset( $location_data['oum_location_author_name'] ) ? sanitize_text_field( $location_data['oum_location_author_name'] ) : '' ),
+            'author_email'  => ( isset( $location_data['oum_location_author_email'] ) ? sanitize_text_field( $location_data['oum_location_author_email'] ) : '' ),
+            'video'         => ( isset( $location_data['oum_location_video'] ) ? sanitize_text_field( $location_data['oum_location_video'] ) : '' ),
+            'geometry_type' => $geometry_type,
         );
+        if ( $geometry_type !== 'point' && $geometry ) {
+            $data['geometry'] = $geometry;
+        }
         // Handle votes - use imported value if provided, otherwise preserve existing
         if ( isset( $location_data['oum_location_votes'] ) && $location_data['oum_location_votes'] !== '' ) {
             $data['votes'] = intval( $location_data['oum_location_votes'] );
@@ -876,6 +999,12 @@ class LocationController extends BaseController {
             // GET STAR RATING COUNT
             $star_rating_count = ( isset( $location['star_rating_count'] ) ? intval( $location['star_rating_count'] ) : 0 );
             $value = $star_rating_count;
+        } elseif ( $attr == 'geometry_type' ) {
+            // GET GEOMETRY TYPE
+            $value = ( isset( $location['geometry_type'] ) && in_array( $location['geometry_type'], array('polyline', 'polygon'), true ) ? $location['geometry_type'] : 'point' );
+        } elseif ( $attr == 'geometry' ) {
+            // GET GEOJSON GEOMETRY
+            $value = ( isset( $location['geometry'] ) && is_array( $location['geometry'] ) ? wp_json_encode( $location['geometry'] ) : '' );
         } elseif ( $attr == 'type' ) {
             // GET TYPE
             $location_types = ( get_the_terms( $post_id, 'oum-type' ) && !is_wp_error( get_the_terms( $post_id, 'oum-type' ) ) ? get_the_terms( $post_id, 'oum-type' ) : false );
@@ -892,8 +1021,28 @@ class LocationController extends BaseController {
             $location_types = ( get_the_terms( $post_id, 'oum-type' ) && !is_wp_error( get_the_terms( $post_id, 'oum-type' ) ) ? get_the_terms( $post_id, 'oum-type' ) : false );
             if ( isset( $location_types ) && is_array( $location_types ) && !empty( $location_types ) ) {
                 $plugin_url = plugin_dir_url( dirname( dirname( __FILE__ ) ) );
+                $plugin_path = plugin_dir_path( dirname( dirname( __FILE__ ) ) );
+                $route_icon_path = $plugin_path . 'assets/images/ico_route.svg';
+                $area_icon_path = $plugin_path . 'assets/images/ico_area.svg';
+                $route_icon_svg = ( is_readable( $route_icon_path ) ? file_get_contents( $route_icon_path ) : '' );
+                $area_icon_svg = ( is_readable( $area_icon_path ) ? file_get_contents( $area_icon_path ) : '' );
                 $category_icons_content = '';
                 foreach ( $location_types as $category ) {
+                    $category_type = self::oum_marker_category_type( $category->term_id );
+                    $category_color = sanitize_hex_color( get_term_meta( $category->term_id, 'oum_marker_color', true ) );
+                    if ( !$category_color ) {
+                        $category_color = ( get_option( 'oum_ui_color' ) ? get_option( 'oum_ui_color' ) : '#e82c71' );
+                    }
+                    if ( $category_type === 'polyline' ) {
+                        $colored_route_icon_svg = str_replace( 'currentColor', esc_attr( $category_color ), $route_icon_svg );
+                        $category_icons_content .= '<span class="oum_category_icon oum_category_shape_icon" title="' . esc_attr( $category->name ) . '">' . $colored_route_icon_svg . '</span>';
+                        continue;
+                    }
+                    if ( $category_type === 'polygon' ) {
+                        $colored_area_icon_svg = str_replace( 'currentColor', esc_attr( $category_color ), $area_icon_svg );
+                        $category_icons_content .= '<span class="oum_category_icon oum_category_shape_icon" title="' . esc_attr( $category->name ) . '">' . $colored_area_icon_svg . '</span>';
+                        continue;
+                    }
                     // Get category icon
                     $cat_icon = get_term_meta( $category->term_id, 'oum_marker_icon', true );
                     $cat_user_icon = get_term_meta( $category->term_id, 'oum_marker_user_icon', true );
@@ -926,8 +1075,23 @@ class LocationController extends BaseController {
             $lat = $location['lat'];
             $lng = $location['lng'];
             $zoom = ( isset( $location['zoom'] ) ? $location['zoom'] : '12' );
+            $geometry_type = ( isset( $location['geometry_type'] ) && in_array( $location['geometry_type'], array('polyline', 'polygon'), true ) ? $location['geometry_type'] : 'point' );
+            $geometry = ( isset( $location['geometry'] ) && is_array( $location['geometry'] ) ? wp_json_encode( $location['geometry'] ) : '' );
+            $category_color = ( get_option( 'oum_ui_color' ) ? get_option( 'oum_ui_color' ) : $this->oum_ui_color_default );
             // Get location types
             $location_types = ( get_the_terms( $post_id, 'oum-type' ) && !is_wp_error( get_the_terms( $post_id, 'oum-type' ) ) ? get_the_terms( $post_id, 'oum-type' ) : false );
+            if ( $geometry_type !== 'point' && isset( $location_types ) && is_array( $location_types ) ) {
+                foreach ( $location_types as $type ) {
+                    if ( self::oum_marker_category_type( $type->term_id ) !== $geometry_type ) {
+                        continue;
+                    }
+                    $type_color = sanitize_hex_color( get_term_meta( $type->term_id, 'oum_marker_color', true ) );
+                    if ( $type_color ) {
+                        $category_color = $type_color;
+                    }
+                    break;
+                }
+            }
             // Determine marker icon based on location type or settings
             if ( isset( $location_types ) && is_array( $location_types ) && count( $location_types ) == 1 && !get_option( 'oum_enable_multiple_marker_types' ) ) {
                 $type = $location_types[0];
@@ -948,7 +1112,7 @@ class LocationController extends BaseController {
             // Set marker icon URL
             $marker_icon_url = ( $marker_icon == 'user1' && $marker_user_icon ? esc_url( $marker_user_icon ) : esc_url( $plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $marker_icon ) . '-2x.png' );
             $marker_shadow_url = esc_url( $plugin_url ) . 'src/leaflet/images/marker-shadow.png';
-            $value = '<div id="mapRenderLocation" data-lat="' . $lat . '" data-lng="' . $lng . '" data-zoom="' . $zoom . '" data-mapstyle="' . $map_style . '" data-tile_provider_mapbox_key="' . $oum_tile_provider_mapbox_key . '" data-marker_icon_url="' . $marker_icon_url . '" data-marker_shadow_url="' . $marker_shadow_url . '" class="open-user-map-location-map leaflet-map map-style_' . $map_style . '"' . $this->get_tile_provider_data_attribute( $map_style, 'container' ) . '></div>';
+            $value = '<div id="mapRenderLocation" data-lat="' . esc_attr( $lat ) . '" data-lng="' . esc_attr( $lng ) . '" data-zoom="' . esc_attr( $zoom ) . '" data-mapstyle="' . esc_attr( $map_style ) . '" data-tile_provider_mapbox_key="' . esc_attr( $oum_tile_provider_mapbox_key ) . '" data-marker_icon_url="' . esc_url( $marker_icon_url ) . '" data-marker_shadow_url="' . esc_url( $marker_shadow_url ) . '" data-geometry-type="' . esc_attr( $geometry_type ) . '" data-geometry="' . esc_attr( $geometry ) . '" data-category-color="' . esc_attr( $category_color ) . '" class="open-user-map-location-map leaflet-map map-style_' . esc_attr( $map_style ) . '"' . $this->get_tile_provider_data_attribute( $map_style, 'container' ) . '></div>';
         } elseif ( $attr == 'route' ) {
             // GET GOOGLE ROUTE LINK
             $lat = esc_attr( $location['lat'] );

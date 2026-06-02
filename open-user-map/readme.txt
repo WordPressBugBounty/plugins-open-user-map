@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, maps, openstreetmap
 Requires at least: 5.5
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.4.41
+Stable tag: 1.4.42
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -155,6 +155,11 @@ You can try all PRO features for 7 days — no credit card required.
 = ⭐️ Filterable Marker Categories =
 
 Organize locations in multiple filterable marker groups. Each group category can have an individual marker icon and will be accessible to visitors.
+
+
+= ⭐️ Lines & Areas =
+
+Add Lines and Areas as additional location types. Visitors can draw routes, paths, zones or boundaries directly on the map.
 
 
 = ⭐️ Live Marker Filter =
@@ -438,6 +443,14 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.42 =
+* NEW: Lines & Areas as additional location types
+* Improved: Shortcode attribute for list pagination
+* Improved: Load dashicons.css when needed only
+* Improved: RTL support
+* Bugfix: Image Upload fails if filesize is too big
+* Bugfix: Inactive "Add Location" form
+
 = 1.4.41 =
 * Bugfix: Caching issues with loading location data
 

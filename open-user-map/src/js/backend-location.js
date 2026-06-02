@@ -13,12 +13,12 @@ window.addEventListener('load', function(e) {
   // FUNCTIONS
 
   //set lat & lng input fields
-  function setLocationLatLng(markerLatLng, address) {
+  function setLocationLatLng(markerLatLng, address, skipReverseGeocode = false) {
     jQuery('#oum_location_lat').val(markerLatLng.lat);
     jQuery('#oum_location_lng').val(markerLatLng.lng);
     
     // Only perform reverse geocoding if both subtitle field and autofill are enabled
-    if (shouldPerformReverseGeocoding()) {
+    if (!skipReverseGeocode && shouldPerformReverseGeocoding()) {
       reverseGeocode(markerLatLng.lat, markerLatLng.lng, address);
     }
   }
@@ -163,7 +163,22 @@ window.addEventListener('load', function(e) {
 
   const latLngInputs = jQuery('#latLngInputs');
   const showLatLngInputs = jQuery('#showLatLngInputs');
+  const initialGeometryValue = jQuery('#oum_location_geometry').val();
   let markerIsVisible = false;
+  let currentGeometryType = ['polyline', 'polygon'].includes(jQuery('#oum_geometry_type').val()) ? jQuery('#oum_geometry_type').val() : 'point';
+  let drawnItems = null;
+  let vectorLayer = null;
+  let drawControl = null;
+  const initialGeometry = parseGeometryValue(initialGeometryValue);
+  const preservedTypeState = {
+    point: {
+      lat: parseFloat(jQuery('#oum_location_lat').val()),
+      lng: parseFloat(jQuery('#oum_location_lng').val()),
+      zoom: parseInt(jQuery('#oum_location_zoom').val())
+    },
+    polyline: initialGeometry && initialGeometry.type === 'LineString' ? initialGeometry : null,
+    polygon: initialGeometry && initialGeometry.type === 'Polygon' ? initialGeometry : null
+  };
 
   // Geosearch Provider
   switch (oum_geosearch_provider) {
@@ -321,11 +336,13 @@ window.addEventListener('load', function(e) {
   });
   
   // render map
-  if(lat && lng) {
+  if(currentGeometryType === 'point' && lat && lng) {
       //location has coordinates
       map.setView([lat, lng], zoom);
       locationMarker.addTo(map);
       markerIsVisible = true;
+  }else if(lat && lng) {
+      map.setView([lat, lng], zoom);
   }else{
       //location has NO coordinates yet
       map.setView([0, 0], 1);
@@ -350,6 +367,370 @@ window.addEventListener('load', function(e) {
     }).addTo(map);
   }
 
+  function getPolylineStyle() {
+    return {
+      color: '#e82c71',
+      weight: 4,
+      opacity: 0.9
+    };
+  }
+
+  function getPolygonStyle() {
+    return {
+      ...getPolylineStyle(),
+      fillColor: '#e82c71',
+      fillOpacity: 0.25
+    };
+  }
+
+  function createDrawControl() {
+    if (!L.Control || !L.Control.Draw) {
+      return;
+    }
+
+    if (drawControl && drawControl._map) {
+      map.removeControl(drawControl);
+    }
+
+    drawControl = new L.Control.Draw({
+      draw: {
+        polyline: currentGeometryType === 'polyline' ? {
+          shapeOptions: getPolylineStyle()
+        } : false,
+        polygon: currentGeometryType === 'polygon' ? {
+          shapeOptions: getPolygonStyle()
+        } : false,
+        rectangle: false,
+        circle: false,
+        circlemarker: false,
+        marker: false
+      },
+      edit: {
+        featureGroup: drawnItems,
+        remove: true
+      }
+    });
+  }
+
+  function addDrawControl() {
+    if (drawControl && !drawControl._map) {
+      map.addControl(drawControl);
+    }
+  }
+
+  function removeDrawControl() {
+    if (drawControl && drawControl._map) {
+      map.removeControl(drawControl);
+    }
+  }
+
+  function cancelActiveDrawTool() {
+    const cancelButton = map.getContainer().querySelector(".leaflet-draw-actions a[title='Cancel drawing'], .leaflet-draw-actions a[title='Cancel editing'], .leaflet-draw-actions a[title='Cancel']");
+    if (cancelButton) {
+      cancelButton.click();
+    }
+  }
+
+  function fitVectorBounds() {
+    if (!vectorLayer || !vectorLayer.getBounds) {
+      return;
+    }
+
+    const bounds = vectorLayer.getBounds();
+    if (bounds && bounds.isValid()) {
+      map.fitBounds(bounds, { padding: [20, 20] });
+    }
+  }
+
+  function clearVectorLayer() {
+    if (drawnItems) {
+      drawnItems.clearLayers();
+    }
+    vectorLayer = null;
+  }
+
+  function parseGeometryValue(value) {
+    if (!value || !value.toString().trim()) {
+      return null;
+    }
+
+    try {
+      const geometry = JSON.parse(value);
+      return geometry && (geometry.type === 'LineString' || geometry.type === 'Polygon') ? geometry : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getGeometryTypeFromGeometry(geometry) {
+    if (!geometry) {
+      return '';
+    }
+
+    return geometry.type === 'Polygon' ? 'polygon' : (geometry.type === 'LineString' ? 'polyline' : '');
+  }
+
+  function rememberCurrentTypeState() {
+    if (currentGeometryType === 'point') {
+      preservedTypeState.point = {
+        lat: parseFloat(jQuery('#oum_location_lat').val()),
+        lng: parseFloat(jQuery('#oum_location_lng').val()),
+        zoom: parseInt(jQuery('#oum_location_zoom').val())
+      };
+      return false;
+    }
+
+    if (vectorLayer && vectorLayer.toGeoJSON) {
+      const geometry = vectorLayer.toGeoJSON().geometry;
+      const geometryType = getGeometryTypeFromGeometry(geometry);
+      if (geometryType) {
+        preservedTypeState[geometryType] = geometry;
+        return true;
+      }
+    }
+
+    const geometryField = document.getElementById('oum_location_geometry');
+    const fieldGeometry = geometryField ? parseGeometryValue(geometryField.value) : null;
+    const fieldGeometryType = getGeometryTypeFromGeometry(fieldGeometry);
+    if (fieldGeometryType) {
+      preservedTypeState[fieldGeometryType] = fieldGeometry;
+      return true;
+    }
+
+    return false;
+  }
+
+  function restorePointState() {
+    const pointState = preservedTypeState.point || {};
+    const hasValidPoint = !isNaN(pointState.lat) && !isNaN(pointState.lng);
+
+    if (!hasValidPoint) {
+      return;
+    }
+
+    jQuery('#oum_location_lat').val(pointState.lat);
+    jQuery('#oum_location_lng').val(pointState.lng);
+
+    if (!isNaN(pointState.zoom)) {
+      jQuery('#oum_location_zoom').val(pointState.zoom);
+    }
+
+    locationMarker.setLatLng([pointState.lat, pointState.lng]);
+    if (!markerIsVisible) {
+      locationMarker.addTo(map);
+      markerIsVisible = true;
+    }
+
+    if (!isNaN(pointState.zoom)) {
+      map.setView([pointState.lat, pointState.lng], pointState.zoom);
+    }
+  }
+
+  function restorePreservedGeometryForCurrentType() {
+    const preservedGeometry = preservedTypeState[currentGeometryType];
+
+    if (!preservedGeometry) {
+      return false;
+    }
+
+    const rawCoordinates = preservedGeometry.type === 'Polygon' && Array.isArray(preservedGeometry.coordinates[0])
+      ? preservedGeometry.coordinates[0]
+      : preservedGeometry.coordinates;
+    const latLngs = Array.isArray(rawCoordinates)
+      ? rawCoordinates
+        .filter((coordinate) => Array.isArray(coordinate) && coordinate.length >= 2)
+        .map((coordinate) => L.latLng(Number(coordinate[1]), Number(coordinate[0])))
+        .filter((latLng) => isFinite(latLng.lat) && isFinite(latLng.lng))
+      : [];
+
+    if (latLngs.length < 2 || (preservedGeometry.type === 'Polygon' && latLngs.length < 4)) {
+      return false;
+    }
+
+    setVectorLayer(preservedGeometry.type === 'Polygon' ? L.polygon(latLngs, getPolygonStyle()) : L.polyline(latLngs, getPolylineStyle()));
+    fitVectorBounds();
+    return true;
+  }
+
+  function setVectorLayer(layer) {
+    if (!drawnItems || !layer) {
+      return;
+    }
+
+    clearVectorLayer();
+    vectorLayer = layer;
+    if (vectorLayer.setStyle) {
+      vectorLayer.setStyle(currentGeometryType === 'polygon' ? getPolygonStyle() : getPolylineStyle());
+    }
+    drawnItems.addLayer(vectorLayer);
+    syncGeometryFields();
+  }
+
+  function syncGeometryFields() {
+    const geometryField = document.getElementById('oum_location_geometry');
+    if (!geometryField) {
+      return;
+    }
+
+    if (currentGeometryType === 'point' || !vectorLayer) {
+      geometryField.value = '';
+      return;
+    }
+
+    const geometry = vectorLayer.toGeoJSON().geometry;
+    geometryField.value = JSON.stringify(geometry);
+    const geometryType = getGeometryTypeFromGeometry(geometry);
+    if (geometryType) {
+      preservedTypeState[geometryType] = geometry;
+    }
+
+    const bounds = vectorLayer.getBounds();
+    if (bounds && bounds.isValid()) {
+      setLocationLatLng(bounds.getCenter(), '', true);
+      setLocationZoom(map.getZoom());
+    }
+  }
+
+  function setGeometryType(type) {
+    rememberCurrentTypeState();
+
+    currentGeometryType = type === 'polyline' || type === 'polygon' ? type : 'point';
+
+    cancelActiveDrawTool();
+    jQuery('#oum_geometry_type').val(currentGeometryType);
+
+    document.querySelectorAll('[data-oum-location-type-card]').forEach((card) => {
+      const isSelected = card.getAttribute('data-oum-location-type-card') === currentGeometryType;
+      card.classList.toggle('is-selected', isSelected);
+      const input = card.querySelector('input[type="radio"]');
+      if (input) {
+        input.checked = isSelected;
+      }
+    });
+
+    const help = document.querySelector('[data-oum-backend-location-type-help]');
+    if (help) {
+      help.textContent = currentGeometryType === 'point'
+        ? (help.dataset.pointHelp || '')
+        : (help.dataset.vectorHelp || '');
+    }
+
+    updateManualInputVisibility();
+
+    if (currentGeometryType === 'point') {
+      removeDrawControl();
+      clearVectorLayer();
+      restorePointState();
+    } else {
+      if (markerIsVisible) {
+        map.removeLayer(locationMarker);
+        markerIsVisible = false;
+      }
+      createDrawControl();
+      addDrawControl();
+      if (vectorLayer && getGeometryTypeFromGeometry(vectorLayer.toGeoJSON().geometry) !== currentGeometryType) {
+        clearVectorLayer();
+      }
+      if (!vectorLayer) {
+        restorePreservedGeometryForCurrentType();
+      }
+    }
+
+    syncGeometryFields();
+  }
+
+  function updateManualInputVisibility() {
+    const showGeometry = currentGeometryType === 'polyline' || currentGeometryType === 'polygon';
+    jQuery('.oum-latlng-fields').toggle(!showGeometry);
+    jQuery('.oum-geometry-fields').toggle(showGeometry);
+  }
+
+  function setVectorGeometry(geometry) {
+    if (!geometry || !Array.isArray(geometry.coordinates) || (geometry.type !== 'LineString' && geometry.type !== 'Polygon')) {
+      clearVectorLayer();
+      syncGeometryFields();
+      return;
+    }
+
+    const rawCoordinates = geometry.type === 'Polygon' && Array.isArray(geometry.coordinates[0])
+      ? geometry.coordinates[0]
+      : geometry.coordinates;
+    const latLngs = rawCoordinates
+      .filter((coordinate) => Array.isArray(coordinate) && coordinate.length >= 2)
+      .map((coordinate) => L.latLng(Number(coordinate[1]), Number(coordinate[0])))
+      .filter((latLng) => isFinite(latLng.lat) && isFinite(latLng.lng));
+
+    if (latLngs.length < 2 || (geometry.type === 'Polygon' && latLngs.length < 4)) {
+      clearVectorLayer();
+      syncGeometryFields();
+      return;
+    }
+
+    setGeometryType(geometry.type === 'Polygon' ? 'polygon' : 'polyline');
+    setVectorLayer(geometry.type === 'Polygon' ? L.polygon(latLngs, getPolygonStyle()) : L.polyline(latLngs, getPolylineStyle()));
+    fitVectorBounds();
+
+  }
+
+  function setupDrawing() {
+    if (!L.Control || !L.Control.Draw) {
+      return;
+    }
+
+    drawnItems = L.featureGroup().addTo(map);
+    createDrawControl();
+
+    map.on(L.Draw.Event.CREATED, function(event) {
+      if (currentGeometryType === 'point') {
+        return;
+      }
+      setVectorLayer(event.layer);
+    });
+
+    map.on(L.Draw.Event.EDITED, syncGeometryFields);
+
+    map.on(L.Draw.Event.DELETED, function() {
+      vectorLayer = null;
+      preservedTypeState[currentGeometryType] = null;
+      syncGeometryFields();
+    });
+
+    document.querySelectorAll('input[name="oum_backend_geometry_type_choice"]').forEach((input) => {
+      input.addEventListener('change', function() {
+        setGeometryType(this.value);
+      });
+    });
+
+    const geometryField = document.getElementById('oum_location_geometry');
+    if (geometryField) {
+      geometryField.addEventListener('change', function() {
+        if (!this.value.trim()) {
+          preservedTypeState[currentGeometryType] = null;
+          clearVectorLayer();
+          syncGeometryFields();
+          return;
+        }
+
+        try {
+          setVectorGeometry(JSON.parse(this.value));
+        } catch (error) {
+          console.warn('Open User Map: Invalid geometry JSON.', error);
+        }
+      });
+    }
+  }
+
+  setupDrawing();
+  setGeometryType(currentGeometryType);
+
+  if (currentGeometryType !== 'point' && initialGeometryValue) {
+    try {
+      setVectorGeometry(JSON.parse(initialGeometryValue));
+    } catch (error) {
+      console.warn('Open User Map: Invalid saved geometry JSON.', error);
+    }
+  }
+
 
   // Trigger resize (sometimes necessary to render the map properly)
   setInterval(function () {
@@ -361,6 +742,10 @@ window.addEventListener('load', function(e) {
 
   //Event: click on map to set marker
   map.on('click locationfound', function(e) {
+    if (currentGeometryType !== 'point') {
+      return;
+    }
+
     let coords = e.latlng;
 
     locationMarker.setLatLng(coords);
@@ -381,6 +766,10 @@ window.addEventListener('load', function(e) {
 
   //Event: geosearch success
   map.on('geosearch/showlocation', function(e) {
+    if (currentGeometryType !== 'point') {
+      return;
+    }
+
     let coords = e.marker._latlng;
     let label = e.location.label;
 
@@ -419,7 +808,7 @@ window.addEventListener('load', function(e) {
     const zoom = parseInt(jQuery('#oum_location_zoom').val());
 
     // Only update if we have valid coordinates
-    if (!isNaN(lat) && !isNaN(lng)) {
+    if (currentGeometryType === 'point' && !isNaN(lat) && !isNaN(lng)) {
       // Update marker position
       locationMarker.setLatLng([lat, lng]);
       if (!markerIsVisible) {

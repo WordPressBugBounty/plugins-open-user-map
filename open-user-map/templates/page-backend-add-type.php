@@ -1,3 +1,34 @@
+<div class="form-field">
+  <label for="oum_marker_category_type"><?php 
+echo esc_html__( 'Category Type', 'open-user-map' );
+?></label>
+  <?php 
+?>
+  <?php 
+if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+    ?>
+    <input type="hidden" name="oum_marker_category_type" value="point">
+    <select id="oum_marker_category_type" disabled>
+      <option value="point" selected><?php 
+    echo esc_html__( 'Marker', 'open-user-map' );
+    ?></option>
+      <option value="polyline"><?php 
+    echo esc_html__( 'Line', 'open-user-map' );
+    ?> PRO</option>
+      <option value="polygon"><?php 
+    echo esc_html__( 'Area', 'open-user-map' );
+    ?> PRO</option>
+    </select>
+    <span class="oum-pro">PRO</span>
+  <?php 
+}
+?>
+  <p class="description"><?php 
+echo esc_html__( 'Choose whether this category is used for markers, lines, or areas.', 'open-user-map' );
+?></p>
+</div>
+
+<div data-oum-category-type-panel="point">
 <div class="marker_icons">
   <?php 
 $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );
@@ -30,4 +61,31 @@ if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
 }
 ?>
 
+</div>
+</div>
+
+<div data-oum-category-type-panel="vector">
+<?php 
+?>
+
+<?php 
+if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+    ?>
+  <div class="form-field oum-gopro-div">
+    <label><?php 
+    echo esc_html__( 'Line / Area color', 'open-user-map' );
+    ?> <span class="oum-pro">PRO</span></label>
+    <input type="text" value="#e82c71" placeholder="#e82c71" disabled>
+    <p class="description"><?php 
+    echo esc_html__( 'Used as the stroke and fill color for lines and areas in this Marker Category.', 'open-user-map' );
+    ?></p>
+    <a class="oum-gopro-text" href="<?php 
+    echo oum_fs()->get_upgrade_url();
+    ?>"><?php 
+    echo esc_html__( 'Upgrade to PRO to customize colors for lines and areas.', 'open-user-map' );
+    ?></a>
+  </div>
+<?php 
+}
+?>
 </div>

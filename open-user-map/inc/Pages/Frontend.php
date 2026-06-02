@@ -99,6 +99,11 @@ class Frontend extends BaseController {
         if ( !wp_style_is( 'oum_frontend_css', 'enqueued' ) && !wp_style_is( 'oum_frontend_css', 'done' ) ) {
             return;
         }
+        // Same visibility rule as partial-map-add-location.php (map "+ Add Location" button).
+        if ( $this->should_show_add_location_form() ) {
+            // Fallback for page-builder caching paths where shortcode assets may not run.
+            $this->enqueue_add_location_dashicons();
+        }
         require_once oum_get_template( 'partial-map-add-location.php' );
     }
 

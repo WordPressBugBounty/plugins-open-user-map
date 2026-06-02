@@ -213,12 +213,16 @@ const OUMUtils = (function () {
 
   /**
    * Simple sprintf implementation for string formatting
-   * @param {string} str - String with placeholders (%1$d, %2$d, etc)
+   * @param {string} str - String with placeholders (%1$d, %2$s, etc)
    * @param {...any} args - Values to replace placeholders
    * @returns {string}
    */
   function sprintf(str, ...args) {
-    return str.replace(/%(\d+)\$d/g, (match, num) => args[num - 1] || match);
+    return str
+      .replace(/\\n/g, "\n")
+      .replace(/%(\d+)\$[sd]/g, (match, num) =>
+        typeof args[num - 1] !== "undefined" ? args[num - 1] : match
+      );
   }
 
   // Public interface
@@ -1106,6 +1110,7 @@ const OUMMap = (function () {
 const OUMMarkers = (function () {
   // Private variables
   let markersLayer = null;
+  let vectorLayer = null;
   let allMarkers = [];
   let map = null;
   let locationsById = {};
@@ -1124,6 +1129,7 @@ const OUMMarkers = (function () {
           maxClusterRadius: 100,
           chunkedLoading: true,
         });
+    vectorLayer = L.layerGroup();
   }
 
   function oumBubbleLoadingHtml() {
@@ -1152,10 +1158,12 @@ const OUMMarkers = (function () {
    * After popup HTML is set: fullscreen mirror, edit button, votes/stars, opening hours.
    */
   function finalizeMarkerBubbleUI(popup) {
+    const sourceLayer = popup && popup._source ? popup._source : null;
     const el = document.querySelector(".open-user-map #location-fullscreen-container");
     const locationContentWrap = el ? el.querySelector(".location-content-wrap") : null;
     if (locationContentWrap) {
       locationContentWrap.innerHTML = popup.getContent();
+      injectVectorMeasurement(locationContentWrap, sourceLayer);
     }
     if (el) {
       el.classList.add("visible");
@@ -1168,6 +1176,7 @@ const OUMMarkers = (function () {
 
     const popupContent = popup.getElement();
     if (popupContent) {
+      injectVectorMeasurement(popupContent, sourceLayer);
       checkEditPermissionAndInjectButton(popupContent);
     }
 
@@ -1195,6 +1204,58 @@ const OUMMarkers = (function () {
     if (popupContent) {
       OUMOpeningHours.setupToggle(popupContent);
     }
+  }
+
+  function injectVectorMeasurement(container, layer) {
+    if (!container || !layer || !layer.options || !layer.options.oumMeasurementLabel) {
+      return;
+    }
+
+    const title = container.querySelector(".oum_location_title");
+    if (!title || title.querySelector(".oum_location_measurement")) {
+      return;
+    }
+
+    const measurement = document.createElement("span");
+    measurement.className = "oum_location_measurement";
+    measurement.textContent = layer.options.oumMeasurementLabel;
+    title.appendChild(measurement);
+  }
+
+  function getPolylineDistanceMeters(latLngs) {
+    return latLngs.reduce((distance, latLng, index) => {
+      if (index === 0) {
+        return distance;
+      }
+
+      return distance + latLngs[index - 1].distanceTo(latLng);
+    }, 0);
+  }
+
+  function getPolygonAreaSquareMeters(latLngs) {
+    if (L.GeometryUtil && L.GeometryUtil.geodesicArea) {
+      return Math.abs(L.GeometryUtil.geodesicArea(latLngs));
+    }
+
+    return 0;
+  }
+
+  function formatMeters(value) {
+    if (!isFinite(value) || value <= 0) {
+      return "";
+    }
+
+    return value >= 1000
+      ? `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)} km`
+      : `${Math.round(value)} m`;
+  }
+
+  function formatSquareMeters(value) {
+    if (!isFinite(value) || value <= 0) {
+      return "";
+    }
+
+    return `${Math.round(value).toLocaleString()} m²`;
   }
 
   function createMarker(location) {
@@ -1229,6 +1290,67 @@ const OUMMarkers = (function () {
     }
 
     return marker;
+  }
+
+  function createPolylineLocation(location) {
+    const searchBody = (location.content || "")
+      .toString()
+      .replace(/(<([^>]+)>)/gi, " ")
+      .replace(/\s\s+/g, " ");
+    const contentText = (location.title + " | " + searchBody).toLowerCase();
+    const geometry = location.geometry || {};
+    const coordinates = geometry.type === "Polygon" && Array.isArray(geometry.coordinates) && Array.isArray(geometry.coordinates[0])
+      ? geometry.coordinates[0]
+      : (Array.isArray(geometry.coordinates) ? geometry.coordinates : []);
+    const latLngs = coordinates
+      .filter((coordinate) => Array.isArray(coordinate) && coordinate.length >= 2)
+      .map((coordinate) => L.latLng(Number(coordinate[1]), Number(coordinate[0])))
+      .filter((latLng) => isFinite(latLng.lat) && isFinite(latLng.lng));
+
+    if (latLngs.length < 2) {
+      return createMarker(location);
+    }
+
+    const first = latLngs[0];
+    const last = latLngs[latLngs.length - 1];
+    const isPolygon = geometry.type === "Polygon";
+    const isClosed = isPolygon || (latLngs.length >= 4 && first.equals(last));
+    const color = location.category_color || "#e82c71";
+    const measurementLabel = location.show_measurement
+      ? (isClosed ? formatSquareMeters(getPolygonAreaSquareMeters(latLngs)) : formatMeters(getPolylineDistanceMeters(latLngs)))
+      : "";
+    const layerOptions = {
+      title: location.title,
+      post_id: location.post_id,
+      content: contentText,
+      zoom: location.zoom,
+      types: location.types || [],
+      oumMeasurementLabel: measurementLabel,
+      color: color,
+      weight: 4,
+      opacity: 0.9,
+    };
+
+    const layer = isClosed
+      ? L.polygon(latLngs, {
+          ...layerOptions,
+          fillColor: color,
+          fillOpacity: 0.25,
+        })
+      : L.polyline(latLngs, layerOptions);
+
+    if (typeof oum_hide_location_popup === "undefined" || !oum_hide_location_popup) {
+      const popup = L.responsivePopup().setContent(oumBubbleLoadingHtml());
+      layer.bindPopup(popup);
+    }
+
+    return layer;
+  }
+
+  function createLocationLayer(location) {
+    return (location.geometry_type === "polyline" || location.geometry_type === "polygon") && location.geometry
+      ? createPolylineLocation(location)
+      : createMarker(location);
   }
 
   function setupMarkerEvents() {
@@ -1387,6 +1509,9 @@ const OUMMarkers = (function () {
     }
 
     markersLayer.clearLayers();
+    if (vectorLayer) {
+      vectorLayer.clearLayers();
+    }
     const filteredMarkers = [];
 
     allMarkers.forEach((marker) => {
@@ -1412,23 +1537,44 @@ const OUMMarkers = (function () {
       return;
     }
 
+    const pointMarkers = [];
+    const vectorMarkers = [];
+
+    markers.forEach((marker) => {
+      if (marker instanceof L.Marker) {
+        pointMarkers.push(marker);
+      } else {
+        vectorMarkers.push(marker);
+      }
+    });
+
+    vectorMarkers.forEach((marker) => {
+      if (vectorLayer) {
+        vectorLayer.addLayer(marker);
+      }
+    });
+
+    if (!pointMarkers.length) {
+      return;
+    }
+
     // Batch addLayers() sometimes draws no marker when only one exists; one addLayer() avoids that bug.
     if (
       oum_enable_cluster &&
-      markers.length === 1 &&
+      pointMarkers.length === 1 &&
       typeof markersLayer.addLayer === "function"
     ) {
-      markersLayer.addLayer(markers[0]);
+      markersLayer.addLayer(pointMarkers[0]);
       return;
     }
 
     // Batch marker insertion when supported to improve large dataset performance.
     if (typeof markersLayer.addLayers === "function") {
-      markersLayer.addLayers(markers);
+      markersLayer.addLayers(pointMarkers);
       return;
     }
 
-    markers.forEach((marker) => {
+    pointMarkers.forEach((marker) => {
       markersLayer.addLayer(marker);
     });
   }
@@ -1712,13 +1858,22 @@ const OUMMarkers = (function () {
     if (targetMarker) {
       const openPopup = typeof oum_hide_location_popup === "undefined" || !oum_hide_location_popup;
       if (oum_enable_cluster) {
-        setTimeout(() => {
-          markersLayer.zoomToShowLayer(targetMarker, () => {
-            if (openPopup) targetMarker.openPopup();
-          });
-        }, 500);
+        if (targetMarker instanceof L.Marker && typeof markersLayer.zoomToShowLayer === "function") {
+          setTimeout(() => {
+            markersLayer.zoomToShowLayer(targetMarker, () => {
+              if (openPopup) targetMarker.openPopup();
+            });
+          }, 500);
+        } else if (targetMarker.getBounds) {
+          map.fitBounds(targetMarker.getBounds(), { padding: [20, 20] });
+          if (openPopup) targetMarker.openPopup();
+        }
       } else {
-        map.setView(targetMarker.getLatLng(), targetMarker.options.zoom);
+        if (targetMarker.getLatLng) {
+          map.setView(targetMarker.getLatLng(), targetMarker.options.zoom);
+        } else if (targetMarker.getBounds) {
+          map.fitBounds(targetMarker.getBounds(), { padding: [20, 20] });
+        }
         if (openPopup) targetMarker.openPopup();
       }
     }
@@ -1730,6 +1885,7 @@ const OUMMarkers = (function () {
       map = mapInstance;
       initializeMarkersLayer();
       markersLayer.addTo(map);
+      vectorLayer.addTo(map);
       setupMarkerEvents();
       setupFilterListEvents();
 
@@ -1749,7 +1905,7 @@ const OUMMarkers = (function () {
     },
     addMarkers: function (locations) {
       locations.forEach((location) => {
-        const marker = createMarker(location);
+        const marker = createLocationLayer(location);
         allMarkers.push(marker);
         locationsById[String(location.post_id)] = location;
       });
@@ -1817,6 +1973,10 @@ const OUMFormMap = (function () {
   let markerIsVisible = false;
   let isAdjusting = false;
   let isInitialized = false;
+  let currentGeometryType = "point";
+  let polylineDrawnItems = null;
+  let polylineDrawControl = null;
+  let polylineLayer = null;
 
   // Private functions
   function initializeFormMap() {
@@ -1843,6 +2003,8 @@ const OUMFormMap = (function () {
     setupControls();
     setupMarker();
     setupMapEvents();
+    setupPolylineDrawing();
+    setupLocationTypeControls();
 
     // Invalidate size to ensure accurate measurements before calculating bounds
     formMap.invalidateSize();
@@ -2041,6 +2203,10 @@ const OUMFormMap = (function () {
   function setupMapEvents() {
     // Event: click on map to set marker OR location found
     formMap.on("click locationfound", function (e) {
+      if (currentGeometryType !== "point") {
+        return;
+      }
+
       let coords = e.latlng;
       locationMarker.setLatLng(coords);
 
@@ -2079,6 +2245,11 @@ const OUMFormMap = (function () {
         }, 2000);
       }
     } else {
+      if (currentGeometryType !== "point") {
+        handleValidGeosearchResult(e.location);
+        return;
+      }
+
       // Location is within fixed bounds (or fixed bounds is disabled) - handle normally
       // Set coordinates and address immediately (before map animation) for instant feedback
       setLocationLatLng(coords, label);
@@ -2110,14 +2281,375 @@ const OUMFormMap = (function () {
     }
   }
 
-  function setLocationLatLng(markerLatLng, address) {
+  function setLocationLatLng(markerLatLng, address, skipReverseGeocode = false) {
     document.getElementById("oum_location_lat").value = markerLatLng.lat;
     document.getElementById("oum_location_lng").value = markerLatLng.lng;
     syncLocationZoomField();
     
     // Only perform reverse geocoding if both subtitle field and autofill are enabled
-    if (shouldPerformReverseGeocoding()) {
+    if (!skipReverseGeocode && shouldPerformReverseGeocoding()) {
       reverseGeocode(markerLatLng.lat, markerLatLng.lng, address);
+    }
+  }
+
+  function clearMarker() {
+    if (locationMarker && formMap) {
+      locationMarker.remove();
+      markerIsVisible = false;
+      window.markerIsVisible = false;
+    }
+  }
+
+  function setupLocationTypeControls() {
+    const controls = document.querySelectorAll('input[name="oum_location_type_choice"]');
+    controls.forEach((control) => {
+      control.addEventListener("change", function () {
+        if (this.checked) {
+          setGeometryType(this.value);
+        }
+      });
+    });
+
+    const typeField = document.getElementById("oum_geometry_type");
+    setGeometryType(typeField && typeField.value ? typeField.value : "point", { autoStartDrawing: false });
+  }
+
+  function setupPolylineDrawing() {
+    if (!L.Control || !L.Control.Draw) {
+      return;
+    }
+
+    polylineDrawnItems = L.featureGroup().addTo(formMap);
+    createPolylineDrawControl();
+    setupPolylineDrawingEvents();
+  }
+
+  function createPolylineDrawControl() {
+    if (!formMap || !L.Control || !L.Control.Draw) {
+      return;
+    }
+
+    if (polylineDrawControl && polylineDrawControl._map) {
+      formMap.removeControl(polylineDrawControl);
+    }
+
+    polylineDrawControl = new L.Control.Draw({
+      draw: {
+        polyline: currentGeometryType === "polyline" ? {
+          shapeOptions: getPolylineStyle(),
+        } : false,
+        polygon: currentGeometryType === "polygon" ? {
+          shapeOptions: getPolygonStyle(),
+        } : false,
+        rectangle: false,
+        circle: false,
+        circlemarker: false,
+        marker: false,
+      },
+      edit: {
+        featureGroup: polylineDrawnItems,
+        remove: true,
+      },
+    });
+  }
+
+  function setupPolylineDrawingEvents() {
+    formMap.on(L.Draw.Event.CREATED, function (event) {
+      if (currentGeometryType === "point") {
+        return;
+      }
+
+      setPolylineLayer(event.layer);
+    });
+
+    formMap.on(L.Draw.Event.EDITED, function () {
+      syncPolylineGeometryFields();
+    });
+
+    formMap.on(L.Draw.Event.DELETED, function () {
+      polylineLayer = null;
+      syncPolylineGeometryFields();
+    });
+  }
+
+  function getPolylineStyle() {
+    return {
+      color: "#e82c71",
+      weight: 4,
+      opacity: 0.9,
+    };
+  }
+
+  function getPolygonStyle() {
+    return {
+      ...getPolylineStyle(),
+      fillColor: "#e82c71",
+      fillOpacity: 0.25,
+    };
+  }
+
+  function setGeometryType(type, options = {}) {
+    currentGeometryType = type === "polyline" || type === "polygon" ? type : "point";
+    const autoStartDrawing = options.autoStartDrawing !== false;
+
+    cancelActiveDrawTool();
+
+    const addLocationEl = document.querySelector(".add-location");
+    if (addLocationEl) {
+      addLocationEl.setAttribute("data-oum-geometry-type", currentGeometryType);
+    }
+
+    const typeField = document.getElementById("oum_geometry_type");
+    if (typeField) {
+      typeField.value = currentGeometryType;
+    }
+
+    const choice = document.querySelector(`input[name="oum_location_type_choice"][value="${currentGeometryType}"]`);
+    if (choice) {
+      choice.checked = true;
+    }
+
+    document.querySelectorAll("[data-oum-location-type-card]").forEach((card) => {
+      card.classList.toggle("is-selected", card.getAttribute("data-oum-location-type-card") === currentGeometryType);
+    });
+
+    updateLocationTypeCategoryUi();
+
+    if (currentGeometryType === "polyline") {
+      clearMarker();
+      createPolylineDrawControl();
+      addPolylineControl();
+      if (autoStartDrawing) {
+        startActiveDrawTool();
+      }
+    } else if (currentGeometryType === "polygon") {
+      clearMarker();
+      createPolylineDrawControl();
+      addPolylineControl();
+      if (autoStartDrawing) {
+        startActiveDrawTool();
+      }
+    } else {
+      removePolylineControl();
+      clearPolyline();
+    }
+
+    syncPolylineGeometryFields();
+  }
+
+  function updateLocationTypeCategoryUi() {
+    const categoryLabelKey = currentGeometryType === "polygon"
+      ? "polygonLabel"
+      : (currentGeometryType === "polyline" ? "polylineLabel" : "pointLabel");
+    const categoryTitles = document.querySelectorAll("[data-oum-category-title]");
+
+    categoryTitles.forEach((titleEl) => {
+      const label = titleEl.dataset[categoryLabelKey] || titleEl.dataset.pointLabel || titleEl.textContent;
+      titleEl.textContent = label;
+    });
+
+    document.querySelectorAll(".oum-category-dropdown-display").forEach((display) => {
+      display.setAttribute("data-oum-geometry-type", currentGeometryType);
+    });
+
+    document.querySelectorAll(".oum-marker-category-option").forEach((option) => {
+      const categoryType = option.getAttribute("data-category-type") || "point";
+      const isMatchingType = categoryType === currentGeometryType;
+      const input = option.querySelector('input[name="oum_marker_icon[]"]');
+
+      option.hidden = !isMatchingType;
+
+      if (input) {
+        input.disabled = !isMatchingType;
+        if (!isMatchingType) {
+          input.checked = false;
+        }
+      }
+    });
+
+    document.querySelectorAll('select#oum_marker_icon option[data-category-type]').forEach((option) => {
+      const categoryType = option.getAttribute("data-category-type") || "point";
+      const isMatchingType = categoryType === currentGeometryType;
+
+      option.hidden = !isMatchingType;
+      option.disabled = !isMatchingType;
+      if (!isMatchingType && option.selected) {
+        option.selected = false;
+      }
+    });
+
+    document.querySelectorAll("select#oum_marker_icon").forEach((select) => {
+      const selectedOption = select.options[select.selectedIndex];
+      if (selectedOption && selectedOption.disabled) {
+        select.value = "";
+      }
+      select.dispatchEvent(new Event("change"));
+    });
+  }
+
+  function startActiveDrawTool(attempt = 0) {
+    if (!formMap) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      if (!formMap._loaded) {
+        if (attempt < 10) {
+          startActiveDrawTool(attempt + 1);
+        }
+        return;
+      }
+
+      const mapContainer = formMap.getContainer();
+      if (!mapContainer) {
+        return;
+      }
+
+      const selector = currentGeometryType === "polygon"
+        ? ".leaflet-draw-draw-polygon"
+        : ".leaflet-draw-draw-polyline";
+      const drawButton = mapContainer.querySelector(selector);
+
+      if (
+        drawButton &&
+        !drawButton.classList.contains("leaflet-disabled") &&
+        !drawButton.classList.contains("leaflet-draw-toolbar-button-enabled")
+      ) {
+        drawButton.click();
+      }
+    }, 0);
+  }
+
+  function startDrawToolForCurrentType() {
+    if (currentGeometryType === "polyline" || currentGeometryType === "polygon") {
+      startActiveDrawTool();
+    }
+  }
+
+  function startEditLayersTool() {
+    if (!formMap || !polylineLayer) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      const mapContainer = formMap.getContainer();
+      if (!mapContainer) {
+        return;
+      }
+
+      const editButton = mapContainer.querySelector(".leaflet-draw-edit-edit");
+      const editIsActive = editButton && editButton.classList.contains("leaflet-draw-toolbar-button-enabled");
+      const editIsDisabled = editButton && editButton.classList.contains("leaflet-disabled");
+
+      if (editButton && !editIsActive && !editIsDisabled) {
+        editButton.click();
+      }
+    }, 0);
+  }
+
+  function cancelActiveDrawTool() {
+    if (!formMap) {
+      return;
+    }
+
+    const mapContainer = formMap.getContainer();
+    if (!mapContainer) {
+      return;
+    }
+
+    const cancelButton = mapContainer.querySelector(".leaflet-draw-actions a[title='Cancel drawing'], .leaflet-draw-actions a[title='Cancel']");
+    if (cancelButton) {
+      cancelButton.click();
+    }
+  }
+
+  function addPolylineControl() {
+    if (polylineDrawControl && formMap && !polylineDrawControl._map) {
+      formMap.addControl(polylineDrawControl);
+    }
+  }
+
+  function removePolylineControl() {
+    if (polylineDrawControl && formMap && polylineDrawControl._map) {
+      formMap.removeControl(polylineDrawControl);
+    }
+  }
+
+  function setPolylineLayer(layer) {
+    if (!polylineDrawnItems || !layer) {
+      return;
+    }
+
+    clearPolyline();
+    polylineLayer = layer;
+    if (polylineLayer.setStyle) {
+      polylineLayer.setStyle(currentGeometryType === "polygon" ? getPolygonStyle() : getPolylineStyle());
+    }
+    polylineDrawnItems.addLayer(polylineLayer);
+    syncPolylineGeometryFields();
+  }
+
+  function clearPolyline() {
+    if (polylineDrawnItems) {
+      polylineDrawnItems.clearLayers();
+    }
+    polylineLayer = null;
+  }
+
+  function setPolylineGeometry(geometry) {
+    if (!geometry || !Array.isArray(geometry.coordinates) || (geometry.type !== "LineString" && geometry.type !== "Polygon")) {
+      clearPolyline();
+      syncPolylineGeometryFields();
+      return;
+    }
+
+    const rawCoordinates = geometry.type === "Polygon" && Array.isArray(geometry.coordinates[0])
+      ? geometry.coordinates[0]
+      : geometry.coordinates;
+    const latLngs = rawCoordinates
+      .filter((coordinate) => Array.isArray(coordinate) && coordinate.length >= 2)
+      .map((coordinate) => L.latLng(Number(coordinate[1]), Number(coordinate[0])));
+
+    if (latLngs.length < 2 || (geometry.type === "Polygon" && latLngs.length < 4)) {
+      clearPolyline();
+      syncPolylineGeometryFields();
+      return;
+    }
+
+    setGeometryType(geometry.type === "Polygon" ? "polygon" : "polyline", { autoStartDrawing: false });
+    setPolylineLayer(geometry.type === "Polygon" ? L.polygon(latLngs, getPolygonStyle()) : L.polyline(latLngs, getPolylineStyle()));
+    fitPolylineBounds();
+  }
+
+  function fitPolylineBounds() {
+    if (!formMap || !polylineLayer || !polylineLayer.getBounds) {
+      return;
+    }
+
+    const bounds = polylineLayer.getBounds();
+    if (bounds && bounds.isValid()) {
+      formMap.fitBounds(bounds, { padding: [20, 20] });
+    }
+  }
+
+  function syncPolylineGeometryFields() {
+    const geometryField = document.getElementById("oum_location_geometry");
+
+    if (!geometryField) {
+      return;
+    }
+
+    if (currentGeometryType === "point" || !polylineLayer) {
+      geometryField.value = "";
+      return;
+    }
+
+    const geometry = polylineLayer.toGeoJSON().geometry;
+    geometryField.value = JSON.stringify(geometry);
+
+    const bounds = polylineLayer.getBounds();
+    if (bounds && bounds.isValid()) {
+      setLocationLatLng(bounds.getCenter(), "", true);
     }
   }
 
@@ -2397,6 +2929,7 @@ const OUMFormMap = (function () {
       initializeFormMap();
     },
     setLocation: function(lat, lng) {
+      setGeometryType("point");
       if (!locationMarker) return;
       locationMarker.setLatLng([lat, lng]);
       if (!markerIsVisible) {
@@ -2407,12 +2940,16 @@ const OUMFormMap = (function () {
       setLocationLatLng({lat, lng});
     },
     clearMarker: function() {
-      if (locationMarker && formMap) {
-        locationMarker.remove();
-        markerIsVisible = false;
-        window.markerIsVisible = false;
-      }
+      clearMarker();
     },
+    setGeometryType: setGeometryType,
+    updateLocationTypeCategoryUi: updateLocationTypeCategoryUi,
+    setPolylineGeometry: setPolylineGeometry,
+    fitPolylineBounds: fitPolylineBounds,
+    startDrawToolForCurrentType: startDrawToolForCurrentType,
+    startEditLayersTool: startEditLayersTool,
+    clearPolyline: clearPolyline,
+    syncGeometryFields: syncPolylineGeometryFields,
     invalidateSize: function() {
       if (formMap) {
         formMap.invalidateSize();
@@ -2730,12 +3267,15 @@ const OUMFormController = (function () {
       setTimeout(() => {
         OUMFormMap.invalidateSize();
         // Re-apply the view after size invalidation to ensure correct zoom
-        if (!location) {
+        if (location && (location.geometry_type === "polyline" || location.geometry_type === "polygon") && location.geometry) {
+          OUMFormMap.fitPolylineBounds();
+        } else if (!location) {
           const mainMapEl = document.querySelector(`#${map_el}`);
           if (mainMapEl) {
             const mainMap = window.oumMap;
             OUMFormMap.setViewToMatchMainMap(mainMap);
           }
+          OUMFormMap.startDrawToolForCurrentType();
         }
       }, 200);
     }, 150);
@@ -2865,12 +3405,29 @@ const OUMFormController = (function () {
       // Create icon element
       const icon = document.createElement('img');
       icon.className = 'oum-category-dropdown-icon';
+
+      const linePreview = document.createElement('span');
+      linePreview.className = 'oum-category-line-preview';
+
+      const areaPreview = document.createElement('span');
+      areaPreview.className = 'oum-category-area-preview';
+
+      const routeIconTemplate = document.getElementById('oum-route-category-icon-template');
+      const areaIconTemplate = document.getElementById('oum-area-category-icon-template');
+      if (routeIconTemplate && routeIconTemplate.content) {
+        linePreview.appendChild(routeIconTemplate.content.cloneNode(true));
+      }
+      if (areaIconTemplate && areaIconTemplate.content) {
+        areaPreview.appendChild(areaIconTemplate.content.cloneNode(true));
+      }
       
       // Create text element
       const text = document.createElement('span');
       text.className = 'oum-category-dropdown-text';
       
       display.appendChild(icon);
+      display.appendChild(linePreview);
+      display.appendChild(areaPreview);
       display.appendChild(text);
       
       // Insert display before select
@@ -2893,21 +3450,37 @@ const OUMFormController = (function () {
         const selectedOption = categorySelect.options[categorySelect.selectedIndex];
         if (selectedOption && selectedOption.value) {
           const iconUrl = selectedOption.getAttribute('data-icon');
-          if (iconUrl) {
+          const categoryColor = selectedOption.getAttribute('data-color') || '#e82c71';
+          const categoryType = selectedOption.getAttribute('data-category-type') || 'point';
+
+          if (categoryType === 'point' && iconUrl) {
             icon.src = iconUrl;
             icon.style.display = 'block';
           } else {
             icon.style.display = 'none';
           }
+
+          linePreview.style.color = categoryColor;
+          linePreview.style.display = categoryType === 'polyline' ? 'inline-block' : 'none';
+          areaPreview.style.color = categoryColor;
+          areaPreview.style.display = categoryType === 'polygon' ? 'inline-block' : 'none';
           text.textContent = selectedOption.textContent;
         } else {
           icon.style.display = 'none';
+          linePreview.style.color = '';
+          linePreview.style.display = 'none';
+          areaPreview.style.color = '';
+          areaPreview.style.display = 'none';
           text.textContent = 'Select a category...';
         }
       }
       
       // Initial display update
       updateDisplay();
+      if (typeof OUMFormMap !== "undefined" && OUMFormMap.updateLocationTypeCategoryUi) {
+        OUMFormMap.updateLocationTypeCategoryUi();
+        updateDisplay();
+      }
       
       // Handle selection change
       categorySelect.addEventListener('change', updateDisplay);
@@ -2953,6 +3526,9 @@ const OUMFormController = (function () {
     if (latField) latField.value = location.lat || "";
     if (lngField) lngField.value = location.lng || "";
     if (addressField) addressField.value = location.address || "";
+
+    const geometryType = location.geometry_type === "polyline" || location.geometry_type === "polygon" ? location.geometry_type : "point";
+    OUMFormMap.setGeometryType(geometryType, { autoStartDrawing: false });
     
     // Marker types/categories
     if (location.types && Array.isArray(location.types)) {
@@ -3124,7 +3700,10 @@ const OUMFormController = (function () {
     }
 
     // Set map view to location
-    if (location.lat && location.lng) {
+    if (geometryType !== "point" && location.geometry) {
+      OUMFormMap.setPolylineGeometry(location.geometry);
+      OUMFormMap.startEditLayersTool();
+    } else if (location.lat && location.lng) {
       const locationZoom = location.zoom ? Number(location.zoom) : 12;
       OUMFormMap.setView(location.lat, location.lng, locationZoom);
       OUMFormMap.setLocation(location.lat, location.lng);
@@ -3154,6 +3733,12 @@ const OUMFormController = (function () {
     if (form) {
       form.reset();
       form.style.display = 'block';
+    }
+
+    if (typeof OUMFormMap !== "undefined") {
+      const typeField = document.getElementById("oum_geometry_type");
+      OUMFormMap.setGeometryType(typeField && typeField.value ? typeField.value : "point", { autoStartDrawing: false });
+      OUMFormMap.clearPolyline();
     }
 
     // Stop locate process

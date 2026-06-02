@@ -52,6 +52,11 @@ jQuery(document).on('click', '.oum-update-notice .notice-dismiss', function(e) {
 
 
 jQuery(function($){
+  // Color Picker
+  if ( $.isFunction( $.fn.wpColorPicker ) ) {
+    $( 'input.oum_colorpicker' ).wpColorPicker();
+  }
+
   // Audio Uploader
   $('body').on('click', '.oum_upload_audio_button', function(e){
     e.preventDefault();

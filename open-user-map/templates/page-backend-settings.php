@@ -199,7 +199,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         <a href="#tab-3" class="nav-tab <?php 
     echo ( $active_tab === 'tab-3' ? 'nav-tab-active' : '' );
     ?>"><?php 
-    echo __( 'Filters & Categories', 'open-user-map' );
+    echo __( 'Filters, Categories & Types', 'open-user-map' );
     ?></a>
         <a href="#tab-4" class="nav-tab <?php 
     echo ( $active_tab === 'tab-4' ? 'nav-tab-active' : '' );
@@ -2276,6 +2276,22 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               </td>
             </tr>
 
+            <?php 
+    $oum_enable_location_type_marker = get_option( 'oum_enable_location_type_marker', 'on' );
+    $oum_enable_location_type_polyline = get_option( 'oum_enable_location_type_polyline', '' );
+    $oum_enable_location_type_polyline_distance = get_option( 'oum_enable_location_type_polyline_distance', 'on' );
+    $oum_enable_location_type_polygon = get_option( 'oum_enable_location_type_polygon', '' );
+    $oum_enable_location_type_polygon_area = get_option( 'oum_enable_location_type_polygon_area', 'on' );
+    $oum_route_icon_path = $this->plugin_path . 'assets/images/ico_route.svg';
+    $oum_area_icon_path = $this->plugin_path . 'assets/images/ico_area.svg';
+    $oum_route_icon_svg = ( is_readable( $oum_route_icon_path ) ? file_get_contents( $oum_route_icon_path ) : '' );
+    $oum_area_icon_svg = ( is_readable( $oum_area_icon_path ) ? file_get_contents( $oum_area_icon_path ) : '' );
+    $oum_category_type_icon_color = '#2c3338';
+    $oum_route_icon_svg = str_replace( 'currentColor', $oum_category_type_icon_color, $oum_route_icon_svg );
+    $oum_area_icon_svg = str_replace( 'currentColor', $oum_category_type_icon_color, $oum_area_icon_svg );
+    $oum_category_type_marker_icon = esc_url( $this->plugin_url . 'src/leaflet/images/marker-icon_custom4-2x.png' );
+    ?>
+
           <?php 
     ?>
 
@@ -2286,73 +2302,147 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               <tr valign="top" class="oum-gopro-tr">
                 <th scope="row">
                   <?php 
-        echo __( 'Marker Categories', 'open-user-map' );
+        echo __( 'Marker Categories & Types', 'open-user-map' );
         ?>
                   <br><span class="oum-pro">PRO</span><br>
                   <a class="oum-gopro-text" href="<?php 
         echo oum_fs()->get_upgrade_url();
         ?>"><?php 
-        echo __( 'Upgrade to PRO and use marker categories. Each category can have a custom marker icon.', 'open-user-map' );
+        echo __( 'Upgrade to PRO and use Marker Categories with custom icons, Lines and Areas.', 'open-user-map' );
         ?></a>
                 </th>
                 <td>
-                  <input class="oum-switch" type="checkbox" disabled>
-                  <label><?php 
-        echo __( 'Enable', 'open-user-map' );
+                  <div class="oum-marker-categories-settings-panel">
+                    <div class="oum-marker-categories-section">
+                      <input class="oum-switch" type="checkbox" disabled>
+                      <label><?php 
+        echo __( 'Enable Marker Categories', 'open-user-map' );
         ?></label>
-                  <br>
-                  <br>
-                  <strong><?php 
+                    </div>
+
+                    <div class="oum-marker-categories-section">
+                      <h3><?php 
+        echo __( 'Category Types', 'open-user-map' );
+        ?></h3>
+                      <p class="description"><?php 
+        echo __( 'Choose which category types should be available. Icons and colors are set per Marker Category.', 'open-user-map' );
+        ?></p>
+                      <div class="oum-location-shapes-panel">
+                        <div class="oum-location-shape-row">
+                          <input type="hidden" name="oum_enable_location_type_marker" value="on">
+                          <input class="oum-switch oum-location-shape-checkbox" type="checkbox" checked onclick="return false;">
+                          <label class="oum-location-shape-title"><span class="oum-category-type-icon oum-category-type-icon-marker" style="background-image: url('<?php 
+        echo $oum_category_type_marker_icon;
+        ?>');" aria-hidden="true"></span><?php 
+        echo __( 'Markers', 'open-user-map' );
+        ?></label>
+                          <p class="description"><?php 
+        echo __( 'Single points with marker icons.', 'open-user-map' );
+        ?></p>
+                        </div>
+
+                        <div class="oum-location-shape-row is-locked">
+                          <input class="oum-switch oum-location-shape-checkbox" type="checkbox" disabled>
+                          <label class="oum-location-shape-title"><span class="oum-category-type-icon" aria-hidden="true"><?php 
+        echo $oum_route_icon_svg;
+        ?></span><?php 
+        echo __( 'Lines', 'open-user-map' );
+        ?></label>
+                          <p class="description"><?php 
+        echo __( 'Connected paths made from multiple points.', 'open-user-map' );
+        ?></p>
+                          <div class="oum-location-shape-suboption">
+                            <input class="oum-switch" type="checkbox" checked disabled>
+                            <label><?php 
+        echo __( 'Show line distance in popup', 'open-user-map' );
+        ?></label>
+                          </div>
+                        </div>
+
+                        <div class="oum-location-shape-row is-locked">
+                          <input class="oum-switch oum-location-shape-checkbox" type="checkbox" disabled>
+                          <label class="oum-location-shape-title"><span class="oum-category-type-icon" aria-hidden="true"><?php 
+        echo $oum_area_icon_svg;
+        ?></span><?php 
+        echo __( 'Areas', 'open-user-map' );
+        ?></label>
+                          <p class="description"><?php 
+        echo __( 'Closed boundaries with a transparent fill.', 'open-user-map' );
+        ?></p>
+                          <div class="oum-location-shape-suboption">
+                            <input class="oum-switch" type="checkbox" checked disabled>
+                            <label><?php 
+        echo __( 'Show calculated area size in popup', 'open-user-map' );
+        ?></label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="oum-marker-categories-section">
+                      <h3><?php 
+        echo __( 'Category Selection', 'open-user-map' );
+        ?></h3>
+                      <label><strong><?php 
         echo __( 'Custom Label:', 'open-user-map' );
-        ?></strong><br>
-                  <input disabled class="regular-text" type="text" value="" placeholder="<?php 
+        ?></strong></label><br>
+                      <input disabled class="regular-text" type="text" value="" placeholder="<?php 
         echo esc_attr( $this->oum_get_default_label( 'marker_types' ) );
         ?>">
-                  <br><br>
-                  <input class="oum-switch" type="checkbox" disabled>
-                  <label><?php 
+
+                      <div class="oum-settings-control">
+                        <input class="oum-switch" type="checkbox" disabled>
+                        <label><?php 
         echo __( 'Allow multiple selections', 'open-user-map' );
-        ?></label><br>
-                  <div class="description"><?php 
+        ?></label>
+                        <p class="description"><?php 
         echo __( '<strong>Important:</strong> If enabled all locations will fallback to the <a href="edit.php?post_type=oum-location&page=open-user-map-settings">Default Marker Icon</a> instead of a specific category icon.', 'open-user-map' );
-        ?></div>
-                  <br>
-                  <br>
-                  <br>
-                  <input class="oum-switch" type="checkbox" disabled>
-                  <label><?php 
+        ?></p>
+                      </div>
+
+                      <div class="oum-settings-control">
+                        <input class="oum-switch" type="checkbox" disabled>
+                        <label><?php 
         echo __( 'Allow empty selection', 'open-user-map' );
         ?></label>
-                  <br>
-                  <br>
-                  <br>
-                  <input class="oum-switch" type="checkbox" disabled>
-                  <label><?php 
+                      </div>
+                    </div>
+
+                    <div class="oum-marker-categories-section">
+                      <h3><?php 
+        echo __( 'Filter & Popup Display', 'open-user-map' );
+        ?></h3>
+                      <div class="oum-settings-control">
+                        <input class="oum-switch" type="checkbox" disabled>
+                        <label><?php 
         echo __( 'Show "Select all" checkbox', 'open-user-map' );
-        ?></label><br>
-                  <div class="description"><?php 
+        ?></label>
+                        <p class="description"><?php 
         echo __( 'If enabled, a "Select all" checkbox will be shown at the top of the marker categories filter.', 'open-user-map' );
-        ?></div>
-                  <br>
-                  <br>
-                  <br>
-                  <input class="oum-switch" type="checkbox" disabled>
-                  <label for="oum_collapse_filter"><?php 
+        ?></p>
+                      </div>
+
+                      <div class="oum-settings-control">
+                        <input class="oum-switch" type="checkbox" disabled>
+                        <label><?php 
         echo __( 'Collapsed Filterbox', 'open-user-map' );
-        ?></label><br>
-                  <div class="description"><?php 
+        ?></label>
+                        <p class="description"><?php 
         echo __( 'If enabled the filterbox will take less space and just open on mouseover.', 'open-user-map' );
-        ?></div>
-                  <br>
-                  <br>
-                  <br>
-                  <input class="oum-switch" type="checkbox" disabled>
-                  <label for="oum_enable_category_icons_in_title"><?php 
+        ?></p>
+                      </div>
+
+                      <div class="oum-settings-control">
+                        <input class="oum-switch" type="checkbox" disabled>
+                        <label><?php 
         echo __( 'Show category icons next to location name', 'open-user-map' );
-        ?></label><br>
-                  <div class="description"><?php 
+        ?></label>
+                        <p class="description"><?php 
         echo __( 'If enabled, category icons will be displayed inline with the location title in popups and location lists.', 'open-user-map' );
-        ?></div>
+        ?></p>
+                      </div>
+                    </div>
+                  </div>
                 </td>
               </tr>
 
@@ -2807,6 +2897,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                         <li>Be aware that every location with matching POST ID will be overwritten. <span style="color: red">Consider creating a DB Backup before!</span></li>
                         <li>To import new locations leave values in the post_id column empty</li>
                         <li>Download an Export file first and use it as template for your import</li>
+                        <li>All location types use the <code>geometry_type</code> and <code>geometry</code> columns. Existing imports with only <code>lat</code> and <code>lng</code> still work for Markers.</li>
                         <li>Comma or Semicolon work as delimiter</li>
                         <li>Non-existing Marker Categories will be created automatically</li>
                         <li>Multiselect values need to be written like so: Red|Green|Blue</li>
@@ -3179,6 +3270,36 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></td>
                             </tr>
                             <tr>
+                                <td><code>enable_location_type_marker</code></td>
+                                <td>
+                                    <code>enable_location_type_marker="true"</code><br>
+                                    <code>enable_location_type_marker="false"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Override whether Marker categories and Marker locations are available on this map.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>enable_location_type_polyline</code> <span class="oum-pro">PRO</span></td>
+                                <td>
+                                    <code>enable_location_type_polyline="true"</code><br>
+                                    <code>enable_location_type_polyline="false"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Override whether Line categories and Line locations are available on this map.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
+                                <td><code>enable_location_type_polygon</code> <span class="oum-pro">PRO</span></td>
+                                <td>
+                                    <code>enable_location_type_polygon="true"</code><br>
+                                    <code>enable_location_type_polygon="false"</code>
+                                </td>
+                                <td><?php 
+    echo __( 'Override whether Area categories and Area locations are available on this map.', 'open-user-map' );
+    ?></td>
+                            </tr>
+                            <tr>
                                 <td><code>enable_advanced_filter</code> <span class="oum-pro">PRO</span></td>
                                 <td>
                                     <code>enable_advanced_filter="true"</code><br>
@@ -3309,6 +3430,8 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                   <li>subtitle (replaces the former "address" label)</li>
                   <li>lat</li>
                   <li>lng</li>
+                  <li>geometry_type</li>
+                  <li>geometry</li>
                   <li>route</li>
                   <li>text</li>
                   <li>votes</li>
@@ -3345,13 +3468,16 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                 <span class="oum-pro">PRO</span> <input class="shortcode-display" type="text" readonly value="[open-user-map-list]" />
                 <br><br>
                 <span class="hint"><?php 
-    echo __( 'Get a list view of all the locations. The list view is paginated. This number of items per page can be adjusted under <i>Settings > Reading</i>.', 'open-user-map' );
+    echo __( 'Get a list view of all the locations. The list view is paginated. This number of items per page can be adjusted under <i>Settings > Reading</i> or overridden with the posts_per_page attribute.', 'open-user-map' );
     ?></span>
                 <br><br>
                 <strong><?php 
     echo __( 'Available attributes:', 'open-user-map' );
     ?></strong>
                 <ul>
+                  <li><input class="shortcode-display" type="text" readonly value='posts_per_page="24"' /> - <?php 
+    echo __( 'Override the WordPress posts per page setting. Use -1 to show all matching locations without pagination.', 'open-user-map' );
+    ?></li>
                   <li><input class="shortcode-display" type="text" readonly value='user="current"' /> - <?php 
     echo __( 'Filter locations by user. Accepts "current", a user ID, or "role:rolename".', 'open-user-map' );
     ?></li>

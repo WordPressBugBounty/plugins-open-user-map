@@ -128,6 +128,12 @@ if ( isset( $block_attributes['hide_filterbox'] ) && $block_attributes['hide_fil
 } else {
     $oum_hide_filterbox = 'false';
 }
+$oum_location_type_shortcode_context = $this->oum_location_type_shortcode_context( $block_attributes ?? array() );
+$oum_location_type_marker_enabled = $this->oum_location_type_enabled_in_context( 'point', $oum_location_type_shortcode_context );
+$oum_location_type_polyline_enabled = $this->oum_location_type_enabled_in_context( 'polyline', $oum_location_type_shortcode_context );
+$oum_location_type_polygon_enabled = $this->oum_location_type_enabled_in_context( 'polygon', $oum_location_type_shortcode_context );
+$oum_default_location_type = $this->oum_default_location_type_in_context( $oum_location_type_shortcode_context );
+$GLOBALS['oum_location_type_shortcode_context'] = $oum_location_type_shortcode_context;
 // Custom Attribute: Enable Advanced Filter (true|false)
 if ( isset( $block_attributes['enable_advanced_filter'] ) && $block_attributes['enable_advanced_filter'] != '' ) {
     $oum_enable_advanced_filter = ( $block_attributes['enable_advanced_filter'] === 'true' ? true : false );
@@ -174,6 +180,13 @@ $types = get_terms( array(
 ) );
 if ( is_wp_error( $types ) || empty( $types ) ) {
     $types = false;
+} else {
+    $types = \OpenUserMapPlugin\Base\BaseController::oum_sort_marker_categories_by_type( $types );
+    $types = array_values( array_filter( $types, function ( $type ) use($oum_location_type_shortcode_context) {
+        $category_type = \OpenUserMapPlugin\Base\BaseController::oum_marker_category_type( $type->term_id );
+        return $this->oum_location_type_enabled_in_context( $category_type, $oum_location_type_shortcode_context );
+    } ) );
+    $types = ( empty( $types ) ? false : $types );
 }
 $query = array(
     'post_type'        => 'oum-location',
@@ -211,6 +224,7 @@ if ( isset( $block_attributes['types'] ) && $block_attributes['types'] != '' ) {
     foreach ( $selected_types_slugs as $slug ) {
         $types[] = get_term_by( 'slug', $slug, 'oum-type' );
     }
+    $types = \OpenUserMapPlugin\Base\BaseController::oum_sort_marker_categories_by_type( array_filter( $types ) );
 }
 // Custom Attribute: Filter for ids
 if ( isset( $block_attributes['ids'] ) && $block_attributes['ids'] != '' ) {
@@ -509,6 +523,7 @@ foreach ( $posts as $post ) {
     $address = ( isset( $location_meta['address'] ) ? str_replace( "'", "\\'", preg_replace( '/\\r|\\n/', '', $location_meta['address'] ) ) : '' );
     $text = ( isset( $location_meta["text"] ) ? str_replace( "'", "\\'", str_replace( array("\r\n", "\r", "\n"), "<br>", $location_meta["text"] ) ) : '' );
     $video = ( isset( $location_meta["video"] ) ? $location_meta["video"] : '' );
+    $category_color = '';
     $image = ( isset( $indexed_meta[$post_id]['_oum_location_image'] ) ? $indexed_meta[$post_id]['_oum_location_image'] : '' );
     $image_thumb = null;
     // Handle multiple images
@@ -597,6 +612,7 @@ foreach ( $posts as $post ) {
         } elseif ( count( $location_types ) === 1 ) {
             // Single category: use that category's icon if set, else default
             $type = $location_types[0];
+            $category_color = sanitize_hex_color( get_term_meta( $type->term_id, 'oum_marker_color', true ) );
             $cat_icon = get_term_meta( $type->term_id, 'oum_marker_icon', true );
             $cat_user_icon = get_term_meta( $type->term_id, 'oum_marker_user_icon', true );
             if ( $cat_icon == 'user1' && $cat_user_icon ) {
@@ -621,6 +637,12 @@ foreach ( $posts as $post ) {
     } else {
         $date = get_the_modified_date( '', $post_id );
     }
+    $location_geometry_type = ( isset( $location_meta['geometry_type'] ) ? $location_meta['geometry_type'] : 'point' );
+    $location_geometry = ( isset( $location_meta['geometry'] ) ? $location_meta['geometry'] : null );
+    if ( !$this->oum_location_type_enabled_in_context( $location_geometry_type, $oum_location_type_shortcode_context ) ) {
+        continue;
+    }
+    $show_location_measurement = $location_geometry_type === 'polyline' && get_option( 'oum_enable_location_type_polyline_distance', 'on' ) === 'on' || $location_geometry_type === 'polygon' && get_option( 'oum_enable_location_type_polygon_area', 'on' ) === 'on';
     // collect locations for JS use
     $location = array(
         'post_id'           => $post_id,
@@ -630,6 +652,10 @@ foreach ( $posts as $post ) {
         'lat'               => $location_meta['lat'],
         'lng'               => $location_meta['lng'],
         'zoom'              => ( isset( $location_meta['zoom'] ) ? $location_meta['zoom'] : '12' ),
+        'geometry_type'     => $location_geometry_type,
+        'geometry'          => $location_geometry,
+        'show_measurement'  => $show_location_measurement,
+        'category_color'    => ( $category_color ? $category_color : (( get_option( 'oum_ui_color' ) ? get_option( 'oum_ui_color' ) : '#e82c71' )) ),
         'text'              => $text,
         'images'            => $absolute_images,
         'audio'             => $absolute_audio,

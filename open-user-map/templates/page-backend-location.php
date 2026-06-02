@@ -1,3 +1,16 @@
+<?php
+
+$oum_route_icon_path = $this->plugin_path . 'assets/images/ico_route.svg';
+$oum_area_icon_path = $this->plugin_path . 'assets/images/ico_area.svg';
+$oum_route_icon_svg = ( is_readable( $oum_route_icon_path ) ? file_get_contents( $oum_route_icon_path ) : '' );
+$oum_area_icon_svg = ( is_readable( $oum_area_icon_path ) ? file_get_contents( $oum_area_icon_path ) : '' );
+$oum_location_type_marker_enabled = $this->oum_location_type_markers_enabled();
+$oum_location_type_polyline_enabled = $this->oum_location_type_routes_enabled();
+$oum_location_type_polygon_enabled = $this->oum_location_type_areas_enabled();
+$oum_current_geometry_type_enabled = $this->oum_location_type_enabled( $geometry_type );
+$oum_backend_geometry_type = ( $oum_current_geometry_type_enabled ? $geometry_type : $this->oum_default_location_type() );
+$oum_enabled_location_type_count = count( array_filter( array($oum_location_type_marker_enabled, $oum_location_type_polyline_enabled, $oum_location_type_polygon_enabled) ) );
+?>
 <table class="form-table">
     <tbody>
 
@@ -17,14 +30,14 @@ echo esc_attr( $map_style );
                     <div class="input-wrap">
                         <div class="geo-coordinates-hint">
                             <div class="hint"><?php 
-echo __( 'Click on the map to set a location marker or <a href="#" id="showLatLngInputs">edit GPS coordinates manually</a>.', 'open-user-map' );
+echo __( 'Use the map to edit this location or <a href="#" id="showLatLngInputs">edit location data manually</a>.', 'open-user-map' );
 ?></div>
 
                             <div class="latlng-wrap" id="latLngInputs" style="display: none;">
                                 <div class="hint"><?php 
-echo __( 'Edit GPS coordinates manually:', 'open-user-map' );
+echo __( 'Edit location data manually:', 'open-user-map' );
 ?></div>
-                                <div>
+                                <div class="oum-latlng-fields">
                                     <div>
                                         <label class="meta-label" for="oum_location_lat">
                                             <?php 
@@ -56,8 +69,100 @@ echo esc_attr( $zoom );
 ?>"></input>
                                     </div>
                                 </div>
+                                <div class="oum-geometry-fields">
+                                    <label class="meta-label" for="oum_location_geometry"><?php 
+echo esc_html__( 'Geometry data (advanced)', 'open-user-map' );
+?></label>
+                                    <textarea class="widefat" id="oum_location_geometry" name="oum_location_geometry" rows="8" style="font-family:monospace;"><?php 
+echo esc_textarea( $geometry );
+?></textarea>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="input-wrap">
+                        <?php 
+if ( $oum_enabled_location_type_count > 1 ) {
+    ?>
+                            <label class="meta-label"><?php 
+    echo esc_html__( 'Location Shape', 'open-user-map' );
+    ?></label>
+                            <fieldset class="oum-location-type-control" data-oum-location-type-control>
+                                <?php 
+    if ( $oum_location_type_marker_enabled ) {
+        ?>
+                                    <label class="oum-location-type-card" data-oum-location-type-card="point">
+                                        <input type="radio" name="oum_backend_geometry_type_choice" value="point" <?php 
+        checked( $oum_backend_geometry_type, 'point' );
+        ?>>
+                                        <span class="oum-location-type-icon oum-location-type-icon-point" aria-hidden="true"></span>
+                                        <span class="oum-location-type-title"><?php 
+        echo esc_html__( 'Marker', 'open-user-map' );
+        ?></span>
+                                        <span class="oum-location-type-description"><?php 
+        echo esc_html__( 'Single point', 'open-user-map' );
+        ?></span>
+                                    </label>
+                                <?php 
+    }
+    ?>
+                                <?php 
+    if ( $oum_location_type_polyline_enabled ) {
+        ?>
+                                    <label class="oum-location-type-card" data-oum-location-type-card="polyline">
+                                        <input type="radio" name="oum_backend_geometry_type_choice" value="polyline" <?php 
+        checked( $oum_backend_geometry_type, 'polyline' );
+        ?>>
+                                        <span class="oum-location-type-icon oum-location-type-icon-polyline" aria-hidden="true"><?php 
+        echo $oum_route_icon_svg;
+        ?></span>
+                                        <span class="oum-location-type-title"><?php 
+        echo esc_html__( 'Line', 'open-user-map' );
+        ?></span>
+                                        <span class="oum-location-type-description"><?php 
+        echo esc_html__( 'Connected path made from multiple points', 'open-user-map' );
+        ?></span>
+                                    </label>
+                                <?php 
+    }
+    ?>
+                                <?php 
+    if ( $oum_location_type_polygon_enabled ) {
+        ?>
+                                    <label class="oum-location-type-card" data-oum-location-type-card="polygon">
+                                        <input type="radio" name="oum_backend_geometry_type_choice" value="polygon" <?php 
+        checked( $oum_backend_geometry_type, 'polygon' );
+        ?>>
+                                        <span class="oum-location-type-icon oum-location-type-icon-polygon" aria-hidden="true"><?php 
+        echo $oum_area_icon_svg;
+        ?></span>
+                                        <span class="oum-location-type-title"><?php 
+        echo esc_html__( 'Area', 'open-user-map' );
+        ?></span>
+                                        <span class="oum-location-type-description"><?php 
+        echo esc_html__( 'Closed boundary with transparent fill', 'open-user-map' );
+        ?></span>
+                                    </label>
+                                <?php 
+    }
+    ?>
+                            </fieldset>
+                        <?php 
+}
+?>
+                        <input type="hidden" id="oum_geometry_type" name="oum_geometry_type" value="<?php 
+echo esc_attr( $oum_backend_geometry_type );
+?>">
+                        <p
+                            class="description"
+                            data-oum-backend-location-type-help
+                            data-point-help="<?php 
+echo esc_attr__( 'Click on the map to set a single marker.', 'open-user-map' );
+?>"
+                            data-vector-help="<?php 
+echo esc_attr__( 'Use the map controls to draw or edit this location geometry.', 'open-user-map' );
+?>"
+                        ></p>
                     </div>
 
                     <script type="text/javascript" data-category="functional" class="cmplz-native" id="oum-inline-js">
@@ -153,6 +258,7 @@ echo esc_js( get_option( 'oum_custom_image_background_color', '#ffffff' ) );
                     <?php 
 // load map base scripts
 $this->include_map_scripts();
+wp_enqueue_style( 'oum_leaflet_draw_css' );
 wp_enqueue_script(
     'oum_backend_location_js',
     esc_url( $this->plugin_url ) . 'src/js/backend-location.js',

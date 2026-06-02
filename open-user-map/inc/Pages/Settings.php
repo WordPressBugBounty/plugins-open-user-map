@@ -301,6 +301,9 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_marker_types_label', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'open-user-map-settings-group', 'oum_enable_location_type_marker', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
         register_setting( 'open-user-map-settings-group', 'oum_ui_color', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
@@ -732,6 +735,20 @@ class Settings extends BaseController {
                 $available_custom_fields = get_option( 'oum_custom_fields', array() );
                 // all available custom fields
                 foreach ( $all_oum_locations as $post_id ) {
+                    $location_meta = get_post_meta( $post_id, '_oum_location_key', true );
+                    $geometry_type = ( is_array( $location_meta ) && isset( $location_meta['geometry_type'] ) ? $location_meta['geometry_type'] : 'point' );
+                    $geometry_type = ( in_array( $geometry_type, array('polyline', 'polygon'), true ) ? $geometry_type : 'point' );
+                    $lat = oum_get_location_value( 'lat', $post_id );
+                    $lng = oum_get_location_value( 'lng', $post_id );
+                    $geometry = '';
+                    if ( $geometry_type === 'point' && $lat !== '' && $lng !== '' ) {
+                        $geometry = wp_json_encode( array(
+                            'type'        => 'Point',
+                            'coordinates' => array(floatval( str_replace( ',', '.', $lng ) ), floatval( str_replace( ',', '.', $lat ) )),
+                        ) );
+                    } elseif ( is_array( $location_meta ) && isset( $location_meta['geometry'] ) && is_array( $location_meta['geometry'] ) ) {
+                        $geometry = wp_json_encode( $location_meta['geometry'] );
+                    }
                     // get fields
                     $location = array(
                         'post_id'           => $post_id,
@@ -742,9 +759,11 @@ class Settings extends BaseController {
                         'audio'             => oum_get_location_value( 'audio', $post_id, true ),
                         'type'              => oum_get_location_value( 'type', $post_id ),
                         'subtitle'          => oum_get_location_value( 'subtitle', $post_id ),
-                        'lat'               => oum_get_location_value( 'lat', $post_id ),
-                        'lng'               => oum_get_location_value( 'lng', $post_id ),
+                        'lat'               => $lat,
+                        'lng'               => $lng,
                         'zoom'              => oum_get_location_value( 'zoom', $post_id ),
+                        'geometry_type'     => $geometry_type,
+                        'geometry'          => $geometry,
                         'text'              => oum_get_location_value( 'text', $post_id ),
                         'notification'      => oum_get_location_value( 'notification', $post_id ),
                         'author_name'       => oum_get_location_value( 'author_name', $post_id ),
@@ -1006,6 +1025,31 @@ class Settings extends BaseController {
                         if ( $lng_value !== '' ) {
                             $lng_value = str_replace( ',', '.', trim( $lng_value ) );
                         }
+                        $has_geometry_columns = array_key_exists( 'geometry_type', $location ) || array_key_exists( 'geometry', $location );
+                        $geometry_type = ( isset( $location['geometry_type'] ) ? sanitize_key( $location['geometry_type'] ) : 'point' );
+                        if ( !in_array( $geometry_type, array('point', 'polyline', 'polygon'), true ) ) {
+                            $geometry_type = 'point';
+                        }
+                        $geometry_value = ( isset( $location['geometry'] ) ? trim( (string) $location['geometry'] ) : '' );
+                        if ( !isset( $location['geometry_type'] ) && $geometry_value !== '' ) {
+                            $decoded_geometry = json_decode( $geometry_value, true );
+                            if ( is_array( $decoded_geometry ) && isset( $decoded_geometry['type'] ) ) {
+                                if ( $decoded_geometry['type'] === 'LineString' ) {
+                                    $geometry_type = 'polyline';
+                                } elseif ( $decoded_geometry['type'] === 'Polygon' ) {
+                                    $geometry_type = 'polygon';
+                                }
+                            }
+                        }
+                        // Older CSV exports did not contain geometry columns. When updating existing
+                        // locations from such files, keep stored line/area geometry intact.
+                        if ( !$has_geometry_columns ) {
+                            $existing_location_data = get_post_meta( $insert_post, '_oum_location_key', true );
+                            if ( is_array( $existing_location_data ) && isset( $existing_location_data['geometry_type'] ) ) {
+                                $geometry_type = ( in_array( $existing_location_data['geometry_type'], array('polyline', 'polygon'), true ) ? $existing_location_data['geometry_type'] : 'point' );
+                                $geometry_value = ( isset( $existing_location_data['geometry'] ) && is_array( $existing_location_data['geometry'] ) ? wp_json_encode( $existing_location_data['geometry'] ) : '' );
+                            }
+                        }
                         $fields = array(
                             'oum_location_nonce'             => $nonce,
                             'oum_location_image'             => ( isset( $location['image'] ) ? $location['image'] : '' ),
@@ -1015,6 +1059,8 @@ class Settings extends BaseController {
                             'oum_location_lat'               => $lat_value,
                             'oum_location_lng'               => $lng_value,
                             'oum_location_zoom'              => ( isset( $location['zoom'] ) ? $location['zoom'] : '' ),
+                            'oum_geometry_type'              => $geometry_type,
+                            'oum_location_geometry'          => $geometry_value,
                             'oum_location_text'              => ( isset( $location['text'] ) ? $location['text'] : '' ),
                             'oum_location_notification'      => ( isset( $location['notification'] ) ? $location['notification'] : '' ),
                             'oum_location_author_name'       => ( isset( $location['author_name'] ) ? $location['author_name'] : '' ),

@@ -8,6 +8,9 @@ require oum_get_template('partial-map-init.php');
 
 <div class="open-user-map oum-inline-form oum-hide-map">
   <?php
+    // Inline form block always renders the submission form (independent of map setting).
+    $oum_show_add_location_button = true;
+
     // Render the inline form immediately
     require oum_get_template('partial-map-add-location.php');
 

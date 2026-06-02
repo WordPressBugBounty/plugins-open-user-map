@@ -10,6 +10,9 @@ jQuery('#oum_add_location').submit(function(event) {
       zoomField.value = window.oumMap2.getZoom();
     }
   }
+  if (typeof OUMFormMap !== 'undefined' && typeof OUMFormMap.syncGeometryFields === 'function') {
+    OUMFormMap.syncGeometryFields();
+  }
   let formData = new FormData(this);
 
   // Process opening hours fields - validate and convert to JSON

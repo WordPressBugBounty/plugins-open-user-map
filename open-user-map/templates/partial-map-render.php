@@ -30,6 +30,10 @@ foreach ( $locations_list as $location ) {
         'lat'               => esc_attr( $location['lat'] ),
         'lng'               => esc_attr( $location['lng'] ),
         'zoom'              => esc_attr( $location['zoom'] ),
+        'geometry_type'     => ( isset( $location['geometry_type'] ) ? sanitize_key( $location['geometry_type'] ) : 'point' ),
+        'geometry'          => ( isset( $location['geometry'] ) && is_array( $location['geometry'] ) ? $location['geometry'] : null ),
+        'show_measurement'  => !empty( $location['show_measurement'] ),
+        'category_color'    => ( isset( $location['category_color'] ) ? sanitize_hex_color( $location['category_color'] ) : '' ),
         'content'           => $content_plain,
         'icon'              => esc_attr( $location['icon'] ),
         'types'             => ( isset( $location['types'] ) ? $location['types'] : array() ),
@@ -118,7 +122,7 @@ echo esc_attr( $map_style );
 ?>"<?php 
 echo $this->get_tile_provider_data_attribute( $map_style, 'container' );
 ?>></div>
-    
+
     <?php 
 if ( $oum_enable_searchbar === 'true' && $oum_searchbar_type == 'markers' ) {
     ?>
@@ -218,10 +222,22 @@ if ( $has_floating_filter || $show_marker_filters ) {
         ?>
               
               <?php 
+        $oum_route_icon_path = $this->plugin_path . 'assets/images/ico_route.svg';
+        $oum_area_icon_path = $this->plugin_path . 'assets/images/ico_area.svg';
+        $oum_route_icon_svg = ( is_readable( $oum_route_icon_path ) ? file_get_contents( $oum_route_icon_path ) : '' );
+        $oum_area_icon_svg = ( is_readable( $oum_area_icon_path ) ? file_get_contents( $oum_area_icon_path ) : '' );
+        ?>
+
+              <?php 
         foreach ( $types as $type ) {
             ?>
 
                 <?php 
+            $category_type = \OpenUserMapPlugin\Base\BaseController::oum_marker_category_type( $type->term_id );
+            $category_color = sanitize_hex_color( get_term_meta( $type->term_id, 'oum_marker_color', true ) );
+            if ( !$category_color ) {
+                $category_color = ( $oum_ui_color ? $oum_ui_color : '#e82c71' );
+            }
             if ( $type->term_id && get_term_meta( $type->term_id, 'oum_marker_icon', true ) ) {
                 //get type marker icon from oum-type taxonomy
                 $type_marker_icon = get_term_meta( $type->term_id, 'oum_marker_icon', true );
@@ -244,10 +260,32 @@ if ( $has_floating_filter || $show_marker_filters ) {
             ?>" type="checkbox" name="type" value="<?php 
             echo esc_attr( $type->term_taxonomy_id );
             ?>" checked>
-                  <img alt="category icon" src="<?php 
-            echo $icon;
-            ?>">
-                  <span><?php 
+                  <?php 
+            if ( $category_type === 'polyline' ) {
+                ?>
+                    <span class="oum-filter-category-shape-icon" style="color: <?php 
+                echo esc_attr( $category_color );
+                ?>" aria-hidden="true"><?php 
+                echo $oum_route_icon_svg;
+                ?></span>
+                  <?php 
+            } elseif ( $category_type === 'polygon' ) {
+                ?>
+                    <span class="oum-filter-category-shape-icon" style="color: <?php 
+                echo esc_attr( $category_color );
+                ?>" aria-hidden="true"><?php 
+                echo $oum_area_icon_svg;
+                ?></span>
+                  <?php 
+            } else {
+                ?>
+                    <img alt="category icon" src="<?php 
+                echo $icon;
+                ?>">
+                  <?php 
+            }
+            ?>
+                  <span class="oum-filter-category-name"><?php 
             echo esc_html( $type->name );
             ?></span>
                 </label>

@@ -103,13 +103,18 @@ class TaxController extends BaseController {
             return $term_id;
         }
         // Dont save if wordpress just auto-saves
-        if ( defined( 'DOING AUTOSAVE' ) && DOING_AUTOSAVE ) {
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
             return $term_id;
         }
+        $oum_marker_category_type_validated = self::oum_marker_category_type( $term_id );
+        // Save Marker Category Type
+        if ( isset( $_POST['oum_marker_category_type'] ) ) {
+            update_term_meta( $term_id, 'oum_marker_category_type', $oum_marker_category_type_validated );
+        }
         // Save Taxonomy Icon
-        if ( isset( $_POST['oum_marker_icon'] ) ) {
+        if ( $oum_marker_category_type_validated === 'point' && isset( $_POST['oum_marker_icon'] ) ) {
             // Validation
-            $oum_marker_icon_validated = sanitize_text_field( $_POST['oum_marker_icon'] );
+            $oum_marker_icon_validated = sanitize_text_field( wp_unslash( $_POST['oum_marker_icon'] ) );
             if ( !$oum_marker_icon_validated ) {
                 $oum_marker_icon_validated = '';
             }
@@ -118,9 +123,9 @@ class TaxController extends BaseController {
             }
         }
         // Save Custom Image Icon
-        if ( isset( $_POST['oum_marker_user_icon'] ) ) {
+        if ( $oum_marker_category_type_validated === 'point' && isset( $_POST['oum_marker_user_icon'] ) ) {
             // Validation
-            $oum_marker_user_icon_validated = sanitize_text_field( $_POST['oum_marker_user_icon'] );
+            $oum_marker_user_icon_validated = sanitize_text_field( wp_unslash( $_POST['oum_marker_user_icon'] ) );
             if ( !$oum_marker_user_icon_validated ) {
                 $oum_marker_user_icon_validated = '';
             }
@@ -128,6 +133,67 @@ class TaxController extends BaseController {
                 update_term_meta( $term_id, 'oum_marker_user_icon', $oum_marker_user_icon_validated );
             }
         }
+    }
+
+    public function set_custom_type_columns( $columns ) {
+        $custom_columns = array();
+        if ( isset( $columns['cb'] ) ) {
+            $custom_columns['cb'] = $columns['cb'];
+        }
+        if ( isset( $columns['name'] ) ) {
+            $custom_columns['name'] = $columns['name'];
+        }
+        $custom_columns['oum_category_type'] = __( 'Icon / Type', 'open-user-map' );
+        if ( isset( $columns['slug'] ) ) {
+            $custom_columns['slug'] = $columns['slug'];
+        }
+        if ( isset( $columns['posts'] ) ) {
+            $custom_columns['posts'] = $columns['posts'];
+        }
+        return $custom_columns;
+    }
+
+    public function set_custom_type_columns_data( $content, $column, $term_id ) {
+        if ( $column !== 'oum_category_type' ) {
+            return $content;
+        }
+        $category_type = self::oum_marker_category_type( $term_id );
+        $type_label = __( 'Marker', 'open-user-map' );
+        $type_icon = '<img src="' . esc_url( $this->get_type_marker_icon_url( $term_id ) ) . '" alt="" aria-hidden="true">';
+        if ( $category_type === 'polyline' ) {
+            $type_label = __( 'Line', 'open-user-map' );
+            $route_icon_path = $this->plugin_path . 'assets/images/ico_route.svg';
+            $type_icon = ( is_readable( $route_icon_path ) ? file_get_contents( $route_icon_path ) : '' );
+        }
+        if ( $category_type === 'polygon' ) {
+            $type_label = __( 'Area', 'open-user-map' );
+            $area_icon_path = $this->plugin_path . 'assets/images/ico_area.svg';
+            $type_icon = ( is_readable( $area_icon_path ) ? file_get_contents( $area_icon_path ) : '' );
+        }
+        if ( $category_type !== 'point' ) {
+            $category_color = sanitize_hex_color( get_term_meta( $term_id, 'oum_marker_color', true ) );
+            if ( !$category_color ) {
+                $category_color = ( get_option( 'oum_ui_color' ) ? get_option( 'oum_ui_color' ) : $this->oum_ui_color_default );
+            }
+            $type_icon = str_replace( 'currentColor', esc_attr( $category_color ), $type_icon );
+        }
+        return '<span class="oum-category-type-column-icon" aria-hidden="true">' . $type_icon . '</span><span>' . esc_html( $type_label ) . '</span>';
+    }
+
+    private function get_type_marker_icon_url( $term_id ) {
+        $marker_icon = get_term_meta( $term_id, 'oum_marker_icon', true );
+        $marker_user_icon = get_term_meta( $term_id, 'oum_marker_user_icon', true );
+        if ( !$marker_icon ) {
+            $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );
+            $marker_user_icon = get_option( 'oum_marker_user_icon' );
+        }
+        if ( $marker_icon === 'user1' && $marker_user_icon ) {
+            return $marker_user_icon;
+        }
+        if ( !in_array( $marker_icon, array_merge( $this->marker_icons, $this->pro_marker_icons ), true ) ) {
+            $marker_icon = 'default';
+        }
+        return $this->plugin_url . 'src/leaflet/images/marker-icon_' . $marker_icon . '-2x.png';
     }
 
     /**
@@ -189,7 +255,7 @@ class TaxController extends BaseController {
             return $term_id;
         }
         // Dont save if wordpress just auto-saves
-        if ( defined( 'DOING AUTOSAVE' ) && DOING_AUTOSAVE ) {
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
             return $term_id;
         }
         if ( isset( $_POST['oum_lat'] ) ) {

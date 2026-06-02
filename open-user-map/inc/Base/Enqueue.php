@@ -28,9 +28,6 @@ class Enqueue extends BaseController
         // Frontend: Register assets for shortcodes (only enqueued when shortcodes render)
         add_action('wp_enqueue_scripts', array($this, 'register_frontend_assets'));
         
-        // Frontend: Enqueue Dashicons (needed for shortcodes)
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_dashicons_frontend'));
-        
         // Frontend: Ensure late-enqueued styles are still output in head (FIXES AN ISSUE IN RARE CASES WHERE CSS DID NOT LOAD)
         // Shortcodes render during content output (after wp_head), so styles enqueued
         // in shortcode callbacks need to be caught and output before </head> closes.
@@ -101,6 +98,12 @@ class Enqueue extends BaseController
         wp_register_style(
             'oum_leaflet_responsivepopup_css',
             $this->plugin_url . 'src/leaflet/leaflet-responsive-popup.css',
+            array('oum_leaflet_css'),
+            $this->plugin_version
+        );
+        wp_register_style(
+            'oum_leaflet_draw_css',
+            $this->plugin_url . 'src/leaflet/leaflet-draw/leaflet.draw.css',
             array('oum_leaflet_css'),
             $this->plugin_version
         );
@@ -191,9 +194,16 @@ class Enqueue extends BaseController
             true
         );
         wp_register_script(
+            'oum_leaflet_draw_js',
+            $this->plugin_url . 'src/leaflet/leaflet-draw/leaflet.draw.js',
+            array('oum_leaflet_js'),
+            $this->plugin_version,
+            true
+        );
+        wp_register_script(
             'oum_global_leaflet_js',
             $this->plugin_url . 'src/leaflet/oum-global-leaflet.js',
-            array('oum_leaflet_js'),
+            array('oum_leaflet_js', 'oum_leaflet_draw_js'),
             $this->plugin_version,
             true
         );
@@ -259,6 +269,10 @@ class Enqueue extends BaseController
             $this->plugin_version
         );
 
+        // RTL overrides: loads assets/frontend-rtl.css after frontend.css on RTL sites
+        wp_style_add_data( 'oum_frontend_css', 'rtl', true );
+        wp_style_add_data( 'oum_frontend_css', 'path', $this->plugin_path . 'assets/frontend.css' );
+
         // Register Leaflet CSS files
         wp_register_style(
             'oum_leaflet_css',
@@ -311,6 +325,12 @@ class Enqueue extends BaseController
         wp_register_style(
             'oum_leaflet_responsivepopup_css',
             $this->plugin_url . 'src/leaflet/leaflet-responsive-popup.css',
+            array('oum_leaflet_css'),
+            $this->plugin_version
+        );
+        wp_register_style(
+            'oum_leaflet_draw_css',
+            $this->plugin_url . 'src/leaflet/leaflet-draw/leaflet.draw.css',
             array('oum_leaflet_css'),
             $this->plugin_version
         );
@@ -401,9 +421,16 @@ class Enqueue extends BaseController
             true
         );
         wp_register_script(
+            'oum_leaflet_draw_js',
+            $this->plugin_url . 'src/leaflet/leaflet-draw/leaflet.draw.js',
+            array('oum_leaflet_js'),
+            $this->plugin_version,
+            true
+        );
+        wp_register_script(
             'oum_global_leaflet_js',
             $this->plugin_url . 'src/leaflet/oum-global-leaflet.js',
-            array('oum_leaflet_js'),
+            array('oum_leaflet_js', 'oum_leaflet_draw_js'),
             $this->plugin_version,
             true
         );
@@ -512,19 +539,6 @@ class Enqueue extends BaseController
     }
 
     /**
-     * Enqueue Dashicons on the frontend
-     * 
-     * Dashicons are WordPress core icons that may be needed by OUM shortcodes
-     * on the frontend. This ensures they're available when needed.
-     * 
-     * @return void
-     */
-    public function enqueue_dashicons_frontend() 
-    {
-        wp_enqueue_style('dashicons');
-    }
-
-    /**
      * Output late-enqueued styles in the head
      * 
      * WordPress execution order:
@@ -550,6 +564,7 @@ class Enqueue extends BaseController
         
         // List of OUM style handles that might be enqueued during shortcode rendering
         $oum_style_handles = array(
+            'dashicons',
             'oum_frontend_css',
             'oum_leaflet_css',
             'oum_leaflet_gesture_css',

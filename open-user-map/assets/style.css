@@ -1,4 +1,13 @@
 @charset "UTF-8";
+.oum-pro {
+  display: inline-block;
+  background: #dc3232;
+  color: white;
+  font-size: 11px;
+  text-align: center;
+  padding: 0px 4px;
+}
+
 .oum-getting-started-notice {
   border-left-color: #1d8cb9;
 }
@@ -161,8 +170,8 @@
 .post-new-php.post-type-oum-location .geo-coordinates-wrap .map-wrap #mapGetLocation .leaflet-control-geosearch.leaflet-geosearch-bar form button.reset:hover {
   opacity: 1;
 }
-.post-php.post-type-oum-location .geo-coordinates-wrap .map-wrap #mapGetLocation a,
-.post-new-php.post-type-oum-location .geo-coordinates-wrap .map-wrap #mapGetLocation a {
+.post-php.post-type-oum-location .geo-coordinates-wrap .map-wrap #mapGetLocation a:not(.leaflet-draw-actions a),
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .map-wrap #mapGetLocation a:not(.leaflet-draw-actions a) {
   text-decoration: none !important;
   padding: 0;
   margin: 0;
@@ -208,6 +217,95 @@
 .post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap {
   width: 330px;
 }
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-control,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-control {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 10px;
+  padding: 0;
+  border: 0;
+}
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-card,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-card {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  min-height: 92px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 12px 8px 10px;
+  border: 1px solid #c3c4c7;
+  border-radius: 6px;
+  background: #fff;
+  color: #1d2327;
+  cursor: pointer;
+  text-align: center;
+}
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-card input,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-card.is-selected, .post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-card:has(input:checked),
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-card.is-selected,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-card:has(input:checked) {
+  border-color: #e82c71;
+  background-color: rgba(232, 44, 113, 0.08);
+  box-shadow: 0 0 0 1px rgba(232, 44, 113, 0.2);
+}
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-icon,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-icon {
+  position: relative;
+  display: block;
+  width: 32px;
+  height: 32px;
+  color: #2c3338;
+}
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-icon svg,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-icon-point::before,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-icon-point::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50% 50% 50% 0;
+  background: currentColor;
+  transform: translateX(-50%) rotate(-45deg);
+}
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-icon-point::after,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-icon-point::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translateX(-50%);
+}
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-title,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-title {
+  font-weight: 700;
+}
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-description,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-description {
+  color: #646970;
+  font-size: 11px;
+  line-height: 1.3;
+}
 .post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint,
 .post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint {
   box-sizing: border-box;
@@ -218,14 +316,19 @@
   font-size: 20px;
   margin-bottom: 20px;
 }
-.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap > div:not(.hint),
-.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap > div:not(.hint) {
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap .oum-latlng-fields,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap .oum-latlng-fields {
   display: flex;
   gap: 15px;
 }
-.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap > div:not(.hint) > div,
-.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap > div:not(.hint) > div {
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap .oum-latlng-fields > div,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap .oum-latlng-fields > div {
   width: 100px;
+}
+.post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap .oum-geometry-fields textarea,
+.post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .geo-coordinates-hint .latlng-wrap .oum-geometry-fields textarea {
+  width: 100%;
+  min-height: 180px;
 }
 @media (max-width: 768px) {
   .post-php.post-type-oum-location .geo-coordinates-wrap,
@@ -506,7 +609,7 @@
 }
 .post-php.post-type-oum-location .marker_icons label .marker_icon_preview[data-style=default],
 .post-new-php.post-type-oum-location .marker_icons label .marker_icon_preview[data-style=default] {
-  background-image: url("../src/leaflet/images/marker-icon_default-2x.png");
+  background-image: url("../src/leaflet/images/marker-icon_custom4-2x.png");
 }
 .post-php.post-type-oum-location .marker_icons label .marker_icon_preview[data-style=custom1],
 .post-new-php.post-type-oum-location .marker_icons label .marker_icon_preview[data-style=custom1] {
@@ -558,6 +661,9 @@
   padding: 0 5px 5px;
 }
 
+.taxonomy-oum-type .term-description-wrap {
+  display: none;
+}
 .taxonomy-oum-type .marker_icons {
   display: flex;
   flex-wrap: wrap;
@@ -674,6 +780,25 @@
   font-style: italic;
   font-size: 11px;
   opacity: 0.8;
+}
+.taxonomy-oum-type .column-oum_category_type {
+  width: 140px;
+}
+.taxonomy-oum-type .oum-category-type-column-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.taxonomy-oum-type .oum-category-type-column-icon img,
+.taxonomy-oum-type .oum-category-type-column-icon svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .taxonomy-oum-region .term-description-wrap,
@@ -2203,6 +2328,103 @@
 .toplevel_page_open-user-map .oum-gopro-tr td,
 .toplevel_page_open-user-map .oum-gopro-div {
   opacity: 0.65;
+}
+.oum-location_page_open-user-map-settings .oum-marker-categories-settings-panel,
+.toplevel_page_open-user-map .oum-marker-categories-settings-panel {
+  max-width: 740px;
+}
+.oum-location_page_open-user-map-settings .oum-marker-categories-section,
+.toplevel_page_open-user-map .oum-marker-categories-section {
+  padding: 18px 0;
+}
+.oum-location_page_open-user-map-settings .oum-marker-categories-section + .oum-marker-categories-section,
+.toplevel_page_open-user-map .oum-marker-categories-section + .oum-marker-categories-section {
+  border-top: 1px solid #dcdcde;
+}
+.oum-location_page_open-user-map-settings .oum-marker-categories-section h3,
+.toplevel_page_open-user-map .oum-marker-categories-section h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+.oum-location_page_open-user-map-settings .oum-marker-categories-section > .description,
+.toplevel_page_open-user-map .oum-marker-categories-section > .description {
+  margin: 0 0 12px;
+}
+.oum-location_page_open-user-map-settings .oum-settings-control,
+.toplevel_page_open-user-map .oum-settings-control {
+  margin-top: 18px;
+}
+.oum-location_page_open-user-map-settings .oum-settings-control > .description,
+.toplevel_page_open-user-map .oum-settings-control > .description {
+  margin: 6px 0 0 50px;
+}
+.oum-location_page_open-user-map-settings .oum-location-shapes-panel,
+.toplevel_page_open-user-map .oum-location-shapes-panel {
+  max-width: 740px;
+  border: 1px solid #dcdcde;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.oum-location_page_open-user-map-settings .oum-location-shape-row,
+.toplevel_page_open-user-map .oum-location-shape-row {
+  padding: 18px 20px;
+}
+.oum-location_page_open-user-map-settings .oum-location-shape-row + .oum-location-shape-row,
+.toplevel_page_open-user-map .oum-location-shape-row + .oum-location-shape-row {
+  border-top: 1px solid #e5e5e5;
+}
+.oum-location_page_open-user-map-settings .oum-location-shape-row.is-locked,
+.toplevel_page_open-user-map .oum-location-shape-row.is-locked {
+  opacity: 0.65;
+}
+.oum-location_page_open-user-map-settings .oum-location-shape-row > .description,
+.toplevel_page_open-user-map .oum-location-shape-row > .description {
+  margin: 4px 0 0 50px;
+}
+.oum-location_page_open-user-map-settings .oum-location-shape-title,
+.toplevel_page_open-user-map .oum-location-shape-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+.oum-location_page_open-user-map-settings .oum-category-type-icon,
+.toplevel_page_open-user-map .oum-category-type-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin: -3px 8px -6px 0;
+  color: #2c3338;
+  vertical-align: middle;
+}
+.oum-location_page_open-user-map-settings .oum-category-type-icon svg,
+.toplevel_page_open-user-map .oum-category-type-icon svg {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+.oum-location_page_open-user-map-settings .oum-category-type-icon-marker,
+.toplevel_page_open-user-map .oum-category-type-icon-marker {
+  background-image: url("../src/leaflet/images/marker-icon_custom4-2x.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.oum-location_page_open-user-map-settings .oum-location-shape-suboption,
+.toplevel_page_open-user-map .oum-location-shape-suboption {
+  margin-top: 12px;
+  margin-left: 50px;
+}
+.oum-location_page_open-user-map-settings .oum-location-shape-suboption input,
+.toplevel_page_open-user-map .oum-location-shape-suboption input {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.oum-location_page_open-user-map-settings .oum-location-shapes-note,
+.toplevel_page_open-user-map .oum-location-shapes-note {
+  max-width: 740px;
+  margin-top: 12px;
 }
 .oum-location_page_open-user-map-settings .oum-debug-info,
 .toplevel_page_open-user-map .oum-debug-info {

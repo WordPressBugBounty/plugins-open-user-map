@@ -163,11 +163,6 @@ window.addEventListener('load', function(e) {
     }
   });
 
-  //Color Picker
-  if ( jQuery.isFunction( jQuery.fn.wpColorPicker ) ) {
-		jQuery( 'input.oum_colorpicker' ).wpColorPicker();
-	}
-
   // map style selector
   jQuery('.map_styles input[type=radio]').on('change', function(e) {
     jQuery('.map_styles label').removeClass('checked');

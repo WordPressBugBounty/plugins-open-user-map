@@ -11,6 +11,9 @@
   const oum_tile_provider_mapbox_key = $el.data('tile_provider_mapbox_key');
   const marker_icon_url = $el.data('marker_icon_url');
   const marker_shadow_url = $el.data('marker_shadow_url');
+  const geometryType = $el.data('geometry-type') || 'point';
+  const geometryRaw = $el.attr('data-geometry') || '';
+  const categoryColor = $el.data('category-color') || '#e82c71';
 
 
   const map = L.map('mapRenderLocation', {
@@ -124,12 +127,65 @@
     shadowAnchor: [13, 41]
   });
 
-  let locationMarker = L.marker([lat, lng], {icon: markerIcon}, {
-      'draggable': false
-  });
+  function geoJsonCoordinatesToLatLngs(geometry) {
+    const coordinates = geometry.type === 'Polygon' && Array.isArray(geometry.coordinates) && Array.isArray(geometry.coordinates[0])
+      ? geometry.coordinates[0]
+      : geometry.coordinates;
+
+    if (!Array.isArray(coordinates)) {
+      return [];
+    }
+
+    return coordinates
+      .filter((coordinate) => Array.isArray(coordinate) && coordinate.length >= 2)
+      .map((coordinate) => [coordinate[1], coordinate[0]]);
+  }
+
+  function renderVectorLocation() {
+    if (geometryType !== 'polyline' && geometryType !== 'polygon') {
+      return false;
+    }
+
+    if (!geometryRaw) {
+      return false;
+    }
+
+    try {
+      const geometry = JSON.parse(geometryRaw);
+      const latLngs = geoJsonCoordinatesToLatLngs(geometry);
+
+      if (latLngs.length < 2 || (geometryType === 'polygon' && latLngs.length < 3)) {
+        return false;
+      }
+
+      const vectorOptions = {
+        color: categoryColor,
+        weight: 4,
+        opacity: 0.9,
+      };
+
+      const vectorLayer = geometryType === 'polygon'
+        ? L.polygon(latLngs, { ...vectorOptions, fillColor: categoryColor, fillOpacity: 0.25 })
+        : L.polyline(latLngs, vectorOptions);
+
+      vectorLayer.addTo(map);
+      map.fitBounds(vectorLayer.getBounds(), { padding: [20, 20] });
+
+      return true;
+    } catch (error) {
+      console.warn('Open User Map: Invalid single location geometry.', error);
+      return false;
+    }
+  }
   
-  if(lat && lng) {
+  if(renderVectorLocation()) {
+      markerIsVisible = true;
+  }else if(lat && lng) {
       //location has coordinates
+      let locationMarker = L.marker([lat, lng], {icon: markerIcon}, {
+          'draggable': false
+      });
+
       map.setView([lat, lng], zoom);
       locationMarker.addTo(map);
       markerIsVisible = true;

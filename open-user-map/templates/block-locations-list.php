@@ -24,7 +24,14 @@ if ( !function_exists( 'clean_utf8' ) ) {
 $oum_enable_gmaps_link = get_option( 'oum_enable_gmaps_link', 'on' );
 $oum_location_date_type = get_option( 'oum_location_date_type', 'modified' );
 // Build query
-$count = get_option( 'posts_per_page', 10 );
+$count = max( 1, (int) get_option( 'posts_per_page', 10 ) );
+// Custom Attribute: Override the default WordPress posts per page setting. Use -1 to show all locations.
+if ( isset( $block_attributes['posts_per_page'] ) && trim( $block_attributes['posts_per_page'] ) !== '' ) {
+    $posts_per_page_attribute = (int) trim( $block_attributes['posts_per_page'] );
+    if ( $posts_per_page_attribute === -1 || $posts_per_page_attribute > 0 ) {
+        $count = $posts_per_page_attribute;
+    }
+}
 $paged = max( 1, (int) get_query_var( 'paged' ), (int) get_query_var( 'page' ) );
 $query = array(
     'post_type'      => 'oum-location',
@@ -413,18 +420,22 @@ if ( !empty( $custom_fields_filter_config ) || $sort_type === 'custom_field' && 
         } );
     }
     // Compute pagination based on matched IDs
-    $per_page = get_option( 'posts_per_page', 10 );
+    $per_page = $count;
     $current_page = max( 1, (int) get_query_var( 'paged' ), (int) get_query_var( 'page' ) );
     $total_matched = count( $matched_ids );
-    $pagination_total_pages = ( $per_page > 0 ? (int) ceil( $total_matched / $per_page ) : 1 );
+    $pagination_total_pages = ( $per_page === -1 || $per_page <= 0 ? 1 : (int) ceil( $total_matched / $per_page ) );
     // Slice IDs for current page
-    $offset = max( 0, ($current_page - 1) * $per_page );
-    $page_ids = array_slice( $matched_ids, $offset, $per_page );
+    if ( $per_page === -1 ) {
+        $page_ids = $matched_ids;
+    } else {
+        $offset = max( 0, ($current_page - 1) * $per_page );
+        $page_ids = array_slice( $matched_ids, $offset, $per_page );
+    }
     // Build a focused query for just these IDs (preserve ordering)
     $query['post__in'] = ( $page_ids ?: array(0) );
     // ensure no results if empty
     $query['orderby'] = 'post__in';
-    $query['posts_per_page'] = count( $page_ids );
+    $query['posts_per_page'] = ( $per_page === -1 ? -1 : count( $page_ids ) );
     $query['paged'] = 1;
     // paging handled by slicing
 }

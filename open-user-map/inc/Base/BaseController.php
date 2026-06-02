@@ -46,6 +46,27 @@ class BaseController {
     }
 
     /**
+     * Convert PHP upload errors into user-facing messages for frontend submissions.
+     */
+    protected function image_upload_error_message( $filename, $upload_error ) {
+        switch ( $upload_error ) {
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                return sprintf( __( 'The server rejected image "%s" because it exceeds the server upload limit. Please reduce the file size or increase the server upload limit.', 'open-user-map' ), $filename );
+            case UPLOAD_ERR_PARTIAL:
+                return sprintf( __( 'Image "%s" was only partially uploaded. Please try again.', 'open-user-map' ), $filename );
+            case UPLOAD_ERR_NO_TMP_DIR:
+                return sprintf( __( 'Image "%s" could not be uploaded because the server is missing a temporary upload folder.', 'open-user-map' ), $filename );
+            case UPLOAD_ERR_CANT_WRITE:
+                return sprintf( __( 'Image "%s" could not be written to disk. Please check the server upload permissions.', 'open-user-map' ), $filename );
+            case UPLOAD_ERR_EXTENSION:
+                return sprintf( __( 'Image "%s" was blocked by a server extension during upload.', 'open-user-map' ), $filename );
+            default:
+                return sprintf( __( 'Image "%s" could not be uploaded. Please try again with a smaller image.', 'open-user-map' ), $filename );
+        }
+    }
+
+    /**
      * Enqueue frontend CSS with optional custom inline CSS
      * 
      * This method enqueues the registered frontend CSS stylesheet and adds any custom CSS
@@ -82,6 +103,37 @@ class BaseController {
                 wp_add_inline_style( 'oum_frontend_css', $custom_css );
             }
         }
+    }
+
+    /**
+     * Whether the add-location form should be shown to the current visitor.
+     *
+     * @return bool
+     */
+    protected function should_show_add_location_form() {
+        $oum_enable_add_location = get_option( 'oum_enable_add_location', 'on' );
+        return $oum_enable_add_location === 'on' || current_user_can( 'manage_options' );
+    }
+
+    /**
+     * Whether the add-location form includes Dashicons (image/video/audio upload buttons).
+     *
+     * @return bool
+     */
+    protected function add_location_form_uses_dashicons() {
+        return get_option( 'oum_enable_image', 'on' ) === 'on' || get_option( 'oum_enable_audio', '' ) === 'on' || oum_fs()->is__premium_only() && oum_fs()->can_use_premium_code() && get_option( 'oum_enable_video' ) === 'on';
+    }
+
+    /**
+     * Enqueue WordPress Dashicons for the frontend add-location form media buttons.
+     *
+     * @return void
+     */
+    protected function enqueue_add_location_dashicons() {
+        if ( !$this->add_location_form_uses_dashicons() ) {
+            return;
+        }
+        wp_enqueue_style( 'dashicons' );
     }
 
     /**
@@ -657,6 +709,190 @@ class BaseController {
         return get_option( 'oum_enable_auto_publish', '' ) === 'on' && current_user_can( 'edit_oum-locations' );
     }
 
+    public static function oum_location_type_markers_enabled() {
+        if ( get_option( 'oum_enable_location_type_marker', 'on' ) === 'on' ) {
+            return true;
+        }
+        // Safety fallback: if every type is disabled, keep classic markers available.
+        return !self::oum_location_type_routes_enabled() && !self::oum_location_type_areas_enabled();
+    }
+
+    public static function oum_location_type_routes_enabled() {
+        $enabled = false;
+        return $enabled;
+    }
+
+    public static function oum_location_type_areas_enabled() {
+        $enabled = false;
+        return $enabled;
+    }
+
+    public static function oum_location_type_enabled( $type ) {
+        if ( $type === 'polyline' ) {
+            return self::oum_location_type_routes_enabled();
+        }
+        if ( $type === 'polygon' ) {
+            return self::oum_location_type_areas_enabled();
+        }
+        if ( $type === 'point' ) {
+            return self::oum_location_type_markers_enabled();
+        }
+        return false;
+    }
+
+    public static function oum_default_location_type() {
+        if ( self::oum_location_type_markers_enabled() ) {
+            return 'point';
+        }
+        if ( self::oum_location_type_routes_enabled() ) {
+            return 'polyline';
+        }
+        if ( self::oum_location_type_areas_enabled() ) {
+            return 'polygon';
+        }
+        return 'point';
+    }
+
+    public function oum_location_type_shortcode_context( $attributes = array() ) {
+        $attributes = ( is_array( $attributes ) ? $attributes : array() );
+        $context = array(
+            'point'    => self::oum_location_type_markers_enabled(),
+            'polyline' => self::oum_location_type_routes_enabled(),
+            'polygon'  => self::oum_location_type_areas_enabled(),
+        );
+        $attribute_map = array(
+            'point'    => 'enable_location_type_marker',
+            'polyline' => 'enable_location_type_polyline',
+            'polygon'  => 'enable_location_type_polygon',
+        );
+        foreach ( $attribute_map as $type => $attribute_name ) {
+            if ( isset( $attributes[$attribute_name] ) && $attributes[$attribute_name] !== '' ) {
+                $context[$type] = $this->oum_shortcode_boolean_value( $attributes[$attribute_name], $context[$type] );
+            }
+        }
+        // Line and Area location types are PRO-only. Shortcodes can override
+        // PRO settings per map, but they must not enable stripped/free features.
+        if ( !oum_fs()->is__premium_only() || !oum_fs()->can_use_premium_code() ) {
+            $context['polyline'] = false;
+            $context['polygon'] = false;
+        }
+        // Preserve the global safety fallback: at least classic markers exist.
+        if ( !$context['point'] && !$context['polyline'] && !$context['polygon'] ) {
+            $context['point'] = true;
+        }
+        return $context;
+    }
+
+    public function oum_location_type_enabled_in_context( $type, $context = array() ) {
+        $context = ( is_array( $context ) && !empty( $context ) ? $context : $this->oum_location_type_shortcode_context() );
+        if ( $type === 'polyline' ) {
+            return !empty( $context['polyline'] );
+        }
+        if ( $type === 'polygon' ) {
+            return !empty( $context['polygon'] );
+        }
+        if ( $type === 'point' ) {
+            return !empty( $context['point'] );
+        }
+        return false;
+    }
+
+    public function oum_default_location_type_in_context( $context = array() ) {
+        $context = ( is_array( $context ) && !empty( $context ) ? $context : $this->oum_location_type_shortcode_context() );
+        if ( !empty( $context['point'] ) ) {
+            return 'point';
+        }
+        if ( !empty( $context['polyline'] ) ) {
+            return 'polyline';
+        }
+        if ( !empty( $context['polygon'] ) ) {
+            return 'polygon';
+        }
+        return 'point';
+    }
+
+    public function oum_location_type_context_signature( $context ) {
+        return wp_hash( $this->oum_location_type_context_string( $context ) );
+    }
+
+    public function oum_submitted_location_type_context( $data ) {
+        if ( !isset( $data['oum_location_type_context_signature'] ) ) {
+            return $this->oum_location_type_shortcode_context();
+        }
+        $context = array(
+            'point'    => isset( $data['oum_location_type_marker_enabled'] ) && $this->oum_shortcode_boolean_value( wp_unslash( $data['oum_location_type_marker_enabled'] ), false ),
+            'polyline' => isset( $data['oum_location_type_polyline_enabled'] ) && $this->oum_shortcode_boolean_value( wp_unslash( $data['oum_location_type_polyline_enabled'] ), false ),
+            'polygon'  => isset( $data['oum_location_type_polygon_enabled'] ) && $this->oum_shortcode_boolean_value( wp_unslash( $data['oum_location_type_polygon_enabled'] ), false ),
+        );
+        if ( !oum_fs()->is__premium_only() || !oum_fs()->can_use_premium_code() ) {
+            $context['polyline'] = false;
+            $context['polygon'] = false;
+        }
+        if ( !$context['point'] && !$context['polyline'] && !$context['polygon'] ) {
+            $context['point'] = true;
+        }
+        $signature = sanitize_text_field( wp_unslash( $data['oum_location_type_context_signature'] ) );
+        if ( !hash_equals( $this->oum_location_type_context_signature( $context ), $signature ) ) {
+            return $this->oum_location_type_shortcode_context();
+        }
+        return $context;
+    }
+
+    private function oum_shortcode_boolean_value( $value, $default ) {
+        if ( is_bool( $value ) ) {
+            return $value;
+        }
+        $value = strtolower( trim( (string) $value ) );
+        if ( in_array( $value, array(
+            '1',
+            'true',
+            'on',
+            'yes'
+        ), true ) ) {
+            return true;
+        }
+        if ( in_array( $value, array(
+            '0',
+            'false',
+            'off',
+            'no'
+        ), true ) ) {
+            return false;
+        }
+        return (bool) $default;
+    }
+
+    private function oum_location_type_context_string( $context ) {
+        $context = ( is_array( $context ) ? $context : array() );
+        return implode( '|', array(( !empty( $context['point'] ) ? '1' : '0' ), ( !empty( $context['polyline'] ) ? '1' : '0' ), ( !empty( $context['polygon'] ) ? '1' : '0' )) );
+    }
+
+    public static function oum_marker_category_type( $term_id ) {
+        $category_type = get_term_meta( $term_id, 'oum_marker_category_type', true );
+        return ( in_array( $category_type, array('polyline', 'polygon'), true ) ? $category_type : 'point' );
+    }
+
+    public static function oum_sort_marker_categories_by_type( $categories ) {
+        if ( !is_array( $categories ) ) {
+            return $categories;
+        }
+        $type_order = array(
+            'point'    => 0,
+            'polyline' => 1,
+            'polygon'  => 2,
+        );
+        usort( $categories, function ( $a, $b ) use($type_order) {
+            $a_type = ( isset( $a->term_id ) ? self::oum_marker_category_type( $a->term_id ) : 'point' );
+            $b_type = ( isset( $b->term_id ) ? self::oum_marker_category_type( $b->term_id ) : 'point' );
+            $type_compare = $type_order[$a_type] <=> $type_order[$b_type];
+            if ( $type_compare !== 0 ) {
+                return $type_compare;
+            }
+            return strcasecmp( ( isset( $a->name ) ? $a->name : '' ), ( isset( $b->name ) ? $b->name : '' ) );
+        } );
+        return $categories;
+    }
+
     public function oum_init() {
         $this->post_status = 'pending';
         if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
@@ -794,10 +1030,16 @@ class BaseController {
         }
         // Enqueue frontend CSS with custom inline CSS
         $this->enqueue_frontend_css();
+        // Dashicons for media upload buttons in the footer add-location overlay
+        if ( $this->should_show_add_location_form() ) {
+            $this->enqueue_add_location_dashicons();
+        }
         // Load map base scripts (enqueues registered Leaflet CSS and JS)
         $this->include_map_scripts();
         // Enqueue registered frontend block map script
         wp_enqueue_script( 'oum_frontend_block_map_js' );
+        wp_enqueue_style( 'oum_leaflet_draw_css' );
+        wp_enqueue_script( 'oum_leaflet_draw_js' );
         // Localize custom strings
         wp_localize_script( 'oum_frontend_block_map_js', 'oum_custom_strings', $this->oum_custom_strings() );
         wp_localize_script( 'oum_frontend_block_map_js', 'oum_ajax', $this->oum_ajax_localization_data() );
@@ -854,6 +1096,10 @@ class BaseController {
             $data['oum_location_author_name'] = ( isset( $_POST['oum_location_notification'] ) ? sanitize_text_field( wp_strip_all_tags( $_POST['oum_location_author_name'] ) ) : '' );
             $data['oum_location_author_email'] = ( isset( $_POST['oum_location_notification'] ) ? sanitize_email( wp_strip_all_tags( $_POST['oum_location_author_email'] ) ) : '' );
             $data['oum_location_video'] = ( isset( $_POST['oum_location_video'] ) ? sanitize_url( wp_strip_all_tags( $_POST['oum_location_video'] ) ) : '' );
+            $submitted_geometry_type = ( isset( $_POST['oum_geometry_type'] ) ? sanitize_key( wp_unslash( $_POST['oum_geometry_type'] ) ) : 'point' );
+            $submitted_location_type_context = $this->oum_submitted_location_type_context( $_POST );
+            $data['oum_geometry_type'] = ( $this->oum_location_type_enabled_in_context( $submitted_geometry_type, $submitted_location_type_context ) ? $submitted_geometry_type : $this->oum_default_location_type_in_context( $submitted_location_type_context ) );
+            $data['oum_location_geometry'] = ( isset( $_POST['oum_location_geometry'] ) ? wp_unslash( $_POST['oum_location_geometry'] ) : '' );
             if ( isset( $_POST['oum_marker_icon'] ) ) {
                 $data['oum_marker_icon'] = array();
                 foreach ( $_POST['oum_marker_icon'] as $index => $val ) {
@@ -929,7 +1175,13 @@ class BaseController {
             if ( !$data['oum_location_title'] ) {
                 $error->add( '001', 'Missing or incorrect Title value.' );
             }
-            if ( !$data['oum_location_lat'] || !$data['oum_location_lng'] ) {
+            $submitted_geometry = false;
+            if ( $data['oum_geometry_type'] !== 'point' ) {
+                $submitted_geometry = \OpenUserMapPlugin\Base\LocationController::sanitize_location_geometry( $data['oum_location_geometry'] );
+                if ( !$submitted_geometry || ($data['oum_geometry_type'] === 'polygon') !== ($submitted_geometry['type'] === 'Polygon') ) {
+                    $error->add( '002', 'Missing or incorrect geometry. Draw a valid line or polygon on the map.' );
+                }
+            } elseif ( !$data['oum_location_lat'] || !$data['oum_location_lng'] ) {
                 $error->add( '002', 'Missing or incorrect location. Click on the map to set a marker.' );
             }
             if ( isset( $_FILES['oum_location_audio']['name'] ) && $_FILES['oum_location_audio']['name'] != '' ) {
@@ -961,6 +1213,39 @@ class BaseController {
                 $max_filesize = (int) $oum_max_audio_filesize * 1048576;
                 if ( $_FILES['oum_location_audio']['size'] > $max_filesize ) {
                     $error->add( '005', 'The audio file exceeds maximum size of ' . $oum_max_audio_filesize . 'MB.' );
+                }
+            }
+            if ( isset( $_FILES['oum_location_images']['name'] ) && is_array( $_FILES['oum_location_images']['name'] ) && !empty( array_filter( $_FILES['oum_location_images']['name'] ) ) ) {
+                $valid_extensions = array(
+                    'jpeg',
+                    'jpg',
+                    'png',
+                    'webp'
+                );
+                $oum_max_image_filesize = ( get_option( 'oum_max_image_filesize' ) ? get_option( 'oum_max_image_filesize' ) : 10 );
+                $max_filesize = (int) $oum_max_image_filesize * 1048576;
+                foreach ( $_FILES['oum_location_images']['name'] as $key => $name ) {
+                    if ( empty( $name ) ) {
+                        continue;
+                    }
+                    $name = sanitize_file_name( $name );
+                    $upload_error = ( isset( $_FILES['oum_location_images']['error'][$key] ) ? (int) $_FILES['oum_location_images']['error'][$key] : UPLOAD_ERR_OK );
+                    // PHP can reject files before the plugin receives a usable temp file.
+                    if ( $upload_error !== UPLOAD_ERR_OK ) {
+                        if ( $upload_error !== UPLOAD_ERR_NO_FILE ) {
+                            $error->add( '005', $this->image_upload_error_message( $name, $upload_error ) );
+                        }
+                        continue;
+                    }
+                    $ext = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
+                    if ( !in_array( $ext, $valid_extensions ) ) {
+                        $error->add( '005', sprintf( __( 'Image "%s" has an invalid file extension. Please use .jpg, .jpeg, .png or .webp.', 'open-user-map' ), $name ) );
+                        continue;
+                    }
+                    $size = ( isset( $_FILES['oum_location_images']['size'][$key] ) ? (int) $_FILES['oum_location_images']['size'][$key] : 0 );
+                    if ( $size > $max_filesize ) {
+                        $error->add( '005', sprintf( __( 'Image "%s" is too large. Maximum file size is %d MB.', 'open-user-map' ), $name, $oum_max_image_filesize ) );
+                    }
                 }
             }
             if ( isset( $data['oum_location_notification'] ) && $data['oum_location_notification'] != '' ) {
@@ -1127,6 +1412,13 @@ class BaseController {
                                 $zoom_validated = '';
                             }
                         }
+                        if ( $data['oum_geometry_type'] !== 'point' && $submitted_geometry ) {
+                            $geometry_center = \OpenUserMapPlugin\Base\LocationController::get_location_geometry_center( $submitted_geometry );
+                            if ( $geometry_center ) {
+                                $lat_validated = $geometry_center['lat'];
+                                $lng_validated = $geometry_center['lng'];
+                            }
+                        }
                         // Get existing location data to preserve vote count and other existing fields
                         // This prevents vote counts from being lost when editing locations via AJAX
                         $existing_data = get_post_meta( $post_id, '_oum_location_key', true );
@@ -1134,12 +1426,16 @@ class BaseController {
                             $existing_data = array();
                         }
                         $data_meta = array(
-                            'address' => $data['oum_location_address'],
-                            'lat'     => $lat_validated,
-                            'lng'     => $lng_validated,
-                            'text'    => $data['oum_location_text'],
-                            'video'   => $data['oum_location_video'],
+                            'address'       => $data['oum_location_address'],
+                            'lat'           => $lat_validated,
+                            'lng'           => $lng_validated,
+                            'text'          => $data['oum_location_text'],
+                            'video'         => $data['oum_location_video'],
+                            'geometry_type' => $data['oum_geometry_type'],
                         );
+                        if ( $data['oum_geometry_type'] !== 'point' && $submitted_geometry ) {
+                            $data_meta['geometry'] = $submitted_geometry;
+                        }
                         // Persist per-location zoom when available (frontend submissions).
                         if ( $zoom_validated !== '' ) {
                             $data_meta['zoom'] = $zoom_validated;
@@ -1616,10 +1912,14 @@ class BaseController {
         }
         // Enqueue frontend CSS with custom inline CSS
         $this->enqueue_frontend_css();
+        // Dashicons for media upload buttons in the inline add-location form
+        $this->enqueue_add_location_dashicons();
         // Load map base scripts (enqueues registered Leaflet CSS and JS)
         $this->include_map_scripts();
         // Enqueue registered frontend block map script
         wp_enqueue_script( 'oum_frontend_block_map_js' );
+        wp_enqueue_style( 'oum_leaflet_draw_css' );
+        wp_enqueue_script( 'oum_leaflet_draw_js' );
         // Localize block map script
         wp_localize_script( 'oum_frontend_block_map_js', 'oum_custom_strings', $this->oum_custom_strings() );
         wp_localize_script( 'oum_frontend_block_map_js', 'oum_ajax', $this->oum_ajax_localization_data() );
