@@ -1126,7 +1126,7 @@ const OUMMarkers = (function () {
       : L.markerClusterGroup({
           showCoverageOnHover: false,
           removeOutsideVisibleBounds: true,
-          maxClusterRadius: 100,
+          maxClusterRadius: 50,
           chunkedLoading: true,
         });
     vectorLayer = L.layerGroup();

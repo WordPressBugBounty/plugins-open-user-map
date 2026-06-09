@@ -4,11 +4,11 @@
  * @package OpenUserMapPlugin
  */
 /*
-Plugin Name: Open User Map
+Plugin Name: Open User Map – Interactive Leaflet Maps
 Plugin URI: https://wordpress.org/plugins/open-user-map/
 Description: Create custom interactive maps with free Leaflet-based styles, no Google Maps API key, frontend marker submissions, search and filters.
 Author: 100plugins
-Version: 1.4.42
+Version: 1.4.43
 Author URI: https://www.open-user-map.com/
 License: GPLv3 or later
 Text Domain: open-user-map

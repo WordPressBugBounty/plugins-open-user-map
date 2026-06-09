@@ -200,6 +200,9 @@
   height: 16px;
   flex-shrink: 0;
 }
+.open-user-map .box-wrap .map-wrap .oum-filter-controls .oum-filter-list label input[type=checkbox]::before, .open-user-map .box-wrap .map-wrap .oum-filter-controls .oum-filter-list label input[type=checkbox]::after {
+  display: none;
+}
 .open-user-map .box-wrap .map-wrap .oum-filter-controls .oum-filter-list label img {
   height: 26px;
   width: 26px;
