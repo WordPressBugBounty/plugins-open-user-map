@@ -264,7 +264,7 @@
   display: block;
   width: 32px;
   height: 32px;
-  color: #2c3338;
+  color: #e82c71;
 }
 .post-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-icon svg,
 .post-new-php.post-type-oum-location .geo-coordinates-wrap .input-wrap .oum-location-type-icon svg {
@@ -609,7 +609,7 @@
 }
 .post-php.post-type-oum-location .marker_icons label .marker_icon_preview[data-style=default],
 .post-new-php.post-type-oum-location .marker_icons label .marker_icon_preview[data-style=default] {
-  background-image: url("../src/leaflet/images/marker-icon_custom4-2x.png");
+  background-image: url("../src/leaflet/images/marker-icon_default-2x.png");
 }
 .post-php.post-type-oum-location .marker_icons label .marker_icon_preview[data-style=custom1],
 .post-new-php.post-type-oum-location .marker_icons label .marker_icon_preview[data-style=custom1] {
@@ -1737,6 +1737,14 @@
 }
 .oum-location_page_open-user-map-settings .wrap-custom-image-settings .custom-image-hide-tiles-option .description,
 .toplevel_page_open-user-map .wrap-custom-image-settings .custom-image-hide-tiles-option .description {
+  margin-top: 5px;
+}
+.oum-location_page_open-user-map-settings .wrap-custom-image-settings .custom-image-clickable-option,
+.toplevel_page_open-user-map .wrap-custom-image-settings .custom-image-clickable-option {
+  margin-bottom: 20px;
+}
+.oum-location_page_open-user-map-settings .wrap-custom-image-settings .custom-image-clickable-option .description,
+.toplevel_page_open-user-map .wrap-custom-image-settings .custom-image-clickable-option .description {
   margin-top: 5px;
 }
 .oum-location_page_open-user-map-settings .wrap-custom-image-settings #image_preview img,
@@ -2946,6 +2954,13 @@
 .oum-location_page_open-user-map-settings #oum-add-filter-section,
 .toplevel_page_open-user-map #oum-add-filter-section {
   margin-top: 10px;
+}
+
+.open-user-map .box-wrap .map-wrap .leaflet-map.oum-custom-image-click-through .leaflet-image-layer,
+.open-user-map .box-wrap .map-wrap .leaflet-map.oum-custom-image-click-through .leaflet-image-layer *,
+.leaflet-map.oum-custom-image-click-through .leaflet-image-layer,
+.leaflet-map.oum-custom-image-click-through .leaflet-image-layer * {
+  pointer-events: none;
 }
 
 .wp-block.wp-block-open-user-map-map,

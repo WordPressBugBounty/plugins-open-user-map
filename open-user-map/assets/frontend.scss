@@ -4570,6 +4570,11 @@ body.oum-add-location-opened {
   }
 }
 
+.open-user-map .box-wrap .map-wrap .leaflet-map.oum-custom-image-click-through .leaflet-image-layer,
+.open-user-map .box-wrap .map-wrap .leaflet-map.oum-custom-image-click-through .leaflet-image-layer * {
+  pointer-events: none;
+}
+
 // Lazy-loaded map popup: centered spinner while bubble HTML loads
 .open-user-map .leaflet-popup-content .oum-bubble-loading {
   display: flex;

@@ -57,6 +57,7 @@ $oum_all_locations_clean = clean_utf8( $oum_all_locations );
 // Fixing height without unit
 $oum_map_height = ( is_numeric( $oum_map_height ) ? $oum_map_height . 'px' : $oum_map_height );
 $oum_map_height_mobile = ( is_numeric( $oum_map_height_mobile ) ? $oum_map_height_mobile . 'px' : $oum_map_height_mobile );
+$custom_image_click_class = ( $map_style === 'CustomImage' && $oum_custom_image_clickable !== 'on' ? ' oum-custom-image-click-through' : '' );
 ?>
 
 <div class="box-wrap map-size-<?php 
@@ -119,6 +120,7 @@ if ( $oum_enable_regions == 'on' && $regions && count( $regions ) > 0 ) {
 echo $unique_id;
 ?>" class="leaflet-map map-style_<?php 
 echo esc_attr( $map_style );
+echo esc_attr( $custom_image_click_class );
 ?>"<?php 
 echo $this->get_tile_provider_data_attribute( $map_style, 'container' );
 ?>></div>
@@ -504,6 +506,9 @@ echo $oum_custom_image_bounds;
 ?>;
         var oum_custom_image_hide_tiles = <?php 
 echo ( $oum_custom_image_hide_tiles === 'on' ? 'true' : 'false' );
+?>;
+        var oum_custom_image_clickable = <?php 
+echo ( $oum_custom_image_clickable === 'on' ? 'true' : 'false' );
 ?>;
         var oum_custom_image_background_color = `<?php 
 echo esc_js( $oum_custom_image_background_color );

@@ -1872,6 +1872,14 @@
       }
     }
 
+    .custom-image-clickable-option {
+      margin-bottom: 20px;
+
+      .description {
+        margin-top: 5px;
+      }
+    }
+
     #image_preview img {
       max-width: 300px;
       max-height: 200px;
@@ -3102,6 +3110,13 @@
   #oum-add-filter-section {
     margin-top: 10px;
   }
+}
+
+.open-user-map .box-wrap .map-wrap .leaflet-map.oum-custom-image-click-through .leaflet-image-layer,
+.open-user-map .box-wrap .map-wrap .leaflet-map.oum-custom-image-click-through .leaflet-image-layer *,
+.leaflet-map.oum-custom-image-click-through .leaflet-image-layer,
+.leaflet-map.oum-custom-image-click-through .leaflet-image-layer * {
+  pointer-events: none;
 }
 
 // Pagebuilder: Gutenberg & Elementor

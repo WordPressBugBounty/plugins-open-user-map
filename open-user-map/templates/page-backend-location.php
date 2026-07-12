@@ -25,6 +25,7 @@ echo __( 'Marker', 'open-user-map' );
                     <div class="map-wrap">
                         <div id="mapGetLocation" class="leaflet-map map-style_<?php 
 echo esc_attr( $map_style );
+echo ( $map_style === 'CustomImage' && get_option( 'oum_custom_image_clickable', '' ) !== 'on' ? ' oum-custom-image-click-through' : '' );
 ?>"></div>
                     </div>
                     <div class="input-wrap">
@@ -249,6 +250,9 @@ if ( empty( $bounds ) ) {
 ?>;
                     window.oum_custom_image_hide_tiles = <?php 
 echo ( get_option( 'oum_custom_image_hide_tiles', '' ) === 'on' ? 'true' : 'false' );
+?>;
+                    window.oum_custom_image_clickable = <?php 
+echo ( get_option( 'oum_custom_image_clickable', '' ) === 'on' ? 'true' : 'false' );
 ?>;
                     window.oum_custom_image_background_color = `<?php 
 echo esc_js( get_option( 'oum_custom_image_background_color', '#ffffff' ) );

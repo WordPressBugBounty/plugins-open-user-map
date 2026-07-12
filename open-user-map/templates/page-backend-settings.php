@@ -446,7 +446,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                     
                     <div style="margin-bottom: 15px;">
                       <p class="description"><?php 
-    echo __( 'Supports JPG, PNG, WebP, and SVG files. SVG files will be rendered as interactive elements.', 'open-user-map' );
+    echo __( 'Supports JPG, PNG, WebP, and SVG files. The custom image overlay can be clickable when enabled in the display options below.', 'open-user-map' );
     ?></p>
                     </div>
                     
@@ -595,6 +595,18 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></label>
                       <p class="description"><?php 
     echo __( 'Show only your custom image without any background map tiles.', 'open-user-map' );
+    ?></p>
+                    </div>
+
+                    <div class="custom-image-clickable-option">
+                      <input class="oum-switch" type="checkbox" name="oum_custom_image_clickable" id="oum_custom_image_clickable" value="on" <?php 
+    checked( get_option( 'oum_custom_image_clickable', '' ), 'on' );
+    ?>>
+                      <label for="oum_custom_image_clickable"><?php 
+    echo __( 'Allow clicks on custom image overlay', 'open-user-map' );
+    ?></label>
+                      <p class="description"><?php 
+    echo __( 'Enable this only when the custom image overlay itself needs to be clickable. When disabled, clicks pass through to lines and areas on the map.', 'open-user-map' );
     ?></p>
                     </div>
                     
@@ -847,6 +859,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                     <div class="map-wrap">
                         <div id="mapGetInitial" class="leaflet-map map-style_<?php 
     echo esc_attr( $map_style );
+    echo ( $map_style === 'CustomImage' && get_option( 'oum_custom_image_clickable', '' ) !== 'on' ? ' oum-custom-image-click-through' : '' );
     ?>"></div>
                     </div>
                     <div class="input-wrap">
@@ -970,6 +983,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>;
                     window.oum_custom_image_hide_tiles = <?php 
     echo ( get_option( 'oum_custom_image_hide_tiles', '' ) === 'on' ? 'true' : 'false' );
+    ?>;
+                    window.oum_custom_image_clickable = <?php 
+    echo ( get_option( 'oum_custom_image_clickable', '' ) === 'on' ? 'true' : 'false' );
     ?>;
                     window.oum_custom_image_background_color = `<?php 
     echo esc_js( get_option( 'oum_custom_image_background_color', '#ffffff' ) );
@@ -1203,10 +1219,11 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                 <td>
                   <input class="oum-switch" type="checkbox" disabled>
                   <label></label><br><br>
-                  <input class="oum-switch" type="checkbox" disabled>
-                  <label><?php 
-        echo __( 'Redirect "Add location"-Button to registration page', 'open-user-map' );
-        ?></label><br><br>
+                  <select disabled>
+                    <option><?php 
+        echo __( 'Redirect "Add location"-Button for logged-out users', 'open-user-map' );
+        ?></option>
+                  </select><br><br>
                 </td>
               </tr>
             <?php 

@@ -61,6 +61,7 @@ $oum_advanced_filter_layout = get_option( 'oum_advanced_filter_layout', 'left' )
 $oum_custom_image_url = get_option( 'oum_custom_image_url', '' );
 $oum_custom_image_bounds_raw = get_option( 'oum_custom_image_bounds', '' );
 $oum_custom_image_hide_tiles = get_option( 'oum_custom_image_hide_tiles', '' );
+$oum_custom_image_clickable = get_option( 'oum_custom_image_clickable', '' );
 $oum_custom_image_background_color = get_option( 'oum_custom_image_background_color', '#ffffff' );
 // Process bounds data for JavaScript
 $oum_custom_image_bounds = '{}';

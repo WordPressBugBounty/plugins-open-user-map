@@ -272,7 +272,7 @@ class Settings extends BaseController {
             'sanitize_callback' => 'sanitize_text_field',
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_enable_redirect_to_registration', array(
-            'sanitize_callback' => 'sanitize_text_field',
+            'sanitize_callback' => array($this, 'sanitize_add_location_redirect_target'),
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_enable_auto_publish', array(
             'sanitize_callback' => 'sanitize_text_field',
@@ -352,6 +352,9 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group', 'oum_custom_image_hide_tiles', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'open-user-map-settings-group', 'oum_custom_image_clickable', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
         register_setting( 'open-user-map-settings-group', 'oum_custom_image_background_color', array(
             'sanitize_callback' => 'sanitize_hex_color',
         ) );
@@ -383,6 +386,21 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-group-wizard-2', 'oum_wizard_finish_done', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+    }
+
+    /**
+     * Sanitize the redirect destination for logged-out users clicking "Add location".
+     *
+     * @param string $value Submitted redirect target.
+     * @return string
+     */
+    public function sanitize_add_location_redirect_target( $value ) {
+        $value = sanitize_key( $value );
+        // Backward compatibility for the former checkbox value.
+        if ( $value === 'on' ) {
+            return 'registration';
+        }
+        return ( in_array( $value, array('none', 'registration', 'login'), true ) ? $value : 'none' );
     }
 
     public function migrate_deprecated_settings() {

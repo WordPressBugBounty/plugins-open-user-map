@@ -194,6 +194,14 @@ window.addEventListener('load', function(e) {
       } else if(val === 'CustomImage') {
         // show custom image settings
         jQuery('.wrap-custom-image-settings').show();
+
+        // Leaflet needs a visible container before it can calculate tiles and bounds correctly.
+        setTimeout(function() {
+          if (typeof window.oumRefreshImagePositionEditor === 'function') {
+            window.oumRefreshImagePositionEditor();
+          }
+          window.dispatchEvent(new Event('resize'));
+        }, 100);
         
         // Only scroll to custom image settings if no image is currently set
         if (!window.oum_custom_image_url || window.oum_custom_image_url === '') {

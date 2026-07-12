@@ -21,6 +21,7 @@
             this.scaleStart = null;
             this.currentBounds = null;
             this.resizeHandleMarkers = {};
+            this.isDestroyed = false;
             
             this.init();
         }
@@ -94,6 +95,7 @@
                 // Handle regular image file
                 const img = new Image();
                 img.onload = () => {
+                    if (this.isDestroyed) return;
                     this.createImageOverlay(img);
                 };
                 img.onerror = () => {
@@ -110,6 +112,8 @@
             fetch(this.imageUrl)
                 .then(response => response.text())
                 .then(svgText => {
+                    if (this.isDestroyed || !this.map) return;
+
                     // Create SVG element from the fetched content
                     const svgElement = this.createSVGElement(svgText);
                     if (!svgElement) {
@@ -213,6 +217,8 @@
          * Create image overlay with initial bounds
          */
         createImageOverlay(img) {
+            if (this.isDestroyed || !this.map) return;
+
             const imageWidth = img.naturalWidth;
             const imageHeight = img.naturalHeight;
             const imageAspectRatio = imageHeight / imageWidth;
@@ -268,9 +274,11 @@
          * Make overlay interactive (draggable and scalable)
          */
         makeOverlayInteractive() {
-            if (!this.imageOverlay) return;
+            if (this.isDestroyed || !this.imageOverlay) return;
 
             setTimeout(() => {
+                if (this.isDestroyed || !this.imageOverlay || !this.map) return;
+
                 const overlayElement = this.imageOverlay.getElement();
                 if (!overlayElement) {
                     setTimeout(() => this.makeOverlayInteractive(), 100);
@@ -307,9 +315,13 @@
          * Add resize handles to map (as markers at corners)
          */
         addResizeHandlesToMap() {
-            if (!this.imageOverlay || !this.map) return;
+            if (this.isDestroyed || !this.imageOverlay || !this.map) return;
             
             setTimeout(() => {
+                if (this.isDestroyed || !this.imageOverlay || !this.map || !this.map._panes || !this.map._panes.markerPane) {
+                    return;
+                }
+
                 const bounds = this.imageOverlay.getBounds();
                 if (!bounds || !bounds.isValid()) {
                     setTimeout(() => this.addResizeHandlesToMap(), 100);
@@ -966,8 +978,10 @@
          * Destroy editor
          */
         destroy() {
+            this.isDestroyed = true;
+
             // Remove resize handle markers
-            if (this.resizeHandleMarkers) {
+            if (this.map && this.resizeHandleMarkers) {
                 Object.keys(this.resizeHandleMarkers).forEach(handle => {
                     if (this.resizeHandleMarkers[handle]) {
                         this.map.removeLayer(this.resizeHandleMarkers[handle]);
@@ -976,7 +990,7 @@
             }
             
             // Remove image overlay
-            if (this.imageOverlay) {
+            if (this.map && this.imageOverlay) {
                 this.map.removeLayer(this.imageOverlay);
             }
             
@@ -1208,6 +1222,10 @@
             
             // Show editor container
             editorContainer.style.display = 'block';
+
+            if (!this.isElementVisible(editorContainer)) {
+                return;
+            }
             
             // Get existing bounds if available
             let initialBounds = null;
@@ -1230,6 +1248,10 @@
             
             // Destroy existing editor if any
             if (window.oumImagePositionEditor) {
+                if (window.oumImagePositionEditor.imageUrl === imageUrl) {
+                    this.refreshVisibleEditor();
+                    return;
+                }
                 window.oumImagePositionEditor.destroy();
             }
             
@@ -1246,6 +1268,44 @@
         },
 
         /**
+         * Check if the editor can be measured by Leaflet.
+         */
+        isElementVisible(element) {
+            return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+        },
+
+        /**
+         * Initialize or refresh the editor after hidden settings become visible.
+         */
+        refreshVisibleEditor() {
+            const imageUrlInput = document.getElementById('oum_custom_image_url');
+            const editorContainer = document.getElementById('oum-image-position-editor');
+
+            if (!imageUrlInput || !imageUrlInput.value || !editorContainer) {
+                return;
+            }
+
+            editorContainer.style.display = 'block';
+
+            if (!this.isElementVisible(editorContainer)) {
+                return;
+            }
+
+            if (!window.oumImagePositionEditor) {
+                this.initImagePositionEditor(imageUrlInput.value);
+                return;
+            }
+
+            const editor = window.oumImagePositionEditor;
+            if (editor.map) {
+                editor.map.invalidateSize();
+                if (editor.currentBounds) {
+                    editor.map.fitBounds(editor.currentBounds);
+                }
+            }
+        },
+
+        /**
          * Setup tab visibility handler to fix map sizing when switching tabs
          */
         setupTabVisibilityHandler() {
@@ -1255,13 +1315,7 @@
                 const observer = new MutationObserver(() => {
                     if (tab1.classList.contains('active')) {
                         setTimeout(() => {
-                            const editor = window.oumImagePositionEditor;
-                            if (editor && editor.map) {
-                                editor.map.invalidateSize();
-                                if (editor.currentBounds) {
-                                    editor.map.fitBounds(editor.currentBounds);
-                                }
-                            }
+                            this.refreshVisibleEditor();
                         }, 100);
                     }
                 });
@@ -1418,6 +1472,7 @@
 
     // Initialize integration when script loads
     ImagePositionEditorIntegration.init();
+    window.oumRefreshImagePositionEditor = () => ImagePositionEditorIntegration.refreshVisibleEditor();
 
 })();
 
