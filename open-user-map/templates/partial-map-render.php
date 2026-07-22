@@ -448,13 +448,13 @@ echo $oum_action_after_submit;
 echo $thankyou_redirect;
 ?>`;
         var start_lat = Number(<?php 
-echo esc_attr( $start_lat );
+echo wp_json_encode( (float) $start_lat );
 ?>);
         var start_lng = Number(<?php 
-echo esc_attr( $start_lng );
+echo wp_json_encode( (float) $start_lng );
 ?>);
         var start_zoom = Number(<?php 
-echo esc_attr( $start_zoom );
+echo wp_json_encode( (float) $start_zoom );
 ?>);
         
         var oum_enable_fixed_map_bounds = `<?php 

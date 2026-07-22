@@ -1138,6 +1138,46 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
             <?php 
     ?>
 
+            <?php 
+    // Show this recommendation only when WooCommerce is installed.
+    $oum_is_woocommerce_installed = class_exists( 'WooCommerce' ) || defined( 'WP_PLUGIN_DIR' ) && file_exists( WP_PLUGIN_DIR . '/woocommerce/woocommerce.php' );
+    ?>
+            <?php 
+    if ( $oum_is_woocommerce_installed ) {
+        ?>
+              <tr valign="top">
+                <th scope="row">
+                  <?php 
+        echo __( 'For WooCommerce Stores', 'open-user-map' );
+        ?>
+                </th>
+                <td>
+                  <p>
+                    <img src="<?php 
+        echo esc_url( $this->plugin_url . 'assets/images/customer-reach-map-logo.png' );
+        ?>" alt="" width="24" height="24" style="vertical-align: middle; margin-right: 8px;">
+                    <strong><?php 
+        echo __( 'Customer Reach Map', 'open-user-map' );
+        ?></strong>
+                  </p>
+                  <p style="width: 700px; max-width: 100%;"><?php 
+        echo __( 'A separate WooCommerce plugin from the creator of Open User Map. Turn your existing WooCommerce orders into an interactive heatmap and instantly see where your customers are located.', 'open-user-map' );
+        ?></p>
+                  <p>
+                    <a href="<?php 
+        echo esc_url( 'https://customer-reach-map.com/?ref=oum' );
+        ?>" target="_blank" rel="noopener noreferrer">
+                      <?php 
+        echo __( 'Learn more ↗', 'open-user-map' );
+        ?>
+                    </a>
+                  </p>
+                </td>
+              </tr>
+            <?php 
+    }
+    ?>
+
           </table>
         </div>
 

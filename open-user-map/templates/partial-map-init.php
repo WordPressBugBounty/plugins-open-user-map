@@ -676,12 +676,34 @@ foreach ( $posts as $post ) {
     $locations_list[] = $location;
 }
 $oum_use_settings_start_location = 'false';
-// Set focus for map init
+$normalize_start_attribute = static function ( $value, $min = null, $max = null ) {
+    if ( !is_scalar( $value ) ) {
+        return false;
+    }
+    // Shortcode attributes are rendered into JavaScript later, so only allow numeric map values.
+    $value = trim( str_replace( ',', '.', sanitize_text_field( (string) $value ) ) );
+    if ( $value === '' || !is_numeric( $value ) ) {
+        return false;
+    }
+    $value = (float) $value;
+    if ( $min !== null && $value < $min || $max !== null && $value > $max ) {
+        return false;
+    }
+    return $value;
+};
+$has_valid_shortcode_start_location = false;
 if ( isset( $block_attributes['lat'] ) && $block_attributes['lat'] != '' && isset( $block_attributes['long'] ) && $block_attributes['long'] != '' && isset( $block_attributes['zoom'] ) && $block_attributes['zoom'] != '' ) {
-    //get lat, long, zoom from shortcode attributes
-    $start_lat = str_replace( ',', '.', $block_attributes['lat'] );
-    $start_lng = str_replace( ',', '.', $block_attributes['long'] );
-    $start_zoom = str_replace( ',', '.', $block_attributes['zoom'] );
+    $shortcode_start_lat = $normalize_start_attribute( $block_attributes['lat'], -90, 90 );
+    $shortcode_start_lng = $normalize_start_attribute( $block_attributes['long'], -180, 180 );
+    $shortcode_start_zoom = $normalize_start_attribute( $block_attributes['zoom'], 0 );
+    $has_valid_shortcode_start_location = $shortcode_start_lat !== false && $shortcode_start_lng !== false && $shortcode_start_zoom !== false;
+}
+// Set focus for map init
+if ( $has_valid_shortcode_start_location ) {
+    //get validated lat, long, zoom from shortcode attributes
+    $start_lat = $shortcode_start_lat;
+    $start_lng = $shortcode_start_lng;
+    $start_zoom = $shortcode_start_zoom;
 } elseif ( isset( $oum_start_region ) && $oum_start_region != '' ) {
     //get region from shortcode attribute
     $start_lat = get_term_meta( $oum_start_region->term_id, 'oum_lat', true );
