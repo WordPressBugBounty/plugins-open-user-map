@@ -378,9 +378,9 @@ echo $unique_id;
         oumLoading();
 
         // OUM inline JS variables
-        var mapStyle = `<?php 
-echo esc_attr( $map_style );
-?>`;
+        var mapStyle = <?php 
+echo wp_json_encode( $map_style );
+?>;
         var oum_tile_provider_mapbox_key = `<?php 
 echo esc_attr( $oum_tile_provider_mapbox_key );
 ?>`;
@@ -746,10 +746,9 @@ if ( $oum_map_height ) {
     ?>
 
           /* custom map height */
-          oum_custom_css += `
-            .open-user-map .box-wrap > .map-wrap {padding: 0 !important; height: <?php 
-    echo esc_attr( $oum_map_height );
-    ?> !important; aspect-ratio: unset !important;}`;
+          oum_custom_css += <?php 
+    echo wp_json_encode( '.open-user-map .box-wrap > .map-wrap {padding: 0 !important; height: ' . $oum_map_height . ' !important; aspect-ratio: unset !important;}' );
+    ?>;
 
         <?php 
 }
@@ -760,10 +759,9 @@ if ( $oum_map_height_mobile ) {
     ?>
 
           /* custom map height */
-          oum_custom_css += `
-            @media screen and (max-width: 768px) {.open-user-map .box-wrap > .map-wrap {padding: 0 !important; height: <?php 
-    echo esc_attr( $oum_map_height_mobile );
-    ?> !important; aspect-ratio: unset !important;}}`;
+          oum_custom_css += <?php 
+    echo wp_json_encode( '@media screen and (max-width: 768px) {.open-user-map .box-wrap > .map-wrap {padding: 0 !important; height: ' . $oum_map_height_mobile . ' !important; aspect-ratio: unset !important;}}' );
+    ?>;
 
         <?php 
 }

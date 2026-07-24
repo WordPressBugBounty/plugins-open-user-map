@@ -1,5 +1,27 @@
 <?php
 
+if ( !function_exists( 'oum_sanitize_map_style_value' ) ) {
+    function oum_sanitize_map_style_value(  $value, $fallback = 'Esri.WorldStreetMap'  ) {
+        $value = sanitize_text_field( $value );
+        // Map style keys are provider identifiers like Esri.WorldStreetMap or CustomImage.
+        return ( preg_match( '/^[A-Za-z0-9._-]+$/', $value ) ? $value : $fallback );
+    }
+
+}
+if ( !function_exists( 'oum_sanitize_map_height_value' ) ) {
+    function oum_sanitize_map_height_value(  $value  ) {
+        $value = trim( sanitize_text_field( $value ) );
+        if ( $value === '' ) {
+            return '';
+        }
+        if ( is_numeric( $value ) ) {
+            return $value . 'px';
+        }
+        // Keep CSS sizing intentionally narrow for shortcode input used inside inline CSS.
+        return ( preg_match( '/^\\d+(?:\\.\\d+)?(?:px|%|vh|vw|em|rem)$/i', $value ) ? strtolower( $value ) : '' );
+    }
+
+}
 // Settings
 $oum_enable_scrollwheel_zoom_map = ( get_option( 'oum_enable_scrollwheel_zoom_map' ) === 'on' ? 'true' : 'false' );
 $oum_enable_regions = get_option( 'oum_enable_regions' );
@@ -71,21 +93,24 @@ if ( !empty( $oum_custom_image_bounds_raw ) ) {
         $oum_custom_image_bounds = json_encode( $bounds_array );
     }
 }
+$map_style = oum_sanitize_map_style_value( $map_style );
+$oum_map_height = oum_sanitize_map_height_value( $oum_map_height );
+$oum_map_height_mobile = oum_sanitize_map_height_value( $oum_map_height_mobile );
 // Custom Attribute: Map Size
 if ( isset( $block_attributes['size'] ) && $block_attributes['size'] != '' ) {
     $map_size = $block_attributes['size'];
 }
 // Custom Attribute: Map Style
 if ( isset( $block_attributes['map_style'] ) && $block_attributes['map_style'] != '' ) {
-    $map_style = $block_attributes['map_style'];
+    $map_style = oum_sanitize_map_style_value( $block_attributes['map_style'], $map_style );
 }
 // Custom Attribute: Height
 if ( isset( $block_attributes['height'] ) && $block_attributes['height'] != '' ) {
-    $oum_map_height = $block_attributes['height'];
+    $oum_map_height = oum_sanitize_map_height_value( $block_attributes['height'] );
 }
 // Custom Attribute: Height (Mobile)
 if ( isset( $block_attributes['height_mobile'] ) && $block_attributes['height_mobile'] != '' ) {
-    $oum_map_height_mobile = $block_attributes['height_mobile'];
+    $oum_map_height_mobile = oum_sanitize_map_height_value( $block_attributes['height_mobile'] );
 }
 // Custom Attribute: Clustering (true|false)
 if ( isset( $block_attributes['enable_cluster'] ) && $block_attributes['enable_cluster'] != '' ) {
