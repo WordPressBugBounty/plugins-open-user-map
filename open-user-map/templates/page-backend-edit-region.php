@@ -52,16 +52,16 @@
             const lng = '<?php echo esc_attr($term_lng) ? esc_attr($term_lng) : '0'; ?>';
             const zoom = '<?php echo esc_attr($term_zoom) ? esc_attr($term_zoom) : '1'; ?>';
             const mapStyle = '<?php echo $map_style; ?>';
-            var oum_tile_provider_mapbox_key = `<?php echo esc_attr($oum_tile_provider_mapbox_key); ?>`;
-            let oum_geosearch_selected_provider = ``; 
-            const oum_geosearch_provider = `<?php echo get_option('oum_geosearch_provider') ? get_option('oum_geosearch_provider') : 'osm'; ?>`;
-            const oum_geosearch_provider_geoapify_key = `<?php echo get_option('oum_geosearch_provider_geoapify_key', ''); ?>`;
-            const oum_geosearch_provider_here_key = `<?php echo get_option('oum_geosearch_provider_here_key', ''); ?>`;
-            const oum_geosearch_provider_mapbox_key = `<?php echo get_option('oum_geosearch_provider_mapbox_key', ''); ?>`;
-            const oum_searchaddress_label = `<?php echo esc_attr(get_option('oum_searchaddress_label') ? get_option('oum_searchaddress_label') : $this->oum_get_default_label('searchaddress')); ?>`;
+            var oum_tile_provider_mapbox_key = <?php echo wp_json_encode((string) $oum_tile_provider_mapbox_key); ?>;
+            let oum_geosearch_selected_provider = "";
+            const oum_geosearch_provider = <?php echo wp_json_encode((string) (get_option('oum_geosearch_provider') ? get_option('oum_geosearch_provider') : 'osm')); ?>;
+            const oum_geosearch_provider_geoapify_key = <?php echo wp_json_encode((string) get_option('oum_geosearch_provider_geoapify_key', '')); ?>;
+            const oum_geosearch_provider_here_key = <?php echo wp_json_encode((string) get_option('oum_geosearch_provider_here_key', '')); ?>;
+            const oum_geosearch_provider_mapbox_key = <?php echo wp_json_encode((string) get_option('oum_geosearch_provider_mapbox_key', '')); ?>;
+            const oum_searchaddress_label = <?php echo wp_json_encode((string) (get_option('oum_searchaddress_label') ? get_option('oum_searchaddress_label') : $this->oum_get_default_label('searchaddress'))); ?>;
 
             // Custom Image data
-            window.oum_custom_image_url = `<?php echo esc_js(get_option('oum_custom_image_url', '')); ?>`;
+            window.oum_custom_image_url = <?php echo wp_json_encode((string) get_option('oum_custom_image_url', '')); ?>;
             window.oum_custom_image_bounds = <?php
               $bounds = get_option('oum_custom_image_bounds', '');
               if (empty($bounds)) {
@@ -77,7 +77,7 @@
             ?>;
             window.oum_custom_image_hide_tiles = <?php echo get_option('oum_custom_image_hide_tiles', '') === 'on' ? 'true' : 'false'; ?>;
             window.oum_custom_image_clickable = <?php echo get_option('oum_custom_image_clickable', '') === 'on' ? 'true' : 'false'; ?>;
-            window.oum_custom_image_background_color = `<?php echo esc_js(get_option('oum_custom_image_background_color', '#ffffff')); ?>`;
+            window.oum_custom_image_background_color = <?php echo wp_json_encode((string) get_option('oum_custom_image_background_color', '#ffffff')); ?>;
             </script>
 
             <?php 

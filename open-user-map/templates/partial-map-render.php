@@ -381,15 +381,15 @@ echo $unique_id;
         var mapStyle = <?php 
 echo wp_json_encode( $map_style );
 ?>;
-        var oum_tile_provider_mapbox_key = `<?php 
-echo esc_attr( $oum_tile_provider_mapbox_key );
-?>`;
-        var marker_icon_url = `<?php 
-echo ( $marker_icon == 'user1' && $marker_user_icon ? esc_url( $marker_user_icon ) : esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $marker_icon ) . '-2x.png' );
-?>`;
-        var marker_shadow_url = `<?php 
-echo esc_url( $this->plugin_url );
-?>src/leaflet/images/marker-shadow.png`;
+        var oum_tile_provider_mapbox_key = <?php 
+echo wp_json_encode( (string) $oum_tile_provider_mapbox_key );
+?>;
+        var marker_icon_url = <?php 
+echo wp_json_encode( (string) (( $marker_icon == 'user1' && $marker_user_icon ? esc_url( $marker_user_icon ) : esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $marker_icon ) . '-2x.png' )) );
+?>;
+        var marker_shadow_url = <?php 
+echo wp_json_encode( (string) (esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-shadow.png') );
+?>;
         var oum_enable_scrollwheel_zoom_map = <?php 
 echo $oum_enable_scrollwheel_zoom_map;
 ?>;
@@ -403,50 +403,50 @@ echo $oum_enable_fullscreen;
         var oum_enable_searchbar = <?php 
 echo $oum_enable_searchbar;
 ?>;
-        var oum_searchbar_type = `<?php 
-echo $oum_searchbar_type;
-?>`;
+        var oum_searchbar_type = <?php 
+echo wp_json_encode( (string) $oum_searchbar_type );
+?>;
 
-        var oum_geosearch_selected_provider = ``; 
-        var oum_geosearch_provider = `<?php 
-echo $oum_geosearch_provider;
-?>`;
-        var oum_geosearch_provider_geoapify_key = `<?php 
-echo esc_attr( $oum_geosearch_provider_geoapify_key );
-?>`;
-        var oum_geosearch_provider_here_key = `<?php 
-echo esc_attr( $oum_geosearch_provider_here_key );
-?>`;
-        var oum_geosearch_provider_mapbox_key = `<?php 
-echo esc_attr( $oum_geosearch_provider_mapbox_key );
-?>`;
+        var oum_geosearch_selected_provider = "";
+        var oum_geosearch_provider = <?php 
+echo wp_json_encode( (string) $oum_geosearch_provider );
+?>;
+        var oum_geosearch_provider_geoapify_key = <?php 
+echo wp_json_encode( (string) $oum_geosearch_provider_geoapify_key );
+?>;
+        var oum_geosearch_provider_here_key = <?php 
+echo wp_json_encode( (string) $oum_geosearch_provider_here_key );
+?>;
+        var oum_geosearch_provider_mapbox_key = <?php 
+echo wp_json_encode( (string) $oum_geosearch_provider_mapbox_key );
+?>;
         
         var oum_enable_searchaddress_button = <?php 
 echo $oum_enable_searchaddress_button;
 ?>;
-        var oum_searchaddress_label = `<?php 
-echo esc_attr( $oum_searchaddress_label );
-?>`;
+        var oum_searchaddress_label = <?php 
+echo wp_json_encode( (string) $oum_searchaddress_label );
+?>;
 
         var oum_enable_searchmarkers_button = <?php 
 echo $oum_enable_searchmarkers_button;
 ?>;
-        var oum_searchmarkers_label = `<?php 
-echo esc_attr( $oum_searchmarkers_label );
-?>`;
-        var oum_searchmarkers_zoom = `<?php 
-echo esc_attr( $oum_searchmarkers_zoom );
-?>`;
+        var oum_searchmarkers_label = <?php 
+echo wp_json_encode( (string) $oum_searchmarkers_label );
+?>;
+        var oum_searchmarkers_zoom = <?php 
+echo wp_json_encode( (string) $oum_searchmarkers_zoom );
+?>;
 
         var oum_enable_currentlocation = <?php 
 echo $oum_enable_currentlocation;
 ?>;
-        var oum_action_after_submit = `<?php 
-echo $oum_action_after_submit;
-?>`;
-        var thankyou_redirect = `<?php 
-echo $thankyou_redirect;
-?>`;
+        var oum_action_after_submit = <?php 
+echo wp_json_encode( (string) $oum_action_after_submit );
+?>;
+        var thankyou_redirect = <?php 
+echo wp_json_encode( (string) $thankyou_redirect );
+?>;
         var start_lat = Number(<?php 
 echo wp_json_encode( (float) $start_lat );
 ?>);
@@ -457,30 +457,30 @@ echo wp_json_encode( (float) $start_lng );
 echo wp_json_encode( (float) $start_zoom );
 ?>);
         
-        var oum_enable_fixed_map_bounds = `<?php 
-echo $oum_enable_fixed_map_bounds;
-?>`;
+        var oum_enable_fixed_map_bounds = <?php 
+echo wp_json_encode( (string) $oum_enable_fixed_map_bounds );
+?>;
         var oum_use_settings_start_location = <?php 
 echo $oum_use_settings_start_location;
 ?>;
         var oum_has_regions = <?php 
 echo ( $oum_enable_regions == 'on' && $regions && count( $regions ) > 0 ? 'true' : 'false' );
 ?>;
-        var oum_enable_multiple_marker_types = `<?php 
-echo $oum_enable_multiple_marker_types;
-?>`;
+        var oum_enable_multiple_marker_types = <?php 
+echo wp_json_encode( (string) $oum_enable_multiple_marker_types );
+?>;
         var oum_hide_filterbox = <?php 
 echo $oum_hide_filterbox;
 ?>;
         var oum_hide_location_popup = <?php 
 echo ( isset( $oum_hide_location_popup ) && $oum_hide_location_popup === 'true' ? 'true' : 'false' );
 ?>;
-        var oum_enable_address = `<?php 
-echo $oum_enable_address;
-?>`;
-        var oum_enable_address_autofill = `<?php 
-echo $oum_enable_address_autofill;
-?>`;
+        var oum_enable_address = <?php 
+echo wp_json_encode( (string) $oum_enable_address );
+?>;
+        var oum_enable_address_autofill = <?php 
+echo wp_json_encode( (string) $oum_enable_address_autofill );
+?>;
 
         // WordPress timezone for opening hours calculations
         var oum_wordpress_timezone = `<?php 
@@ -498,9 +498,9 @@ if ( $timezone_string ) {
 ?>`;
 
         // Custom Image data
-        var oum_custom_image_url = `<?php 
-echo esc_js( $oum_custom_image_url );
-?>`;
+        var oum_custom_image_url = <?php 
+echo wp_json_encode( (string) $oum_custom_image_url );
+?>;
         var oum_custom_image_bounds = <?php 
 echo $oum_custom_image_bounds;
 ?>;
@@ -510,9 +510,9 @@ echo ( $oum_custom_image_hide_tiles === 'on' ? 'true' : 'false' );
         var oum_custom_image_clickable = <?php 
 echo ( $oum_custom_image_clickable === 'on' ? 'true' : 'false' );
 ?>;
-        var oum_custom_image_background_color = `<?php 
-echo esc_js( $oum_custom_image_background_color );
-?>`;
+        var oum_custom_image_background_color = <?php 
+echo wp_json_encode( (string) $oum_custom_image_background_color );
+?>;
 
         var oum_location = {};
         var oum_custom_css = '';

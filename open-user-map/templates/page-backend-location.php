@@ -179,50 +179,48 @@ echo esc_attr( $zoom );
                     const mapStyle = '<?php 
 echo esc_attr( $map_style );
 ?>';
-                    const oum_tile_provider_mapbox_key = `<?php 
-echo esc_attr( $oum_tile_provider_mapbox_key );
-?>`;
+                    const oum_tile_provider_mapbox_key = <?php 
+echo wp_json_encode( (string) $oum_tile_provider_mapbox_key );
+?>;
                     const oum_enable_currentlocation = '<?php 
 echo ( get_option( 'oum_enable_currentlocation' ) ? true : false );
 ?>';
                     const enableCurrentLocation = oum_enable_currentlocation ? true : false;
-                    let oum_geosearch_selected_provider = ``; 
-                    const oum_geosearch_provider = `<?php 
-echo ( get_option( 'oum_geosearch_provider' ) ? get_option( 'oum_geosearch_provider' ) : 'osm' );
-?>`;
-                    const oum_geosearch_provider_geoapify_key = `<?php 
-echo get_option( 'oum_geosearch_provider_geoapify_key', '' );
-?>`;
-                    const oum_geosearch_provider_here_key = `<?php 
-echo get_option( 'oum_geosearch_provider_here_key', '' );
-?>`;
-                    const oum_geosearch_provider_mapbox_key = `<?php 
-echo get_option( 'oum_geosearch_provider_mapbox_key', '' );
-?>`;
-                    const oum_searchaddress_label = `<?php 
-echo esc_attr( ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_get_default_label( 'searchaddress' ) ) );
-?>`;
-                    const oum_enable_address = `<?php 
-echo get_option( 'oum_enable_address', 'on' );
-?>`;
-                    const oum_enable_address_autofill = `<?php 
-echo get_option( 'oum_enable_address_autofill' );
-?>`;
+                    let oum_geosearch_selected_provider = "";
+                    const oum_geosearch_provider = <?php 
+echo wp_json_encode( (string) (( get_option( 'oum_geosearch_provider' ) ? get_option( 'oum_geosearch_provider' ) : 'osm' )) );
+?>;
+                    const oum_geosearch_provider_geoapify_key = <?php 
+echo wp_json_encode( (string) get_option( 'oum_geosearch_provider_geoapify_key', '' ) );
+?>;
+                    const oum_geosearch_provider_here_key = <?php 
+echo wp_json_encode( (string) get_option( 'oum_geosearch_provider_here_key', '' ) );
+?>;
+                    const oum_geosearch_provider_mapbox_key = <?php 
+echo wp_json_encode( (string) get_option( 'oum_geosearch_provider_mapbox_key', '' ) );
+?>;
+                    const oum_searchaddress_label = <?php 
+echo wp_json_encode( (string) (( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_get_default_label( 'searchaddress' ) )) );
+?>;
+                    const oum_enable_address = <?php 
+echo wp_json_encode( (string) get_option( 'oum_enable_address', 'on' ) );
+?>;
+                    const oum_enable_address_autofill = <?php 
+echo wp_json_encode( (string) get_option( 'oum_enable_address_autofill' ) );
+?>;
 
                     <?php 
 if ( $marker_icon == 'user1' && $marker_user_icon ) {
     ?>
-                        const marker_icon_url = `<?php 
-    echo esc_url( $marker_user_icon );
-    ?>`;
+                        const marker_icon_url = <?php 
+    echo wp_json_encode( (string) esc_url( $marker_user_icon ) );
+    ?>;
                     <?php 
 } else {
     ?>
-                        const marker_icon_url = `<?php 
-    echo esc_url( $this->plugin_url );
-    ?>src/leaflet/images/marker-icon_<?php 
-    echo esc_attr( $marker_icon );
-    ?>-2x.png`;
+                        const marker_icon_url = <?php 
+    echo wp_json_encode( (string) (esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $marker_icon ) . '-2x.png') );
+    ?>;
                     <?php 
 }
 ?>
@@ -232,9 +230,9 @@ echo esc_url( $this->plugin_url );
 ?>src/leaflet/images/marker-shadow.png';
 
                     // Custom Image data
-                    window.oum_custom_image_url = `<?php 
-echo esc_js( get_option( 'oum_custom_image_url', '' ) );
-?>`;
+                    window.oum_custom_image_url = <?php 
+echo wp_json_encode( (string) get_option( 'oum_custom_image_url', '' ) );
+?>;
                     window.oum_custom_image_bounds = <?php 
 $bounds = get_option( 'oum_custom_image_bounds', '' );
 if ( empty( $bounds ) ) {
@@ -254,9 +252,9 @@ echo ( get_option( 'oum_custom_image_hide_tiles', '' ) === 'on' ? 'true' : 'fals
                     window.oum_custom_image_clickable = <?php 
 echo ( get_option( 'oum_custom_image_clickable', '' ) === 'on' ? 'true' : 'false' );
 ?>;
-                    window.oum_custom_image_background_color = `<?php 
-echo esc_js( get_option( 'oum_custom_image_background_color', '#ffffff' ) );
-?>`;
+                    window.oum_custom_image_background_color = <?php 
+echo wp_json_encode( (string) get_option( 'oum_custom_image_background_color', '#ffffff' ) );
+?>;
                     </script>
 
                     <?php 
