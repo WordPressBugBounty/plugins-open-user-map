@@ -30,6 +30,7 @@
       var marker_shadow_url = <?php echo wp_json_encode((string) (esc_url($this->plugin_url) . 'src/leaflet/images/marker-shadow.png')); ?>;
       var mapStyle = <?php echo wp_json_encode((string) $map_style); ?>;
       var oum_tile_provider_mapbox_key = <?php echo wp_json_encode((string) $oum_tile_provider_mapbox_key); ?>;
+      var oum_tile_provider_carto_key = <?php echo wp_json_encode((string) $oum_tile_provider_carto_key); ?>;
       var oum_searchaddress_label = <?php echo wp_json_encode((string) $oum_searchaddress_label); ?>;
 
       var oum_geosearch_selected_provider = "";

@@ -182,6 +182,9 @@ echo esc_attr( $map_style );
                     const oum_tile_provider_mapbox_key = <?php 
 echo wp_json_encode( (string) $oum_tile_provider_mapbox_key );
 ?>;
+                    const oum_tile_provider_carto_key = <?php 
+echo wp_json_encode( (string) $oum_tile_provider_carto_key );
+?>;
                     const oum_enable_currentlocation = '<?php 
 echo ( get_option( 'oum_enable_currentlocation' ) ? true : false );
 ?>';

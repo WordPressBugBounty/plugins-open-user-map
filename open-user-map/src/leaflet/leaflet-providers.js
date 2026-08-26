@@ -801,10 +801,11 @@
 			}
 		},
 		CartoDB: {
-			url: 'https://{s}.basemaps.cartocdn.com/{variant}/{z}/{x}/{y}{r}.png',
+			url: 'https://{s}.basemaps.cartocdn.com/{variant}/{z}/{x}/{y}{r}.png?key={apikey}',
 			options: {
 				attribution: '{attribution.OpenStreetMap} &copy; <a href="https://carto.com/attributions">CARTO</a>',
 				subdomains: 'abcd',
+				apikey: '',
 				maxZoom: 20,
 				variant: 'light_all'
 			},

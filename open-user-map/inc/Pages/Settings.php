@@ -15,6 +15,7 @@ class Settings extends BaseController {
         add_action( 'admin_notices', array($this, 'show_getting_started_notice') );
         add_action( 'wp_ajax_oum_dismiss_getting_started_notice', array($this, 'getting_started_dismiss_notice') );
         add_action( 'admin_notices', array($this, 'show_update_notice') );
+        add_action( 'admin_notices', array($this, 'show_carto_basemaps_api_key_notice') );
         add_action( 'wp_ajax_oum_dismiss_update_notice', array($this, 'dismiss_update_notice') );
         add_action( 'wp_ajax_oum_csv_export', array($this, 'csv_export') );
         add_action( 'wp_ajax_oum_csv_import', array($this, 'csv_import') );
@@ -59,6 +60,9 @@ class Settings extends BaseController {
             'sanitize_callback' => 'sanitize_text_field',
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_tile_provider_mapbox_key', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
+        register_setting( 'open-user-map-settings-group', 'oum_tile_provider_carto_key', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_marker_icon', array(
@@ -690,6 +694,29 @@ class Settings extends BaseController {
         ) );
     }
 
+    public function show_carto_basemaps_api_key_notice() {
+        if ( !current_user_can( 'manage_options' ) ) {
+            return;
+        }
+        $map_style = get_option( 'oum_map_style', 'Esri.WorldStreetMap' );
+        $carto_key = get_option( 'oum_tile_provider_carto_key', '' );
+        $carto_styles = array(
+            'CartoDB.DarkMatter',
+            'CartoDB.Positron',
+            'Custom1',
+            'Custom2',
+            'Custom3'
+        );
+        if ( !in_array( $map_style, $carto_styles, true ) || $carto_key !== '' ) {
+            return;
+        }
+        echo '<div class="notice notice-warning">';
+        echo '<p><strong>' . esc_html__( 'Open User Map: CARTO Basemaps API Key missing', 'open-user-map' ) . '</strong></p>';
+        echo '<p>' . esc_html__( 'CARTO basemaps now require an API key. Your map will use the ESRI fallback style until you add a CARTO Basemaps API Key in the map style settings.', 'open-user-map' ) . ' ';
+        echo '<a href="' . esc_url( admin_url( 'edit.php?post_type=oum-location&page=open-user-map-settings' ) ) . '">' . esc_html__( 'Open settings', 'open-user-map' ) . '</a></p>';
+        echo '</div>';
+    }
+
     public function process_wizard_usecase( $input ) {
         // Adjust OUM settings based on the setup wizard choice.
         // Important: This is a one-time preset and should not affect later manual settings changes.
@@ -794,6 +821,11 @@ class Settings extends BaseController {
                     $location_customfields = array();
                     foreach ( $available_custom_fields as $custom_field_id => $custom_field ) {
                         $value = oum_get_location_value( $custom_field['label'], $post_id, true );
+                        if ( isset( $custom_field['fieldtype'] ) && $custom_field['fieldtype'] === 'opening_hours' ) {
+                            // Export opening hours in the same text format the CSV importer can parse.
+                            $use12hour = isset( $custom_field['use12hour'] ) && $custom_field['use12hour'];
+                            $value = \OpenUserMapPlugin\Base\LocationController::convert_opening_hours_json_to_input( $value, $use12hour );
+                        }
                         // transform array to pipe-separated string (also empty array)
                         if ( is_array( $value ) ) {
                             $value = implode( '|', $value );
@@ -1088,6 +1120,7 @@ class Settings extends BaseController {
                             'oum_location_star_rating_count' => ( isset( $location['star_rating_count'] ) ? $location['star_rating_count'] : '' ),
                         );
                         // Add custom fields
+                        $available_custom_fields = get_option( 'oum_custom_fields', array() );
                         $customfields = array_filter( $location, function ( $val, $key ) {
                             return strpos( $key, 'CUSTOMFIELD' ) === 0;
                         }, ARRAY_FILTER_USE_BOTH );
@@ -1097,8 +1130,9 @@ class Settings extends BaseController {
                                 continue;
                             }
                             $id = $key_parts[1];
-                            // transform pipe-separated string to array
-                            if ( $val && strpos( $val, '|' ) !== false ) {
+                            $fieldtype = ( isset( $available_custom_fields[$id]['fieldtype'] ) ? $available_custom_fields[$id]['fieldtype'] : 'text' );
+                            // Opening hours use pipes to separate time blocks and must stay a string for parsing.
+                            if ( $fieldtype !== 'opening_hours' && $val && strpos( $val, '|' ) !== false ) {
                                 $val = explode( '|', $val );
                             }
                             $fields['oum_location_custom_fields'][$id] = $val;

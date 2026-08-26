@@ -34,6 +34,7 @@ $oum_enable_address_autofill = get_option( 'oum_enable_address_autofill' );
 $oum_max_image_filesize = ( !empty( get_option( 'oum_max_image_filesize' ) ) ? get_option( 'oum_max_image_filesize' ) : 10 );
 $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'Esri.WorldStreetMap' );
 $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
+$oum_tile_provider_carto_key = get_option( 'oum_tile_provider_carto_key', '' );
 $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );
 $marker_user_icon = get_option( 'oum_marker_user_icon' );
 $map_size = get_option( 'oum_map_size' );

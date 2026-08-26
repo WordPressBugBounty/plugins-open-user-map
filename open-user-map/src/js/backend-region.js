@@ -54,30 +54,51 @@
     map.panInsideBounds(world_bounds, { animate: false });
   });
 
+  function getCartoApiKey() {
+    return (typeof oum_tile_provider_carto_key !== 'undefined') ? oum_tile_provider_carto_key : '';
+  }
+
+  function addCartoTileLayer(tileMap, style) {
+    const cartoKey = getCartoApiKey();
+
+    // CARTO tiles show a watermark without a key, so keep maps usable with ESRI.
+    if (!cartoKey) {
+      return L.tileLayer.provider('Esri.WorldStreetMap').addTo(tileMap);
+    }
+
+    return L.tileLayer.provider(style, {
+      apikey: cartoKey
+    }).addTo(tileMap);
+  }
+
+  function addCustomCartoLayers(tileMap, baseUrl) {
+    const cartoKey = getCartoApiKey();
+
+    // Custom styles are built from direct CARTO tile URLs and need the key manually.
+    if (!cartoKey) {
+      return L.tileLayer.provider('Esri.WorldStreetMap').addTo(tileMap);
+    }
+
+    const keyParam = '?key=' + encodeURIComponent(cartoKey);
+    L.tileLayer(baseUrl + keyParam).addTo(tileMap);
+    return L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png' + keyParam, {
+      tileSize: 512,
+      zoomOffset: -1
+    }).addTo(tileMap);
+  }
+
   // Set map style
   if (mapStyle == 'Custom1') {
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png').addTo(map);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-      tileSize: 512,
-      zoomOffset: -1
-    }).addTo(map);
+    addCustomCartoLayers(map, 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png');
 
   } else if (mapStyle == 'Custom2') {
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png').addTo(map);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-      tileSize: 512,
-      zoomOffset: -1
-    }).addTo(map);
+    addCustomCartoLayers(map, 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png');
 
   } else if (mapStyle == 'Custom3') {
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png').addTo(map);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-      tileSize: 512,
-      zoomOffset: -1
-    }).addTo(map);
+    addCustomCartoLayers(map, 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png');
 
   } else if (mapStyle == 'MapBox.streets') {
 
@@ -140,6 +161,8 @@
     } else {
       L.tileLayer.provider("OpenStreetMap.Mapnik").addTo(map);
     }
+  } else if (mapStyle.indexOf('CartoDB.') === 0) {
+    addCartoTileLayer(map, mapStyle);
   } else {
     // Default
     L.tileLayer.provider(mapStyle).addTo(map);

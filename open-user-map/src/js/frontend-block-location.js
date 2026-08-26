@@ -9,6 +9,7 @@
   const zoom = $el.data('zoom');
   const mapStyle = $el.data('mapstyle');
   const oum_tile_provider_mapbox_key = $el.data('tile_provider_mapbox_key');
+  const oum_tile_provider_carto_key = $el.data('tile_provider_carto_key');
   const marker_icon_url = $el.data('marker_icon_url');
   const marker_shadow_url = $el.data('marker_shadow_url');
   const geometryType = $el.data('geometry-type') || 'point';
@@ -23,30 +24,43 @@
 
   map.attributionControl.setPrefix(false);
 
+  function addCartoTileLayer(tileMap, style) {
+    // CARTO tiles show a watermark without a key, so keep maps usable with ESRI.
+    if (!oum_tile_provider_carto_key) {
+      return L.tileLayer.provider('Esri.WorldStreetMap').addTo(tileMap);
+    }
+
+    return L.tileLayer.provider(style, {
+      apikey: oum_tile_provider_carto_key
+    }).addTo(tileMap);
+  }
+
+  function addCustomCartoLayers(tileMap, baseUrl) {
+    // Custom styles are built from direct CARTO tile URLs and need the key manually.
+    if (!oum_tile_provider_carto_key) {
+      return L.tileLayer.provider('Esri.WorldStreetMap').addTo(tileMap);
+    }
+
+    const keyParam = '?key=' + encodeURIComponent(oum_tile_provider_carto_key);
+    L.tileLayer(baseUrl + keyParam).addTo(tileMap);
+    return L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png' + keyParam, {
+      tileSize: 512,
+      zoomOffset: -1
+    }).addTo(tileMap);
+  }
+
   // Set map style
   if (mapStyle == 'Custom1') {
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png').addTo(map);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-      tileSize: 512,
-      zoomOffset: -1
-    }).addTo(map);
+    addCustomCartoLayers(map, 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png');
 
   } else if (mapStyle == 'Custom2') {
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png').addTo(map);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-      tileSize: 512,
-      zoomOffset: -1
-    }).addTo(map);
+    addCustomCartoLayers(map, 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png');
 
   } else if (mapStyle == 'Custom3') {
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png').addTo(map);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-      tileSize: 512,
-      zoomOffset: -1
-    }).addTo(map);
+    addCustomCartoLayers(map, 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png');
 
   } else if (mapStyle == 'MapBox.streets') {
 
@@ -109,6 +123,8 @@
     } else {
       L.tileLayer.provider("OpenStreetMap.Mapnik").addTo(map);
     }
+  } else if (mapStyle.indexOf('CartoDB.') === 0) {
+    addCartoTileLayer(map, mapStyle);
   } else {
     // Default
     L.tileLayer.provider(mapStyle).addTo(map);

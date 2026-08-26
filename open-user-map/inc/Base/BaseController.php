@@ -476,8 +476,8 @@ class BaseController {
         "Esri.WorldStreetMap"  => "Esri WorldStreetMap",
         "OpenStreetMap.Mapnik" => "OpenStreetMap",
         "OpenStreetMap.DE"     => "OpenStreetMap (Germany)",
-        "CartoDB.DarkMatter"   => "CartoDB DarkMatter",
-        "CartoDB.Positron"     => "CartoDB Positron",
+        "CartoDB.DarkMatter"   => "CARTO DarkMatter",
+        "CartoDB.Positron"     => "CARTO Positron",
         "Esri.WorldImagery"    => "Esri WorldImagery",
     );
 
@@ -575,7 +575,7 @@ class BaseController {
             return '';
         }
         if ( in_array( $map_style, array('custom1', 'custom2', 'custom3'), true ) ) {
-            return 'openstreetmap';
+            return 'carto';
         }
         if ( $map_style === 'customimage' ) {
             return 'esri';
@@ -586,6 +586,9 @@ class BaseController {
         }
         if ( strpos( $provider, 'mapbox' ) === 0 ) {
             $provider = 'mapbox';
+        }
+        if ( strpos( $provider, 'cartodb' ) === 0 ) {
+            $provider = 'carto';
         }
         return $provider;
     }

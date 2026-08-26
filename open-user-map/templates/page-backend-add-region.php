@@ -3,6 +3,7 @@
         // Set map style
         $map_style = get_option('oum_map_style') ? get_option('oum_map_style') : 'Esri.WorldStreetMap';
         $oum_tile_provider_mapbox_key = get_option('oum_tile_provider_mapbox_key', '');
+        $oum_tile_provider_carto_key = get_option('oum_tile_provider_carto_key', '');
         $start_lat = get_option('oum_start_lat');
         $start_lng = get_option('oum_start_lng');
         $start_zoom = get_option('oum_start_zoom');
@@ -48,6 +49,7 @@
         const zoom = '<?php echo esc_attr($start_zoom) ? esc_attr($start_zoom) : '1'; ?>';
         const mapStyle = '<?php echo $map_style; ?>';
         const oum_tile_provider_mapbox_key = <?php echo wp_json_encode((string) $oum_tile_provider_mapbox_key); ?>;
+        const oum_tile_provider_carto_key = <?php echo wp_json_encode((string) $oum_tile_provider_carto_key); ?>;
         let oum_geosearch_selected_provider = "";
         const oum_geosearch_provider = <?php echo wp_json_encode((string) (get_option('oum_geosearch_provider') ? get_option('oum_geosearch_provider') : 'osm')); ?>;
         const oum_geosearch_provider_geoapify_key = <?php echo wp_json_encode((string) get_option('oum_geosearch_provider_geoapify_key', '')); ?>;

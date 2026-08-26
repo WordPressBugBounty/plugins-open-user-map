@@ -384,6 +384,9 @@ echo wp_json_encode( $map_style );
         var oum_tile_provider_mapbox_key = <?php 
 echo wp_json_encode( (string) $oum_tile_provider_mapbox_key );
 ?>;
+        var oum_tile_provider_carto_key = <?php 
+echo wp_json_encode( (string) $oum_tile_provider_carto_key );
+?>;
         var marker_icon_url = <?php 
 echo wp_json_encode( (string) (( $marker_icon == 'user1' && $marker_user_icon ? esc_url( $marker_user_icon ) : esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $marker_icon ) . '-2x.png' )) );
 ?>;

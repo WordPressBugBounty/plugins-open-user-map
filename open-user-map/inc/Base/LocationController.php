@@ -212,6 +212,7 @@ class LocationController extends BaseController {
         // Set map style
         $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'Esri.WorldStreetMap' );
         $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
+        $oum_tile_provider_carto_key = get_option( 'oum_tile_provider_carto_key', '' );
         $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );
         $marker_user_icon = get_option( 'oum_marker_user_icon' );
         $meta_custom_fields = ( isset( $data['custom_fields'] ) ? $data['custom_fields'] : false );
@@ -1072,6 +1073,7 @@ class LocationController extends BaseController {
             $plugin_url = plugin_dir_url( dirname( dirname( __FILE__ ) ) );
             $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'Esri.WorldStreetMap' );
             $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
+            $oum_tile_provider_carto_key = get_option( 'oum_tile_provider_carto_key', '' );
             $lat = $location['lat'];
             $lng = $location['lng'];
             $zoom = ( isset( $location['zoom'] ) ? $location['zoom'] : '12' );
@@ -1112,7 +1114,7 @@ class LocationController extends BaseController {
             // Set marker icon URL
             $marker_icon_url = ( $marker_icon == 'user1' && $marker_user_icon ? esc_url( $marker_user_icon ) : esc_url( $plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $marker_icon ) . '-2x.png' );
             $marker_shadow_url = esc_url( $plugin_url ) . 'src/leaflet/images/marker-shadow.png';
-            $value = '<div id="mapRenderLocation" data-lat="' . esc_attr( $lat ) . '" data-lng="' . esc_attr( $lng ) . '" data-zoom="' . esc_attr( $zoom ) . '" data-mapstyle="' . esc_attr( $map_style ) . '" data-tile_provider_mapbox_key="' . esc_attr( $oum_tile_provider_mapbox_key ) . '" data-marker_icon_url="' . esc_url( $marker_icon_url ) . '" data-marker_shadow_url="' . esc_url( $marker_shadow_url ) . '" data-geometry-type="' . esc_attr( $geometry_type ) . '" data-geometry="' . esc_attr( $geometry ) . '" data-category-color="' . esc_attr( $category_color ) . '" class="open-user-map-location-map leaflet-map map-style_' . esc_attr( $map_style ) . '"' . $this->get_tile_provider_data_attribute( $map_style, 'container' ) . '></div>';
+            $value = '<div id="mapRenderLocation" data-lat="' . esc_attr( $lat ) . '" data-lng="' . esc_attr( $lng ) . '" data-zoom="' . esc_attr( $zoom ) . '" data-mapstyle="' . esc_attr( $map_style ) . '" data-tile_provider_mapbox_key="' . esc_attr( $oum_tile_provider_mapbox_key ) . '" data-tile_provider_carto_key="' . esc_attr( $oum_tile_provider_carto_key ) . '" data-marker_icon_url="' . esc_url( $marker_icon_url ) . '" data-marker_shadow_url="' . esc_url( $marker_shadow_url ) . '" data-geometry-type="' . esc_attr( $geometry_type ) . '" data-geometry="' . esc_attr( $geometry ) . '" data-category-color="' . esc_attr( $category_color ) . '" class="open-user-map-location-map leaflet-map map-style_' . esc_attr( $map_style ) . '"' . $this->get_tile_provider_data_attribute( $map_style, 'container' ) . '></div>';
         } elseif ( $attr == 'route' ) {
             // GET GOOGLE ROUTE LINK
             $lat = esc_attr( $location['lat'] );

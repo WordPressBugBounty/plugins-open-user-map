@@ -349,7 +349,8 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $items = $this->map_styles;
     foreach ( $items as $val => $label ) {
         $selected = ( $map_style == $val ? 'checked' : '' );
-        echo '<label class="' . $selected . '"><div class="map_style_preview" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( $label ) . '</div></div><input type="radio" name="oum_map_style" ' . $selected . ' value="' . esc_attr( $val ) . '"></label>';
+        $api_key_class = ( strpos( $val, 'CartoDB.' ) === 0 ? ' commercial' : '' );
+        echo '<label class="' . $selected . '"><div class="map_style_preview' . esc_attr( $api_key_class ) . '" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( $label ) . '</div></div><input type="radio" name="oum_map_style" ' . $selected . ' value="' . esc_attr( $val ) . '"></label>';
     }
     ?>
 
@@ -358,7 +359,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $custom_items = $this->custom_map_styles;
     foreach ( $custom_items as $val => $label ) {
         $selected = ( $map_style == $val ? 'checked' : '' );
-        echo '<label class="' . $selected . '"><div class="map_style_preview custom" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( $label ) . '</div></div><input type="radio" name="oum_map_style" ' . $selected . ' value="' . esc_attr( $val ) . '"></label>';
+        echo '<label class="' . $selected . '"><div class="map_style_preview custom commercial" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( $label ) . '</div></div><input type="radio" name="oum_map_style" ' . $selected . ' value="' . esc_attr( $val ) . '"></label>';
     }
     ?>
 
@@ -385,6 +386,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                 <div class="wrap-tile-provider-settings">
                   <?php 
     $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
+    $oum_tile_provider_carto_key = get_option( 'oum_tile_provider_carto_key', '' );
     ?>
                   <div class="tile-provider-mapbox">
                     <strong><?php 
@@ -396,6 +398,18 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                     <br><br>
                     <span class="description"><?php 
     echo sprintf( __( 'You can get a MapBox API key <a href="%s">here</a>. It is free to use with up to 200,000 map tile requests per month. Please attribute MapBox service if you use their free plan.', 'open-user-map' ), 'https://account.mapbox.com/signup/' );
+    ?></span><br>
+                  </div>
+                  <div class="tile-provider-carto">
+                    <strong><?php 
+    echo __( 'CARTO Basemaps API Key:', 'open-user-map' );
+    ?></strong><br>
+                    <input class="regular-text" type="text" name="oum_tile_provider_carto_key" id="oum_tile_provider_carto_key" value="<?php 
+    echo esc_attr( $oum_tile_provider_carto_key );
+    ?>">
+                    <br><br>
+                    <span class="description"><?php 
+    echo sprintf( __( 'CARTO map styles now require a CARTO Basemaps API Key. You can get a free CARTO Basemaps API Key <a href="%s" target="_blank" rel="noopener noreferrer">here</a>. Without a key, Open User Map will automatically use the ESRI WorldStreetMap fallback so your maps stay usable.', 'open-user-map' ), 'https://carto.com/basemaps/apikey/' );
     ?></span><br>
                   </div>
                 </div>
@@ -946,6 +960,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>';
                     const oum_tile_provider_mapbox_key = <?php 
     echo wp_json_encode( (string) $oum_tile_provider_mapbox_key );
+    ?>;
+                    const oum_tile_provider_carto_key = <?php 
+    echo wp_json_encode( (string) $oum_tile_provider_carto_key );
     ?>;
                     let oum_geosearch_selected_provider = "";
                     const oum_geosearch_provider = <?php 
