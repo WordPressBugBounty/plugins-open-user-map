@@ -15,7 +15,7 @@ class Settings extends BaseController {
         add_action( 'admin_notices', array($this, 'show_getting_started_notice') );
         add_action( 'wp_ajax_oum_dismiss_getting_started_notice', array($this, 'getting_started_dismiss_notice') );
         add_action( 'admin_notices', array($this, 'show_update_notice') );
-        add_action( 'admin_notices', array($this, 'show_carto_basemaps_api_key_notice') );
+        add_action( 'admin_notices', array($this, 'show_map_style_auto_switch_notice') );
         add_action( 'wp_ajax_oum_dismiss_update_notice', array($this, 'dismiss_update_notice') );
         add_action( 'wp_ajax_oum_csv_export', array($this, 'csv_export') );
         add_action( 'wp_ajax_oum_csv_import', array($this, 'csv_import') );
@@ -57,7 +57,7 @@ class Settings extends BaseController {
         register_setting( 'open-user-map-settings-getting-started-notice', 'oum_getting_started_notice_dismissed' );
         register_setting( 'open-user-map-settings-update-notice', 'oum_update_notice_dismissed_version' );
         register_setting( 'open-user-map-settings-group', 'oum_map_style', array(
-            'sanitize_callback' => 'sanitize_text_field',
+            'sanitize_callback' => array($this, 'sanitize_map_style_setting'),
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_tile_provider_mapbox_key', array(
             'sanitize_callback' => 'sanitize_text_field',
@@ -465,6 +465,49 @@ class Settings extends BaseController {
         if ( get_option( 'oum_map_style' ) == 'Stadia.StamenTonerLite' ) {
             update_option( 'oum_map_style', 'CartoDB.Positron' );
         }
+        $this->switch_map_style_without_required_api_key();
+    }
+
+    public function sanitize_map_style_setting( $input ) {
+        $map_style = sanitize_text_field( $input );
+        if ( !preg_match( '/^[A-Za-z0-9._-]+$/', $map_style ) ) {
+            return $this->get_default_map_style();
+        }
+        $submitted_keys = array();
+        if ( isset( $_POST['oum_tile_provider_carto_key'] ) ) {
+            $submitted_keys['carto'] = sanitize_text_field( wp_unslash( $_POST['oum_tile_provider_carto_key'] ) );
+        }
+        if ( isset( $_POST['oum_tile_provider_mapbox_key'] ) ) {
+            $submitted_keys['mapbox'] = sanitize_text_field( wp_unslash( $_POST['oum_tile_provider_mapbox_key'] ) );
+        }
+        $replacement_style = $this->get_no_key_replacement_map_style( $map_style, $submitted_keys );
+        if ( $replacement_style !== '' ) {
+            $this->store_map_style_auto_switch_notice( $map_style, $replacement_style );
+            return $replacement_style;
+        }
+        return $map_style;
+    }
+
+    public function switch_map_style_without_required_api_key() {
+        $map_style = get_option( 'oum_map_style', '' );
+        if ( $map_style === '' ) {
+            return;
+        }
+        $replacement_style = $this->get_no_key_replacement_map_style( $map_style );
+        if ( $replacement_style === '' || $replacement_style === $map_style ) {
+            return;
+        }
+        update_option( 'oum_map_style', $replacement_style );
+        $this->store_map_style_auto_switch_notice( $map_style, $replacement_style );
+    }
+
+    public function store_map_style_auto_switch_notice( $old_style, $new_style ) {
+        $old_definition = $this->get_map_style_definition( $old_style );
+        update_option( 'oum_map_style_auto_switch_notice', array(
+            'old_style'        => $old_style,
+            'new_style'        => $new_style,
+            'required_api_key' => ( isset( $old_definition['requires_api_key'] ) ? $old_definition['requires_api_key'] : '' ),
+        ) );
     }
 
     public function add_oum_wizard() {
@@ -694,27 +737,34 @@ class Settings extends BaseController {
         ) );
     }
 
-    public function show_carto_basemaps_api_key_notice() {
+    public function show_map_style_auto_switch_notice() {
         if ( !current_user_can( 'manage_options' ) ) {
             return;
         }
-        $map_style = get_option( 'oum_map_style', 'Esri.WorldStreetMap' );
-        $carto_key = get_option( 'oum_tile_provider_carto_key', '' );
-        $carto_styles = array(
-            'CartoDB.DarkMatter',
-            'CartoDB.Positron',
-            'Custom1',
-            'Custom2',
-            'Custom3'
-        );
-        if ( !in_array( $map_style, $carto_styles, true ) || $carto_key !== '' ) {
+        $notice = get_option( 'oum_map_style_auto_switch_notice' );
+        if ( !is_array( $notice ) || empty( $notice['old_style'] ) || empty( $notice['new_style'] ) ) {
             return;
         }
+        $old_definition = $this->get_map_style_definition( $notice['old_style'] );
+        $new_definition = $this->get_map_style_definition( $notice['new_style'] );
+        $old_label = ( $old_definition && !empty( $old_definition['label'] ) ? $old_definition['label'] : $notice['old_style'] );
+        $new_label = ( $new_definition && !empty( $new_definition['label'] ) ? $new_definition['label'] : $notice['new_style'] );
+        $api_key_labels = array(
+            'carto'  => 'CARTO',
+            'mapbox' => 'MapBox',
+        );
+        $required_api_key = ( !empty( $notice['required_api_key'] ) && isset( $api_key_labels[$notice['required_api_key']] ) ? $api_key_labels[$notice['required_api_key']] : __( 'required', 'open-user-map' ) );
         echo '<div class="notice notice-warning">';
-        echo '<p><strong>' . esc_html__( 'Open User Map: CARTO Basemaps API Key missing', 'open-user-map' ) . '</strong></p>';
-        echo '<p>' . esc_html__( 'CARTO basemaps now require an API key. Your map will use the ESRI fallback style until you add a CARTO Basemaps API Key in the map style settings.', 'open-user-map' ) . ' ';
+        echo '<p><strong>' . esc_html__( 'Open User Map: Map style switched automatically', 'open-user-map' ) . '</strong></p>';
+        echo '<p>' . sprintf(
+            esc_html__( 'Open User Map switched your map style from %1$s to %2$s because no %3$s API Key is configured. Enter the missing API Key and select the original provider style again, or keep the new map style.', 'open-user-map' ),
+            '<strong>' . esc_html( $old_label ) . '</strong>',
+            '<strong>' . esc_html( $new_label ) . '</strong>',
+            esc_html( $required_api_key )
+        ) . ' ';
         echo '<a href="' . esc_url( admin_url( 'edit.php?post_type=oum-location&page=open-user-map-settings' ) ) . '">' . esc_html__( 'Open settings', 'open-user-map' ) . '</a></p>';
         echo '</div>';
+        delete_option( 'oum_map_style_auto_switch_notice' );
     }
 
     public function process_wizard_usecase( $input ) {

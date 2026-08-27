@@ -107,6 +107,12 @@ class Enqueue extends BaseController
             array('oum_leaflet_css'),
             $this->plugin_version
         );
+        wp_register_style(
+            'oum_maplibre_css',
+            $this->plugin_url . 'src/maplibre/maplibre-gl.css',
+            array(),
+            '5.24.0'
+        );
 
         // Register Leaflet JS files (same as frontend)
         wp_register_script(
@@ -204,6 +210,27 @@ class Enqueue extends BaseController
             'oum_global_leaflet_js',
             $this->plugin_url . 'src/leaflet/oum-global-leaflet.js',
             array('oum_leaflet_js', 'oum_leaflet_draw_js'),
+            $this->plugin_version,
+            true
+        );
+        wp_register_script(
+            'oum_maplibre_js',
+            $this->plugin_url . 'src/maplibre/maplibre-gl.js',
+            array(),
+            '5.24.0',
+            true
+        );
+        wp_register_script(
+            'oum_leaflet_maplibre_js',
+            $this->plugin_url . 'src/maplibre/leaflet-maplibre-gl.js',
+            array('oum_leaflet_js', 'oum_maplibre_js'),
+            '0.1.4',
+            true
+        );
+        wp_register_script(
+            'oum_map_styles_js',
+            $this->plugin_url . 'src/js/oum-map-styles.js',
+            array('oum_leaflet_providers_js'),
             $this->plugin_version,
             true
         );
@@ -334,6 +361,12 @@ class Enqueue extends BaseController
             array('oum_leaflet_css'),
             $this->plugin_version
         );
+        wp_register_style(
+            'oum_maplibre_css',
+            $this->plugin_url . 'src/maplibre/maplibre-gl.css',
+            array(),
+            '5.24.0'
+        );
 
         // Register Leaflet JS files (with proper dependencies)
         wp_register_script(
@@ -434,6 +467,27 @@ class Enqueue extends BaseController
             $this->plugin_version,
             true
         );
+        wp_register_script(
+            'oum_maplibre_js',
+            $this->plugin_url . 'src/maplibre/maplibre-gl.js',
+            array(),
+            '5.24.0',
+            true
+        );
+        wp_register_script(
+            'oum_leaflet_maplibre_js',
+            $this->plugin_url . 'src/maplibre/leaflet-maplibre-gl.js',
+            array('oum_leaflet_js', 'oum_maplibre_js'),
+            '0.1.4',
+            true
+        );
+        wp_register_script(
+            'oum_map_styles_js',
+            $this->plugin_url . 'src/js/oum-map-styles.js',
+            array('oum_leaflet_providers_js'),
+            $this->plugin_version,
+            true
+        );
 
         // Register opening hours script (standalone module, no dependencies)
         // Must be registered before frontend_block_map_js since it depends on it
@@ -459,7 +513,8 @@ class Enqueue extends BaseController
                 'oum_leaflet_fullscreen_js',
                 'oum_leaflet_search_js',
                 'oum_leaflet_gesture_js',
-                'oum_global_leaflet_js'
+                'oum_global_leaflet_js',
+                'oum_map_styles_js'
             ),
             $this->plugin_version,
             true
@@ -476,7 +531,8 @@ class Enqueue extends BaseController
                 'oum_leaflet_fullscreen_js',
                 'oum_leaflet_search_js',
                 'oum_leaflet_gesture_js',
-                'oum_global_leaflet_js'
+                'oum_global_leaflet_js',
+                'oum_map_styles_js'
             ),
             $this->plugin_version,
             true
@@ -493,7 +549,8 @@ class Enqueue extends BaseController
                 'oum_leaflet_fullscreen_js',
                 'oum_leaflet_search_js',
                 'oum_leaflet_gesture_js',
-                'oum_global_leaflet_js'
+                'oum_global_leaflet_js',
+                'oum_map_styles_js'
             ),
             $this->plugin_version,
             true
@@ -575,6 +632,7 @@ class Enqueue extends BaseController
             'oum_leaflet_locate_css',
             'oum_leaflet_search_css',
             'oum_leaflet_responsivepopup_css',
+            'oum_maplibre_css',
         );
         
         // Output any registered OUM styles that haven't been output yet

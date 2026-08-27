@@ -210,7 +210,7 @@ class LocationController extends BaseController {
         $notified = get_post_meta( $post->ID, '_oum_location_notified', true );
         $notified_tag = ( isset( $notified ) && $notified != '' ? '<p>User has been notified on ' . date( "Y-m-d H:i:s", $notified ) . '</p>' : '' );
         // Set map style
-        $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'Esri.WorldStreetMap' );
+        $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : $this->get_default_map_style() );
         $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
         $oum_tile_provider_carto_key = get_option( 'oum_tile_provider_carto_key', '' );
         $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );
@@ -1071,7 +1071,7 @@ class LocationController extends BaseController {
         } elseif ( $attr == 'map' ) {
             // GET MAP
             $plugin_url = plugin_dir_url( dirname( dirname( __FILE__ ) ) );
-            $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'Esri.WorldStreetMap' );
+            $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : $this->get_default_map_style() );
             $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
             $oum_tile_provider_carto_key = get_option( 'oum_tile_provider_carto_key', '' );
             $lat = $location['lat'];

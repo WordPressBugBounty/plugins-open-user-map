@@ -345,73 +345,89 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
               <td>
                 <div class="map_styles">
                 <?php 
-    $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'Esri.WorldStreetMap' );
-    $items = $this->map_styles;
-    foreach ( $items as $val => $label ) {
-        $selected = ( $map_style == $val ? 'checked' : '' );
-        $api_key_class = ( strpos( $val, 'CartoDB.' ) === 0 ? ' commercial' : '' );
-        echo '<label class="' . $selected . '"><div class="map_style_preview' . esc_attr( $api_key_class ) . '" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( $label ) . '</div></div><input type="radio" name="oum_map_style" ' . $selected . ' value="' . esc_attr( $val ) . '"></label>';
-    }
-    ?>
-
-                <?php 
-    //custom map styles
-    $custom_items = $this->custom_map_styles;
-    foreach ( $custom_items as $val => $label ) {
-        $selected = ( $map_style == $val ? 'checked' : '' );
-        echo '<label class="' . $selected . '"><div class="map_style_preview custom commercial" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( $label ) . '</div></div><input type="radio" name="oum_map_style" ' . $selected . ' value="' . esc_attr( $val ) . '"></label>';
-    }
-    ?>
-
-                <?php 
-    //commercial map styles
-    $commercial_items = $this->commercial_map_styles;
-    foreach ( $commercial_items as $val => $label ) {
-        $selected = ( $map_style == $val ? 'checked' : '' );
-        echo '<label class="' . $selected . '"><div class="map_style_preview commercial" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( $label ) . '</div></div><input type="radio" name="oum_map_style" ' . $selected . ' value="' . esc_attr( $val ) . '"></label>';
-    }
-    ?>
-
-                <?php 
-    //pro map styles (PRO only)
-    $pro_items = $this->pro_map_styles;
-    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
-        foreach ( $pro_items as $val => $label ) {
-            echo '<label class="pro-only"><div class="map_style_preview pro" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( $label ) . ' <span class="oum-pro">PRO</span></div></div></label>';
-        }
-    }
-    ?>
-                </div>
-
-                <div class="wrap-tile-provider-settings">
-                  <?php 
+    $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : $this->get_default_map_style() );
     $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
     $oum_tile_provider_carto_key = get_option( 'oum_tile_provider_carto_key', '' );
+    $style_providers = array(
+        'openfreemap'   => 'OpenFreeMap',
+        'openstreetmap' => 'OpenStreetMap',
+        'esri'          => 'Esri',
+        'carto'         => 'CARTO',
+        'mapbox'        => 'MapBox',
+    );
+    foreach ( $style_providers as $style_provider => $style_provider_label ) {
+        $provider_styles = $this->get_map_styles_by_provider( $style_provider, false );
+        if ( empty( $provider_styles ) ) {
+            continue;
+        }
+        echo '<div class="map_style_provider_group map_style_provider_group-' . esc_attr( $style_provider ) . '">';
+        echo '<div class="map_style_provider_header">';
+        echo '<h3 class="map_style_provider_heading">' . esc_html( $style_provider_label ) . '</h3>';
+        if ( $style_provider === 'carto' ) {
+            echo '<div class="map_style_provider_api_key tile-provider-carto">';
+            echo '<label for="oum_tile_provider_carto_key">' . esc_html__( 'API Key:', 'open-user-map' ) . '</label>';
+            echo '<input class="regular-text" type="text" name="oum_tile_provider_carto_key" id="oum_tile_provider_carto_key" value="' . esc_attr( $oum_tile_provider_carto_key ) . '">';
+            echo '<a href="https://carto.com/basemaps/apikey/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Get it here', 'open-user-map' ) . '</a>';
+            echo '</div>';
+        }
+        if ( $style_provider === 'mapbox' ) {
+            echo '<div class="map_style_provider_api_key tile-provider-mapbox">';
+            echo '<label for="oum_tile_provider_mapbox_key">' . esc_html__( 'API Key:', 'open-user-map' ) . '</label>';
+            echo '<input class="regular-text" type="text" name="oum_tile_provider_mapbox_key" id="oum_tile_provider_mapbox_key" value="' . esc_attr( $oum_tile_provider_mapbox_key ) . '">';
+            echo '<a href="https://account.mapbox.com/signup/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Get it here', 'open-user-map' ) . '</a>';
+            echo '</div>';
+        }
+        echo '</div>';
+        if ( in_array( $style_provider, array('carto', 'mapbox'), true ) ) {
+            $provider_api_key = ( $style_provider === 'carto' ? $oum_tile_provider_carto_key : $oum_tile_provider_mapbox_key );
+            $selected_style_definition = $this->get_map_style_definition( $map_style );
+            $show_provider_notice = $provider_api_key === '' && $selected_style_definition && isset( $selected_style_definition['requires_api_key'] ) && $selected_style_definition['requires_api_key'] === $style_provider;
+            $provider_notice_style = ( $show_provider_notice ? '' : ' style="display: none;"' );
+            echo '<p class="map_style_provider_notice map_style_provider_notice-' . esc_attr( $style_provider ) . '"' . $provider_notice_style . '>' . esc_html__( 'This provider style requires an API Key.', 'open-user-map' ) . '</p>';
+        }
+        echo '<div class="map_style_provider_styles">';
+        foreach ( $provider_styles as $val => $definition ) {
+            $selected = ( $map_style == $val ? 'checked' : '' );
+            $preview_classes = array('map_style_preview');
+            $style_label = $definition['label'];
+            if ( isset( $definition['provider'] ) && $definition['provider'] === 'openfreemap' ) {
+                $preview_classes[] = 'vector';
+            }
+            if ( $style_provider === 'openfreemap' ) {
+                $style_label = str_replace( 'OpenFreeMap ', '', $style_label );
+            } elseif ( $style_provider === 'openstreetmap' ) {
+                $style_label = ( $val === 'OpenStreetMap.DE' ? 'Hosted in Germany' : 'Mapnik' );
+            } elseif ( $style_provider === 'esri' ) {
+                $style_label = str_replace( 'Esri ', '', $style_label );
+            } elseif ( $style_provider === 'carto' ) {
+                $style_label = str_replace( 'CARTO ', '', $style_label );
+            } elseif ( $style_provider === 'mapbox' ) {
+                $style_label = str_replace( 'MapBox ', '', $style_label );
+            }
+            echo '<label class="' . esc_attr( $selected ) . '"><div class="' . esc_attr( implode( ' ', $preview_classes ) ) . '" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( $style_label ) . '</div></div><input type="radio" name="oum_map_style" ' . $selected . ' value="' . esc_attr( $val ) . '"></label>';
+        }
+        echo '</div>';
+        echo '</div>';
+    }
+    //pro map styles (PRO only)
+    $pro_items = $this->get_map_styles_by_provider( 'custom_image', false );
+    if ( !empty( $pro_items ) ) {
+        echo '<div class="map_style_provider_group map_style_provider_group-custom_image">';
+        echo '<div class="map_style_provider_header">';
+        echo '<h3 class="map_style_provider_heading">' . esc_html__( 'Custom Image', 'open-user-map' ) . '</h3>';
+        echo '</div>';
+        echo '<div class="map_style_provider_styles">';
+    }
+    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+        foreach ( $pro_items as $val => $definition ) {
+            echo '<label class="pro-only"><div class="map_style_preview pro" data-style="' . esc_attr( $val ) . '"><div>' . esc_textarea( __( 'Image', 'open-user-map' ) ) . ' <span class="oum-pro">PRO</span></div></div></label>';
+        }
+    }
+    if ( !empty( $pro_items ) ) {
+        echo '</div>';
+        echo '</div>';
+    }
     ?>
-                  <div class="tile-provider-mapbox">
-                    <strong><?php 
-    echo __( 'MapBox API Key:', 'open-user-map' );
-    ?></strong><br>
-                    <input class="regular-text" type="text" name="oum_tile_provider_mapbox_key" id="oum_tile_provider_mapbox_key" value="<?php 
-    echo esc_attr( $oum_tile_provider_mapbox_key );
-    ?>">
-                    <br><br>
-                    <span class="description"><?php 
-    echo sprintf( __( 'You can get a MapBox API key <a href="%s">here</a>. It is free to use with up to 200,000 map tile requests per month. Please attribute MapBox service if you use their free plan.', 'open-user-map' ), 'https://account.mapbox.com/signup/' );
-    ?></span><br>
-                  </div>
-                  <div class="tile-provider-carto">
-                    <strong><?php 
-    echo __( 'CARTO Basemaps API Key:', 'open-user-map' );
-    ?></strong><br>
-                    <input class="regular-text" type="text" name="oum_tile_provider_carto_key" id="oum_tile_provider_carto_key" value="<?php 
-    echo esc_attr( $oum_tile_provider_carto_key );
-    ?>">
-                    <br><br>
-                    <span class="description"><?php 
-    echo sprintf( __( 'CARTO map styles now require a CARTO Basemaps API Key. You can get a free CARTO Basemaps API Key <a href="%s" target="_blank" rel="noopener noreferrer">here</a>. Without a key, Open User Map will automatically use the ESRI WorldStreetMap fallback so your maps stay usable.', 'open-user-map' ), 'https://carto.com/basemaps/apikey/' );
-    ?></span><br>
-                  </div>
                 </div>
 
                 <!-- Custom Image Settings -->
@@ -958,10 +974,10 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                     const mapStyle = '<?php 
     echo $map_style;
     ?>';
-                    const oum_tile_provider_mapbox_key = <?php 
+                    window.oum_tile_provider_mapbox_key = <?php 
     echo wp_json_encode( (string) $oum_tile_provider_mapbox_key );
     ?>;
-                    const oum_tile_provider_carto_key = <?php 
+                    window.oum_tile_provider_carto_key = <?php 
     echo wp_json_encode( (string) $oum_tile_provider_carto_key );
     ?>;
                     let oum_geosearch_selected_provider = "";
@@ -1010,8 +1026,8 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                     </script>
 
                     <?php 
-    // load map base scripts
-    $this->include_map_scripts();
+    // Load map base scripts and vector dependencies when the selected style needs them.
+    $this->include_map_scripts( $map_style );
     wp_enqueue_script(
         'oum_backend_settings_js',
         $this->plugin_url . 'src/js/backend-settings.js',
@@ -1025,6 +1041,7 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
             'oum_leaflet_search_js',
             'oum_leaflet_gesture_js',
             'oum_global_leaflet_js',
+            'oum_map_styles_js',
             'oum_backend_image_position_editor_js'
         ),
         $this->plugin_version
@@ -3254,11 +3271,17 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     echo __( 'Enable or disable the "Add location" button.', 'open-user-map' );
     ?></td>
                             </tr>
+                            <?php 
+    $available_map_style_keys = implode( ', ', array_keys( $this->get_map_style_registry() ) );
+    ?>
                             <tr>
                                 <td><code>map_style</code></td>
-                                <td><code>map_style="Esri.WorldStreetMap"</code></td>
+                                <td>
+                                    <code>map_style="OpenFreeMap.bright"</code><br>
+                                    <code>map_style="OpenFreeMap.liberty"</code>
+                                </td>
                                 <td><?php 
-    echo __( 'Override the map style.', 'open-user-map' );
+    echo sprintf( esc_html__( 'Override the map style. Available style keys: %s', 'open-user-map' ), esc_html( $available_map_style_keys ) );
     ?></td>
                             </tr>
                         </tbody>

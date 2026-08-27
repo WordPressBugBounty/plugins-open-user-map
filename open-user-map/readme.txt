@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, maps, openstreetmap
 Requires at least: 5.5
 Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 1.4.49
+Stable tag: 1.4.50
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -40,7 +40,7 @@ Want to test all premium features? Start the **7-day Open User Map PRO Trial** �
 ✅ **Frontend marker submissions** – Visitors can add pins without backend access.
 ✅ **Approval workflow included** – Keep control over what gets published.
 ✅ **No Google Maps API key required** – Avoid API setup, access tokens and Google Maps restrictions.
-✅ **Multiple map styles** – Use OpenStreetMap, MapBox and other flexible map styles.
+✅ **Multiple map styles** – Use OpenStreetMap, OpenFreeMap vector, MapBox and other flexible map styles.
 ✅ **Powerful search options** – Marker search, address search and category filtering.
 ✅ **Customizable forms & fields** – Collect the exact location data you need.
 ✅ **Media-rich markers** – Add descriptions, images, audio, videos and more.
@@ -365,11 +365,11 @@ From your WordPress dashboard
 
 = Do I need Google Maps or a Google Maps API key? =
 
-No. Open User Map is a WordPress map plugin based on Leaflet, OpenStreetMap and MapBox based map styles. You can create custom interactive maps without setting up a Google Maps API key.
+No. Open User Map is a WordPress map plugin based on Leaflet, OpenStreetMap, OpenFreeMap vector and MapBox based map styles. You can create custom interactive maps without setting up a Google Maps API key.
 
-= Can I create a custom map with Leaflet, OpenStreetMap or MapBox styles? =
+= Can I create a custom map with Leaflet, OpenStreetMap, OpenFreeMap or MapBox styles? =
 
-Yes. Open User Map includes free Leaflet-based map styles and supports OpenStreetMap and MapBox based styles. You can use it as a simple custom map plugin or as an interactive community map.
+Yes. Open User Map includes free Leaflet-based map styles and supports OpenStreetMap, OpenFreeMap vector and MapBox based styles. You can use it as a simple custom map plugin or as an interactive community map. The available shortcode style keys are managed from the plugin's central map style registry; OpenFreeMap vector keys include `OpenFreeMap.liberty`, `OpenFreeMap.bright`, `OpenFreeMap.positron`, `OpenFreeMap.dark` and `OpenFreeMap.fiord`.
 
 = Can visitors submit markers from the frontend? =
 
@@ -443,6 +443,10 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.50 =
+* New: Beautiful new OFM vector map styles
+* Automatic switch from CARTO and MapBox styles without API key to matching free map styles
+
 = 1.4.49 =
 * HOTFIX: CARTO Basemaps API Keys (free) are now required for CARTO map styles. Automatic fallback to free ESRI map style if no key is available.
 * Bugfix: wrong opening_hours format in CSV export/import

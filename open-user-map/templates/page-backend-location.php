@@ -179,10 +179,10 @@ echo esc_attr( $zoom );
                     const mapStyle = '<?php 
 echo esc_attr( $map_style );
 ?>';
-                    const oum_tile_provider_mapbox_key = <?php 
+                    window.oum_tile_provider_mapbox_key = <?php 
 echo wp_json_encode( (string) $oum_tile_provider_mapbox_key );
 ?>;
-                    const oum_tile_provider_carto_key = <?php 
+                    window.oum_tile_provider_carto_key = <?php 
 echo wp_json_encode( (string) $oum_tile_provider_carto_key );
 ?>;
                     const oum_enable_currentlocation = '<?php 
@@ -262,7 +262,7 @@ echo wp_json_encode( (string) get_option( 'oum_custom_image_background_color', '
 
                     <?php 
 // load map base scripts
-$this->include_map_scripts();
+$this->include_map_scripts( $map_style );
 wp_enqueue_style( 'oum_leaflet_draw_css' );
 wp_enqueue_script(
     'oum_backend_location_js',
@@ -276,7 +276,8 @@ wp_enqueue_script(
         'oum_leaflet_fullscreen_js',
         'oum_leaflet_search_js',
         'oum_leaflet_gesture_js',
-        'oum_global_leaflet_js'
+        'oum_global_leaflet_js',
+        'oum_map_styles_js'
     ),
     esc_attr( $this->plugin_version )
 );

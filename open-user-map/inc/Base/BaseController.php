@@ -472,34 +472,6 @@ class BaseController {
         );
     }
 
-    public $map_styles = array(
-        "Esri.WorldStreetMap"  => "Esri WorldStreetMap",
-        "OpenStreetMap.Mapnik" => "OpenStreetMap",
-        "OpenStreetMap.DE"     => "OpenStreetMap (Germany)",
-        "CartoDB.DarkMatter"   => "CARTO DarkMatter",
-        "CartoDB.Positron"     => "CARTO Positron",
-        "Esri.WorldImagery"    => "Esri WorldImagery",
-    );
-
-    public $custom_map_styles = array(
-        "Custom1" => "Light with big labels",
-        "Custom2" => "Purple Glow with big labels",
-        "Custom3" => "Blue with big labels",
-    );
-
-    public $commercial_map_styles = array(
-        "MapBox.streets"           => "MapBox Streets",
-        "MapBox.outdoors"          => "MapBox Outdoors",
-        "MapBox.light"             => "MapBox Light",
-        "MapBox.dark"              => "MapBox Dark",
-        "MapBox.satellite"         => "MapBox Satellite",
-        "MapBox.satellite-streets" => "MapBox Satellite Streets",
-    );
-
-    public $pro_map_styles = array(
-        "CustomImage" => "Custom Image",
-    );
-
     public $marker_icons = array(
         "default",
         "custom1",
@@ -564,12 +536,335 @@ class BaseController {
     );
 
     /**
+     * Get the default map style for new installs and empty settings.
+     *
+     * @return string Default map style key.
+     */
+    public function get_default_map_style() {
+        return 'OpenFreeMap.bright';
+    }
+
+    /**
+     * Central registry for all selectable map styles.
+     *
+     * @return array Map style definitions keyed by saved style value.
+     */
+    public function get_map_style_registry() {
+        return array(
+            "Esri.WorldStreetMap"      => array(
+                "label"    => "Esri WorldStreetMap",
+                "provider" => "esri",
+            ),
+            "OpenStreetMap.Mapnik"     => array(
+                "label"    => "OpenStreetMap",
+                "provider" => "openstreetmap",
+            ),
+            "OpenStreetMap.DE"         => array(
+                "label"    => "OpenStreetMap Hosted in Germany",
+                "provider" => "openstreetmap",
+            ),
+            "CartoDB.DarkMatter"       => array(
+                "label"             => "CARTO DarkMatter",
+                "provider"          => "carto",
+                "requires_api_key"  => "carto",
+                "replacement_style" => "OpenFreeMap.dark",
+            ),
+            "CartoDB.Positron"         => array(
+                "label"             => "CARTO Positron",
+                "provider"          => "carto",
+                "requires_api_key"  => "carto",
+                "replacement_style" => "OpenFreeMap.positron",
+            ),
+            "Esri.WorldImagery"        => array(
+                "label"    => "Esri WorldImagery",
+                "provider" => "esri",
+            ),
+            "OpenFreeMap.liberty"      => array(
+                "label"             => "OpenFreeMap Liberty",
+                "provider"          => "openfreemap",
+                "url"               => "https://tiles.openfreemap.org/styles/liberty",
+                "requires_maplibre" => true,
+            ),
+            "OpenFreeMap.bright"       => array(
+                "label"             => "OpenFreeMap Bright",
+                "provider"          => "openfreemap",
+                "url"               => "https://tiles.openfreemap.org/styles/bright",
+                "requires_maplibre" => true,
+            ),
+            "OpenFreeMap.positron"     => array(
+                "label"             => "OpenFreeMap Positron",
+                "provider"          => "openfreemap",
+                "url"               => "https://tiles.openfreemap.org/styles/positron",
+                "requires_maplibre" => true,
+            ),
+            "OpenFreeMap.dark"         => array(
+                "label"             => "OpenFreeMap Dark",
+                "provider"          => "openfreemap",
+                "url"               => "https://tiles.openfreemap.org/styles/dark",
+                "requires_maplibre" => true,
+            ),
+            "OpenFreeMap.fiord"        => array(
+                "label"             => "OpenFreeMap Fiord",
+                "provider"          => "openfreemap",
+                "url"               => "https://tiles.openfreemap.org/styles/fiord",
+                "requires_maplibre" => true,
+            ),
+            "Custom1"                  => array(
+                "label"             => "Light with big labels",
+                "provider"          => "carto",
+                "carto_base_url"    => "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png",
+                "requires_api_key"  => "carto",
+                "replacement_style" => "OpenFreeMap.bright",
+            ),
+            "Custom2"                  => array(
+                "label"             => "Purple Glow with big labels",
+                "provider"          => "carto",
+                "carto_base_url"    => "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png",
+                "requires_api_key"  => "carto",
+                "replacement_style" => "OpenFreeMap.fiord",
+            ),
+            "Custom3"                  => array(
+                "label"             => "Blue with big labels",
+                "provider"          => "carto",
+                "carto_base_url"    => "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png",
+                "requires_api_key"  => "carto",
+                "replacement_style" => "OpenFreeMap.fiord",
+            ),
+            "MapBox.streets"           => array(
+                "label"             => "MapBox Streets",
+                "provider"          => "mapbox",
+                "mapbox_id"         => "mapbox/streets-v12",
+                "requires_api_key"  => "mapbox",
+                "replacement_style" => "OpenFreeMap.liberty",
+            ),
+            "MapBox.outdoors"          => array(
+                "label"             => "MapBox Outdoors",
+                "provider"          => "mapbox",
+                "mapbox_id"         => "mapbox/outdoors-v12",
+                "requires_api_key"  => "mapbox",
+                "replacement_style" => "OpenFreeMap.liberty",
+            ),
+            "MapBox.light"             => array(
+                "label"             => "MapBox Light",
+                "provider"          => "mapbox",
+                "mapbox_id"         => "mapbox/light-v11",
+                "requires_api_key"  => "mapbox",
+                "replacement_style" => "OpenFreeMap.positron",
+            ),
+            "MapBox.dark"              => array(
+                "label"             => "MapBox Dark",
+                "provider"          => "mapbox",
+                "mapbox_id"         => "mapbox/dark-v11",
+                "requires_api_key"  => "mapbox",
+                "replacement_style" => "OpenFreeMap.dark",
+            ),
+            "MapBox.satellite"         => array(
+                "label"             => "MapBox Satellite",
+                "provider"          => "mapbox",
+                "mapbox_id"         => "mapbox/satellite-v9",
+                "requires_api_key"  => "mapbox",
+                "replacement_style" => "Esri.WorldImagery",
+            ),
+            "MapBox.satellite-streets" => array(
+                "label"             => "MapBox Satellite + Streets",
+                "provider"          => "mapbox",
+                "mapbox_id"         => "mapbox/satellite-streets-v12",
+                "requires_api_key"  => "mapbox",
+                "replacement_style" => "Esri.WorldImagery",
+            ),
+            "CustomImage"              => array(
+                "label"    => "Custom Image",
+                "provider" => "custom_image",
+                "pro"      => true,
+            ),
+        );
+    }
+
+    /**
+     * Get one map style definition from the registry.
+     *
+     * @param string $map_style Map style identifier.
+     * @return array|null Map style definition or null when unknown.
+     */
+    public function get_map_style_definition( $map_style ) {
+        $map_style = trim( (string) $map_style );
+        $registry = $this->get_map_style_registry();
+        if ( isset( $registry[$map_style] ) ) {
+            return $registry[$map_style];
+        }
+        foreach ( $registry as $style_key => $definition ) {
+            if ( strtolower( $style_key ) === strtolower( $map_style ) ) {
+                return $definition;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get map styles for one provider.
+     *
+     * @param string $provider    Registry provider name.
+     * @param bool   $labels_only Whether to return only labels keyed by style.
+     * @return array Map styles for the requested provider.
+     */
+    public function get_map_styles_by_provider( $provider, $labels_only = true ) {
+        $styles = array();
+        foreach ( $this->get_map_style_registry() as $style_key => $definition ) {
+            if ( isset( $definition['provider'] ) && $definition['provider'] === $provider ) {
+                $styles[$style_key] = ( $labels_only ? $definition['label'] : $definition );
+            }
+        }
+        return $styles;
+    }
+
+    /**
+     * Backward-compatible wrapper for older internal calls.
+     *
+     * @param string $group       Provider or former group name.
+     * @param bool   $labels_only Whether to return only labels keyed by style.
+     * @return array Map styles for the requested provider.
+     */
+    public function get_map_styles_by_group( $group, $labels_only = true ) {
+        return $this->get_map_styles_by_provider( $group, $labels_only );
+    }
+
+    /**
+     * Get the OpenFreeMap style URL for a map style key.
+     *
+     * @param string $map_style Map style identifier.
+     * @return string OpenFreeMap style URL or empty string.
+     */
+    public function get_openfreemap_style_url( $map_style ) {
+        $definition = $this->get_map_style_definition( $map_style );
+        return ( $definition && isset( $definition['url'], $definition['provider'] ) && $definition['provider'] === 'openfreemap' ? $definition['url'] : '' );
+    }
+
+    /**
+     * Check whether the selected style uses OpenFreeMap vector tiles.
+     *
+     * @param string $map_style Map style identifier.
+     * @return bool True when the style is an OpenFreeMap vector style.
+     */
+    public function is_openfreemap_style( $map_style ) {
+        $definition = $this->get_map_style_definition( $map_style );
+        return $definition && isset( $definition['provider'] ) && $definition['provider'] === 'openfreemap';
+    }
+
+    /**
+     * Check whether the selected map style requires MapLibre assets.
+     *
+     * @param string $map_style Map style identifier.
+     * @return bool True when the style requires MapLibre.
+     */
+    public function map_style_requires_maplibre( $map_style ) {
+        $definition = $this->get_map_style_definition( $map_style );
+        return $definition && !empty( $definition['requires_maplibre'] );
+    }
+
+    /**
+     * Get the configured or submitted API key for a map style provider.
+     *
+     * @param string $required_api_key Required API key type.
+     * @param array  $submitted_keys   Optional submitted API keys keyed by type.
+     * @return string API key value.
+     */
+    public function get_map_style_api_key_value( $required_api_key, $submitted_keys = array() ) {
+        if ( isset( $submitted_keys[$required_api_key] ) ) {
+            return trim( (string) $submitted_keys[$required_api_key] );
+        }
+        if ( $required_api_key === 'carto' ) {
+            return trim( (string) get_option( 'oum_tile_provider_carto_key', '' ) );
+        }
+        if ( $required_api_key === 'mapbox' ) {
+            return trim( (string) get_option( 'oum_tile_provider_mapbox_key', '' ) );
+        }
+        return '';
+    }
+
+    /**
+     * Get the replacement style when a keyed provider style is selected without a key.
+     *
+     * @param string $map_style      Map style identifier.
+     * @param array  $submitted_keys Optional submitted API keys keyed by type.
+     * @return string Replacement style key or empty string.
+     */
+    public function get_no_key_replacement_map_style( $map_style, $submitted_keys = array() ) {
+        $definition = $this->get_map_style_definition( $map_style );
+        if ( !$definition || empty( $definition['requires_api_key'] ) || empty( $definition['replacement_style'] ) ) {
+            return '';
+        }
+        $api_key = $this->get_map_style_api_key_value( $definition['requires_api_key'], $submitted_keys );
+        return ( $api_key === '' ? $definition['replacement_style'] : '' );
+    }
+
+    /**
+     * Check whether the selected style or its no-key replacement needs MapLibre.
+     *
+     * @param string $map_style Map style identifier.
+     * @return bool True when MapLibre assets are needed.
+     */
+    public function map_style_needs_maplibre_assets( $map_style ) {
+        if ( $this->map_style_requires_maplibre( $map_style ) ) {
+            return true;
+        }
+        $replacement_style = $this->get_no_key_replacement_map_style( $map_style );
+        if ( $replacement_style !== '' ) {
+            return $this->map_style_requires_maplibre( $replacement_style );
+        }
+        return false;
+    }
+
+    /**
+     * Return safe map style metadata for JavaScript layer creation.
+     *
+     * @return array JavaScript-safe map style registry.
+     */
+    public function get_map_style_js_registry() {
+        $js_registry = array();
+        $allowed_keys = array(
+            'provider',
+            'url',
+            'mapbox_id',
+            'carto_base_url',
+            'requires_api_key'
+        );
+        foreach ( $this->get_map_style_registry() as $style_key => $definition ) {
+            $js_registry[$style_key] = array();
+            foreach ( $allowed_keys as $key ) {
+                if ( isset( $definition[$key] ) ) {
+                    $js_registry[$style_key][$key] = $definition[$key];
+                }
+            }
+        }
+        return $js_registry;
+    }
+
+    /**
+     * Resolve the map style used for asset decisions.
+     *
+     * @param array $block_attributes Optional block or shortcode attributes.
+     * @return string Sanitized map style identifier.
+     */
+    public function get_map_style_for_assets( $block_attributes = array() ) {
+        $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : $this->get_default_map_style() );
+        if ( isset( $block_attributes['map_style'] ) && $block_attributes['map_style'] !== '' ) {
+            $map_style = $block_attributes['map_style'];
+        }
+        $map_style = sanitize_text_field( $map_style );
+        return ( preg_match( '/^[A-Za-z0-9._-]+$/', $map_style ) ? $map_style : $this->get_default_map_style() );
+    }
+
+    /**
      * Extract the base tile provider from a map style string.
      *
      * @param string $map_style Map style identifier, e.g. "Esri.WorldStreetMap".
      * @return string Lowercase provider slug or empty string.
      */
     public function get_tile_provider_from_style( $map_style ) {
+        $definition = $this->get_map_style_definition( $map_style );
+        if ( $definition && !empty( $definition['provider'] ) ) {
+            return $definition['provider'];
+        }
         $map_style = strtolower( trim( (string) $map_style ) );
         if ( $map_style === '' ) {
             return '';
@@ -970,7 +1265,7 @@ class BaseController {
             // Reset Custom Image map style to default if it's currently set
             $current_map_style = get_option( 'oum_map_style' );
             if ( $current_map_style === 'CustomImage' ) {
-                update_option( 'oum_map_style', 'Esri.WorldStreetMap' );
+                update_option( 'oum_map_style', $this->get_default_map_style() );
             }
         }
     }
@@ -983,9 +1278,12 @@ class BaseController {
      * 
      * @return void
      */
-    public function include_map_scripts() {
+    public function include_map_scripts( $map_style = '' ) {
         // Unregister incompatible 3rd party scripts
         $this->remove_incompatible_3rd_party_scripts();
+        if ( $map_style === '' ) {
+            $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : $this->get_default_map_style() );
+        }
         // Enqueue registered Leaflet CSS files
         wp_enqueue_style( 'oum_leaflet_css' );
         wp_enqueue_style( 'oum_leaflet_gesture_css' );
@@ -1010,8 +1308,16 @@ class BaseController {
         wp_enqueue_script( 'oum_leaflet_search_js' );
         wp_enqueue_script( 'oum_leaflet_gesture_js' );
         wp_enqueue_script( 'oum_leaflet_responsivepopup_js' );
+        // OpenFreeMap styles use vector tiles through MapLibre's Leaflet binding.
+        if ( $this->map_style_needs_maplibre_assets( $map_style ) ) {
+            wp_enqueue_style( 'oum_maplibre_css' );
+            wp_enqueue_script( 'oum_maplibre_js' );
+            wp_enqueue_script( 'oum_leaflet_maplibre_js' );
+        }
         // Capture the fully extended L object after all Leaflet add-ons are loaded
         wp_enqueue_script( 'oum_global_leaflet_js' );
+        wp_localize_script( 'oum_map_styles_js', 'oum_map_style_registry', $this->get_map_style_js_registry() );
+        wp_enqueue_script( 'oum_map_styles_js' );
     }
 
     /**
@@ -1037,8 +1343,8 @@ class BaseController {
         if ( $this->should_show_add_location_form() ) {
             $this->enqueue_add_location_dashicons();
         }
-        // Load map base scripts (enqueues registered Leaflet CSS and JS)
-        $this->include_map_scripts();
+        // Load map base scripts and vector dependencies when the selected style needs them.
+        $this->include_map_scripts( $this->get_map_style_for_assets( $block_attributes ) );
         // Enqueue registered frontend block map script
         wp_enqueue_script( 'oum_frontend_block_map_js' );
         wp_enqueue_style( 'oum_leaflet_draw_css' );
@@ -1917,8 +2223,8 @@ class BaseController {
         $this->enqueue_frontend_css();
         // Dashicons for media upload buttons in the inline add-location form
         $this->enqueue_add_location_dashicons();
-        // Load map base scripts (enqueues registered Leaflet CSS and JS)
-        $this->include_map_scripts();
+        // Load map base scripts and vector dependencies when the selected style needs them.
+        $this->include_map_scripts( $this->get_map_style_for_assets( $block_attributes ) );
         // Enqueue registered frontend block map script
         wp_enqueue_script( 'oum_frontend_block_map_js' );
         wp_enqueue_style( 'oum_leaflet_draw_css' );

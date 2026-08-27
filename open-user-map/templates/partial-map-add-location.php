@@ -18,7 +18,7 @@ if ( !isset( $oum_show_add_location_button ) ) {
 <?php 
 if ( $oum_show_add_location_button ) {
     // Fetch required settings for the add-location overlay only
-    $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'Esri.WorldStreetMap' );
+    $map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'OpenFreeMap.bright' );
     $oum_ui_color = ( get_option( 'oum_ui_color' ) ? get_option( 'oum_ui_color' ) : $this->oum_ui_color_default );
     $oum_title_label = ( get_option( 'oum_title_label' ) ? get_option( 'oum_title_label' ) : $this->oum_get_default_label( 'title' ) );
     $oum_map_label = ( get_option( 'oum_map_label' ) ? get_option( 'oum_map_label' ) : $this->oum_get_default_label( 'map' ) );

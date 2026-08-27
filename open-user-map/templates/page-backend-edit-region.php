@@ -1,7 +1,7 @@
 <tr class="term-latlng">
     <?php
     // Set map style
-    $map_style = get_option('oum_map_style') ? get_option('oum_map_style') : 'Esri.WorldStreetMap';
+    $map_style = get_option('oum_map_style') ? get_option('oum_map_style') : 'OpenFreeMap.bright';
     $oum_tile_provider_mapbox_key = get_option('oum_tile_provider_mapbox_key', '');
     $oum_tile_provider_carto_key = get_option('oum_tile_provider_carto_key', '');
     $t_id = $tag->term_id;
@@ -53,8 +53,8 @@
             const lng = '<?php echo esc_attr($term_lng) ? esc_attr($term_lng) : '0'; ?>';
             const zoom = '<?php echo esc_attr($term_zoom) ? esc_attr($term_zoom) : '1'; ?>';
             const mapStyle = '<?php echo $map_style; ?>';
-            var oum_tile_provider_mapbox_key = <?php echo wp_json_encode((string) $oum_tile_provider_mapbox_key); ?>;
-            var oum_tile_provider_carto_key = <?php echo wp_json_encode((string) $oum_tile_provider_carto_key); ?>;
+            window.oum_tile_provider_mapbox_key = <?php echo wp_json_encode((string) $oum_tile_provider_mapbox_key); ?>;
+            window.oum_tile_provider_carto_key = <?php echo wp_json_encode((string) $oum_tile_provider_carto_key); ?>;
             let oum_geosearch_selected_provider = "";
             const oum_geosearch_provider = <?php echo wp_json_encode((string) (get_option('oum_geosearch_provider') ? get_option('oum_geosearch_provider') : 'osm')); ?>;
             const oum_geosearch_provider_geoapify_key = <?php echo wp_json_encode((string) get_option('oum_geosearch_provider_geoapify_key', '')); ?>;
@@ -84,9 +84,9 @@
 
             <?php 
             // load map base scripts
-            $this->include_map_scripts();
+            $this->include_map_scripts( $map_style );
 
-            wp_enqueue_script('oum_backend_region_js', $this->plugin_url . 'src/js/backend-region.js', array('oum_leaflet_providers_js', 'oum_leaflet_markercluster_js', 'oum_leaflet_subgroups_js', 'oum_leaflet_geosearch_js', 'oum_leaflet_locate_js', 'oum_leaflet_fullscreen_js', 'oum_leaflet_search_js', 'oum_leaflet_gesture_js', 'oum_global_leaflet_js'), $this->plugin_version); 
+            wp_enqueue_script('oum_backend_region_js', $this->plugin_url . 'src/js/backend-region.js', array('oum_leaflet_providers_js', 'oum_leaflet_markercluster_js', 'oum_leaflet_subgroups_js', 'oum_leaflet_geosearch_js', 'oum_leaflet_locate_js', 'oum_leaflet_fullscreen_js', 'oum_leaflet_search_js', 'oum_leaflet_gesture_js', 'oum_global_leaflet_js', 'oum_map_styles_js'), $this->plugin_version);
             ?>
             
         </div>

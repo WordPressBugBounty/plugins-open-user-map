@@ -1,7 +1,7 @@
 <?php
 
 if ( !function_exists( 'oum_sanitize_map_style_value' ) ) {
-    function oum_sanitize_map_style_value(  $value, $fallback = 'Esri.WorldStreetMap'  ) {
+    function oum_sanitize_map_style_value(  $value, $fallback = 'OpenFreeMap.bright'  ) {
         $value = sanitize_text_field( $value );
         // Map style keys are provider identifiers like Esri.WorldStreetMap or CustomImage.
         return ( preg_match( '/^[A-Za-z0-9._-]+$/', $value ) ? $value : $fallback );
@@ -32,7 +32,7 @@ $oum_hide_location_popup = ( get_option( 'oum_hide_location_popup', '' ) === 'on
 $oum_enable_gmaps_link = get_option( 'oum_enable_gmaps_link', 'on' );
 $oum_enable_address_autofill = get_option( 'oum_enable_address_autofill' );
 $oum_max_image_filesize = ( !empty( get_option( 'oum_max_image_filesize' ) ) ? get_option( 'oum_max_image_filesize' ) : 10 );
-$map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'Esri.WorldStreetMap' );
+$map_style = ( get_option( 'oum_map_style' ) ? get_option( 'oum_map_style' ) : 'OpenFreeMap.bright' );
 $oum_tile_provider_mapbox_key = get_option( 'oum_tile_provider_mapbox_key', '' );
 $oum_tile_provider_carto_key = get_option( 'oum_tile_provider_carto_key', '' );
 $marker_icon = ( get_option( 'oum_marker_icon' ) ? get_option( 'oum_marker_icon' ) : 'default' );

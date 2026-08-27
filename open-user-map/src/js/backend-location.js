@@ -229,119 +229,14 @@ window.addEventListener('load', function(e) {
     map.panInsideBounds(world_bounds, { animate: false });
   });
 
-  function getCartoApiKey() {
-    return (typeof oum_tile_provider_carto_key !== 'undefined') ? oum_tile_provider_carto_key : '';
-  }
-
-  function addCartoTileLayer(tileMap, style) {
-    const cartoKey = getCartoApiKey();
-
-    // CARTO tiles show a watermark without a key, so keep maps usable with ESRI.
-    if (!cartoKey) {
-      return L.tileLayer.provider('Esri.WorldStreetMap').addTo(tileMap);
-    }
-
-    return L.tileLayer.provider(style, {
-      apikey: cartoKey
-    }).addTo(tileMap);
-  }
-
-  function addCustomCartoLayers(tileMap, baseUrl) {
-    const cartoKey = getCartoApiKey();
-
-    // Custom styles are built from direct CARTO tile URLs and need the key manually.
-    if (!cartoKey) {
-      return L.tileLayer.provider('Esri.WorldStreetMap').addTo(tileMap);
-    }
-
-    const keyParam = '?key=' + encodeURIComponent(cartoKey);
-    L.tileLayer(baseUrl + keyParam).addTo(tileMap);
-    return L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png' + keyParam, {
-      tileSize: 512,
-      zoomOffset: -1
-    }).addTo(tileMap);
-  }
-
-  // Set map style
-  if (mapStyle == 'Custom1') {
-
-    addCustomCartoLayers(map, 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png');
-
-  } else if (mapStyle == 'Custom2') {
-
-    addCustomCartoLayers(map, 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png');
-
-  } else if (mapStyle == 'Custom3') {
-
-    addCustomCartoLayers(map, 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png');
-
-  } else if (mapStyle == 'MapBox.streets') {
-
-    L.tileLayer.provider('MapBox', {
-      id: 'mapbox/streets-v12',
-      accessToken: oum_tile_provider_mapbox_key
-    }).addTo(map);
-
-  } else if (mapStyle == 'MapBox.outdoors') {
-
-    L.tileLayer.provider('MapBox', {
-      id: 'mapbox/outdoors-v12',
-      accessToken: oum_tile_provider_mapbox_key
-    }).addTo(map);
-
-  } else if (mapStyle == 'MapBox.light') {
-
-    L.tileLayer.provider('MapBox', {
-      id: 'mapbox/light-v11',
-      accessToken: oum_tile_provider_mapbox_key
-    }).addTo(map);
-
-  } else if (mapStyle == 'MapBox.dark') {
-
-    L.tileLayer.provider('MapBox', {
-      id: 'mapbox/dark-v11',
-      accessToken: oum_tile_provider_mapbox_key
-    }).addTo(map);
-
-  } else if (mapStyle == 'MapBox.satellite') {
-
-    L.tileLayer.provider('MapBox', {
-      id: 'mapbox/satellite-v9',
-      accessToken: oum_tile_provider_mapbox_key
-    }).addTo(map);
-
-  } else if (mapStyle == 'MapBox.satellite-streets') {
-
-    L.tileLayer.provider('MapBox', {
-      id: 'mapbox/satellite-streets-v12',
-      accessToken: oum_tile_provider_mapbox_key
-    }).addTo(map);
-
-  } else if (mapStyle == "CustomImage") {
-    // Custom Image layer
-    setupCustomImageLayer();
-    // Always add a base tile layer for proper map functionality
-    // If hide tiles is enabled, use a transparent/invisible layer
-    if (window.oum_custom_image_hide_tiles) {
-      // Use a transparent tile layer to maintain map functionality
-      L.tileLayer('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', {
-        attribution: '',
-        opacity: 0
-      }).addTo(map);
-      
-      // Apply background color to map container
-      if (window.oum_custom_image_background_color) {
-        map.getContainer().style.backgroundColor = window.oum_custom_image_background_color;
-      }
-    } else {
-      L.tileLayer.provider("OpenStreetMap.Mapnik").addTo(map);
-    }
-  } else if (mapStyle.indexOf('CartoDB.') === 0) {
-    addCartoTileLayer(map, mapStyle);
-  } else {
-    // Default
-    L.tileLayer.provider(mapStyle).addTo(map);
-  }
+  // Set map style from the centralized registry.
+  window.OUMMapStyles.addBaseLayer(map, mapStyle, {
+    mapboxKey: window.oum_tile_provider_mapbox_key || '',
+    cartoKey: window.oum_tile_provider_carto_key || '',
+    setupCustomImageLayer: setupCustomImageLayer,
+    customImageHideTiles: window.oum_custom_image_hide_tiles,
+    customImageBackgroundColor: window.oum_custom_image_background_color,
+  });
 
   // Marker Icon
   let markerIcon = L.icon({

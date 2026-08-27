@@ -1694,15 +1694,81 @@
   }
 
   .map_styles {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    max-width: 1070px;
+
+    .map_style_provider_group {
+      padding: 24px;
+      margin-bottom: 16px;
+      background: #fff;
+      outline: 1px solid #d0d7de;
+      border-radius: 6px;
+    }
+
+    .map_style_provider_header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .map_style_provider_heading {
+      margin: 0;
+    }
+
+    .map_style_provider_api_key {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+
+      label {
+        width: auto;
+        height: auto;
+        overflow: visible;
+        border: 1px solid #8c8f94;
+        border-right: 0;
+        box-shadow: none;
+        font-weight: 600;
+        background: #f0f6fc;
+        border-radius: 4px 0 0 4px;
+        color: #135e96;
+        min-height: 30px;
+        line-height: 30px;
+        padding: 0 10px;
+      }
+
+      input.regular-text {
+        border-radius: 0 4px 4px 0;
+        min-height: 32px;
+      }
+
+      a {
+        margin-left: 12px;
+      }
+    }
+
+    .map_style_provider_notice {
+      display: inline-block;
+      margin: 0 0 16px;
+      padding: 8px 10px;
+      background: #fff8e5;
+      border-left: 4px solid #dba617;
+      color: #3c434a;
+    }
+
+    .map_style_provider_styles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
 
     label {
-      width: 208px;
-      height: 208px;
+      width: 188px;
+      height: 188px;
       overflow: hidden;
-      border: 4px solid white;
+      border: 4px solid #fff;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
       position: relative;
 
       input {
@@ -1732,8 +1798,9 @@
       }
 
       .map_style_preview {
-        width: 208px;
-        height: 208px;
+        width: 188px;
+        height: 188px;
+        position: relative;
         background-position: center center;
         background-size: cover;
         background-repeat: no-repeat;
@@ -1743,23 +1810,45 @@
           text-align: center;
           font-size: 12px;
           padding: 5px;
-          background: rgba(255,255,255,0.9);
+          background: #fff;
         }
 
-        &.commercial > div{
+        &.vector {
+          background-image: url('images/map_style_custom_image.png');
+
           &::after {
-            content: 'API KEY';
+            content: 'VECTOR';
             display: inline-block;
-            background: grey;
+            position: absolute;
+            left: 6px;
+            bottom: 6px;
+            background: #2271b1;
             color: #fff;
-            margin-left: 5px;
             padding: 2px 3px;
             font-size: 10px;
             line-height: 13px;
-            position: relative;
-            top: -1px;
             border-radius: 2px;
           }
+        }
+
+        &[data-style="OpenFreeMap.liberty"] {
+          background-image: url('images/map_style_OpenFreeMap.liberty.png');
+        }
+
+        &[data-style="OpenFreeMap.bright"] {
+          background-image: url('images/map_style_OpenFreeMap.bright.png');
+        }
+
+        &[data-style="OpenFreeMap.positron"] {
+          background-image: url('images/map_style_OpenFreeMap.positron.png');
+        }
+
+        &[data-style="OpenFreeMap.dark"] {
+          background-image: url('images/map_style_OpenFreeMap.dark.png');
+        }
+
+        &[data-style="OpenFreeMap.fiord"] {
+          background-image: url('images/map_style_OpenFreeMap.fiord.png');
         }
     
         &[data-style="Stadia.StamenTonerLite"] {
@@ -1831,11 +1920,6 @@
         }
       }
     }
-  }
-
-  .wrap-tile-provider-settings {
-    padding: 10px;
-    margin-top: 15px;
   }
 
   // Custom Image Settings
