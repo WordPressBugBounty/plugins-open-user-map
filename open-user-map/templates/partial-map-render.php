@@ -126,7 +126,11 @@ echo $this->get_tile_provider_data_attribute( $map_style, 'container' );
 ?>></div>
 
     <?php 
-if ( $oum_enable_searchbar === 'true' && $oum_searchbar_type == 'markers' ) {
+// Keep the searchbar on the map unless Advanced Filter is rendering it.
+$show_searchbar_on_map = $oum_enable_searchbar === 'true' && empty( $show_searchbar_in_advanced_filter );
+?>
+    <?php 
+if ( $show_searchbar_on_map && $oum_searchbar_type == 'markers' ) {
     ?>
       <div id="oum_search_marker"></div>
     <?php 
@@ -134,7 +138,7 @@ if ( $oum_enable_searchbar === 'true' && $oum_searchbar_type == 'markers' ) {
 ?>
 
     <?php 
-if ( $oum_enable_searchbar === 'true' && $oum_searchbar_type == 'live_filter' ) {
+if ( $show_searchbar_on_map && $oum_searchbar_type == 'live_filter' ) {
     ?>
       <input type="text" id="oum_filter_markers" class="oum-hidden" placeholder="<?php 
     echo esc_attr( $oum_searchmarkers_label );
@@ -179,9 +183,12 @@ if ( !isset( $oum_enable_advanced_filter ) ) {
 if ( !isset( $oum_advanced_filter_layout ) ) {
     $oum_advanced_filter_layout = get_option( 'oum_advanced_filter_layout', 'left' );
 }
-$oum_advanced_filter_sections = get_option( 'oum_advanced_filter_sections', array() );
+if ( !isset( $oum_advanced_filter_sections ) ) {
+    $oum_advanced_filter_sections = get_option( 'oum_advanced_filter_sections', array() );
+}
 $has_floating_filter = $oum_enable_advanced_filter && ($oum_advanced_filter_layout === 'button' || $oum_advanced_filter_layout === 'panel') && !empty( $oum_advanced_filter_sections );
-$show_marker_filters = $types && $oum_hide_filterbox !== 'true';
+// Hide the on-map overlay when Marker Categories live in the Advanced Filter.
+$show_marker_filters = $types && $oum_hide_filterbox !== 'true' && empty( $show_marker_categories_in_advanced_filter );
 if ( $has_floating_filter || $show_marker_filters ) {
     ?>
       <div class="oum-map-filter-wrapper">
@@ -204,96 +211,9 @@ if ( $has_floating_filter || $show_marker_filters ) {
             <div class="oum-filter-toggle"></div>
             <div class="oum-filter-list">
               <div class="close-filter-list">&#x2715;</div>
-              
-              <!-- Toggle All Checkbox -->
               <?php 
-        if ( $oum_enable_toggle_all_categories === 'on' ) {
-            ?>
-                <div class="oum-toggle-all-wrapper">
-                  <label class="oum-toggle-all-label">
-                    <input style="accent-color: <?php 
-            echo $oum_ui_color;
-            ?>" type="checkbox" id="oum-toggle-all" class="oum-toggle-all-checkbox">
-                    <span class="oum-toggle-all-text"><?php 
-            echo __( 'Select all', 'open-user-map' );
-            ?></span>
-                  </label>
-                </div>
-              <?php 
-        }
-        ?>
-              
-              <?php 
-        $oum_route_icon_path = $this->plugin_path . 'assets/images/ico_route.svg';
-        $oum_area_icon_path = $this->plugin_path . 'assets/images/ico_area.svg';
-        $oum_route_icon_svg = ( is_readable( $oum_route_icon_path ) ? file_get_contents( $oum_route_icon_path ) : '' );
-        $oum_area_icon_svg = ( is_readable( $oum_area_icon_path ) ? file_get_contents( $oum_area_icon_path ) : '' );
-        ?>
-
-              <?php 
-        foreach ( $types as $type ) {
-            ?>
-
-                <?php 
-            $category_type = \OpenUserMapPlugin\Base\BaseController::oum_marker_category_type( $type->term_id );
-            $category_color = sanitize_hex_color( get_term_meta( $type->term_id, 'oum_marker_color', true ) );
-            if ( !$category_color ) {
-                $category_color = ( $oum_ui_color ? $oum_ui_color : '#e82c71' );
-            }
-            if ( $type->term_id && get_term_meta( $type->term_id, 'oum_marker_icon', true ) ) {
-                //get type marker icon from oum-type taxonomy
-                $type_marker_icon = get_term_meta( $type->term_id, 'oum_marker_icon', true );
-                $type_marker_user_icon = get_term_meta( $type->term_id, 'oum_marker_user_icon', true );
-            } else {
-                //get type marker icon from settings
-                $type_marker_icon = $marker_icon;
-                $type_marker_user_icon = $marker_user_icon;
-            }
-            if ( $type_marker_icon == 'user1' && $type_marker_user_icon ) {
-                $icon = esc_url( $type_marker_user_icon );
-            } else {
-                $icon = esc_url( $this->plugin_url ) . 'src/leaflet/images/marker-icon_' . esc_attr( $type_marker_icon ) . '-2x.png';
-            }
-            ?>
-
-                <label>
-                  <input style="accent-color: <?php 
-            echo $oum_ui_color;
-            ?>" type="checkbox" name="type" value="<?php 
-            echo esc_attr( $type->term_taxonomy_id );
-            ?>" checked>
-                  <?php 
-            if ( $category_type === 'polyline' ) {
-                ?>
-                    <span class="oum-filter-category-shape-icon" style="color: <?php 
-                echo esc_attr( $category_color );
-                ?>" aria-hidden="true"><?php 
-                echo $oum_route_icon_svg;
-                ?></span>
-                  <?php 
-            } elseif ( $category_type === 'polygon' ) {
-                ?>
-                    <span class="oum-filter-category-shape-icon" style="color: <?php 
-                echo esc_attr( $category_color );
-                ?>" aria-hidden="true"><?php 
-                echo $oum_area_icon_svg;
-                ?></span>
-                  <?php 
-            } else {
-                ?>
-                    <img alt="category icon" src="<?php 
-                echo $icon;
-                ?>">
-                  <?php 
-            }
-            ?>
-                  <span class="oum-filter-category-name"><?php 
-            echo esc_html( $type->name );
-            ?></span>
-                </label>
-
-              <?php 
-        }
+        $oum_marker_categories_show_heading = false;
+        require oum_get_template( 'partial-map-marker-categories-filter.php' );
         ?>
             </div>
           </div>
@@ -790,7 +710,7 @@ if ( $oum_map_height_mobile ) {
           }
           .oum-filter-controls,
           .open-add-location-overlay,
-          #oum_filter_markers,
+          .map-wrap #oum_filter_markers,
           .oum-advanced-filter-button,
           .oum-advanced-filter-panel,
           .oum-sidebar {
@@ -800,7 +720,7 @@ if ( $oum_map_height_mobile ) {
           }
           .oum-filter-controls.visible,
           .open-add-location-overlay.visible,
-          #oum_filter_markers.visible,
+          .map-wrap #oum_filter_markers.visible,
           .oum-advanced-filter-button.visible,
           .oum-advanced-filter-panel.visible,
           .oum-sidebar.visible {

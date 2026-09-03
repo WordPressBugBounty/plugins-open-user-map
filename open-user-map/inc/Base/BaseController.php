@@ -1592,8 +1592,17 @@ class BaseController {
                         // Handle multiple images
                         $final_image_urls = array();
                         $image_order = ( isset( $_POST['image_order'] ) ? json_decode( stripslashes( $_POST['image_order'] ), true ) : array() );
+                        if ( !is_array( $image_order ) ) {
+                            $image_order = array();
+                        }
                         $new_image_mapping = array();
                         // Store mapping of original filename to new URL
+                        // Existing images are only valid on updates and must already belong to this location.
+                        $allowed_existing_images = ( $is_update ? \OpenUserMapPlugin\Base\LocationController::get_allowed_existing_location_images( $post_id ) : array() );
+                        $max_image_uploads = (int) get_option( 'oum_max_image_uploads', 5 );
+                        if ( $max_image_uploads < 1 ) {
+                            $max_image_uploads = 5;
+                        }
                         // First, handle new uploaded images to create the mapping
                         $has_new_images = isset( $_FILES['oum_location_images']['name'] ) && is_array( $_FILES['oum_location_images']['name'] ) && !empty( array_filter( $_FILES['oum_location_images']['name'] ) );
                         if ( $has_new_images ) {
@@ -1651,43 +1660,35 @@ class BaseController {
                         // Now build the final array based on image_order
                         if ( !empty( $image_order ) ) {
                             foreach ( $image_order as $item ) {
-                                list( $type, $identifier ) = explode( ':', $item );
+                                if ( count( $final_image_urls ) >= $max_image_uploads ) {
+                                    break;
+                                }
+                                if ( !is_string( $item ) || $item === '' ) {
+                                    continue;
+                                }
+                                $parts = explode( ':', $item, 2 );
+                                if ( count( $parts ) < 2 ) {
+                                    continue;
+                                }
+                                $type = $parts[0];
+                                $identifier = $parts[1];
                                 if ( $type === 'existing' ) {
-                                    // Improved URL handling to properly convert absolute URLs to relative paths
-                                    if ( filter_var( $identifier, FILTER_VALIDATE_URL ) ) {
-                                        // Parse URL to handle different domain formats (with/without www, etc.)
-                                        $url_parts = parse_url( $identifier );
-                                        if ( isset( $url_parts['path'] ) ) {
-                                            // Get the site path
-                                            $site_path = parse_url( site_url(), PHP_URL_PATH );
-                                            // Check if the URL path already starts with the site path
-                                            if ( $site_path && strpos( $url_parts['path'], $site_path ) === 0 ) {
-                                                // URL already has the site path, remove the duplicate
-                                                $path = substr( $url_parts['path'], strlen( $site_path ) );
-                                                $final_image_urls[] = $path;
-                                            } else {
-                                                // Only keep the path part
-                                                $final_image_urls[] = $url_parts['path'];
-                                            }
-                                        } else {
-                                            // Fallback to old method
-                                            $relative_url = str_replace( site_url(), '', $identifier );
-                                            $final_image_urls[] = $relative_url;
-                                        }
-                                    } else {
-                                        // Check if this is a relative path that already includes the site path
-                                        $site_path = parse_url( site_url(), PHP_URL_PATH );
-                                        if ( $site_path && strpos( $identifier, $site_path ) === 0 ) {
-                                            // URL already has the site path, remove the duplicate
-                                            $identifier = substr( $identifier, strlen( $site_path ) );
-                                        }
-                                        // Already a relative path or other format
-                                        $final_image_urls[] = $identifier;
+                                    // New submissions cannot claim existing files. Updates may only keep
+                                    // images that are already stored for this location.
+                                    if ( !$is_update ) {
+                                        continue;
+                                    }
+                                    $resolved_existing = \OpenUserMapPlugin\Base\LocationController::resolve_existing_location_image( $identifier, $allowed_existing_images );
+                                    if ( $resolved_existing !== '' && !in_array( $resolved_existing, $final_image_urls, true ) ) {
+                                        $final_image_urls[] = $resolved_existing;
                                     }
                                 } else {
                                     // For new images, get URL from our mapping
                                     if ( isset( $new_image_mapping[$identifier] ) ) {
-                                        $final_image_urls[] = $new_image_mapping[$identifier];
+                                        $sanitized_new = \OpenUserMapPlugin\Base\LocationController::sanitize_location_image_url( $new_image_mapping[$identifier] );
+                                        if ( $sanitized_new !== '' ) {
+                                            $final_image_urls[] = $sanitized_new;
+                                        }
                                     }
                                 }
                             }

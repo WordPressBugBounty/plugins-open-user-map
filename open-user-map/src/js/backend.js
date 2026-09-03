@@ -294,12 +294,29 @@ jQuery(function($){
     fetchChunk();
   });
 
-  // Import CSV
+  // Import CSV in chunks (same pattern as CSV export)
   $('body').on('click', '.oum_upload_csv_button', function(e){
     e.preventDefault();
 
     var button = $(this),
-    csv_uploader = wp.media({
+        $csvUpload = button.closest('.csv_upload'),
+        $loading = $csvUpload.find('.oum-import-loading'),
+        $progress = $loading.find('.oum-import-loading-progress');
+
+    // Fallback if the loading markup is missing from the template.
+    if (!$loading.length) {
+      button.after(
+        '<div class="oum-import-loading" aria-live="polite">' +
+          '<span class="oum-spinner" aria-hidden="true"></span>' +
+          '<span class="oum-import-loading-text">Be patient. This can take several minutes.</span>' +
+          '<span class="oum-import-loading-progress"></span>' +
+        '</div>'
+      );
+      $loading = button.next('.oum-import-loading');
+      $progress = $loading.find('.oum-import-loading-progress');
+    }
+
+    var csv_uploader = wp.media({
         title: 'Upload CSV file',
         library : {
             type : 'file'
@@ -310,49 +327,76 @@ jQuery(function($){
         multiple: false
     }).on('select', function() {
         var attachment = csv_uploader.state().get('selection').first().toJSON();
+        var publish_immediately = $('#oum_csv_import_publish_immediately').is(':checked') ? 'on' : '';
+        var page = 1;
+        var perPage = 25;
+        var importedTotal = 0;
 
-        // Show loading spinner
-        if(!$('.oum-import-loading').length) {
-          button.after('<div class="oum-import-loading"><div class="oum-spinner"></div></div>');
-        }
-        $('.oum-import-loading').show();
+        $loading.addClass('is-visible');
+        $progress.text('');
         button.prop('disabled', true);
 
-        // Import CSV with PHP
-        // Get the publish immediately checkbox value
-        var publish_immediately = $('#oum_csv_import_publish_immediately').is(':checked') ? 'on' : '';
-        
-        jQuery.ajax({
+        var finishImport = function (successMessage) {
+          $loading.removeClass('is-visible');
+          button.prop('disabled', false);
+          if (successMessage) {
+            alert(successMessage);
+          }
+        };
+
+        var showImportError = function (response) {
+          finishImport();
+          alert('Something went wrong. Please see errors in console.');
+          if (response && response.data && Array.isArray(response.data)) {
+            response.data.forEach(function(error) {
+              console.error(error.code + ': ' + error.message);
+            });
+          }
+        };
+
+        var importChunk = function () {
+          jQuery.ajax({
             url: ajaxurl,
             type: 'POST',
             dataType: 'json',
             data: {
-                'action': 'oum_csv_import',
-                'oum_location_nonce': oum_ajax.oum_location_nonce,
-                'url': attachment.url,
-                'oum_csv_import_publish_immediately': publish_immediately,
+              action: 'oum_csv_import',
+              oum_location_nonce: oum_ajax.oum_location_nonce,
+              url: attachment.url,
+              oum_csv_import_publish_immediately: publish_immediately,
+              page: page,
+              per_page: perPage
             },
-            success: function (response, textStatus, XMLHttpRequest) {
-                // Hide loading spinner
-                $('.oum-import-loading').hide();
-                button.prop('disabled', false);
+            success: function (response) {
+              if (!response || !response.success) {
+                showImportError(response);
+                return;
+              }
 
-                if(response.success) {
-                    alert(response.data);
-                }else{
-                    alert('Something went wrong. Please see errors in console.');
-                    response.data.forEach((error) => {
-                        console.error(error.code + ': ' + error.message);
-                    });
-                }
+              var data = response.data || {};
+              importedTotal += parseInt(data.imported || 0, 10);
+              var processed = parseInt(data.processed || 0, 10);
+              var total = parseInt(data.total || 0, 10);
+
+              if (total > 0) {
+                $progress.text(processed + ' / ' + total);
+              }
+
+              if (data.has_more) {
+                page++;
+                importChunk();
+              } else {
+                finishImport(importedTotal + ' Locations have been imported successfully.');
+              }
             },
             error: function() {
-                // Hide loading spinner
-                $('.oum-import-loading').hide();
-                button.prop('disabled', false);
-                alert('Something went wrong. Please try again.');
+              finishImport();
+              alert('Something went wrong. Please try again.');
             }
-        });
+          });
+        };
+
+        importChunk();
     })
     .open();
   });

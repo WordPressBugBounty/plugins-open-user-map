@@ -1327,6 +1327,7 @@
 
   .form-table th {
     width: 230px;
+    padding-top: 17px;
   }
 
   /* Custom fields wrapper table keeps default column widths */
@@ -2540,26 +2541,46 @@
   .csv_upload {
     position: relative;
 
+    .oum-import-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 10px;
+    }
+
     .oum-import-loading {
       display: none;
-      position: relative;
-      margin-left: 10px;
-      vertical-align: middle;
-      display: inline-block;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 0 1 auto;
+
+      &.is-visible {
+        display: flex;
+      }
 
       .oum-spinner {
         display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 2px solid rgba(34, 113, 177, 0.1);
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(34, 113, 177, 0.15);
         border-top: 2px solid #2271b1;
         border-radius: 50%;
         animation: spin 1s linear infinite;
-        vertical-align: middle;
       }
 
-      .message {
-        display: none;
+      .oum-import-loading-text {
+        color: #2271b1;
+        font-style: italic;
+        white-space: nowrap;
+        animation: oum-import-text-blink 1.2s ease-in-out infinite;
+      }
+
+      .oum-import-loading-progress {
+        color: #646970;
+        white-space: nowrap;
+        flex-shrink: 0;
       }
     }
   }
@@ -2567,6 +2588,11 @@
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+
+  @keyframes oum-import-text-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
   }
 
   .oum-pro {
@@ -3101,7 +3127,9 @@
         }
 
         .oum-custom-field-options,
-        .oum-html-options {
+        .oum-html-options,
+        .oum-marker-categories-options,
+        .oum-searchbar-options {
           display: none;
 
           &.active {
@@ -3126,6 +3154,10 @@
       background: #f6f7f7;
     }
 
+    .oum-af-feature-required-notice {
+      font-style: italic;
+    }
+
     .oum-filter-sections-header {
       margin-bottom: 20px;
 
@@ -3140,6 +3172,10 @@
         margin: 0;
         font-size: 14px;
         color: #646970;
+
+        & + .description {
+          margin-top: 8px;
+        }
       }
     }
 

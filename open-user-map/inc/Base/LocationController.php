@@ -309,6 +309,183 @@ class LocationController extends BaseController {
     }
 
     /**
+     * Allowed location image file extensions.
+     *
+     * @return array
+     */
+    public static function get_allowed_location_image_extensions() {
+        return array(
+            'jpeg',
+            'jpg',
+            'png',
+            'webp',
+            'gif'
+        );
+    }
+
+    /**
+     * True when a value contains characters that must never appear in a stored image URL.
+     *
+     * Quotes, angle brackets, whitespace and control characters can break out of HTML attributes.
+     *
+     * @param string $value
+     * @return bool
+     */
+    public static function location_image_url_has_unsafe_characters( $value ) {
+        if ( $value === '' ) {
+            return false;
+        }
+        if ( preg_match( '/["\'<>\\\\\\s]|[\\x00-\\x1F\\x7F]/', $value ) ) {
+            return true;
+        }
+        $decoded = rawurldecode( $value );
+        if ( $decoded !== $value && preg_match( '/["\'<>\\\\\\s]|[\\x00-\\x1F\\x7F]/', $decoded ) ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Normalize a location image value to a comparable same-site path or absolute URL.
+     *
+     * @param string $url
+     * @return string Empty string when the value cannot be used as an image URL.
+     */
+    public static function normalize_location_image_url( $url ) {
+        $url = trim( (string) $url );
+        if ( $url === '' || self::location_image_url_has_unsafe_characters( $url ) ) {
+            return '';
+        }
+        $is_absolute = (bool) filter_var( $url, FILTER_VALIDATE_URL );
+        $path = $url;
+        if ( $is_absolute ) {
+            $parts = wp_parse_url( $url );
+            if ( !is_array( $parts ) || empty( $parts['scheme'] ) || empty( $parts['path'] ) ) {
+                return '';
+            }
+            $scheme = strtolower( $parts['scheme'] );
+            if ( !in_array( $scheme, array('http', 'https'), true ) ) {
+                return '';
+            }
+            $host = ( isset( $parts['host'] ) ? strtolower( $parts['host'] ) : '' );
+            $path = $parts['path'];
+            $site_host = strtolower( (string) wp_parse_url( site_url(), PHP_URL_HOST ) );
+            $site_path = wp_parse_url( site_url(), PHP_URL_PATH );
+            if ( self::location_image_url_has_unsafe_characters( $path ) || strpos( $path, '..' ) !== false ) {
+                return '';
+            }
+            // Same-site absolute URLs are compared as paths so frontend pathnames match stored values.
+            if ( $host !== '' && $host === $site_host ) {
+                if ( $site_path && strpos( $path, $site_path ) === 0 ) {
+                    $path = substr( $path, strlen( $site_path ) );
+                }
+                if ( $path === '' || $path[0] !== '/' ) {
+                    $path = '/' . ltrim( $path, '/' );
+                }
+                return $path;
+            }
+            return esc_url_raw( $url );
+        }
+        $site_path = wp_parse_url( site_url(), PHP_URL_PATH );
+        if ( $site_path && strpos( $path, $site_path ) === 0 ) {
+            $path = substr( $path, strlen( $site_path ) );
+        }
+        if ( $path === '' || $path[0] !== '/' || strpos( $path, '..' ) !== false || self::location_image_url_has_unsafe_characters( $path ) ) {
+            return '';
+        }
+        return $path;
+    }
+
+    /**
+     * Sanitize a location image URL before it is stored.
+     *
+     * @param string $url
+     * @return string Sanitized relative path or URL, or empty string when invalid.
+     */
+    public static function sanitize_location_image_url( $url ) {
+        $normalized = self::normalize_location_image_url( $url );
+        if ( $normalized === '' ) {
+            return '';
+        }
+        $path_for_ext = $normalized;
+        if ( filter_var( $normalized, FILTER_VALIDATE_URL ) ) {
+            $path_for_ext = (string) wp_parse_url( $normalized, PHP_URL_PATH );
+        }
+        $ext = strtolower( pathinfo( $path_for_ext, PATHINFO_EXTENSION ) );
+        if ( !in_array( $ext, self::get_allowed_location_image_extensions(), true ) ) {
+            return '';
+        }
+        if ( filter_var( $normalized, FILTER_VALIDATE_URL ) ) {
+            return esc_url_raw( $normalized );
+        }
+        return $normalized;
+    }
+
+    /**
+     * Compare two image values, treating WordPress resized filenames as the same image.
+     *
+     * @param string $url_a
+     * @param string $url_b
+     * @return bool
+     */
+    public static function location_image_urls_match( $url_a, $url_b ) {
+        $a = self::normalize_location_image_url( $url_a );
+        $b = self::normalize_location_image_url( $url_b );
+        if ( $a === '' || $b === '' ) {
+            return false;
+        }
+        if ( $a === $b ) {
+            return true;
+        }
+        $path_a = ( filter_var( $a, FILTER_VALIDATE_URL ) ? (string) wp_parse_url( $a, PHP_URL_PATH ) : $a );
+        $path_b = ( filter_var( $b, FILTER_VALIDATE_URL ) ? (string) wp_parse_url( $b, PHP_URL_PATH ) : $b );
+        $strip_size = function ( $filename ) {
+            return preg_replace( '/-(?:scaled|rotated|[0-9]+x[0-9]+)$/', '', $filename );
+        };
+        return dirname( $path_a ) === dirname( $path_b ) && $strip_size( pathinfo( $path_a, PATHINFO_FILENAME ) ) === $strip_size( pathinfo( $path_b, PATHINFO_FILENAME ) ) && strtolower( pathinfo( $path_a, PATHINFO_EXTENSION ) ) === strtolower( pathinfo( $path_b, PATHINFO_EXTENSION ) );
+    }
+
+    /**
+     * Sanitized image URLs already stored for a location.
+     *
+     * @param int $post_id
+     * @return array
+     */
+    public static function get_allowed_existing_location_images( $post_id ) {
+        $allowed = array();
+        $stored = get_post_meta( $post_id, '_oum_location_image', true );
+        if ( !is_string( $stored ) || $stored === '' ) {
+            return $allowed;
+        }
+        foreach ( explode( '|', $stored ) as $image_url ) {
+            $sanitized = self::sanitize_location_image_url( $image_url );
+            if ( $sanitized !== '' ) {
+                $allowed[] = $sanitized;
+            }
+        }
+        return $allowed;
+    }
+
+    /**
+     * Resolve a submitted existing image to the stored URL for that location.
+     *
+     * @param string $identifier
+     * @param array  $allowed_images
+     * @return string
+     */
+    public static function resolve_existing_location_image( $identifier, $allowed_images ) {
+        if ( !is_array( $allowed_images ) || empty( $allowed_images ) ) {
+            return '';
+        }
+        foreach ( $allowed_images as $stored_url ) {
+            if ( self::location_image_urls_match( $identifier, $stored_url ) ) {
+                return $stored_url;
+            }
+        }
+        return '';
+    }
+
+    /**
      * Save Location Fields (Backend)
      */
     public static function save_fields( $post_id, $fields = array() ) {
@@ -357,19 +534,9 @@ class LocationController extends BaseController {
             // Validate image URLs and convert to relative paths
             $valid_images = array();
             foreach ( $images as $image_url ) {
-                if ( !empty( $image_url ) && strpos( $image_url, '|' ) === false ) {
-                    // Convert absolute URLs to relative paths if they're from our site
-                    if ( strpos( $image_url, site_url() ) === 0 ) {
-                        $valid_images[] = str_replace( site_url(), '', $image_url );
-                    } else {
-                        if ( strpos( $image_url, '/wp-content' ) === 0 ) {
-                            // Already relative, use as is
-                            $valid_images[] = $image_url;
-                        } else {
-                            // External URL or unexpected format, store as is
-                            $valid_images[] = esc_url_raw( $image_url );
-                        }
-                    }
+                $sanitized_image = self::sanitize_location_image_url( $image_url );
+                if ( $sanitized_image !== '' && !in_array( $sanitized_image, $valid_images, true ) ) {
+                    $valid_images[] = $sanitized_image;
                 }
             }
             // Store images as pipe-separated string
@@ -399,12 +566,12 @@ class LocationController extends BaseController {
                 }
             }
         }
-        // Set excerpt if not set (for both regular and quick edit)
-        if ( get_the_excerpt( $post_id ) == '' ) {
-            self::set_excerpt( $post_id );
-        }
-        // If this is a Quick Edit operation, we're done
+        // Quick Edit does not write location text, so set the excerpt from
+        // the description that is already stored for this post.
         if ( $is_quick_edit ) {
+            if ( get_the_excerpt( $post_id ) == '' ) {
+                self::set_excerpt( $post_id );
+            }
             return $post_id;
         }
         // Continue with regular save operation
@@ -524,6 +691,12 @@ class LocationController extends BaseController {
             // Convert absolute URLs to relative paths
             $data_audio = str_replace( site_url(), '', $audio_url );
             update_post_meta( $post_id, '_oum_location_audio', $data_audio );
+        }
+        // Set excerpt after the description is saved so first-time admin
+        // saves and CSV imports get an excerpt on the first write.
+        // CSV import already writes the excerpt on insert to avoid a second wp_update_post.
+        if ( !(defined( 'OUM_DOING_CSV_IMPORT' ) && OUM_DOING_CSV_IMPORT) && get_the_excerpt( $post_id ) == '' ) {
+            self::set_excerpt( $post_id );
         }
     }
 

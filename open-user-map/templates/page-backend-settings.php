@@ -199,7 +199,12 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
         <a href="#tab-3" class="nav-tab <?php 
     echo ( $active_tab === 'tab-3' ? 'nav-tab-active' : '' );
     ?>"><?php 
-    echo __( 'Filters, Categories & Types', 'open-user-map' );
+    echo __( 'Search & Filter', 'open-user-map' );
+    ?></a>
+        <a href="#tab-categories" class="nav-tab <?php 
+    echo ( $active_tab === 'tab-categories' ? 'nav-tab-active' : '' );
+    ?>"><?php 
+    echo __( 'Categories & Types', 'open-user-map' );
     ?></a>
         <a href="#tab-4" class="nav-tab <?php 
     echo ( $active_tab === 'tab-4' ? 'nav-tab-active' : '' );
@@ -2211,6 +2216,55 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>">
           <table class="form-table">
 
+            <!-- Advanced Filter Interface Settings -->
+            <?php 
+    ?>
+
+            <?php 
+    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
+        ?>
+              
+              <tr valign="top" class="oum-gopro-tr">
+                <th scope="row">
+                  <?php 
+        echo __( 'Advanced Filter Interface', 'open-user-map' );
+        ?>
+                  <span class="oum-tooltip">
+                    <span class="oum-tooltip-trigger">?</span>
+                    <div class="oum-tooltip-content">
+                      <h4><?php 
+        echo __( 'Advanced Filter Interface', 'open-user-map' );
+        ?></h4>
+                      <p><?php 
+        echo __( 'Create a search and filter sidebar next to your map. Add sections for Searchbar, Marker Categories, any custom field, or custom HTML.', 'open-user-map' );
+        ?></p>
+                      <p><a href="https://www.open-user-map.com/knowledge-base/advanced-filter-interface/?ref=pluginsettings" target="_blank"><?php 
+        echo __( 'Learn more about the Advanced Filter Interface →', 'open-user-map' );
+        ?></a></p>
+                    </div>
+                  </span>
+                  <br><span class="oum-pro">PRO</span><br>
+                  <a class="oum-gopro-text" href="<?php 
+        echo oum_fs()->get_upgrade_url();
+        ?>"><?php 
+        echo __( 'Upgrade to PRO to add a powerful filter sidebar next to your map.', 'open-user-map' );
+        ?></a>
+                </th>
+                <td>
+                  <input class="oum-switch" type="checkbox" disabled>
+                  <label><?php 
+        echo __( 'Enable', 'open-user-map' );
+        ?></label><br>
+                  <div class="description"><?php 
+        echo __( 'Let visitors search and filter locations from a dedicated sidebar, button, or panel. Add sections for Searchbar, Marker Categories, custom fields, or custom HTML.', 'open-user-map' );
+        ?></div>
+                </td>
+              </tr>
+
+            <?php 
+    }
+    ?>
+
             <?php 
     ?>
 
@@ -2366,6 +2420,14 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?></span><br>
               </td>
             </tr>
+
+          </table>
+        </div>
+
+        <div id="tab-categories" class="oum-tab-pane <?php 
+    echo ( $active_tab === 'tab-categories' ? 'active' : '' );
+    ?>">
+          <table class="form-table">
 
             <?php 
     $oum_enable_location_type_marker = get_option( 'oum_enable_location_type_marker', 'on' );
@@ -2534,55 +2596,6 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                       </div>
                     </div>
                   </div>
-                </td>
-              </tr>
-
-            <?php 
-    }
-    ?>
-
-            <!-- Advanced Filter Interface Settings -->
-            <?php 
-    ?>
-
-            <?php 
-    if ( !oum_fs()->is_plan_or_trial( 'pro' ) || !oum_fs()->is_premium() ) {
-        ?>
-              
-              <tr valign="top" class="oum-gopro-tr">
-                <th scope="row">
-                  <?php 
-        echo __( 'Advanced Filter Interface', 'open-user-map' );
-        ?>
-                  <span class="oum-tooltip">
-                    <span class="oum-tooltip-trigger">?</span>
-                    <div class="oum-tooltip-content">
-                      <h4><?php 
-        echo __( 'Advanced Filter Interface', 'open-user-map' );
-        ?></h4>
-                      <p><?php 
-        echo __( 'Let visitors filter locations by your custom fields. Create filter sections for any custom field type (text, select, checkbox, etc.) to help users find exactly what they\'re looking for.', 'open-user-map' );
-        ?></p>
-                      <p><a href="https://www.open-user-map.com/knowledge-base/advanced-filter-interface/?ref=pluginsettings" target="_blank"><?php 
-        echo __( 'Learn more about the Advanced Filter Interface →', 'open-user-map' );
-        ?></a></p>
-                    </div>
-                  </span>
-                  <br><span class="oum-pro">PRO</span><br>
-                  <a class="oum-gopro-text" href="<?php 
-        echo oum_fs()->get_upgrade_url();
-        ?>"><?php 
-        echo __( 'Upgrade to PRO to add a powerful filter sidebar next to your map.', 'open-user-map' );
-        ?></a>
-                </th>
-                <td>
-                  <input class="oum-switch" type="checkbox" disabled>
-                  <label><?php 
-        echo __( 'Enable', 'open-user-map' );
-        ?></label><br>
-                  <div class="description"><?php 
-        echo __( 'Let visitors filter locations by your custom fields. Create filter sections for any custom field type (text, select, checkbox, etc.) to help users find exactly what they\'re looking for.', 'open-user-map' );
-        ?></div>
                 </td>
               </tr>
 

@@ -3837,6 +3837,297 @@ body.oum-add-location-opened {
 .oum-advanced-filter-sidebar .oum-filter-section {
   margin-bottom: 20px;
 }
+.oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter {
+  font-size: 15px;
+  color: #333;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter .oum-label {
+  display: block;
+  font-weight: bold;
+  margin: 0 0 8px 0px;
+  line-height: 1.5;
+  color: #333;
+  font-size: 15px;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter .oum-toggle-all-wrapper {
+  margin: 0;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter label {
+  display: flex;
+  align-items: center;
+  margin: 0 10px 10px 0;
+  margin-left: 6px;
+  padding: 0;
+  font-weight: normal;
+  cursor: pointer;
+  color: #333;
+}
+@media screen and (max-width: 768px) {
+  .oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter label {
+    display: flex;
+    margin-left: 0;
+    margin-bottom: 5px;
+  }
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter label input[type=checkbox] {
+  appearance: auto;
+  accent-color: #e82c71;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  margin: 0 7px 0 0;
+  flex-shrink: 0;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter label input[type=checkbox]::before, .oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter label input[type=checkbox]::after {
+  display: none;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter label img {
+  height: 22px;
+  width: 22px;
+  object-fit: contain;
+  object-position: center;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter label .oum-filter-category-shape-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  width: 22px;
+  margin: 0 6px 0 0;
+  flex-shrink: 0;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter label .oum-filter-category-shape-icon svg {
+  display: block;
+  height: 22px;
+  width: 22px;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-marker-categories-filter label span {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter {
+  position: relative;
+  z-index: 6;
+  overflow: visible;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter #oum_search_marker,
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter #oum_search_address,
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter #oum_filter_markers {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  z-index: 5;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter #oum_filter_markers {
+  display: block;
+  box-sizing: border-box;
+  height: auto;
+  font-family: inherit;
+  font-size: 16px;
+  border: 1px solid #bbb;
+  border-radius: 2px;
+  color: #333;
+  background-color: #fff;
+  background-image: url(images/ico_search_marker.png);
+  background-position: right 8px center;
+  background-repeat: no-repeat;
+  background-size: 22px;
+  outline: none;
+  line-height: 1;
+  padding: 14px 40px 14px 14px;
+  opacity: 1;
+  visibility: visible;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter #oum_filter_markers:focus {
+  border-color: #e82c71;
+  box-shadow: 0 0 0 2px rgba(232, 44, 113, 0.1);
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search {
+  position: relative !important;
+  float: none;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: auto;
+  box-shadow: none;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 2px;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search.search-exp {
+  width: 100%;
+  max-width: 100%;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search .search-input {
+  box-sizing: border-box;
+  float: none;
+  width: 100%;
+  min-width: unset;
+  min-height: unset;
+  height: auto;
+  line-height: 1;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  font-size: 16px;
+  padding: 14px 58px 14px 14px;
+  margin: 0;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search .search-button {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  float: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  transform: translateY(-50%);
+  background: url(images/ico_search_marker.png) center center no-repeat transparent;
+  background-size: 22px;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search .search-button:hover {
+  background: url(images/ico_search_marker.png) center center no-repeat transparent;
+  background-size: 22px;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search .search-cancel {
+  top: 50%;
+  right: 34px;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  transform: translateY(-50%);
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search .search-tooltip {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  max-height: 220px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search .search-tooltip .search-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #333;
+  background: #fff;
+  border-radius: 0;
+  white-space: normal;
+  box-sizing: border-box;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search .search-tooltip .search-tip > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search .search-tooltip .search-tip img {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin: 0;
+  object-fit: contain;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search .search-tooltip .search-tip:hover, .oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-search .search-tooltip .search-tip.search-tip-select {
+  background: #f5f5f5;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-geosearch.leaflet-geosearch-bar {
+  display: block;
+  position: relative;
+  float: none;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  height: auto;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-geosearch.leaflet-geosearch-bar form {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  background-color: #fff;
+  border: 1px solid #bbb;
+  border-radius: 2px;
+  box-shadow: none;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-geosearch.leaflet-geosearch-bar form input[type=text] {
+  display: block;
+  width: 100%;
+  min-width: unset;
+  min-height: unset;
+  height: auto;
+  line-height: 1;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  font-size: 16px;
+  padding: 14px 58px 14px 14px;
+  margin: 0 !important;
+  background-color: #fff;
+  background-image: url(images/ico_search_address_2.png);
+  background-position: right 8px center;
+  background-repeat: no-repeat;
+  background-size: 22px;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-geosearch.leaflet-geosearch-bar form button.reset {
+  right: 34px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  padding: 0;
+  margin: 0;
+  font-size: 18px;
+  font-family: monospace;
+  text-align: center;
+  border: none;
+  border-radius: 99px;
+  background-color: #ddd;
+  color: #000;
+  opacity: 0.5;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-geosearch.leaflet-geosearch-bar form button.reset:hover {
+  opacity: 1;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-geosearch.leaflet-geosearch-bar form .results {
+  color: #333;
+  width: 100%;
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 20;
+}
+.oum-advanced-filter-sidebar .oum-filter-section .oum-searchbar-filter .leaflet-control-geosearch.leaflet-geosearch-bar form .results > * {
+  font-size: 12px;
+}
 .oum-advanced-filter-sidebar .oum-filter-section .oum-custom-field-filter .oum-label {
   display: block;
   font-weight: bold;

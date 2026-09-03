@@ -710,21 +710,27 @@ const OUMMap = (function () {
 
     // Search markers control as searchbar
     if (oum_enable_searchbar && oum_searchbar_type === "markers") {
-      L.control
-        .search({
-          textPlaceholder: oum_searchmarkers_label,
-          layer: window.oumMarkersLayer,
-          propertyName: "content",
-          initial: false,
-          buildTip: OUMUtils.customAutoSuggestText,
-          autoType: false,
-          firstTipSubmit: true,
-          autoCollapse: false,
-          collapsed: false,
-          zoom: oum_searchmarkers_zoom,
-          container: 'oum_search_marker'
-        })
-        .addTo(map);
+      const markerSearchBar = L.control.search({
+        textPlaceholder: oum_searchmarkers_label,
+        layer: window.oumMarkersLayer,
+        propertyName: "content",
+        initial: false,
+        buildTip: OUMUtils.customAutoSuggestText,
+        autoType: false,
+        firstTipSubmit: true,
+        autoCollapse: false,
+        collapsed: false,
+        zoom: oum_searchmarkers_zoom,
+        container: 'oum_search_marker'
+      });
+      markerSearchBar.addTo(map);
+      // Do not leave the internal search "content" string in the input after a result is chosen
+      markerSearchBar.on("search:locationfound", function () {
+        this._input.value = "";
+        if (this._cancel) {
+          this._cancel.style.display = "none";
+        }
+      });
     }
 
     // Add searchbar for address search
@@ -737,6 +743,7 @@ const OUMMap = (function () {
         updateMap: false,
       });
       map.addControl(searchBar);
+      relocateAddressSearchBar();
     }
 
     // Add button for address search
@@ -759,6 +766,29 @@ const OUMMap = (function () {
           showPopup: false,
         })
         .addTo(map);
+    }
+  }
+
+  // Move the Address searchbar into Advanced Filter when that section is present.
+  function relocateAddressSearchBar() {
+    const target = document.getElementById("oum_search_address");
+    if (!target || !map) {
+      return;
+    }
+
+    const mapContainer = map.getContainer();
+    const bars = mapContainer.querySelectorAll(".leaflet-control-geosearch.leaflet-geosearch-bar");
+    let bar = null;
+    bars.forEach(function (el) {
+      if (!el.closest(".leaflet-top") && !el.closest(".leaflet-bottom")) {
+        bar = el;
+      }
+    });
+    if (!bar && bars.length) {
+      bar = bars[0];
+    }
+    if (bar) {
+      target.appendChild(bar);
     }
   }
 
@@ -800,7 +830,9 @@ const OUMMap = (function () {
       
       if (!isInBounds && oum_enable_fixed_map_bounds === 'on') {
         console.log("This search result is out of reach.");
-        const searchBar = document.querySelector(`#${map_el} .leaflet-geosearch-bar form`);
+        const searchBar = document.querySelector(`#${map_el} .leaflet-geosearch-bar form`)
+          || document.querySelector("#oum_search_address form")
+          || document.querySelector(".oum-searchbar-filter .leaflet-geosearch-bar form");
         if (searchBar) {
           searchBar.style.boxShadow = "0 0 10px rgb(255, 111, 105)";
           setTimeout(function () {
@@ -1028,6 +1060,7 @@ const OUMMarkers = (function () {
   let categoriesFilterSelection = null;
   let customfieldsFilterSelection = null;
   let visibleMarkersCount = 0;
+  const categoryFilterSelector = '.open-user-map .oum-marker-categories-filter [name="type"]';
 
   // Private functions
   function initializeMarkersLayer() {
@@ -1649,14 +1682,17 @@ const OUMMarkers = (function () {
     searchtextFilterValue = markerFilterInput ? markerFilterInput.value.toLowerCase() : "";
 
     // Read categories filter
-    const categoryInputs = document.querySelectorAll(
-      '.open-user-map .oum-filter-controls [name="type"]'
-    );
-    categoriesFilterSelection = new Set(
-      Array.from(categoryInputs)
-        .filter((input) => input.checked)
-        .map((input) => input.value)
-    );
+    const categoryInputs = document.querySelectorAll(categoryFilterSelector);
+    if (categoryInputs.length === 0) {
+      // No category UI on this map (hidden overlay / hide_filterbox) — do not filter by category
+      categoriesFilterSelection = null;
+    } else {
+      categoriesFilterSelection = new Set(
+        Array.from(categoryInputs)
+          .filter((input) => input.checked)
+          .map((input) => input.value)
+      );
+    }
 
     applyFilters();
   }
@@ -1697,70 +1733,80 @@ const OUMMarkers = (function () {
         }
       });
     }
+  }
 
-    // Function to setup toggle all functionality
-    function setupToggleAll() {
-      const toggleAllCheckbox = filterControls.querySelector(
-        ".oum-toggle-all-checkbox"
-      );
-      const categoryCheckboxes = filterControls.querySelectorAll(
-        '[name="type"]'
-      );
+  // Select all works for both the on-map overlay and the Advanced Filter section
+  function setupToggleAll() {
+    const categoryFilter = document.querySelector(
+      ".open-user-map .oum-marker-categories-filter"
+    );
+    if (!categoryFilter) return;
 
-      if (!toggleAllCheckbox || categoryCheckboxes.length === 0) return;
+    const toggleAllCheckbox = categoryFilter.querySelector(
+      ".oum-toggle-all-checkbox"
+    );
+    const categoryCheckboxes = categoryFilter.querySelectorAll(
+      '[name="type"]'
+    );
 
-      // Function to update toggle all state based on individual checkboxes
-      function updateToggleAllState() {
-        const checkedCount = Array.from(categoryCheckboxes).filter(
-          (cb) => cb.checked
-        ).length;
-        const totalCount = categoryCheckboxes.length;
+    if (!toggleAllCheckbox || categoryCheckboxes.length === 0) return;
 
-        if (checkedCount === 0) {
-          toggleAllCheckbox.checked = false;
-          toggleAllCheckbox.indeterminate = false;
-        } else if (checkedCount === totalCount) {
-          toggleAllCheckbox.checked = true;
-          toggleAllCheckbox.indeterminate = false;
-        } else {
-          toggleAllCheckbox.checked = false;
-          toggleAllCheckbox.indeterminate = true;
-        }
+    function updateToggleAllState() {
+      const checkedCount = Array.from(categoryCheckboxes).filter(
+        (cb) => cb.checked
+      ).length;
+      const totalCount = categoryCheckboxes.length;
+
+      if (checkedCount === 0) {
+        toggleAllCheckbox.checked = false;
+        toggleAllCheckbox.indeterminate = false;
+      } else if (checkedCount === totalCount) {
+        toggleAllCheckbox.checked = true;
+        toggleAllCheckbox.indeterminate = false;
+      } else {
+        toggleAllCheckbox.checked = false;
+        toggleAllCheckbox.indeterminate = true;
       }
-
-      // Function to toggle all categories
-      function toggleAllCategories() {
-        // Determine if we should check all or uncheck all based on current state
-        const checkedCount = Array.from(categoryCheckboxes).filter(
-          (cb) => cb.checked
-        ).length;
-        const totalCount = categoryCheckboxes.length;
-
-        // If all are checked, uncheck all. Otherwise, check all
-        const shouldCheck = checkedCount < totalCount;
-
-        categoryCheckboxes.forEach((checkbox) => {
-          checkbox.checked = shouldCheck;
-        });
-
-        // Trigger filter update
-        updateSearchtextAndCategoriesFilters();
-      }
-
-      // Event listeners
-      toggleAllCheckbox.addEventListener("change", toggleAllCategories);
-
-      // Update toggle all state when individual checkboxes change
-      categoryCheckboxes.forEach((checkbox) => {
-        checkbox.addEventListener("change", updateToggleAllState);
-      });
-
-      // Set initial state
-      updateToggleAllState();
     }
 
-    // Setup toggle all functionality regardless of layout
-    setupToggleAll();
+    function toggleAllCategories() {
+      const checkedCount = Array.from(categoryCheckboxes).filter(
+        (cb) => cb.checked
+      ).length;
+      const totalCount = categoryCheckboxes.length;
+      const shouldCheck = checkedCount < totalCount;
+
+      categoryCheckboxes.forEach((checkbox) => {
+        checkbox.checked = shouldCheck;
+      });
+
+      updateSearchtextAndCategoriesFilters();
+    }
+
+    toggleAllCheckbox.addEventListener("change", toggleAllCategories);
+
+    categoryCheckboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", updateToggleAllState);
+    });
+
+    updateToggleAllState();
+  }
+
+  function resetCategoriesFilter() {
+    const categoryInputs = document.querySelectorAll(categoryFilterSelector);
+    categoryInputs.forEach((input) => {
+      input.checked = true;
+    });
+
+    const toggleAllCheckbox = document.querySelector(
+      ".open-user-map .oum-marker-categories-filter .oum-toggle-all-checkbox"
+    );
+    if (toggleAllCheckbox) {
+      toggleAllCheckbox.checked = true;
+      toggleAllCheckbox.indeterminate = false;
+    }
+
+    updateSearchtextAndCategoriesFilters();
   }
 
   function handleAutoOpenMarker(markerId) {
@@ -1798,6 +1844,7 @@ const OUMMarkers = (function () {
       vectorLayer.addTo(map);
       setupMarkerEvents();
       setupFilterListEvents();
+      setupToggleAll();
 
       // Make layer globally available (for backward compatibility)
       window.oumMarkersLayer = markersLayer;
@@ -1830,6 +1877,7 @@ const OUMMarkers = (function () {
       }
     },
     updateSearchtextAndCategoriesFilters: updateSearchtextAndCategoriesFilters,
+    resetCategoriesFilter: resetCategoriesFilter,
     getMarkersLayer: function () {
       return markersLayer;
     },
@@ -3533,27 +3581,12 @@ const OUMFormController = (function () {
         
         imageUrls.forEach(url => {
           if (!url) return;
-          
-          const previewItem = document.createElement('div');
-          previewItem.className = 'image-preview-item existing-image';
-          previewItem.dataset.url = url;
-          
-          previewItem.innerHTML = `
-            <img src="${url}" alt="Preview">
-            <div class="remove-image" title="Remove image">&times;</div>
-            <div class="drag-handle" title="Drag to reorder">⋮⋮</div>
-            <input type="hidden" name="existing_images[]" value="${url}">
-          `;
-          
-          // Add event listener for remove button
-          const removeButton = previewItem.querySelector('.remove-image');
-          if (removeButton) {
-            removeButton.addEventListener('click', OUMMedia.handleRemoveImage);
+
+          const previewItem = OUMMedia.createExistingImagePreview(url);
+          if (!previewItem) {
+            return;
           }
-          
-          // Set up drag and drop for existing images
-          OUMMedia.setupDragAndDrop(previewItem);
-          
+
           previewItem.style.opacity = "0";
           previewItem.style.transform = "scale(0.9)";
           previewItem.style.transition = "all 0.3s ease";
@@ -3921,16 +3954,41 @@ const OUMMedia = (function () {
     });
   }
 
-  function createPreviewItem(imgSrc, fileName) {
+  function createPreviewItem(imgSrc, fileName, isExisting) {
     const previewItem = document.createElement("div");
-    previewItem.className = "image-preview-item";
-    previewItem.dataset.fileName = fileName;
-    
-    previewItem.innerHTML = `
-      <img src="${imgSrc}" alt="Preview">
-      <div class="remove-image" title="Remove image">&times;</div>
-      <div class="drag-handle" title="Drag to reorder">⋮⋮</div>
-    `;
+    previewItem.className = isExisting ? "image-preview-item existing-image" : "image-preview-item";
+    if (fileName) {
+      previewItem.dataset.fileName = fileName;
+    }
+    if (imgSrc) {
+      previewItem.dataset.url = imgSrc;
+    }
+
+    const img = document.createElement("img");
+    img.setAttribute("alt", "Preview");
+    img.src = imgSrc;
+
+    const remove = document.createElement("div");
+    remove.className = "remove-image";
+    remove.setAttribute("title", "Remove image");
+    remove.textContent = "\u00d7";
+
+    const handle = document.createElement("div");
+    handle.className = "drag-handle";
+    handle.setAttribute("title", "Drag to reorder");
+    handle.textContent = "\u22ee\u22ee";
+
+    previewItem.appendChild(img);
+    previewItem.appendChild(remove);
+    previewItem.appendChild(handle);
+
+    if (isExisting) {
+      const hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.name = "existing_images[]";
+      hidden.value = imgSrc;
+      previewItem.appendChild(hidden);
+    }
     
     // Add event listener for remove button
     const removeButton = previewItem.querySelector('.remove-image');
@@ -4169,6 +4227,12 @@ const OUMMedia = (function () {
     },
     setupDragAndDrop: setupDragAndDrop,
     handleRemoveImage: handleRemoveImage,
+    createExistingImagePreview: function(url) {
+      if (!url) {
+        return null;
+      }
+      return createPreviewItem(url, '', true);
+    },
     setExistingAudio: setExistingAudio
   };
 })();
@@ -4449,6 +4513,48 @@ const OUMAdvancedFilter = (function () {
     if (typeof OUMMarkers !== 'undefined' && OUMMarkers.setCustomfieldsFilter) {
       OUMMarkers.setCustomfieldsFilter(null);
     }
+
+    // Restore Marker Categories to the default "all checked" state
+    if (typeof OUMMarkers !== 'undefined' && OUMMarkers.resetCategoriesFilter) {
+      OUMMarkers.resetCategoriesFilter();
+    }
+
+    resetSearchbar();
+  }
+
+  function resetSearchbar() {
+    // Live Filter Markers
+    const liveFilterInput = document.getElementById("oum_filter_markers");
+    if (liveFilterInput) {
+      liveFilterInput.value = "";
+      if (typeof OUMMarkers !== "undefined" && OUMMarkers.updateSearchtextAndCategoriesFilters) {
+        OUMMarkers.updateSearchtextAndCategoriesFilters();
+      }
+    }
+
+    // Marker search (leaflet-search)
+    const markerSearchCancel = document.querySelector("#oum_search_marker .search-cancel");
+    if (markerSearchCancel) {
+      markerSearchCancel.click();
+    } else {
+      const markerSearchInput = document.querySelector("#oum_search_marker .search-input");
+      if (markerSearchInput) {
+        markerSearchInput.value = "";
+        markerSearchInput.dispatchEvent(new Event("input", { bubbles: true }));
+        markerSearchInput.dispatchEvent(new Event("keyup", { bubbles: true }));
+      }
+    }
+
+    // Address search (GeoSearch)
+    const addressReset = document.querySelector("#oum_search_address button.reset, .oum-searchbar-filter .leaflet-geosearch-bar button.reset");
+    if (addressReset) {
+      addressReset.click();
+    } else {
+      const addressInput = document.querySelector("#oum_search_address input, .oum-searchbar-filter .leaflet-geosearch-bar input");
+      if (addressInput) {
+        addressInput.value = "";
+      }
+    }
   }
 
   // Public interface
@@ -4507,7 +4613,7 @@ function oumInitializeMap() {
   }
 
   const categoryInputs = document.querySelectorAll(
-    '.open-user-map .oum-filter-controls [name="type"]'
+    '.open-user-map .oum-marker-categories-filter [name="type"]'
   );
   if (categoryInputs.length > 0) {
     categoryInputs.forEach((input) => {

@@ -1184,6 +1184,7 @@
 .oum-location_page_open-user-map-settings .form-table th,
 .toplevel_page_open-user-map .form-table th {
   width: 230px;
+  padding-top: 17px;
 }
 .oum-location_page_open-user-map-settings,
 .toplevel_page_open-user-map {
@@ -2377,28 +2378,48 @@
 .toplevel_page_open-user-map .csv_upload {
   position: relative;
 }
+.oum-location_page_open-user-map-settings .csv_upload .oum-import-actions,
+.toplevel_page_open-user-map .csv_upload .oum-import-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+}
 .oum-location_page_open-user-map-settings .csv_upload .oum-import-loading,
 .toplevel_page_open-user-map .csv_upload .oum-import-loading {
   display: none;
-  position: relative;
-  margin-left: 10px;
-  vertical-align: middle;
-  display: inline-block;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+.oum-location_page_open-user-map-settings .csv_upload .oum-import-loading.is-visible,
+.toplevel_page_open-user-map .csv_upload .oum-import-loading.is-visible {
+  display: flex;
 }
 .oum-location_page_open-user-map-settings .csv_upload .oum-import-loading .oum-spinner,
 .toplevel_page_open-user-map .csv_upload .oum-import-loading .oum-spinner {
   display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(34, 113, 177, 0.1);
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(34, 113, 177, 0.15);
   border-top: 2px solid #2271b1;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  vertical-align: middle;
 }
-.oum-location_page_open-user-map-settings .csv_upload .oum-import-loading .message,
-.toplevel_page_open-user-map .csv_upload .oum-import-loading .message {
-  display: none;
+.oum-location_page_open-user-map-settings .csv_upload .oum-import-loading .oum-import-loading-text,
+.toplevel_page_open-user-map .csv_upload .oum-import-loading .oum-import-loading-text {
+  color: #2271b1;
+  font-style: italic;
+  white-space: nowrap;
+  animation: oum-import-text-blink 1.2s ease-in-out infinite;
+}
+.oum-location_page_open-user-map-settings .csv_upload .oum-import-loading .oum-import-loading-progress,
+.toplevel_page_open-user-map .csv_upload .oum-import-loading .oum-import-loading-progress {
+  color: #646970;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 @keyframes spin {
   0% {
@@ -2406,6 +2427,14 @@
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+@keyframes oum-import-text-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
   }
 }
 .oum-location_page_open-user-map-settings .oum-pro,
@@ -2948,14 +2977,22 @@
 }
 .oum-location_page_open-user-map-settings .oum-filter-section .oum-section-content .form-table .oum-custom-field-options,
 .oum-location_page_open-user-map-settings .oum-filter-section .oum-section-content .form-table .oum-html-options,
+.oum-location_page_open-user-map-settings .oum-filter-section .oum-section-content .form-table .oum-marker-categories-options,
+.oum-location_page_open-user-map-settings .oum-filter-section .oum-section-content .form-table .oum-searchbar-options,
 .toplevel_page_open-user-map .oum-filter-section .oum-section-content .form-table .oum-custom-field-options,
-.toplevel_page_open-user-map .oum-filter-section .oum-section-content .form-table .oum-html-options {
+.toplevel_page_open-user-map .oum-filter-section .oum-section-content .form-table .oum-html-options,
+.toplevel_page_open-user-map .oum-filter-section .oum-section-content .form-table .oum-marker-categories-options,
+.toplevel_page_open-user-map .oum-filter-section .oum-section-content .form-table .oum-searchbar-options {
   display: none;
 }
 .oum-location_page_open-user-map-settings .oum-filter-section .oum-section-content .form-table .oum-custom-field-options.active,
 .oum-location_page_open-user-map-settings .oum-filter-section .oum-section-content .form-table .oum-html-options.active,
+.oum-location_page_open-user-map-settings .oum-filter-section .oum-section-content .form-table .oum-marker-categories-options.active,
+.oum-location_page_open-user-map-settings .oum-filter-section .oum-section-content .form-table .oum-searchbar-options.active,
 .toplevel_page_open-user-map .oum-filter-section .oum-section-content .form-table .oum-custom-field-options.active,
-.toplevel_page_open-user-map .oum-filter-section .oum-section-content .form-table .oum-html-options.active {
+.toplevel_page_open-user-map .oum-filter-section .oum-section-content .form-table .oum-html-options.active,
+.toplevel_page_open-user-map .oum-filter-section .oum-section-content .form-table .oum-marker-categories-options.active,
+.toplevel_page_open-user-map .oum-filter-section .oum-section-content .form-table .oum-searchbar-options.active {
   display: table-row;
 }
 .oum-location_page_open-user-map-settings .oum-filter-sections-container,
@@ -2973,6 +3010,10 @@
   border-color: #8c8f94;
   background: #f6f7f7;
 }
+.oum-location_page_open-user-map-settings .oum-filter-sections-container .oum-af-feature-required-notice,
+.toplevel_page_open-user-map .oum-filter-sections-container .oum-af-feature-required-notice {
+  font-style: italic;
+}
 .oum-location_page_open-user-map-settings .oum-filter-sections-container .oum-filter-sections-header,
 .toplevel_page_open-user-map .oum-filter-sections-container .oum-filter-sections-header {
   margin-bottom: 20px;
@@ -2989,6 +3030,10 @@
   margin: 0;
   font-size: 14px;
   color: #646970;
+}
+.oum-location_page_open-user-map-settings .oum-filter-sections-container .oum-filter-sections-header .description + .description,
+.toplevel_page_open-user-map .oum-filter-sections-container .oum-filter-sections-header .description + .description {
+  margin-top: 8px;
 }
 .oum-location_page_open-user-map-settings .oum-filter-sections-container .oum-filter-sections-footer,
 .toplevel_page_open-user-map .oum-filter-sections-container .oum-filter-sections-footer {

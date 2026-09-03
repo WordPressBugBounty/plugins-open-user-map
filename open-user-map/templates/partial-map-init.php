@@ -80,6 +80,27 @@ $oum_location_date_type = get_option( 'oum_location_date_type', 'modified' );
 // Advanced Filter Interface setting
 $oum_enable_advanced_filter = get_option( 'oum_enable_advanced_filter' );
 $oum_advanced_filter_layout = get_option( 'oum_advanced_filter_layout', 'left' );
+$oum_advanced_filter_sections = get_option( 'oum_advanced_filter_sections', array() );
+if ( !is_array( $oum_advanced_filter_sections ) ) {
+    $oum_advanced_filter_sections = array();
+}
+// True when a Marker Categories or Searchbar section is configured in Advanced Filter.
+$oum_has_marker_categories_filter_section = false;
+$oum_has_searchbar_filter_section = false;
+foreach ( $oum_advanced_filter_sections as $oum_af_section ) {
+    if ( !isset( $oum_af_section['type'] ) ) {
+        continue;
+    }
+    if ( $oum_af_section['type'] === 'marker_categories' ) {
+        $oum_has_marker_categories_filter_section = true;
+    }
+    if ( $oum_af_section['type'] === 'searchbar' ) {
+        $oum_has_searchbar_filter_section = true;
+    }
+}
+// Filled after types / shortcodes are resolved; used to hide the on-map originals.
+$show_marker_categories_in_advanced_filter = false;
+$show_searchbar_in_advanced_filter = false;
 // Custom Image settings
 $oum_custom_image_url = get_option( 'oum_custom_image_url', '' );
 $oum_custom_image_bounds_raw = get_option( 'oum_custom_image_bounds', '' );

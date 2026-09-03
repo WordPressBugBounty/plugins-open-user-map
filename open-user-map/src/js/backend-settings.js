@@ -787,6 +787,108 @@ window.addEventListener('load', function(e) {
           removeSection(e.target);
         }
       });
+
+      // Update available section types when Searchbar or Marker Categories are toggled.
+      const searchbarToggle = document.getElementById('oum_enable_searchbar');
+      const markerCategoriesToggle = document.getElementById('oum_enable_marker_types');
+      if (searchbarToggle) {
+        searchbarToggle.addEventListener('change', updateExclusiveSectionTypesAvailability);
+      }
+      if (markerCategoriesToggle) {
+        markerCategoriesToggle.addEventListener('change', updateExclusiveSectionTypesAvailability);
+      }
+    }
+
+    function hasExclusiveSectionType(type) {
+      const sections = sectionsContainer.querySelectorAll('.oum-filter-section');
+      return Array.from(sections).some(function(section) {
+        const typeSelect = section.querySelector('.oum-section-type');
+        return typeSelect && typeSelect.value === type;
+      });
+    }
+
+    function getExclusiveOptionHtml(type, label, disabled) {
+      if (disabled) {
+        return '<option value="' + type + '" disabled>' + label + ' (enable first)</option>';
+      }
+      return '<option value="' + type + '">' + label + '</option>';
+    }
+
+    // Searchbar and Marker Categories can only be added when their feature toggle is on.
+    function isSearchbarEnabled() {
+      const checkbox = document.getElementById('oum_enable_searchbar');
+      return !!(checkbox && checkbox.checked);
+    }
+
+    function isMarkerCategoriesEnabled() {
+      const checkbox = document.getElementById('oum_enable_marker_types');
+      return !!(checkbox && checkbox.checked);
+    }
+
+    function setNoticeVisible(element, visible) {
+      if (element) {
+        element.style.display = visible ? '' : 'none';
+      }
+    }
+
+    function updateFeatureRequiredNotices() {
+      const searchbarEnabled = isSearchbarEnabled();
+      const markerCategoriesEnabled = isMarkerCategoriesEnabled();
+
+      document.querySelectorAll('.oum-af-searchbar-section-notice').forEach(function(el) {
+        setNoticeVisible(el, !searchbarEnabled);
+      });
+      document.querySelectorAll('.oum-af-marker-categories-section-notice').forEach(function(el) {
+        setNoticeVisible(el, !markerCategoriesEnabled);
+      });
+    }
+
+    // Keep exclusive section types available in only one section at a time.
+    // When the matching feature is off, show a disabled "enable first" option instead of hiding it.
+    // An existing section of that type keeps its option enabled so the value still saves.
+    function updateExclusiveSectionTypeAvailability(type, label, featureEnabled) {
+      const taken = hasExclusiveSectionType(type);
+
+      sectionsContainer.querySelectorAll('.oum-section-type').forEach(function(select) {
+        const isThisType = select.value === type;
+        let option = select.querySelector('option[value="' + type + '"]');
+
+        if (isThisType) {
+          if (!option) {
+            select.insertAdjacentHTML('beforeend', getExclusiveOptionHtml(type, label, false));
+            option = select.querySelector('option[value="' + type + '"]');
+          }
+          if (option) {
+            option.disabled = false;
+            option.textContent = label;
+            option.selected = true;
+          }
+          return;
+        }
+
+        if (taken) {
+          if (option) {
+            option.remove();
+          }
+          return;
+        }
+
+        if (!option) {
+          select.insertAdjacentHTML('beforeend', getExclusiveOptionHtml(type, label, !featureEnabled));
+          option = select.querySelector('option[value="' + type + '"]');
+        }
+
+        if (option) {
+          option.disabled = !featureEnabled;
+          option.textContent = featureEnabled ? label : label + ' (enable first)';
+        }
+      });
+    }
+
+    function updateExclusiveSectionTypesAvailability() {
+      updateExclusiveSectionTypeAvailability('marker_categories', 'Marker Categories', isMarkerCategoriesEnabled());
+      updateExclusiveSectionTypeAvailability('searchbar', 'Searchbar', isSearchbarEnabled());
+      updateFeatureRequiredNotices();
     }
 
     function addFilterSection() {
@@ -795,6 +897,8 @@ window.addEventListener('load', function(e) {
       
       // Get available custom fields from the page
       const availableCustomFields = getAvailableCustomFields();
+      const markerCategoriesOption = hasExclusiveSectionType('marker_categories') ? '' : getExclusiveOptionHtml('marker_categories', 'Marker Categories', !isMarkerCategoriesEnabled());
+      const searchbarOption = hasExclusiveSectionType('searchbar') ? '' : getExclusiveOptionHtml('searchbar', 'Searchbar', !isSearchbarEnabled());
       
       const sectionHTML = `
         <div class="oum-filter-section" data-index="${newIndex}">
@@ -814,8 +918,10 @@ window.addEventListener('load', function(e) {
                   <select name="oum_advanced_filter_sections[${newIndex}][type]" class="oum-section-type">
                     <option value="custom_field">Custom Field Filter</option>
                     <option value="html">Custom HTML Content</option>
+                    ${markerCategoriesOption}
+                    ${searchbarOption}
                   </select>
-                  <div class="description">Choose whether this section filters by a custom field or displays custom HTML.</div>
+                  <div class="description">Choose whether this section filters by a Custom Field, Marker Categories, Searchbar or displays custom HTML.</div>
                 </td>
               </tr>
               <tr class="oum-custom-field-options active">
@@ -851,6 +957,7 @@ window.addEventListener('load', function(e) {
       
       sectionsContainer.insertAdjacentHTML('beforeend', sectionHTML);
       updateSectionNumbers();
+      updateExclusiveSectionTypesAvailability();
     }
 
     function getAvailableCustomFields() {
@@ -898,6 +1005,8 @@ window.addEventListener('load', function(e) {
       const section = selectElement.closest('.oum-filter-section');
       const customFieldOptions = section.querySelector('.oum-custom-field-options');
       const htmlOptions = section.querySelector('.oum-html-options');
+      const markerCategoriesOptions = section.querySelector('.oum-marker-categories-options');
+      const searchbarOptions = section.querySelector('.oum-searchbar-options');
       
       if (selectElement.value === 'custom_field') {
         if (customFieldOptions) {
@@ -907,6 +1016,14 @@ window.addEventListener('load', function(e) {
         if (htmlOptions) {
           htmlOptions.classList.remove('active');
           htmlOptions.style.display = 'none';
+        }
+        if (markerCategoriesOptions) {
+          markerCategoriesOptions.classList.remove('active');
+          markerCategoriesOptions.style.display = 'none';
+        }
+        if (searchbarOptions) {
+          searchbarOptions.classList.remove('active');
+          searchbarOptions.style.display = 'none';
         }
         // Check if checkbox field is selected and show relation option
         const customFieldSelect = section.querySelector('.oum-custom-field-select');
@@ -922,13 +1039,67 @@ window.addEventListener('load', function(e) {
           htmlOptions.classList.add('active');
           htmlOptions.style.display = '';
         }
+        if (markerCategoriesOptions) {
+          markerCategoriesOptions.classList.remove('active');
+          markerCategoriesOptions.style.display = 'none';
+        }
+        if (searchbarOptions) {
+          searchbarOptions.classList.remove('active');
+          searchbarOptions.style.display = 'none';
+        }
         // Hide checkbox relation when switching to HTML
         const checkboxRelationRow = section.querySelector('.oum-checkbox-relation-options');
         if (checkboxRelationRow) {
           checkboxRelationRow.classList.remove('active');
           checkboxRelationRow.style.display = 'none';
         }
+      } else if (selectElement.value === 'marker_categories') {
+        if (customFieldOptions) {
+          customFieldOptions.classList.remove('active');
+          customFieldOptions.style.display = 'none';
+        }
+        if (htmlOptions) {
+          htmlOptions.classList.remove('active');
+          htmlOptions.style.display = 'none';
+        }
+        if (markerCategoriesOptions) {
+          markerCategoriesOptions.classList.add('active');
+          markerCategoriesOptions.style.display = '';
+        }
+        if (searchbarOptions) {
+          searchbarOptions.classList.remove('active');
+          searchbarOptions.style.display = 'none';
+        }
+        const checkboxRelationRow = section.querySelector('.oum-checkbox-relation-options');
+        if (checkboxRelationRow) {
+          checkboxRelationRow.classList.remove('active');
+          checkboxRelationRow.style.display = 'none';
+        }
+      } else if (selectElement.value === 'searchbar') {
+        if (customFieldOptions) {
+          customFieldOptions.classList.remove('active');
+          customFieldOptions.style.display = 'none';
+        }
+        if (htmlOptions) {
+          htmlOptions.classList.remove('active');
+          htmlOptions.style.display = 'none';
+        }
+        if (markerCategoriesOptions) {
+          markerCategoriesOptions.classList.remove('active');
+          markerCategoriesOptions.style.display = 'none';
+        }
+        if (searchbarOptions) {
+          searchbarOptions.classList.add('active');
+          searchbarOptions.style.display = '';
+        }
+        const checkboxRelationRow = section.querySelector('.oum-checkbox-relation-options');
+        if (checkboxRelationRow) {
+          checkboxRelationRow.classList.remove('active');
+          checkboxRelationRow.style.display = 'none';
+        }
       }
+
+      updateExclusiveSectionTypesAvailability();
     }
 
     function handleCustomFieldChange(selectElement) {
@@ -975,6 +1146,7 @@ window.addEventListener('load', function(e) {
         const section = button.closest('.oum-filter-section');
         section.remove();
         updateSectionNumbers();
+        updateExclusiveSectionTypesAvailability();
       }
     }
 
@@ -1015,6 +1187,7 @@ window.addEventListener('load', function(e) {
           handleCustomFieldChange(customFieldSelect);
         }
       });
+      updateExclusiveSectionTypesAvailability();
     }
 
     // Public interface

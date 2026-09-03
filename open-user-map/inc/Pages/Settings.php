@@ -923,6 +923,152 @@ class Settings extends BaseController {
         return array_search( max( $delimiters ), $delimiters );
     }
 
+    /**
+     * Parse a CSV file into location rows keyed by the header columns.
+     *
+     * Empty and malformed rows are skipped. Returns a WP_Error when the file
+     * cannot be read or has no valid header.
+     */
+    private function parse_csv_locations( $csv_file, $delimiter ) {
+        $file_to_read = fopen( $csv_file, 'r' );
+        if ( $file_to_read === false ) {
+            return new \WP_Error('009', 'CSV file could not be opened for reading.');
+        }
+        $rows = array();
+        while ( ($row = fgetcsv( $file_to_read, 99999, $delimiter )) !== false ) {
+            $rows[] = $row;
+        }
+        fclose( $file_to_read );
+        if ( empty( $rows ) || !is_array( $rows[0] ) ) {
+            return new \WP_Error('010', 'CSV file is empty or has an invalid header row.');
+        }
+        $header = $rows[0];
+        // Excel/Sheets often prefix the first column with a UTF-8 BOM
+        // and may add whitespace, which would hide the post_id key.
+        $header = array_map( function ( $column ) {
+            $column = (string) $column;
+            $column = preg_replace( '/^\\xEF\\xBB\\xBF/', '', $column );
+            return trim( $column );
+        }, $header );
+        $locations = array();
+        foreach ( array_slice( $rows, 1 ) as $row ) {
+            $row_has_content = is_array( $row ) && !empty( array_filter( $row, function ( $value ) {
+                if ( $value === null ) {
+                    return false;
+                }
+                if ( is_string( $value ) ) {
+                    return $value !== '';
+                }
+                return true;
+            } ) );
+            if ( !$row_has_content ) {
+                $this->safe_log( 'Open User Map: an empty line or a row not of type array detected and skipped' );
+                continue;
+            }
+            if ( count( $header ) !== count( $row ) ) {
+                $this->safe_log( 'Open User Map: malformed CSV row with mismatched column count detected and skipped' );
+                continue;
+            }
+            $location = array_combine( $header, $row );
+            if ( $location === false ) {
+                $this->safe_log( 'Open User Map: malformed CSV row could not be mapped to header and was skipped' );
+                continue;
+            }
+            $locations[] = $location;
+        }
+        return $locations;
+    }
+
+    /**
+     * Convert pipe-separated category names to term IDs, creating missing terms.
+     * $term_id_cache is reused across rows in the same request.
+     */
+    private function get_csv_import_type_ids( $types, &$term_id_cache ) {
+        $type_ids = array();
+        $types = explode( '|', (string) $types );
+        foreach ( $types as $type_name ) {
+            $type_name = trim( $type_name );
+            if ( $type_name === '' ) {
+                continue;
+            }
+            if ( isset( $term_id_cache[$type_name] ) ) {
+                $type_ids[] = $term_id_cache[$type_name];
+                continue;
+            }
+            $term = get_term_by( 'name', $type_name, 'oum-type' );
+            if ( $term && !is_wp_error( $term ) ) {
+                $term_id_cache[$type_name] = $term->term_id;
+                $type_ids[] = $term->term_id;
+            } else {
+                $new_term = wp_insert_term( $type_name, 'oum-type' );
+                if ( !is_wp_error( $new_term ) ) {
+                    $term_id_cache[$type_name] = $new_term['term_id'];
+                    $type_ids[] = $new_term['term_id'];
+                }
+            }
+        }
+        return $type_ids;
+    }
+
+    /**
+     * Build a post excerpt from location text so CSV import can set it
+     * on the first wp_insert_post and skip a second wp_update_post.
+     */
+    private function get_csv_import_excerpt( $text ) {
+        $max_length = 400;
+        $text = wp_strip_all_tags( (string) $text );
+        if ( $text === '' ) {
+            return '';
+        }
+        if ( strlen( $text ) > $max_length ) {
+            $text = substr( $text, 0, $max_length );
+            $last_space = strrpos( $text, ' ' );
+            if ( $last_space !== false ) {
+                $text = substr( $text, 0, $last_space );
+            }
+            $text .= '...';
+        }
+        return sanitize_text_field( $text );
+    }
+
+    /**
+     * Reduce WordPress overhead while a CSV import chunk is running.
+     */
+    private function begin_csv_import_boost() {
+        if ( !defined( 'OUM_DOING_CSV_IMPORT' ) ) {
+            define( 'OUM_DOING_CSV_IMPORT', true );
+        }
+        wp_defer_term_counting( true );
+        wp_defer_comment_counting( true );
+        wp_suspend_cache_invalidation( true );
+        add_filter(
+            'wp_revisions_to_keep',
+            array($this, 'disable_revisions_during_csv_import'),
+            10,
+            2
+        );
+    }
+
+    /**
+     * Restore normal WordPress write behavior after a CSV import chunk.
+     */
+    private function end_csv_import_boost() {
+        wp_suspend_cache_invalidation( false );
+        wp_defer_comment_counting( false );
+        wp_defer_term_counting( false );
+        remove_filter( 'wp_revisions_to_keep', array($this, 'disable_revisions_during_csv_import'), 10 );
+    }
+
+    /**
+     * Skip location revisions during CSV import (called via wp_revisions_to_keep).
+     */
+    public function disable_revisions_during_csv_import( $num, $post ) {
+        if ( $post instanceof \WP_Post && $post->post_type === 'oum-location' ) {
+            return 0;
+        }
+        return $num;
+    }
+
     public function csv_import() {
         if ( isset( $_POST['action'] ) && $_POST['action'] == 'oum_csv_import' ) {
             // Initialize error handling
@@ -1010,49 +1156,24 @@ class Settings extends BaseController {
                     wp_send_json_error( $error );
                     return;
                 }
-                // parse csv file to array
-                $file_to_read = fopen( $csv_file, 'r' );
-                if ( $file_to_read === false ) {
-                    $error->add( '009', 'CSV file could not be opened for reading.' );
-                    wp_send_json_error( $error );
+                $locations = $this->parse_csv_locations( $csv_file, $delimiter );
+                if ( is_wp_error( $locations ) ) {
+                    wp_send_json_error( $locations );
                     return;
                 }
-                $rows = array();
-                while ( ($row = fgetcsv( $file_to_read, 99999, $delimiter )) !== false ) {
-                    $rows[] = $row;
+                // Chunked import (same pattern as CSV export) to stay under PHP timeouts.
+                $total_locations = count( $locations );
+                $page = ( isset( $_POST['page'] ) ? max( 1, intval( $_POST['page'] ) ) : 1 );
+                if ( isset( $_POST['per_page'] ) ) {
+                    $per_page = max( 10, min( 100, intval( $_POST['per_page'] ) ) );
+                } else {
+                    // Backward compatible: process the whole file in one request.
+                    $per_page = max( 1, $total_locations );
                 }
-                fclose( $file_to_read );
-                if ( empty( $rows ) || !is_array( $rows[0] ) ) {
-                    $error->add( '010', 'CSV file is empty or has an invalid header row.' );
-                    wp_send_json_error( $error );
-                    return;
-                }
-                $header = $rows[0];
-                $locations = array();
-                foreach ( array_slice( $rows, 1 ) as $row ) {
-                    $row_has_content = is_array( $row ) && !empty( array_filter( $row, function ( $value ) {
-                        if ( $value === null ) {
-                            return false;
-                        }
-                        if ( is_string( $value ) ) {
-                            return $value !== '';
-                        }
-                        return true;
-                    } ) );
-                    if ( !$row_has_content ) {
-                        $this->safe_log( 'Open User Map: an empty line or a row not of type array detected and skipped' );
-                        continue;
-                    }
-                    if ( count( $header ) !== count( $row ) ) {
-                        $this->safe_log( 'Open User Map: malformed CSV row with mismatched column count detected and skipped' );
-                        continue;
-                    }
-                    $location = array_combine( $header, $row );
-                    if ( $location === false ) {
-                        $this->safe_log( 'Open User Map: malformed CSV row could not be mapped to header and was skipped' );
-                        continue;
-                    }
-                    $locations[] = $location;
+                $offset = ($page - 1) * $per_page;
+                $chunk = array_slice( $locations, $offset, $per_page );
+                if ( function_exists( 'set_time_limit' ) ) {
+                    @set_time_limit( 120 );
                 }
                 // Create or Update the posts
                 // Determine post status based on POST data (from checkbox)
@@ -1061,139 +1182,145 @@ class Settings extends BaseController {
                 $publish_immediately = isset( $_POST['oum_csv_import_publish_immediately'] ) && $_POST['oum_csv_import_publish_immediately'] === 'on';
                 $post_status = ( $publish_immediately ? 'publish' : 'draft' );
                 $cnt_imported_locations = 0;
-                foreach ( $locations as $location ) {
-                    // Marker categories
-                    $types = ( isset( $location['type'] ) ? (string) $location['type'] : '' );
-                    if ( $types ) {
-                        $types = explode( '|', $types );
-                        // Convert term names to term IDs for hierarchical taxonomy compatibility
-                        // WordPress requires term IDs (not names) for hierarchical taxonomies in tax_input
-                        $type_ids = array();
-                        foreach ( $types as $type_name ) {
-                            $type_name = trim( $type_name );
-                            if ( !empty( $type_name ) ) {
-                                // Try to find existing term by name
-                                $term = get_term_by( 'name', $type_name, 'oum-type' );
-                                if ( $term && !is_wp_error( $term ) ) {
-                                    $type_ids[] = $term->term_id;
-                                } else {
-                                    // If term doesn't exist, create it automatically
-                                    $new_term = wp_insert_term( $type_name, 'oum-type' );
-                                    if ( !is_wp_error( $new_term ) ) {
-                                        $type_ids[] = $new_term['term_id'];
+                $term_id_cache = array();
+                $available_custom_fields = get_option( 'oum_custom_fields', array() );
+                $this->begin_csv_import_boost();
+                try {
+                    foreach ( $chunk as $location ) {
+                        // Marker categories
+                        $types = ( isset( $location['type'] ) ? (string) $location['type'] : '' );
+                        if ( $types ) {
+                            // Convert term names to term IDs for hierarchical taxonomy compatibility
+                            // WordPress requires term IDs (not names) for hierarchical taxonomies in tax_input
+                            $types = $this->get_csv_import_type_ids( $types, $term_id_cache );
+                        }
+                        $location_title = ( isset( $location['title'] ) ? $location['title'] : '' );
+                        $location_text = ( isset( $location['text'] ) ? $location['text'] : '' );
+                        // author
+                        $wp_author_id = ( isset( $location['wp_author_id'] ) && $location['wp_author_id'] != '' ? $location['wp_author_id'] : get_current_user_id() );
+                        // Update only when post_id points to an existing location.
+                        // Otherwise insert a new location (empty/invalid IDs must not
+                        // be passed to wp_insert_post as ID, or WordPress creates a duplicate).
+                        $location_post_id = ( isset( $location['post_id'] ) ? intval( trim( (string) $location['post_id'] ) ) : 0 );
+                        $is_existing_location = $location_post_id > 0 && get_post_type( $location_post_id ) === 'oum-location';
+                        $post_data = array(
+                            'post_author' => $wp_author_id,
+                            'post_type'   => 'oum-location',
+                            'post_title'  => $location_title,
+                            'post_name'   => sanitize_title( $location_title ),
+                            'post_status' => $post_status,
+                            'tax_input'   => array(
+                                'oum-type' => $types,
+                            ),
+                        );
+                        // Set excerpt on insert so save_fields does not need a second wp_update_post.
+                        if ( !$is_existing_location ) {
+                            $post_data['post_excerpt'] = $this->get_csv_import_excerpt( $location_text );
+                        }
+                        if ( $is_existing_location ) {
+                            $post_data['ID'] = $location_post_id;
+                            $insert_post = wp_update_post( $post_data );
+                        } else {
+                            $insert_post = wp_insert_post( $post_data );
+                        }
+                        if ( $insert_post ) {
+                            // Add fields
+                            $subtitle_value = '';
+                            if ( isset( $location['subtitle'] ) && $location['subtitle'] !== '' ) {
+                                $subtitle_value = $location['subtitle'];
+                            } elseif ( isset( $location['address'] ) ) {
+                                $subtitle_value = $location['address'];
+                            }
+                            // Support both "lng" and "long" for longitude (CSV export/Sheets often use "long")
+                            $lat_value = ( isset( $location['lat'] ) ? $location['lat'] : '' );
+                            $lng_value = ( isset( $location['lng'] ) ? $location['lng'] : (( isset( $location['long'] ) ? $location['long'] : '' )) );
+                            // Normalize decimal separator: comma to period (e.g. European "51,5706508" -> "51.5706508")
+                            if ( $lat_value !== '' ) {
+                                $lat_value = str_replace( ',', '.', trim( $lat_value ) );
+                            }
+                            if ( $lng_value !== '' ) {
+                                $lng_value = str_replace( ',', '.', trim( $lng_value ) );
+                            }
+                            $has_geometry_columns = array_key_exists( 'geometry_type', $location ) || array_key_exists( 'geometry', $location );
+                            $geometry_type = ( isset( $location['geometry_type'] ) ? sanitize_key( $location['geometry_type'] ) : 'point' );
+                            if ( !in_array( $geometry_type, array('point', 'polyline', 'polygon'), true ) ) {
+                                $geometry_type = 'point';
+                            }
+                            $geometry_value = ( isset( $location['geometry'] ) ? trim( (string) $location['geometry'] ) : '' );
+                            if ( !isset( $location['geometry_type'] ) && $geometry_value !== '' ) {
+                                $decoded_geometry = json_decode( $geometry_value, true );
+                                if ( is_array( $decoded_geometry ) && isset( $decoded_geometry['type'] ) ) {
+                                    if ( $decoded_geometry['type'] === 'LineString' ) {
+                                        $geometry_type = 'polyline';
+                                    } elseif ( $decoded_geometry['type'] === 'Polygon' ) {
+                                        $geometry_type = 'polygon';
                                     }
                                 }
                             }
-                        }
-                        $types = $type_ids;
-                        // Use IDs instead of names for wp_insert_post
-                    }
-                    // update or insert post
-                    $location_post_id = ( isset( $location['post_id'] ) ? $location['post_id'] : 0 );
-                    if ( $location_post_id == '' ) {
-                        $location_post_id = 0;
-                    }
-                    $location_title = ( isset( $location['title'] ) ? $location['title'] : '' );
-                    // author
-                    $wp_author_id = ( isset( $location['wp_author_id'] ) && $location['wp_author_id'] != '' ? $location['wp_author_id'] : get_current_user_id() );
-                    $insert_post = wp_insert_post( array(
-                        'ID'          => $location_post_id,
-                        'post_author' => $wp_author_id,
-                        'post_type'   => 'oum-location',
-                        'post_title'  => $location_title,
-                        'post_name'   => sanitize_title( $location_title ),
-                        'post_status' => $post_status,
-                        'tax_input'   => array(
-                            'oum-type' => $types,
-                        ),
-                    ) );
-                    if ( $insert_post ) {
-                        // Add fields
-                        $subtitle_value = '';
-                        if ( isset( $location['subtitle'] ) && $location['subtitle'] !== '' ) {
-                            $subtitle_value = $location['subtitle'];
-                        } elseif ( isset( $location['address'] ) ) {
-                            $subtitle_value = $location['address'];
-                        }
-                        // Support both "lng" and "long" for longitude (CSV export/Sheets often use "long")
-                        $lat_value = ( isset( $location['lat'] ) ? $location['lat'] : '' );
-                        $lng_value = ( isset( $location['lng'] ) ? $location['lng'] : (( isset( $location['long'] ) ? $location['long'] : '' )) );
-                        // Normalize decimal separator: comma to period (e.g. European "51,5706508" -> "51.5706508")
-                        if ( $lat_value !== '' ) {
-                            $lat_value = str_replace( ',', '.', trim( $lat_value ) );
-                        }
-                        if ( $lng_value !== '' ) {
-                            $lng_value = str_replace( ',', '.', trim( $lng_value ) );
-                        }
-                        $has_geometry_columns = array_key_exists( 'geometry_type', $location ) || array_key_exists( 'geometry', $location );
-                        $geometry_type = ( isset( $location['geometry_type'] ) ? sanitize_key( $location['geometry_type'] ) : 'point' );
-                        if ( !in_array( $geometry_type, array('point', 'polyline', 'polygon'), true ) ) {
-                            $geometry_type = 'point';
-                        }
-                        $geometry_value = ( isset( $location['geometry'] ) ? trim( (string) $location['geometry'] ) : '' );
-                        if ( !isset( $location['geometry_type'] ) && $geometry_value !== '' ) {
-                            $decoded_geometry = json_decode( $geometry_value, true );
-                            if ( is_array( $decoded_geometry ) && isset( $decoded_geometry['type'] ) ) {
-                                if ( $decoded_geometry['type'] === 'LineString' ) {
-                                    $geometry_type = 'polyline';
-                                } elseif ( $decoded_geometry['type'] === 'Polygon' ) {
-                                    $geometry_type = 'polygon';
+                            // Older CSV exports did not contain geometry columns. When updating existing
+                            // locations from such files, keep stored line/area geometry intact.
+                            if ( !$has_geometry_columns ) {
+                                $existing_location_data = get_post_meta( $insert_post, '_oum_location_key', true );
+                                if ( is_array( $existing_location_data ) && isset( $existing_location_data['geometry_type'] ) ) {
+                                    $geometry_type = ( in_array( $existing_location_data['geometry_type'], array('polyline', 'polygon'), true ) ? $existing_location_data['geometry_type'] : 'point' );
+                                    $geometry_value = ( isset( $existing_location_data['geometry'] ) && is_array( $existing_location_data['geometry'] ) ? wp_json_encode( $existing_location_data['geometry'] ) : '' );
                                 }
                             }
-                        }
-                        // Older CSV exports did not contain geometry columns. When updating existing
-                        // locations from such files, keep stored line/area geometry intact.
-                        if ( !$has_geometry_columns ) {
-                            $existing_location_data = get_post_meta( $insert_post, '_oum_location_key', true );
-                            if ( is_array( $existing_location_data ) && isset( $existing_location_data['geometry_type'] ) ) {
-                                $geometry_type = ( in_array( $existing_location_data['geometry_type'], array('polyline', 'polygon'), true ) ? $existing_location_data['geometry_type'] : 'point' );
-                                $geometry_value = ( isset( $existing_location_data['geometry'] ) && is_array( $existing_location_data['geometry'] ) ? wp_json_encode( $existing_location_data['geometry'] ) : '' );
+                            $fields = array(
+                                'oum_location_nonce'             => $nonce,
+                                'oum_location_image'             => ( isset( $location['image'] ) ? $location['image'] : '' ),
+                                'oum_location_video'             => ( isset( $location['video'] ) ? $location['video'] : '' ),
+                                'oum_location_audio'             => ( isset( $location['audio'] ) ? $location['audio'] : '' ),
+                                'oum_location_address'           => $subtitle_value,
+                                'oum_location_lat'               => $lat_value,
+                                'oum_location_lng'               => $lng_value,
+                                'oum_location_zoom'              => ( isset( $location['zoom'] ) ? $location['zoom'] : '' ),
+                                'oum_geometry_type'              => $geometry_type,
+                                'oum_location_geometry'          => $geometry_value,
+                                'oum_location_text'              => $location_text,
+                                'oum_location_notification'      => ( isset( $location['notification'] ) ? $location['notification'] : '' ),
+                                'oum_location_author_name'       => ( isset( $location['author_name'] ) ? $location['author_name'] : '' ),
+                                'oum_location_author_email'      => ( isset( $location['author_email'] ) ? $location['author_email'] : '' ),
+                                'oum_location_votes'             => ( isset( $location['votes'] ) ? $location['votes'] : '' ),
+                                'oum_location_star_rating_avg'   => ( isset( $location['star_rating_avg'] ) ? $location['star_rating_avg'] : '' ),
+                                'oum_location_star_rating_count' => ( isset( $location['star_rating_count'] ) ? $location['star_rating_count'] : '' ),
+                            );
+                            // Add custom fields
+                            $customfields = array_filter( $location, function ( $val, $key ) {
+                                return strpos( $key, 'CUSTOMFIELD' ) === 0;
+                            }, ARRAY_FILTER_USE_BOTH );
+                            foreach ( $customfields as $key => $val ) {
+                                $key_parts = explode( '_', $key );
+                                if ( !isset( $key_parts[1] ) || $key_parts[1] === '' ) {
+                                    continue;
+                                }
+                                $id = $key_parts[1];
+                                $fieldtype = ( isset( $available_custom_fields[$id]['fieldtype'] ) ? $available_custom_fields[$id]['fieldtype'] : 'text' );
+                                // Opening hours use pipes to separate time blocks and must stay a string for parsing.
+                                if ( $fieldtype !== 'opening_hours' && $val && strpos( $val, '|' ) !== false ) {
+                                    $val = explode( '|', $val );
+                                }
+                                $fields['oum_location_custom_fields'][$id] = $val;
                             }
+                            // Validate and Save
+                            \OpenUserMapPlugin\Base\LocationController::save_fields( $insert_post, $fields );
+                            $cnt_imported_locations++;
                         }
-                        $fields = array(
-                            'oum_location_nonce'             => $nonce,
-                            'oum_location_image'             => ( isset( $location['image'] ) ? $location['image'] : '' ),
-                            'oum_location_video'             => ( isset( $location['video'] ) ? $location['video'] : '' ),
-                            'oum_location_audio'             => ( isset( $location['audio'] ) ? $location['audio'] : '' ),
-                            'oum_location_address'           => $subtitle_value,
-                            'oum_location_lat'               => $lat_value,
-                            'oum_location_lng'               => $lng_value,
-                            'oum_location_zoom'              => ( isset( $location['zoom'] ) ? $location['zoom'] : '' ),
-                            'oum_geometry_type'              => $geometry_type,
-                            'oum_location_geometry'          => $geometry_value,
-                            'oum_location_text'              => ( isset( $location['text'] ) ? $location['text'] : '' ),
-                            'oum_location_notification'      => ( isset( $location['notification'] ) ? $location['notification'] : '' ),
-                            'oum_location_author_name'       => ( isset( $location['author_name'] ) ? $location['author_name'] : '' ),
-                            'oum_location_author_email'      => ( isset( $location['author_email'] ) ? $location['author_email'] : '' ),
-                            'oum_location_votes'             => ( isset( $location['votes'] ) ? $location['votes'] : '' ),
-                            'oum_location_star_rating_avg'   => ( isset( $location['star_rating_avg'] ) ? $location['star_rating_avg'] : '' ),
-                            'oum_location_star_rating_count' => ( isset( $location['star_rating_count'] ) ? $location['star_rating_count'] : '' ),
-                        );
-                        // Add custom fields
-                        $available_custom_fields = get_option( 'oum_custom_fields', array() );
-                        $customfields = array_filter( $location, function ( $val, $key ) {
-                            return strpos( $key, 'CUSTOMFIELD' ) === 0;
-                        }, ARRAY_FILTER_USE_BOTH );
-                        foreach ( $customfields as $key => $val ) {
-                            $key_parts = explode( '_', $key );
-                            if ( !isset( $key_parts[1] ) || $key_parts[1] === '' ) {
-                                continue;
-                            }
-                            $id = $key_parts[1];
-                            $fieldtype = ( isset( $available_custom_fields[$id]['fieldtype'] ) ? $available_custom_fields[$id]['fieldtype'] : 'text' );
-                            // Opening hours use pipes to separate time blocks and must stay a string for parsing.
-                            if ( $fieldtype !== 'opening_hours' && $val && strpos( $val, '|' ) !== false ) {
-                                $val = explode( '|', $val );
-                            }
-                            $fields['oum_location_custom_fields'][$id] = $val;
-                        }
-                        // Validate and Save
-                        \OpenUserMapPlugin\Base\LocationController::save_fields( $insert_post, $fields );
-                        $cnt_imported_locations++;
                     }
+                } finally {
+                    $this->end_csv_import_boost();
                 }
-                // return success message
-                wp_send_json_success( $cnt_imported_locations . ' Locations have been imported successfully.' );
+                $processed = $offset + count( $chunk );
+                $has_more = $processed < $total_locations;
+                wp_send_json_success( array(
+                    'imported'  => $cnt_imported_locations,
+                    'processed' => $processed,
+                    'total'     => $total_locations,
+                    'page'      => $page,
+                    'per_page'  => $per_page,
+                    'has_more'  => $has_more,
+                    'message'   => $cnt_imported_locations . ' Locations have been imported successfully.',
+                ) );
             }
         }
     }
@@ -1273,17 +1400,38 @@ class Settings extends BaseController {
             return array();
         }
         $validated_sections = array();
+        $has_marker_categories_section = false;
+        $has_searchbar_section = false;
         foreach ( $input as $index => $section ) {
             if ( !is_array( $section ) ) {
                 continue;
             }
             $validated_section = array();
             // Validate type
-            if ( isset( $section['type'] ) && in_array( $section['type'], array('custom_field', 'html') ) ) {
+            if ( isset( $section['type'] ) && in_array( $section['type'], array(
+                'custom_field',
+                'html',
+                'marker_categories',
+                'searchbar'
+            ) ) ) {
                 $validated_section['type'] = sanitize_text_field( $section['type'] );
             } else {
                 continue;
                 // Skip invalid sections
+            }
+            // Only allow one Marker Categories section
+            if ( $validated_section['type'] === 'marker_categories' ) {
+                if ( $has_marker_categories_section ) {
+                    continue;
+                }
+                $has_marker_categories_section = true;
+            }
+            // Only allow one Searchbar section
+            if ( $validated_section['type'] === 'searchbar' ) {
+                if ( $has_searchbar_section ) {
+                    continue;
+                }
+                $has_searchbar_section = true;
             }
             // Validate custom field ID if type is custom_field
             if ( $validated_section['type'] === 'custom_field' && isset( $section['custom_field_id'] ) ) {

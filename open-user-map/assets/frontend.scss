@@ -4176,8 +4176,338 @@ body.oum-add-location-opened {
     flex-shrink: 0;
   }
 
-  .oum-filter-section {
+      .oum-filter-section {
     margin-bottom: 20px;
+
+    // Marker Categories section: same checkbox/spacing as other Advanced Filter sections
+    .oum-marker-categories-filter {
+      font-size: 15px;
+      color: #333;
+
+      .oum-label {
+        display: block;
+        font-weight: bold;
+        margin: 0 0 8px 0px;
+        line-height: 1.5;
+        color: #333;
+        font-size: 15px;
+      }
+
+      .oum-toggle-all-wrapper {
+        margin: 0;
+      }
+
+      label {
+        display: flex;
+        align-items: center;
+        margin: 0 10px 10px 0;
+        margin-left: 6px;
+        padding: 0;
+        font-weight: normal;
+        cursor: pointer;
+        color: #333;
+
+        @media screen and (max-width: 768px) {
+          display: flex;
+          margin-left: 0;
+          margin-bottom: 5px;
+        }
+
+        input[type='checkbox'] {
+          appearance: auto;
+          accent-color: #e82c71;
+          position: relative;
+          width: 20px;
+          height: 20px;
+          margin: 0 7px 0 0;
+          flex-shrink: 0;
+
+          &::before,
+          &::after {
+            display: none;
+          }
+        }
+
+        img {
+          height: 22px;
+          width: 22px;
+          object-fit: contain;
+          object-position: center;
+          margin-right: 6px;
+          flex-shrink: 0;
+        }
+
+        .oum-filter-category-shape-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 22px;
+          width: 22px;
+          margin: 0 6px 0 0;
+          flex-shrink: 0;
+
+          svg {
+            display: block;
+            height: 22px;
+            width: 22px;
+          }
+        }
+
+        span {
+          font-size: 15px;
+          line-height: 1.5;
+          margin: 0;
+        }
+      }
+    }
+
+    // Searchbar section: full-width search inside Advanced Filter
+    .oum-searchbar-filter {
+      position: relative;
+      z-index: 6;
+      overflow: visible;
+
+      #oum_search_marker,
+      #oum_search_address,
+      #oum_filter_markers {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        z-index: 5;
+      }
+
+      #oum_filter_markers {
+        display: block;
+        box-sizing: border-box;
+        height: auto;
+        font-family: inherit;
+        font-size: 16px;
+        border: 1px solid #bbb;
+        border-radius: 2px;
+        color: #333;
+        background-color: #fff;
+        background-image: url(images/ico_search_marker.png);
+        background-position: right 8px center;
+        background-repeat: no-repeat;
+        background-size: 22px;
+        outline: none;
+        line-height: 1;
+        padding: 14px 40px 14px 14px;
+        opacity: 1;
+        visibility: visible;
+
+        &:focus {
+          border-color: map-get($colors, "primary");
+          box-shadow: 0 0 0 2px rgba(232, 44, 113, 0.1);
+        }
+      }
+
+      .leaflet-control-search {
+        position: relative !important;
+        float: none;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        height: auto;
+        box-shadow: none;
+        background: #fff;
+        border: 1px solid #bbb;
+        border-radius: 2px;
+
+        // leaflet-search floats the input and button; clear so the control keeps height
+        &::after {
+          content: "";
+          display: table;
+          clear: both;
+        }
+
+        &.search-exp {
+          width: 100%;
+          max-width: 100%;
+        }
+
+        .search-input {
+          box-sizing: border-box;
+          float: none;
+          width: 100%;
+          min-width: unset;
+          min-height: unset;
+          height: auto;
+          line-height: 1;
+          border: none !important;
+          box-shadow: none !important;
+          outline: none !important;
+          font-size: 16px;
+          padding: 14px 58px 14px 14px;
+          margin: 0;
+        }
+
+        // Center the leaflet-search icons in the taller sidebar input
+        .search-button {
+          position: absolute;
+          top: 50%;
+          right: 8px;
+          float: none;
+          width: 22px;
+          height: 22px;
+          margin: 0;
+          padding: 0;
+          transform: translateY(-50%);
+          background: url(images/ico_search_marker.png) center center no-repeat transparent;
+          background-size: 22px;
+
+          &:hover {
+            background: url(images/ico_search_marker.png) center center no-repeat transparent;
+            background-size: 22px;
+          }
+        }
+
+        .search-cancel {
+          top: 50%;
+          right: 34px;
+          width: 22px;
+          height: 22px;
+          margin: 0;
+          transform: translateY(-50%);
+        }
+
+        .search-tooltip {
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          list-style: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          z-index: 30;
+          max-height: 220px;
+          overflow-x: hidden;
+          overflow-y: auto;
+          background: #fff;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          box-sizing: border-box;
+
+          // Compact rows: constrain 2x marker images and keep title beside the icon
+          .search-tip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            padding: 8px 10px;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #333;
+            background: #fff;
+            border-radius: 0;
+            white-space: normal;
+            box-sizing: border-box;
+
+            > div {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              min-width: 0;
+            }
+
+            img {
+              width: 20px;
+              height: 20px;
+              flex-shrink: 0;
+              margin: 0;
+              object-fit: contain;
+            }
+
+            &:hover,
+            &.search-tip-select {
+              background: #f5f5f5;
+            }
+          }
+        }
+      }
+
+      .leaflet-control-geosearch.leaflet-geosearch-bar {
+        display: block;
+        position: relative;
+        float: none;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        height: auto;
+
+        form {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 0;
+          background-color: #fff;
+          border: 1px solid #bbb;
+          border-radius: 2px;
+          box-shadow: none;
+
+          input[type=text] {
+            display: block;
+            width: 100%;
+            min-width: unset;
+            min-height: unset;
+            height: auto;
+            line-height: 1;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            font-size: 16px;
+            padding: 14px 58px 14px 14px;
+            margin: 0 !important;
+            background-color: #fff;
+            background-image: url(images/ico_search_address_2.png);
+            background-position: right 8px center;
+            background-repeat: no-repeat;
+            background-size: 22px;
+          }
+
+          button.reset {
+            right: 34px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            padding: 0;
+            margin: 0;
+            font-size: 18px;
+            font-family: monospace;
+            text-align: center;
+            border: none;
+            border-radius: 99px;
+            background-color: #ddd;
+            color: #000;
+            opacity: 0.5;
+
+            &:hover {
+              opacity: 1;
+            }
+          }
+
+          .results {
+            color: #333;
+            width: 100%;
+            box-sizing: border-box;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            z-index: 20;
+
+            > * {
+              font-size: 12px;
+            }
+          }
+        }
+      }
+    }
 
     .oum-custom-field-filter {
       .oum-label {

@@ -782,6 +782,34 @@ window.addEventListener('load', function(e) {
     return false;
   });
 
+  // Build a preview item with DOM APIs so image URLs cannot inject HTML attributes.
+  function createImagePreviewItem(url) {
+    const previewItem = document.createElement('div');
+    previewItem.className = 'image-preview-item';
+    previewItem.draggable = true;
+    previewItem.setAttribute('data-url', url);
+
+    const img = document.createElement('img');
+    img.setAttribute('alt', 'Preview');
+    img.src = url;
+
+    const remove = document.createElement('div');
+    remove.className = 'remove-image';
+    remove.setAttribute('title', 'Remove image');
+    remove.textContent = '\u00d7';
+
+    const handle = document.createElement('div');
+    handle.className = 'drag-handle';
+    handle.setAttribute('title', 'Drag to reorder');
+    handle.textContent = '\u22ee\u22ee';
+
+    previewItem.appendChild(img);
+    previewItem.appendChild(remove);
+    previewItem.appendChild(handle);
+
+    return previewItem;
+  }
+
   // Function to update image preview
   function updateImagePreview(imageUrls) {
     const previewContainer = jQuery('#oum_location_image_preview');
@@ -798,22 +826,12 @@ window.addEventListener('load', function(e) {
     // Create preview grid
     const gridContainer = jQuery('<div class="image-preview-grid"></div>');
     
-    imageUrls.forEach((url, index) => {
+    imageUrls.forEach((url) => {
       if (!url) return; // Skip empty URLs
       
-      const previewItem = jQuery(`
-        <div class="image-preview-item" draggable="true" data-url="${url}">
-          <img src="${url}" alt="Preview">
-          <div class="remove-image" title="Remove image">&times;</div>
-          <div class="drag-handle" title="Drag to reorder">⋮⋮</div>
-        </div>
-      `);
-      
-      // Add drag and drop functionality
-      const item = previewItem[0];
+      const item = createImagePreviewItem(url);
       setupDragAndDrop(item);
-      
-      gridContainer.append(previewItem);
+      gridContainer.append(item);
     });
     
     previewContainer.append(gridContainer);
