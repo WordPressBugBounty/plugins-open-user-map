@@ -499,6 +499,13 @@ class Enqueue extends BaseController
             true
         );
 
+        // Pass locale weekday aliases so frontend validation accepts e.g. Do as well as Th
+        wp_localize_script(
+            'oum_frontend_opening_hours_js',
+            'oum_opening_hours',
+            LocationController::get_opening_hours_js_data()
+        );
+
         // Register frontend block scripts
         wp_register_script(
             'oum_frontend_block_map_js',

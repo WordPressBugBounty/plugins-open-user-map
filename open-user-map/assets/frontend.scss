@@ -11,7 +11,8 @@ $search_input_width: 300px;
   position: relative;
   width: 100%;
   overflow: hidden;
-  pointer-events: none;
+  // Allow hover on the whole image so slider arrows fade in (not only on the arrow hitboxes)
+  pointer-events: auto;
 
   &:hover {
     .oum-carousel-prev,

@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Open User Map – Interactive Leaflet Maps 1.4.50\n"
+"Project-Id-Version: Open User Map – Interactive Leaflet Maps 1.4.51\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/open-user-map\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-03T08:00:06+00:00\n"
+"POT-Creation-Date: 2026-09-19T14:17:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: open-user-map\n"
@@ -264,13 +264,13 @@ msgstr ""
 
 #: inc/Base/BaseController.php:1019
 #: templates/page-backend-settings.php:1527
-#: templates/partial-map-add-location.php:481
+#: templates/partial-map-add-location.php:479
 msgid "Thank you!"
 msgstr ""
 
 #: inc/Base/BaseController.php:1020
 #: templates/page-backend-settings.php:1528
-#: templates/partial-map-add-location.php:482
+#: templates/partial-map-add-location.php:480
 msgid "We will check your location suggestion and release it as soon as possible."
 msgstr ""
 
@@ -492,20 +492,42 @@ msgstr ""
 msgid "go to Google Maps"
 msgstr ""
 
-#: inc/Base/LocationController.php:1788
+#. translators: %s is the weekday abbreviation range, e.g. Mo–Su or Mo–So
+#: inc/Base/LocationController.php:1941
+#, php-format
+msgid "Enter the day (%s) and opening hours in 12-hour format with AM/PM (e.g. 9:00 AM–5:00 PM). Use | to separate multiple time blocks."
+msgstr ""
+
+#. translators: %s is the weekday abbreviation range, e.g. Mo–Su or Mo–So
+#: inc/Base/LocationController.php:1948
+#, php-format
+msgid "Enter the day (%s) and opening hours in 24-hour format (e.g. 09:00–18:00). Use | to separate multiple time blocks."
+msgstr ""
+
+#. translators: 1: example in 24-hour format, 2: example in 12-hour format
+#: inc/Base/LocationController.php:1968
+#, php-format
+msgid "Invalid opening hours format. Expected format: %1$s or %2$s"
+msgstr ""
+
+#: inc/Base/LocationController.php:2013
+msgid "closed"
+msgstr ""
+
+#: inc/Base/LocationController.php:2043
 #: templates/partial-map-advanced-filter.php:185
 msgid "Open now"
 msgstr ""
 
-#: inc/Base/LocationController.php:1788
+#: inc/Base/LocationController.php:2043
 msgid "Closed now"
 msgstr ""
 
-#: inc/Base/LocationController.php:1996
+#: inc/Base/LocationController.php:2245
 msgid "Invalid location ID"
 msgstr ""
 
-#: inc/Base/LocationController.php:2002
+#: inc/Base/LocationController.php:2251
 msgid "Location not found"
 msgstr ""
 
@@ -930,7 +952,7 @@ msgid "Audio"
 msgstr ""
 
 #: templates/page-backend-location.php:205
-#: templates/partial-map-add-location.php:434
+#: templates/partial-map-add-location.php:432
 msgid "Upload Audio"
 msgstr ""
 
@@ -950,17 +972,7 @@ msgstr ""
 msgid "Star rating count"
 msgstr ""
 
-#: templates/page-backend-location.php:414
-#: templates/partial-map-add-location.php:351
-msgid "Enter the day (Mo–Su) and opening hours in 12-hour format with AM/PM (e.g. 9:00 AM–5:00 PM). Use | to separate multiple time blocks."
-msgstr ""
-
-#: templates/page-backend-location.php:415
-#: templates/partial-map-add-location.php:352
-msgid "Enter the day (Mo–Su) and opening hours in 24-hour format (e.g. 09:00–18:00). Use | to separate multiple time blocks."
-msgstr ""
-
-#: templates/page-backend-location.php:440
+#: templates/page-backend-location.php:437
 msgid "User email notification"
 msgstr ""
 
@@ -1660,7 +1672,7 @@ msgid "Submit button text"
 msgstr ""
 
 #: templates/page-backend-settings.php:1498
-#: templates/partial-map-add-location.php:470
+#: templates/partial-map-add-location.php:468
 msgid "Submit location for review"
 msgstr ""
 
@@ -2923,24 +2935,24 @@ msgstr ""
 msgid "Area Category"
 msgstr ""
 
-#: templates/partial-map-add-location.php:392
+#: templates/partial-map-add-location.php:390
 msgid "Upload Images"
 msgstr ""
 
-#: templates/partial-map-add-location.php:402
+#: templates/partial-map-add-location.php:400
 #, php-format
 msgid "Add up to %d images to create a gallery for this location."
 msgstr ""
 
-#: templates/partial-map-add-location.php:423
+#: templates/partial-map-add-location.php:421
 msgid "YouTube or Vimeo Video"
 msgstr ""
 
-#: templates/partial-map-add-location.php:426
+#: templates/partial-map-add-location.php:424
 msgid "YouTube or Vimeo URL"
 msgstr ""
 
-#: templates/partial-map-add-location.php:473
+#: templates/partial-map-add-location.php:471
 msgid "Delete this location"
 msgstr ""
 

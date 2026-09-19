@@ -6,6 +6,82 @@ const OUMOpeningHours = (function() {
   let observer = null;
 
   /**
+   * English fallbacks used when locale data has not been localized yet
+   */
+  const fallbackDayAbbrs = {
+    mo: 'Mo',
+    tu: 'Tu',
+    we: 'We',
+    th: 'Th',
+    fr: 'Fr',
+    sa: 'Sa',
+    su: 'Su'
+  };
+  const fallbackDayAliases = {
+    mo: 'mo',
+    tu: 'tu',
+    we: 'we',
+    th: 'th',
+    fr: 'fr',
+    sa: 'sa',
+    su: 'su'
+  };
+
+  /**
+   * Locale weekday aliases and abbreviations from wp_localize_script
+   */
+  function getDayConfig() {
+    if (typeof oum_opening_hours !== 'undefined' && oum_opening_hours) {
+      return {
+        aliases: oum_opening_hours.day_aliases || fallbackDayAliases,
+        abbrs: oum_opening_hours.day_abbrs || fallbackDayAbbrs
+      };
+    }
+
+    return {
+      aliases: fallbackDayAliases,
+      abbrs: fallbackDayAbbrs
+    };
+  }
+
+  /**
+   * Normalize a weekday token for alias lookup (trim, strip dots, lowercase, fold accents)
+   * @param {string} alias
+   * @returns {string}
+   */
+  function normalizeDayAlias(alias) {
+    if (!alias || typeof alias !== 'string') {
+      return '';
+    }
+
+    let value = alias.trim().replace(/\.+$/, '').toLowerCase();
+
+    try {
+      value = value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    } catch (e) {
+      // ignore if normalize() is unavailable
+    }
+
+    return value;
+  }
+
+  /**
+   * Resolve a typed weekday token to an internal day key (mo, tu, ...)
+   * @param {string} token
+   * @returns {string|null}
+   */
+  function resolveDayKey(token) {
+    const normalized = normalizeDayAlias(token);
+    const aliases = getDayConfig().aliases;
+
+    if (normalized && aliases[normalized]) {
+      return aliases[normalized];
+    }
+
+    return null;
+  }
+
+  /**
    * Converts 12-hour format time to 24-hour format
    * @param {string} time12 - Time in 12-hour format (e.g., "9:00 AM" or "11:30 PM")
    * @returns {string|null} - Time in 24-hour format (HH:MM) or null if invalid
@@ -53,7 +129,8 @@ const OUMOpeningHours = (function() {
 
   /**
    * Validates the opening hours input format
-   * Format: Mo 09:00-18:00 | Tu 9:00 AM-5:00 PM | Tu 1:00 PM-6:00 PM
+   * Format: Mo 09:00-18:00 | Di 9:00 AM-5:00 PM | Do 1:00 PM-6:00 PM
+   * Accepts English weekday abbreviations plus the current WordPress locale (e.g. Do for Thursday)
    * Supports both 24-hour (HH:MM) and 12-hour (H:MM AM/PM) formats
    * @param {string} input - The input string to validate
    * @returns {boolean} - True if valid, false otherwise
@@ -70,10 +147,9 @@ const OUMOpeningHours = (function() {
 
     // Split by pipe and validate each block
     const blocks = trimmed.split('|');
-    // Pattern for 24-hour format
-    const pattern24 = /^(Mo|Tu|We|Th|Fr|Sa|Su)\s+(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/i;
-    // Pattern for 12-hour format
-    const pattern12 = /^(Mo|Tu|We|Th|Fr|Sa|Su)\s+(\d{1,2}):(\d{2})\s*(AM|PM)-(\d{1,2}):(\d{2})\s*(AM|PM)$/i;
+    // Day token is language-agnostic; aliases are resolved via resolveDayKey()
+    const pattern24 = /^(\S+)\s+(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/;
+    const pattern12 = /^(\S+)\s+(\d{1,2}):(\d{2})\s*(AM|PM)-(\d{1,2}):(\d{2})\s*(AM|PM)$/i;
 
     for (let block of blocks) {
       block = block.trim();
@@ -83,6 +159,10 @@ const OUMOpeningHours = (function() {
 
       const match12 = block.match(pattern12);
       if (match12) {
+        if (!resolveDayKey(match12[1])) {
+          return false;
+        }
+
         // Validate 12-hour format times
         const startTime12 = match12[2] + ':' + match12[3] + ' ' + match12[4];
         const endTime12 = match12[5] + ':' + match12[6] + ' ' + match12[7];
@@ -95,7 +175,7 @@ const OUMOpeningHours = (function() {
       } else {
         // Validate 24-hour format times
         const match = block.match(pattern24);
-        if (!match) {
+        if (!match || !resolveDayKey(match[1])) {
           return false;
         }
         
@@ -153,21 +233,17 @@ const OUMOpeningHours = (function() {
       return '';
     }
 
-    const dayAbbrs = {
-      mo: 'Mo',
-      tu: 'Tu',
-      we: 'We',
-      th: 'Th',
-      fr: 'Fr',
-      sa: 'Sa',
-      su: 'Su'
-    };
+    const dayAbbrs = getDayConfig().abbrs;
 
     const blocks = [];
     const days = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su'];
 
     for (const day of days) {
       const dayAbbr = dayAbbrs[day];
+      if (!dayAbbr) {
+        continue;
+      }
+
       const timeBlocks = data.week[day] || [];
       
       for (const block of timeBlocks) {

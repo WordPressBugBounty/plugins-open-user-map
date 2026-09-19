@@ -8,7 +8,7 @@ Plugin Name: Open User Map – Interactive Leaflet Maps
 Plugin URI: https://www.open-user-map.com/
 Description: Create custom interactive maps with free Leaflet-based styles, no Google Maps API key, frontend marker submissions, search and filters.
 Author: 100plugins
-Version: 1.4.51
+Version: 1.4.52
 Author URI: https://www.open-user-map.com/
 License: GPLv3 or later
 Text Domain: open-user-map

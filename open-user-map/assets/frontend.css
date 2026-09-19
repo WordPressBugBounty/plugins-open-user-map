@@ -715,7 +715,7 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  pointer-events: none;
+  pointer-events: auto;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel:hover .oum-carousel-prev,
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel:hover .oum-carousel-next {
@@ -2248,7 +2248,7 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  pointer-events: none;
+  pointer-events: auto;
 }
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum-carousel:hover .oum-carousel-prev,
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum-carousel:hover .oum-carousel-next {
@@ -2923,7 +2923,7 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  pointer-events: none;
+  pointer-events: auto;
 }
 .open-user-map-locations-list .oum-locations-list-item .oum-carousel:hover .oum-carousel-prev,
 .open-user-map-locations-list .oum-locations-list-item .oum-carousel:hover .oum-carousel-next {
@@ -3416,7 +3416,7 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  pointer-events: none;
+  pointer-events: auto;
 }
 .oum-location-value .oum-carousel:hover .oum-carousel-prev,
 .oum-location-value .oum-carousel:hover .oum-carousel-next {

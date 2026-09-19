@@ -35,7 +35,7 @@ jQuery('#oum_add_location').submit(function(event) {
         // Just send the hours input - server will parse and add WordPress timezone
         formData.append(`oum_location_custom_fields[${fieldIndex}][hours]`, hoursValue);
       } else {
-        oumShowError([{message: 'Invalid opening hours format. Expected format: Mo 09:00-18:00 or Mo 9:00 AM-5:00 PM'}]);
+        oumShowError([{message: (typeof oum_opening_hours !== 'undefined' && oum_opening_hours.invalid_format) ? oum_opening_hours.invalid_format : 'Invalid opening hours format. Expected format: Mo 09:00-18:00 or Mo 9:00 AM-5:00 PM'}]);
         jQuery('#oum_submit_btn').removeClass('oum-loading');
         return false;
       }

@@ -444,8 +444,8 @@ if ( $oum_show_add_location_button ) {
                 ?>
               <?php 
                 $use12hour = isset( $custom_field['use12hour'] ) && $custom_field['use12hour'];
-                $placeholder = ( $use12hour ? 'Mo 9:00 AM-5:00 PM | Tu 9:00 AM-11:00 AM | Tu 1:00 PM-5:00 PM' : 'Mo 09:00-18:00 | Tu 09:00-11:00 | Tu 13:00-18:00' );
-                $format_hint = ( $use12hour ? __( 'Enter the day (Mo–Su) and opening hours in 12-hour format with AM/PM (e.g. 9:00 AM–5:00 PM). Use | to separate multiple time blocks.', 'open-user-map' ) : __( 'Enter the day (Mo–Su) and opening hours in 24-hour format (e.g. 09:00–18:00). Use | to separate multiple time blocks.', 'open-user-map' ) );
+                $placeholder = \OpenUserMapPlugin\Base\LocationController::get_opening_hours_input_example( $use12hour, true );
+                $format_hint = \OpenUserMapPlugin\Base\LocationController::get_opening_hours_format_hint( $use12hour );
                 // Use format_hint as default description if description is empty
                 $final_description = ( empty( $description ) ? '<div class="oum_custom_field_description">' . wp_kses_post( $format_hint ) . '</div>' : $description );
                 ?>

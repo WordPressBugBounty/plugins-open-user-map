@@ -638,10 +638,10 @@ if ( is_array( $active_custom_fields ) ) {
             // Get stored value
             $stored_value = ( isset( $meta_custom_fields[$index] ) ? $meta_custom_fields[$index] : '' );
             $use12hour = isset( $custom_field['use12hour'] ) && $custom_field['use12hour'];
-            // Convert JSON to input format using centralized method
-            $hours_input = \OpenUserMapPlugin\Base\LocationController::convert_opening_hours_json_to_input( $stored_value, $use12hour );
-            $placeholder = ( $use12hour ? 'Mo 9:00 AM-5:00 PM | Tu 9:00 AM-11:00 AM | Tu 1:00 PM-5:00 PM' : 'Mo 09:00-18:00 | Tu 09:00-11:00 | Tu 13:00-18:00' );
-            $format_hint = ( $use12hour ? __( 'Enter the day (Mo–Su) and opening hours in 12-hour format with AM/PM (e.g. 9:00 AM–5:00 PM). Use | to separate multiple time blocks.', 'open-user-map' ) : __( 'Enter the day (Mo–Su) and opening hours in 24-hour format (e.g. 09:00–18:00). Use | to separate multiple time blocks.', 'open-user-map' ) );
+            // Convert JSON to input format using localized weekday abbreviations
+            $hours_input = \OpenUserMapPlugin\Base\LocationController::convert_opening_hours_json_to_input( $stored_value, $use12hour, true );
+            $placeholder = \OpenUserMapPlugin\Base\LocationController::get_opening_hours_input_example( $use12hour, true );
+            $format_hint = \OpenUserMapPlugin\Base\LocationController::get_opening_hours_format_hint( $use12hour );
             ?>
                             <input type="text" 
                                 class="regular-text oum-opening-hours-input" 

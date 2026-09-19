@@ -1493,6 +1493,259 @@ class LocationController extends BaseController {
     }
 
     /**
+     * Canonical English weekday abbreviations used internally and in CSV export.
+     *
+     * @return array<string,string> Day key => English abbreviation (Mo, Tu, ...)
+     */
+    public static function get_opening_hours_english_day_abbrs() {
+        return array(
+            'mo' => 'Mo',
+            'tu' => 'Tu',
+            'we' => 'We',
+            'th' => 'Th',
+            'fr' => 'Fr',
+            'sa' => 'Sa',
+            'su' => 'Su',
+        );
+    }
+
+    /**
+     * WordPress weekday index for each internal day key (0 = Sunday).
+     *
+     * @return array<string,int>
+     */
+    private static function get_opening_hours_day_indexes() {
+        return array(
+            'mo' => 1,
+            'tu' => 2,
+            'we' => 3,
+            'th' => 4,
+            'fr' => 5,
+            'sa' => 6,
+            'su' => 0,
+        );
+    }
+
+    /**
+     * Translated weekday display names for the current WordPress locale.
+     *
+     * @return array<string,string> Day key => translated full name (e.g. Monday / Montag)
+     */
+    public static function get_opening_hours_day_names() {
+        global $wp_locale;
+        $fallback = array(
+            'mo' => 'Monday',
+            'tu' => 'Tuesday',
+            'we' => 'Wednesday',
+            'th' => 'Thursday',
+            'fr' => 'Friday',
+            'sa' => 'Saturday',
+            'su' => 'Sunday',
+        );
+        $names = array();
+        foreach ( self::get_opening_hours_day_indexes() as $key => $index ) {
+            if ( $wp_locale instanceof \WP_Locale ) {
+                $names[$key] = $wp_locale->get_weekday( $index );
+            } else {
+                $names[$key] = $fallback[$key];
+            }
+        }
+        return $names;
+    }
+
+    /**
+     * Normalize a weekday alias for matching (trim, strip trailing dots, lowercase, remove accents).
+     *
+     * @param string $alias
+     * @return string
+     */
+    public static function normalize_opening_hours_day_alias( $alias ) {
+        $alias = rtrim( trim( (string) $alias ), '.' );
+        if ( function_exists( 'remove_accents' ) ) {
+            $alias = remove_accents( $alias );
+        }
+        if ( function_exists( 'mb_strtolower' ) ) {
+            return mb_strtolower( $alias, 'UTF-8' );
+        }
+        return strtolower( $alias );
+    }
+
+    /**
+     * Build a short weekday alias from a translated weekday name (first two letters).
+     *
+     * @param string $weekday_name
+     * @return string Normalized alias (e.g. "do" from "Donnerstag")
+     */
+    private static function opening_hours_abbr_from_name( $weekday_name ) {
+        // Normalize first so accented names stay 2 ASCII letters (e.g. Sábado → sa)
+        $normalized = self::normalize_opening_hours_day_alias( $weekday_name );
+        if ( $normalized === '' ) {
+            return '';
+        }
+        if ( function_exists( 'mb_substr' ) ) {
+            return mb_substr(
+                $normalized,
+                0,
+                2,
+                'UTF-8'
+            );
+        }
+        return substr( $normalized, 0, 2 );
+    }
+
+    /**
+     * Format a normalized alias for display in the input field (e.g. "do" → "Do").
+     *
+     * @param string $alias
+     * @return string
+     */
+    private static function format_opening_hours_day_abbr_for_display( $alias ) {
+        $alias = self::normalize_opening_hours_day_alias( $alias );
+        if ( $alias === '' ) {
+            return '';
+        }
+        if ( function_exists( 'mb_strtoupper' ) && function_exists( 'mb_substr' ) && function_exists( 'mb_strlen' ) ) {
+            $first = mb_strtoupper( mb_substr(
+                $alias,
+                0,
+                1,
+                'UTF-8'
+            ), 'UTF-8' );
+            $rest_length = mb_strlen( $alias, 'UTF-8' ) - 1;
+            $rest = ( $rest_length > 0 ? mb_substr(
+                $alias,
+                1,
+                $rest_length,
+                'UTF-8'
+            ) : '' );
+            return $first . $rest;
+        }
+        return ucfirst( $alias );
+    }
+
+    /**
+     * Add a weekday alias to the map without overwriting an existing (usually English) mapping.
+     *
+     * @param array<string,string> $map
+     * @param string $alias
+     * @param string $day_key
+     * @return void
+     */
+    private static function add_opening_hours_day_alias( &$map, $alias, $day_key ) {
+        $normalized = self::normalize_opening_hours_day_alias( $alias );
+        if ( $normalized === '' || isset( $map[$normalized] ) ) {
+            return;
+        }
+        $map[$normalized] = $day_key;
+    }
+
+    /**
+     * Localized weekday abbreviations for the current WordPress locale (used in forms).
+     * Example (de_DE): Mo, Di, Mi, Do, Fr, Sa, So
+     *
+     * @return array<string,string> Day key => localized abbreviation
+     */
+    public static function get_opening_hours_localized_day_abbrs() {
+        $english = self::get_opening_hours_english_day_abbrs();
+        $names = self::get_opening_hours_day_names();
+        $abbrs = array();
+        foreach ( $english as $key => $english_abbr ) {
+            $from_name = ( isset( $names[$key] ) ? self::opening_hours_abbr_from_name( $names[$key] ) : '' );
+            $abbrs[$key] = ( $from_name !== '' ? self::format_opening_hours_day_abbr_for_display( $from_name ) : $english_abbr );
+        }
+        return $abbrs;
+    }
+
+    /**
+     * Map of accepted input aliases (normalized) to internal day keys.
+     * Always includes English abbreviations; also includes current-locale variants.
+     * English aliases are registered first and never overwritten.
+     *
+     * @return array<string,string> Normalized alias => day key (mo, tu, ...)
+     */
+    public static function get_opening_hours_day_alias_map() {
+        $map = array();
+        $english = self::get_opening_hours_english_day_abbrs();
+        // Canonical English 2-letter codes (always accepted for backward compatibility)
+        foreach ( $english as $key => $abbr ) {
+            $map[self::normalize_opening_hours_day_alias( $abbr )] = $key;
+        }
+        global $wp_locale;
+        if ( !$wp_locale instanceof \WP_Locale ) {
+            return $map;
+        }
+        // Add current-locale abbreviations, WP weekday abbrevs, and full weekday names
+        foreach ( self::get_opening_hours_day_indexes() as $key => $index ) {
+            $name = $wp_locale->get_weekday( $index );
+            self::add_opening_hours_day_alias( $map, $name, $key );
+            self::add_opening_hours_day_alias( $map, self::opening_hours_abbr_from_name( $name ), $key );
+            if ( isset( $wp_locale->weekday_abbrev[$name] ) ) {
+                self::add_opening_hours_day_alias( $map, $wp_locale->get_weekday_abbrev( $name ), $key );
+            }
+        }
+        return $map;
+    }
+
+    /**
+     * Example input string for placeholders (localized for forms).
+     *
+     * @param bool $use12hour
+     * @param bool $localized Whether to use locale abbreviations (true for forms, false for CSV)
+     * @return string
+     */
+    public static function get_opening_hours_input_example( $use12hour = false, $localized = true ) {
+        $abbrs = ( $localized ? self::get_opening_hours_localized_day_abbrs() : self::get_opening_hours_english_day_abbrs() );
+        if ( $use12hour ) {
+            return $abbrs['mo'] . ' 9:00 AM-5:00 PM | ' . $abbrs['tu'] . ' 9:00 AM-11:00 AM | ' . $abbrs['tu'] . ' 1:00 PM-5:00 PM';
+        }
+        return $abbrs['mo'] . ' 09:00-18:00 | ' . $abbrs['tu'] . ' 09:00-11:00 | ' . $abbrs['tu'] . ' 13:00-18:00';
+    }
+
+    /**
+     * Translated format hint for opening hours input fields.
+     *
+     * @param bool $use12hour
+     * @return string
+     */
+    public static function get_opening_hours_format_hint( $use12hour = false ) {
+        $abbrs = self::get_opening_hours_localized_day_abbrs();
+        $day_range = $abbrs['mo'] . '–' . $abbrs['su'];
+        if ( $use12hour ) {
+            return sprintf( 
+                /* translators: %s is the weekday abbreviation range, e.g. Mo–Su or Mo–So */
+                __( 'Enter the day (%s) and opening hours in 12-hour format with AM/PM (e.g. 9:00 AM–5:00 PM). Use | to separate multiple time blocks.', 'open-user-map' ),
+                $day_range
+             );
+        }
+        return sprintf( 
+            /* translators: %s is the weekday abbreviation range, e.g. Mo–Su or Mo–So */
+            __( 'Enter the day (%s) and opening hours in 24-hour format (e.g. 09:00–18:00). Use | to separate multiple time blocks.', 'open-user-map' ),
+            $day_range
+         );
+    }
+
+    /**
+     * Data passed to frontend JS for validation and form formatting.
+     *
+     * @return array<string,mixed>
+     */
+    public static function get_opening_hours_js_data() {
+        $abbrs = self::get_opening_hours_localized_day_abbrs();
+        $example_24 = self::get_opening_hours_input_example( false, true );
+        $example_12 = $abbrs['mo'] . ' 9:00 AM-5:00 PM';
+        return array(
+            'day_aliases'    => self::get_opening_hours_day_alias_map(),
+            'day_abbrs'      => $abbrs,
+            'invalid_format' => sprintf( 
+                /* translators: 1: example in 24-hour format, 2: example in 12-hour format */
+                __( 'Invalid opening hours format. Expected format: %1$s or %2$s', 'open-user-map' ),
+                $example_24,
+                $example_12
+             ),
+        );
+    }
+
+    /**
      * Format opening hours JSON for display (same format as popup)
      * @param string $json_value - JSON string containing opening hours data
      * @param array $custom_field - Custom field configuration array (must include 'label' and optionally 'use12hour' and 'open_now')
@@ -1506,15 +1759,8 @@ class LocationController extends BaseController {
             // Invalid JSON, return raw value
             return '<div data-custom-field-label="' . esc_attr( $custom_field['label'] ) . '" class="oum_custom_field oum_custom_field_type_opening_hours"><strong>' . esc_html( $custom_field['label'] ) . ':</strong> <span data-value="' . esc_attr( $json_value ) . '">' . esc_html( $json_value ) . '</span></div>';
         }
-        $day_names = array(
-            'mo' => 'Monday',
-            'tu' => 'Tuesday',
-            'we' => 'Wednesday',
-            'th' => 'Thursday',
-            'fr' => 'Friday',
-            'sa' => 'Saturday',
-            'su' => 'Sunday',
-        );
+        // Use WordPress locale weekday names (e.g. Monday / Montag)
+        $day_names = self::get_opening_hours_day_names();
         $days = array(
             'mo',
             'tu',
@@ -1535,7 +1781,7 @@ class LocationController extends BaseController {
             $day_name = $day_names[$day];
             $blocks = ( isset( $opening_hours_data['week'][$day] ) ? $opening_hours_data['week'][$day] : array() );
             if ( empty( $blocks ) ) {
-                $formatted_lines[] = sprintf( '<div class="oum-opening-hours-row"><span class="oum-opening-hours-day-name">%s</span><span class="oum-opening-hours-status closed">closed</span></div>', esc_html( $day_name ) );
+                $formatted_lines[] = sprintf( '<div class="oum-opening-hours-row"><span class="oum-opening-hours-day-name">%s</span><span class="oum-opening-hours-status closed">%s</span></div>', esc_html( $day_name ), esc_html__( 'closed', 'open-user-map' ) );
             } else {
                 // Create a separate row for each time block
                 foreach ( $blocks as $index => $block ) {
@@ -1601,16 +1847,8 @@ class LocationController extends BaseController {
             'sa' => array(),
             'su' => array(),
         );
-        // Day abbreviation mapping
-        $day_map = array(
-            'mo' => 'mo',
-            'tu' => 'tu',
-            'we' => 'we',
-            'th' => 'th',
-            'fr' => 'fr',
-            'sa' => 'sa',
-            'su' => 'su',
-        );
+        // English + current-locale weekday aliases (e.g. Th and Do both map to Thursday)
+        $day_map = self::get_opening_hours_day_alias_map();
         /**
          * Convert 12-hour format time to 24-hour format
          * @param string $time12 - Time in 12-hour format (e.g., "9:00 AM" or "11:30 PM")
@@ -1659,10 +1897,9 @@ class LocationController extends BaseController {
         };
         // Split by pipe and process each block
         $blocks = explode( '|', $trimmed );
-        // Pattern for 24-hour format
-        $pattern24 = '/^(Mo|Tu|We|Th|Fr|Sa|Su)\\s+(\\d{1,2}):(\\d{2})-(\\d{1,2}):(\\d{2})$/i';
-        // Pattern for 12-hour format
-        $pattern12 = '/^(Mo|Tu|We|Th|Fr|Sa|Su)\\s+(\\d{1,2}):(\\d{2})\\s*(AM|PM)-(\\d{1,2}):(\\d{2})\\s*(AM|PM)$/i';
+        // Day token is language-agnostic; aliases are resolved via $day_map
+        $pattern24 = '/^(\\S+)\\s+(\\d{1,2}):(\\d{2})-(\\d{1,2}):(\\d{2})$/u';
+        $pattern12 = '/^(\\S+)\\s+(\\d{1,2}):(\\d{2})\\s*(AM|PM)-(\\d{1,2}):(\\d{2})\\s*(AM|PM)$/iu';
         foreach ( $blocks as $block ) {
             $block = trim( $block );
             if ( $block === '' ) {
@@ -1673,7 +1910,7 @@ class LocationController extends BaseController {
             $day_abbr = null;
             // Try 24-hour format first
             if ( preg_match( $pattern24, $block, $matches ) ) {
-                $day_abbr = strtolower( $matches[1] );
+                $day_abbr = self::normalize_opening_hours_day_alias( $matches[1] );
                 $start_hour = intval( $matches[2] );
                 $start_min = intval( $matches[3] );
                 $end_hour = intval( $matches[4] );
@@ -1705,7 +1942,7 @@ class LocationController extends BaseController {
                 }
             } elseif ( preg_match( $pattern12, $block, $matches ) ) {
                 // Try 12-hour format
-                $day_abbr = strtolower( $matches[1] );
+                $day_abbr = self::normalize_opening_hours_day_alias( $matches[1] );
                 $start_time12 = $matches[2] . ':' . $matches[3] . ' ' . $matches[4];
                 $end_time12 = $matches[5] . ':' . $matches[6] . ' ' . $matches[7];
                 $start_time = $convert12To24( $start_time12 );
@@ -1731,9 +1968,10 @@ class LocationController extends BaseController {
      * Convert opening hours JSON to input format string
      * @param string $json_value - JSON string containing opening hours data
      * @param bool $use12hour - Whether to use 12-hour format
+     * @param bool $localized - Use locale weekday abbreviations (forms) or English (CSV export)
      * @return string - Input format string (e.g., "Mo 09:00-18:00 | Tu 09:00-11:00")
      */
-    public static function convert_opening_hours_json_to_input( $json_value, $use12hour = false ) {
+    public static function convert_opening_hours_json_to_input( $json_value, $use12hour = false, $localized = false ) {
         if ( empty( $json_value ) ) {
             return '';
         }
@@ -1742,27 +1980,20 @@ class LocationController extends BaseController {
             // Not JSON, return as-is
             return $json_value;
         }
-        $day_abbrs = array(
-            'mo' => 'Mo',
-            'tu' => 'Tu',
-            'we' => 'We',
-            'th' => 'Th',
-            'fr' => 'Fr',
-            'sa' => 'Sa',
-            'su' => 'Su',
-        );
+        $day_abbrs = ( $localized ? self::get_opening_hours_localized_day_abbrs() : self::get_opening_hours_english_day_abbrs() );
         $blocks = array();
         foreach ( $decoded['week'] as $day => $time_blocks ) {
-            if ( is_array( $time_blocks ) ) {
-                foreach ( $time_blocks as $block ) {
-                    if ( isset( $block['start'] ) && isset( $block['end'] ) ) {
-                        if ( $use12hour ) {
-                            $start_time = self::convert24To12( $block['start'] );
-                            $end_time = self::convert24To12( $block['end'] );
-                            $blocks[] = $day_abbrs[$day] . ' ' . $start_time . '-' . $end_time;
-                        } else {
-                            $blocks[] = $day_abbrs[$day] . ' ' . $block['start'] . '-' . $block['end'];
-                        }
+            if ( !isset( $day_abbrs[$day] ) || !is_array( $time_blocks ) ) {
+                continue;
+            }
+            foreach ( $time_blocks as $block ) {
+                if ( isset( $block['start'] ) && isset( $block['end'] ) ) {
+                    if ( $use12hour ) {
+                        $start_time = self::convert24To12( $block['start'] );
+                        $end_time = self::convert24To12( $block['end'] );
+                        $blocks[] = $day_abbrs[$day] . ' ' . $start_time . '-' . $end_time;
+                    } else {
+                        $blocks[] = $day_abbrs[$day] . ' ' . $block['start'] . '-' . $block['end'];
                     }
                 }
             }

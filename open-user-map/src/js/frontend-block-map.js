@@ -1296,9 +1296,26 @@ const OUMMarkers = (function () {
       : createMarker(location);
   }
 
+  /**
+   * GestureHandling shows "use two fingers to move the map" on one-finger touchmove.
+   * Leaflet already stops touchstart on popups, but nested popup content still
+   * bubbles touchmove to the map container. Stop that so scrolling the bubble
+   * does not trigger the overlay.
+   */
+  function preventGestureHandlingInsidePopup(popup) {
+    const popupEl = popup && typeof popup.getElement === "function" ? popup.getElement() : null;
+    if (!popupEl || popupEl.dataset.oumIgnoreGestures === "true") {
+      return;
+    }
+
+    popupEl.dataset.oumIgnoreGestures = "true";
+    L.DomEvent.on(popupEl, "touchmove", L.DomEvent.stopPropagation);
+  }
+
   function setupMarkerEvents() {
     map.on("popupopen", function (locationBubble) {
       const popup = locationBubble.popup;
+      preventGestureHandlingInsidePopup(popup);
       const marker = popup._source;
 
       const applyBubbleHtml = (html) => {

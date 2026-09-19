@@ -1,10 +1,10 @@
 === Open User Map – Interactive Leaflet Maps ===
-Contributors: 100plugins
+Contributors: 100plugins, freemius
 Tags: map, interactive map, leaflet, maps, openstreetmap
 Requires at least: 5.5
 Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 1.4.51
+Stable tag: 1.4.52
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -443,6 +443,11 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.52 =
+* Bugfix: Popup Scrolling on mobile
+* "Opening Hours" are now multilingual
+* Improving Image Slider on mobile
+
 = 1.4.51 =
 * Improving CSV Import (much faster and reliable)
 * NEW: Marker Categories for the Advanced Filter Interface
