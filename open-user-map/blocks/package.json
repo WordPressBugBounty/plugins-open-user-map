@@ -4,18 +4,11 @@
   "description": "",
   "main": "build/index.js",
   "scripts": {
-    "start": "NODE_OPTIONS=--openssl-legacy-provider wp-scripts start",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider wp-scripts build"
+    "start": "node build-editor.js --watch",
+    "build": "node build-editor.js",
+    "build:editor": "node build-editor.js",
+    "build:translations": "node build-translations.js"
   },
   "author": "100plugins",
-  "license": "ISC",
-  "devDependencies": {
-    "@wordpress/scripts": "16.1.2"
-  },
-  "dependencies": {
-    "@wordpress/components": "^14.1.4",
-    "@wordpress/i18n": "^4.1.1",
-    "@wordpress/icons": "^4.0.1",
-    "core-js": "^3.15.1"
-  }
+  "license": "ISC"
 }

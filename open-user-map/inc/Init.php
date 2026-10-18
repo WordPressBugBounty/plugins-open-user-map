@@ -19,6 +19,7 @@ final class Init
             Base\SettingsLinks::class,
             Base\LocationController::class,
             Base\BlockController::class,
+            Base\EditorController::class,
             Base\TaxController::class,
         );
 

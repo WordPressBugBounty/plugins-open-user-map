@@ -1,0 +1,527 @@
+/* Editor popup styles; compile this SCSS alongside the other editor styles. */
+.oum-editor-map .oum-editor-canvas .leaflet-popup {
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper {
+  position: relative;
+  z-index: 1;
+  box-shadow: none;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 0;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper::after {
+  content: "";
+  display: block;
+  background: linear-gradient(0deg, white, transparent);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 25px;
+  pointer-events: none;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content {
+  margin: 0;
+  width: 250px;
+  max-height: 400px;
+  overflow: auto;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_video {
+  background-color: #eee;
+  aspect-ratio: 16/9;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_video > * {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_video > * > p {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_video iframe {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text {
+  padding: 15px;
+  overflow: auto;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text * {
+  color: #000;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_title .oum_location_name {
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_title .oum_location_measurement {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 9px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: bold;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_title .oum_location_category_icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_title .oum_location_category_icons .oum_category_icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  object-position: center;
+  flex-shrink: 0;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_title .oum_location_category_icons .oum_category_shape_icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_title .oum_location_category_icons .oum_category_shape_icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text a {
+  color: #e82c71;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_date {
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_address {
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
+  margin-bottom: 10px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-top: 10px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum_custom_field {
+  margin-bottom: 10px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields a {
+  display: inline-block;
+  hyphens: auto;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields a[href*=facebook] {
+  display: inline-block;
+  margin: 6px 1px;
+  top: -2px;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background: url(images/ico_facebook_50x50.png) no-repeat center center transparent;
+  background-size: contain;
+  text-indent: -9999px;
+  margin: 6px 0;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields a[href*=instagram] {
+  display: inline-block;
+  margin: 6px 1px;
+  top: -2px;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background: url(images/ico_instagram_50x50.png) no-repeat center center transparent;
+  background-size: contain;
+  text-indent: -9999px;
+  margin: 6px 0;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields a[href*=linkedin] {
+  display: inline-block;
+  margin: 6px 1px;
+  top: -2px;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background: url(images/ico_linkedin_50x50.png) no-repeat center center transparent;
+  background-size: contain;
+  text-indent: -9999px;
+  margin: 6px 0;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields a[href*=twitter] {
+  display: inline-block;
+  margin: 6px 1px;
+  top: -2px;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background: url(images/ico_twitter_50x50.png) no-repeat center center transparent;
+  background-size: contain;
+  text-indent: -9999px;
+  margin: 6px 0;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields a[href*=youtube] {
+  display: inline-block;
+  margin: 6px 1px;
+  top: -2px;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background: url(images/ico_youtube_50x50.png) no-repeat center center transparent;
+  background-size: contain;
+  text-indent: -9999px;
+  margin: 6px 0;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields a[href*=soundcloud] {
+  display: inline-block;
+  margin: 6px 1px;
+  top: -2px;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background: url(images/ico_soundcloud_50x50.png) no-repeat center center transparent;
+  background-size: contain;
+  text-indent: -9999px;
+  margin: 6px 0;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-header:hover {
+  opacity: 0.8;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-header .oum-opening-hours-label {
+  margin-right: 0;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-header .oum-opening-hours-status-indicator {
+  display: inline-block;
+  font-weight: bolder;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-header .oum-opening-hours-status-indicator.oum-opening-hours-status-open {
+  color: #28a745;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-header .oum-opening-hours-status-indicator.oum-opening-hours-status-closed {
+  color: #dc3545;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-header .oum-opening-hours-toggle-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  opacity: 0.7;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-header.oum-opening-hours-expanded .oum-opening-hours-toggle-icon {
+  transform: rotate(180deg);
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-wrapper {
+  margin-top: 8px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-wrapper.oum-opening-hours-expanded {
+  display: block !important;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-wrapper .oum-opening-hours-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-wrapper .oum-opening-hours-row:has(.closed) {
+  opacity: 0.5;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-wrapper .oum-opening-hours-row .oum-opening-hours-day-name {
+  margin-right: 10px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-wrapper .oum-opening-hours-row .oum-opening-hours-times,
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum-opening-hours-wrapper .oum-opening-hours-row .oum-opening-hours-status {
+  text-align: right;
+  flex: 1;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum_custom_field:has(span):not(.oum_custom_field_type_opening_hours) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_custom_fields .oum_custom_field:has(span):not(.oum_custom_field_type_opening_hours) span {
+  background: rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  padding: 3px 5px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_description {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-top: 10px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_description:empty {
+  display: none;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text audio {
+  margin-top: 15px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_text_bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_text_bottom:empty {
+  display: none;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_read_more a {
+  font-size: 14px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_vote_button_wrap .oum_vote_button {
+  min-width: auto;
+  width: auto;
+  line-height: 1;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  height: 27px;
+  padding: 4px 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #6c757d;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_vote_button_wrap .oum_vote_button:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_vote_button_wrap .oum_vote_button.voted {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_vote_button_wrap .oum_vote_button.voted * {
+  color: white;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_vote_button_wrap .oum_vote_button .oum_vote_count {
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 20px;
+  text-align: center;
+  margin-left: 4px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_star_rating_wrap .oum_star_rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_star_rating_wrap .oum_star_rating .oum_stars {
+  display: inline-flex;
+  gap: 2px;
+  cursor: pointer;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_star_rating_wrap .oum_star_rating .oum_stars .oum_star {
+  color: #ddd;
+  font-size: 18px;
+  line-height: 1;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_star_rating_wrap .oum_star_rating .oum_stars .oum_star.active {
+  color: #ffc107;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_star_rating_wrap .oum_star_rating .oum_stars .oum_star.hover {
+  color: #ff9800;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_star_rating_wrap .oum_star_rating .oum_stars .oum_star.half {
+  background: linear-gradient(90deg, #ffc107 50%, #ddd 50%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_star_rating_wrap .oum_star_rating .oum_star_rating_count {
+  color: #6c757d;
+  font-size: 12px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: auto;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel:hover .oum-carousel-prev,
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel:hover .oum-carousel-next {
+  opacity: 1;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-inner {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-inner .oum-carousel-item {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: none;
+  background-color: #eee;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-inner .oum-carousel-item.active {
+  display: block;
+  animation: carouselFadeIn 0.3s ease-in-out;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-inner .oum-carousel-item img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  max-width: 100%;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel.popup-image-size-cover-4-3 {
+  aspect-ratio: 4/3;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel.popup-image-size-cover-4-3 .oum-carousel-inner .oum-carousel-item img {
+  object-fit: cover;
+  object-position: top center;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel.popup-image-size-cover-16-9 {
+  aspect-ratio: 16/9;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel.popup-image-size-cover-16-9 .oum-carousel-inner .oum-carousel-item img {
+  object-fit: cover;
+  object-position: top center;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel.popup-image-size-cover-1-1 {
+  aspect-ratio: 1/1;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel.popup-image-size-cover-1-1 .oum-carousel-inner .oum-carousel-item img {
+  object-fit: cover;
+  object-position: top center;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel.popup-image-size-original {
+  aspect-ratio: auto;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel.popup-image-size-original .oum-carousel-inner .oum-carousel-item img {
+  width: 100%;
+  height: auto;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-prev,
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  box-shadow: none;
+  border-radius: 50%;
+  color: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0;
+  z-index: 1;
+  font-size: 0;
+  text-indent: -9999px;
+  pointer-events: auto;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-prev,
+  .oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-next {
+    opacity: 1;
+  }
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-prev::before,
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-next::before {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-style: solid;
+  border-width: 2px 2px 0 0;
+  border-color: #fff;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-prev:hover,
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-next:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-prev:focus,
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-next:focus {
+  outline: none;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-prev {
+  left: 10px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-prev::before {
+  transform: rotate(-135deg);
+  margin-left: 4px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-next {
+  right: 10px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-next::before {
+  transform: rotate(45deg);
+  margin-right: 4px;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-content-wrapper .leaflet-popup-content .oum-carousel .oum-carousel-counter {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  z-index: 1;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-close-button {
+  background: #fff;
+  border-radius: 99px;
+  font-size: 20px;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  text-align: center;
+  top: 5px;
+  right: 5px;
+  z-index: 2;
+  opacity: 0.8;
+  transition: opacity 0.12s ease-in;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-close-button span {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+.oum-editor-map .oum-editor-canvas .leaflet-popup-close-button:hover {
+  opacity: 1;
+}

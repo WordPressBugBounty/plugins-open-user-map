@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Open User Map - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-10-04 23:53:27+0000\n"
+"PO-Revision-Date: 2026-10-18 20:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -825,7 +825,7 @@ msgstr ""
 
 #: templates/page-backend-settings.php:461
 msgid "Remove"
-msgstr ""
+msgstr "Supprimer"
 
 #: templates/page-backend-settings.php:455
 msgid "Choose Image"
@@ -1571,7 +1571,7 @@ msgstr ""
 
 #: blocks/build/index.js:1 blocks/src/edit.js:161
 msgid "Manage Locations"
-msgstr ""
+msgstr "Gérer les repères"
 
 #: blocks/build/index.js:1 blocks/src/edit.js:154
 msgid "This block will show your location markers on a map in the front end."
@@ -1580,7 +1580,7 @@ msgstr ""
 #: blocks/block.json
 msgctxt "block description"
 msgid "Insert a custom map featuring your own locations or an interactive map where anyone can add location pins without registering."
-msgstr ""
+msgstr "Ajoutez une carte avec vos repères ou une carte interactive où chacun peut ajouter des repères sans inscription."
 
 #: blocks/block.json
 msgctxt "block title"
@@ -1873,7 +1873,7 @@ msgstr ""
 
 #: inc/Base/TaxController.php:205
 msgid "Region"
-msgstr ""
+msgstr "Région"
 
 #: inc/Base/TaxController.php:204 inc/Base/TaxController.php:206
 #: templates/page-backend-settings.php:207
@@ -1943,7 +1943,7 @@ msgstr ""
 
 #: elementor/includes/widgets/open-user-map-widget.php:215
 msgid "Height"
-msgstr ""
+msgstr "Hauteur"
 
 #: elementor/includes/widgets/open-user-map-widget.php:207
 msgid "Full width"
@@ -2360,7 +2360,7 @@ msgstr ""
 
 #: templates/page-backend-settings.php:1415
 msgid "Custom fields"
-msgstr ""
+msgstr "Champs personnalisés"
 
 #: templates/page-backend-edit-type.php:41
 msgid "Select marker icon"
@@ -2591,15 +2591,15 @@ msgstr ""
 
 #: templates/partial-map-init.php:34
 msgid "Add location"
-msgstr ""
+msgstr "Ajouter un repère"
 
 #: inc/Base/LocationController.php:47 inc/Base/LocationController.php:64
 msgid "Location"
-msgstr ""
+msgstr "Repère"
 
 #: inc/Base/LocationController.php:46
 msgid "Locations"
-msgstr ""
+msgstr "Repères"
 
 #. Author URI of the plugin
 #: open-user-map.php
@@ -2615,3 +2615,307 @@ msgstr ""
 #: open-user-map.php
 msgid "https://wordpress.org/plugins/open-user-map/"
 msgstr ""
+
+#: editor interface
+msgid "Map view"
+msgstr "Vue de la carte"
+
+#: editor interface
+msgid "Choose \"Edit view\" on the map and then move and zoom the map"
+msgstr "Cliquez sur « Modifier la vue ». Déplacez et zoomez sur la carte."
+
+#: editor interface
+msgid "Add markers in \"Manage Locations\" or directly on the map in the front end."
+msgstr "Ajoutez des repères via « Gérer les repères » ou sur la carte de votre site."
+
+#: editor interface
+msgid "Global settings"
+msgstr "Réglages globaux"
+
+#: editor interface
+msgid "Global setting"
+msgstr "Réglage global"
+
+#: editor interface
+msgid "Manage locations"
+msgstr "Gérer les repères"
+
+#: editor interface
+msgid "No region"
+msgstr "Aucune région"
+
+#: editor interface
+msgid "Categories"
+msgstr "Catégories"
+
+#: editor interface
+msgid "Leave empty to show all."
+msgstr "Laissez vide pour tout afficher."
+
+#: editor interface
+msgid "Popups"
+msgstr "Fenêtres des repères"
+
+#: editor interface
+msgid "Hidden"
+msgstr "Masquées"
+
+#: editor interface
+msgid "Visible"
+msgstr "Visibles"
+
+#: editor interface
+msgid "Size"
+msgstr "Dimensions"
+
+#: editor interface
+msgid "Width"
+msgstr "Largeur"
+
+#: editor interface
+msgid "Screen width"
+msgstr "Largeur de l’écran"
+
+#: editor interface
+msgid "Column width"
+msgstr "Largeur de la colonne"
+
+#: editor interface
+msgid "Mobile height"
+msgstr "Hauteur sur mobile"
+
+#: editor interface
+msgid "Automatic"
+msgstr "Automatique"
+
+#: editor interface
+msgid "Use Dimensions to change the height."
+msgstr "Modifiez la hauteur dans « Dimensions »."
+
+#: editor interface
+msgid "In pixels. Leave empty to use the global setting."
+msgstr "En pixels. Laissez vide pour utiliser le réglage global."
+
+#: editor interface
+msgid "Reset height"
+msgstr "Réinitialiser la hauteur"
+
+#: editor interface
+msgid "Reset"
+msgstr "Réinitialiser"
+
+#: editor interface
+msgid "Example map with locations and popup"
+msgstr "Exemple de carte avec repères et fenêtre ouverte"
+
+#: editor interface
+msgid "Filter"
+msgstr "Filtres"
+
+#: editor interface
+msgid "Any date"
+msgstr "Toutes les dates"
+
+#: editor interface
+msgid "On"
+msgstr "Le"
+
+#: editor interface
+msgid "After"
+msgstr "Après"
+
+#: editor interface
+msgid "Before"
+msgstr "Avant"
+
+#: editor interface
+msgid "Period"
+msgstr "Période"
+
+#: editor interface
+msgid "Saved filter"
+msgstr "Filtre enregistré"
+
+#: editor interface
+msgid "Match categories"
+msgstr "Catégories requises"
+
+#: editor interface
+msgid "Any"
+msgstr "Au moins un"
+
+#: editor interface
+msgid "All"
+msgstr "Tous"
+
+#: editor interface
+msgid "Created date"
+msgstr "Date de création"
+
+#: editor interface
+msgid "Updated date"
+msgstr "Date de modification"
+
+#: editor interface
+msgid "Date"
+msgstr "Date"
+
+#: editor interface
+msgid "Choose an end date after the start date."
+msgstr "La date de fin doit suivre la date de début."
+
+#: editor interface
+msgid "Saved filter is kept until you replace it."
+msgstr "Le filtre enregistré est conservé jusqu’à son remplacement."
+
+#: editor interface
+msgid "These filters require PRO. Saved values are kept."
+msgstr "Ces filtres nécessitent PRO. Les valeurs sont conservées."
+
+#: editor interface
+msgid "Added by"
+msgstr "Ajouté par"
+
+#: editor interface
+msgid "All users"
+msgstr "Tous les utilisateurs"
+
+#: editor interface
+msgid "Current user"
+msgstr "Utilisateur actuel"
+
+#: editor interface
+msgid "User"
+msgstr "Utilisateur"
+
+#: editor interface
+msgid "Role"
+msgstr "Rôle"
+
+#: editor interface
+msgid "Preview shows your locations."
+msgstr "L’aperçu affiche vos repères."
+
+#: editor interface
+msgid "Match conditions"
+msgstr "Conditions requises"
+
+#: editor interface
+msgid "Choose field"
+msgstr "Choisir un champ"
+
+#: editor interface
+msgid "Field"
+msgstr "Champ"
+
+#: editor interface
+msgid "Values"
+msgstr "Valeurs"
+
+#: editor interface
+msgid "Match values"
+msgstr "Valeurs requises"
+
+#: editor interface
+msgid "Add condition"
+msgstr "Ajouter une condition"
+
+#: editor interface
+msgid "Reset filters"
+msgstr "Réinitialiser les filtres"
+
+#: editor interface
+msgid "Settings"
+msgstr "Réglages"
+
+#: editor interface
+msgid "Add and edit markers"
+msgstr "Ajouter et modifier des repères"
+
+#: editor interface
+msgid "Move and zoom."
+msgstr "Déplacez et zoomez."
+
+#: editor interface
+msgid "Reset map view"
+msgstr "Réinitialiser la vue"
+
+#: editor interface
+msgid "No locations yet."
+msgstr "Aucun repère pour le moment."
+
+#: editor interface
+msgid "No visible locations."
+msgstr "Aucun repère visible."
+
+#: editor interface
+msgid "Add a map key."
+msgstr "Ajoutez une clé de carte."
+
+#: editor interface
+msgid "Check map style."
+msgstr "Vérifiez le style de carte."
+
+#: editor interface
+msgid "Map tiles could not load."
+msgstr "Le fond de carte n’a pas pu être chargé."
+
+#: editor interface
+msgid "Session expired."
+msgstr "Session expirée."
+
+#: editor interface
+msgid "Reload editor"
+msgstr "Recharger l’éditeur"
+
+#: editor interface
+msgid "Connection lost."
+msgstr "Connexion perdue."
+
+#: editor interface
+msgid "Previous image"
+msgstr "Image précédente"
+
+#: editor interface
+msgid "Next image"
+msgstr "Image suivante"
+
+#: editor interface
+msgid "Edit view"
+msgstr "Modifier la vue"
+
+#: editor interface
+msgid "Done"
+msgstr "Terminé"
+
+#: editor interface
+msgid "Loading map…"
+msgstr "Chargement de la carte…"
+
+#: editor interface
+msgid "Map could not be loaded."
+msgstr "La carte n’a pas pu être chargée."
+
+#: editor interface
+msgid "Retry"
+msgstr "Réessayer"
+
+#: editor interface
+msgid "Zoom in"
+msgstr "Zoom avant"
+
+#: editor interface
+msgid "Zoom out"
+msgstr "Zoom arrière"
+
+#: editor interface
+msgid "Check map view."
+msgstr "Vérifiez la vue de la carte."
+
+#: editor interface
+msgid "No locations found."
+msgstr "Aucun repère trouvé."
+
+#: editor interface
+msgid "Search…"
+msgstr "Rechercher…"

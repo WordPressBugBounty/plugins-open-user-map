@@ -126,7 +126,9 @@ jQuery('#oum_add_location').submit(function(event) {
             OUMFormController.showFormMessage(
                 'success',
                 oum_custom_strings.changes_saved,
-                oum_custom_strings.changes_saved_message,
+                response.data && response.data.post_status === 'publish'
+                    ? oum_custom_strings.changes_published_message
+                    : oum_custom_strings.changes_saved_message,
                 oum_custom_strings.close_and_refresh,
                 function() {
                     window.location.reload();
@@ -143,7 +145,7 @@ jQuery('#oum_add_location').submit(function(event) {
                     // Show thank you message with refresh button (default)
                     const thankyouDiv = document.getElementById('oum_add_location_thankyou');
                     const thankyouHeadline = thankyouDiv?.querySelector('h3')?.textContent || oum_custom_strings.thank_you;
-                    const thankyouText = thankyouDiv?.querySelector('.oum-add-location-thankyou-text')?.textContent || oum_custom_strings.thank_you_message;
+                    const thankyouText = (response.data && response.data.post_status && response.data.message) || thankyouDiv?.querySelector('.oum-add-location-thankyou-text')?.textContent || oum_custom_strings.thank_you_message;
                     
                     OUMFormController.showFormMessage(
                         'success',
@@ -159,7 +161,7 @@ jQuery('#oum_add_location').submit(function(event) {
                 // Fallback to thank you message with refresh button
                 const thankyouDiv = document.getElementById('oum_add_location_thankyou');
                 const thankyouHeadline = thankyouDiv?.querySelector('h3')?.textContent || oum_custom_strings.thank_you;
-                const thankyouText = thankyouDiv?.querySelector('.oum-add-location-thankyou-text')?.textContent || oum_custom_strings.thank_you_message;
+                const thankyouText = (response.data && response.data.post_status && response.data.message) || thankyouDiv?.querySelector('.oum-add-location-thankyou-text')?.textContent || oum_custom_strings.thank_you_message;
                 
                 OUMFormController.showFormMessage(
                     'success',

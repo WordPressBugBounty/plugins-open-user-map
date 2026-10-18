@@ -233,6 +233,11 @@ final class Plugin {
 	 * @param \Elementor\Controls_Manager $controls_manager Elementor controls manager.
 	 */
 	public function register_controls( $controls_manager ) {
+        require_once __DIR__.'/locations-control.php';
+        $controls_manager->register(new OUM_Locations_Control());
+        $controls_manager->register(new OUM_Region_Control());
+        $controls_manager->register(new OUM_Filters_Control());
+
 
 		// require_once( __DIR__ . '/controls/control-1.php' );
 		// require_once( __DIR__ . '/controls/control-2.php' );

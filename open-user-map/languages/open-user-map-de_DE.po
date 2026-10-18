@@ -1571,7 +1571,7 @@ msgstr "Route auf Google Maps"
 
 #: blocks/build/index.js:1 blocks/src/edit.js:161
 msgid "Manage Locations"
-msgstr "Verwalte Marker"
+msgstr "Marker verwalten"
 
 #: blocks/build/index.js:1 blocks/src/edit.js:154
 msgid "This block will show your location markers on a map in the front end."
@@ -2360,7 +2360,7 @@ msgstr "Erforderlich"
 
 #: templates/page-backend-settings.php:1415
 msgid "Custom fields"
-msgstr "Individuelle Felder"
+msgstr "Eigene Felder"
 
 #: templates/page-backend-edit-type.php:41
 msgid "Select marker icon"
@@ -2615,3 +2615,442 @@ msgstr "100plugins"
 #: open-user-map.php
 msgid "https://wordpress.org/plugins/open-user-map/"
 msgstr "https://de.wordpress.org/plugins/open-user-map/"
+
+#: editor interface
+msgid "Match categories"
+msgstr "Kategorien erfüllen"
+
+
+#: editor interface
+msgid "Any"
+msgstr "Beliebige"
+
+
+#: editor interface
+msgid "All"
+msgstr "Alle"
+
+
+#: editor interface
+msgid "Created date"
+msgstr "Erstellt am"
+
+
+#: editor interface
+msgid "Updated date"
+msgstr "Aktualisiert am"
+
+
+#: editor interface
+msgid "Any date"
+msgstr "Beliebiges Datum"
+
+
+#: editor interface
+msgid "On"
+msgstr "Am"
+
+
+#: editor interface
+msgid "After"
+msgstr "Nach"
+
+
+#: editor interface
+msgid "Before"
+msgstr "Vor"
+
+
+#: editor interface
+msgid "Period"
+msgstr "Zeitraum"
+
+
+#: editor interface
+msgid "Date"
+msgstr "Datum"
+
+
+#: editor interface
+msgid "Saved filter"
+msgstr "Gespeicherter Filter"
+
+
+#: editor interface
+msgid "Choose an end date after the start date."
+msgstr "Wähle ein Enddatum nach dem Startdatum."
+
+
+#: editor interface
+msgid "Saved filter is kept until you replace it."
+msgstr "Der gespeicherte Filter bleibt bis zur Änderung erhalten."
+
+
+#: editor interface
+msgid "These filters require PRO. Saved values are kept."
+msgstr "Diese Filter benötigen PRO. Gespeicherte Werte bleiben erhalten."
+
+
+#: editor interface
+msgid "Added by"
+msgstr "Hinzugefügt von"
+
+
+#: editor interface
+msgid "All users"
+msgstr "Alle Benutzer"
+
+
+#: editor interface
+msgid "Current user"
+msgstr "Aktueller Benutzer"
+
+
+#: editor interface
+msgid "User"
+msgstr "Benutzer"
+
+
+#: editor interface
+msgid "Role"
+msgstr "Rolle"
+
+
+#: editor interface
+msgid "Preview shows your locations."
+msgstr "Die Vorschau zeigt deine Marker."
+
+
+#: editor interface
+msgid "Match conditions"
+msgstr "Bedingungen erfüllen"
+
+
+#: editor interface
+msgid "Choose field"
+msgstr "Feld wählen"
+
+
+#: editor interface
+msgid "Field"
+msgstr "Feld"
+
+
+#: editor interface
+msgid "Values"
+msgstr "Werte"
+
+
+#: editor interface
+msgid "Match values"
+msgstr "Werte erfüllen"
+
+
+#: editor interface
+msgid "Add condition"
+msgstr "Bedingung hinzufügen"
+
+
+#: editor interface
+msgid "Previous image"
+msgstr "Vorheriges Bild"
+
+
+#: editor interface
+msgid "Next image"
+msgstr "Nächstes Bild"
+
+
+#: editor interface
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+
+#: editor interface
+msgid "Filter"
+msgstr "Filter"
+
+
+#: editor interface
+msgid "Search…"
+msgstr "Suchen …"
+
+
+#: editor interface
+msgid "Map view"
+msgstr "Kartenausschnitt"
+
+
+#: editor interface
+msgid "Choose Edit view on the map."
+msgstr "Wähle „Ansicht bearbeiten“ auf der Karte."
+
+
+#: editor interface
+msgid "Leave empty to use the global view."
+msgstr "Leer lassen für die globale Ansicht."
+
+
+#: editor interface
+msgid "No region"
+msgstr "Keine Region"
+
+
+#: editor interface
+msgid "Used when no complete map view is set."
+msgstr "Wird ohne eigenen Ausschnitt verwendet."
+
+
+#: editor interface
+msgid "Leave empty to show all."
+msgstr "Leer lassen, um alle anzuzeigen."
+
+
+#: editor interface
+msgid "Popups"
+msgstr "Popups"
+
+
+#: editor interface
+msgid "Hidden"
+msgstr "Ausgeblendet"
+
+
+#: editor interface
+msgid "Visible"
+msgstr "Sichtbar"
+
+
+#: editor interface
+msgid "Global setting"
+msgstr "Globale Einstellung"
+
+
+#: editor interface
+msgid "Screen width"
+msgstr "Bildschirmbreite"
+
+
+#: editor interface
+msgid "Column width"
+msgstr "Spaltenbreite"
+
+
+#: editor interface
+msgid "In pixels. Leave empty to use the global setting."
+msgstr "In Pixeln. Leer lassen für die globale Einstellung."
+
+
+#: editor interface
+msgid "Current height"
+msgstr "Aktuelle Höhe"
+
+
+#: editor interface
+msgid "Mobile height"
+msgstr "Mobile Höhe"
+
+
+#: editor interface
+msgid "Automatic"
+msgstr "Automatisch"
+
+
+#: editor interface
+msgid "Use Dimensions to change the height."
+msgstr "Ändere die Höhe unter „Abmessungen“."
+
+
+#: editor interface
+msgid "Use global height"
+msgstr "Globale Höhe verwenden"
+
+
+#: editor interface
+msgid "Edit view"
+msgstr "Ansicht bearbeiten"
+
+
+#: editor interface
+msgid "Done"
+msgstr "Fertig"
+
+
+#: editor interface
+msgid "Use global view"
+msgstr "Globale Ansicht verwenden"
+
+
+#: editor interface
+msgid "Loading map…"
+msgstr "Karte wird geladen …"
+
+
+#: editor interface
+msgid "Map could not be loaded."
+msgstr "Karte konnte nicht geladen werden."
+
+
+#: editor interface
+msgid "Show all"
+msgstr "Alle anzeigen"
+
+
+#: editor interface
+msgid "No locations found."
+msgstr "Keine Marker gefunden."
+
+
+#: editor interface
+msgid "Map settings"
+msgstr "Karteneinstellungen"
+
+
+#: editor interface
+msgid "Manage locations"
+msgstr "Marker verwalten"
+
+
+#: editor interface
+msgid "Retry"
+msgstr "Erneut versuchen"
+
+
+#: editor interface
+msgid "Check latitude, longitude and zoom."
+msgstr "Prüfe Breitengrad, Längengrad und Zoom."
+
+
+#: editor interface
+msgid "Only this map."
+msgstr "Gilt nur für diese Karte."
+
+
+#: editor interface
+msgid "Global settings"
+msgstr "Globale Einstellungen"
+
+
+#: editor interface
+msgid "Move and zoom."
+msgstr "Verschieben und zoomen."
+
+
+#: editor interface
+msgid "Reset map view"
+msgstr "Kartenausschnitt zurücksetzen"
+
+
+#: editor interface
+msgid "Reset filters"
+msgstr "Filter zurücksetzen"
+
+
+#: editor interface
+msgid "Reset height"
+msgstr "Höhe zurücksetzen"
+
+
+#: editor interface
+msgid "No locations yet."
+msgstr "Noch keine Marker."
+
+
+#: editor interface
+msgid "No matching locations."
+msgstr "Keine passenden Locations."
+
+
+#: editor interface
+msgid "No visible locations."
+msgstr "Keine sichtbaren Marker."
+
+
+#: editor interface
+msgid "Add a map key."
+msgstr "Kartenschlüssel ergänzen."
+
+
+#: editor interface
+msgid "Check map style."
+msgstr "Kartenstil prüfen."
+
+
+#: editor interface
+msgid "Map tiles could not load."
+msgstr "Kartenbild konnte nicht laden."
+
+
+#: editor interface
+msgid "Session expired."
+msgstr "Sitzung abgelaufen."
+
+
+#: editor interface
+msgid "Reload editor"
+msgstr "Editor neu laden"
+
+
+#: editor interface
+msgid "Connection lost."
+msgstr "Verbindung unterbrochen."
+
+
+#: editor interface
+msgid "Choose \"Edit view\" on the map and then move and zoom the map"
+msgstr "Klicke auf „Ansicht bearbeiten“. Verschiebe und zoome die Karte."
+
+
+#: editor interface
+msgid "Check map view."
+msgstr "Kartenausschnitt prüfen."
+
+
+#: editor interface
+msgid "Add and edit markers"
+msgstr "Marker hinzufügen und bearbeiten"
+
+
+#: editor interface
+msgid "Add markers in \"Manage Locations\" or directly on the map in the front end."
+msgstr "Füge Marker unter „Marker verwalten“ oder auf der Karte deiner Website hinzu."
+
+
+#: editor interface
+msgid "Settings"
+msgstr "Einstellungen"
+
+
+#: editor interface
+msgid "Categories"
+msgstr "Kategorien"
+
+
+#: editor interface
+msgid "Size"
+msgstr "Größe"
+
+
+#: editor interface
+msgid "Zoom in"
+msgstr "Vergrößern"
+
+
+#: editor interface
+msgid "Zoom out"
+msgstr "Verkleinern"
+
+
+#: editor interface
+msgid "Width"
+msgstr "Breite"
+
+
+#: inc/Base/BaseController.php
+msgid "Your location has been published."
+msgstr "Dein Marker wurde veröffentlicht."
+
+
+#: inc/Base/BaseController.php
+msgid "Your changes have been saved."
+msgstr "Deine Änderungen wurden gespeichert."

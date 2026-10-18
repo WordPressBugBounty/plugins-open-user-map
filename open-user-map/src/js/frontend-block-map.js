@@ -4580,14 +4580,92 @@ const OUMAdvancedFilter = (function () {
   };
 })();
 
+// Map container lifecycle: defer hidden maps and keep revealed maps correctly sized.
+const OUMMapLayout = (function () {
+  const mounts = new WeakMap();
+
+  function mount(container, initialize) {
+    if (mounts.has(container)) return;
+    let map = null;
+    let observer = null;
+    let frame = null;
+    let disposed = false;
+    let lastWidth = 0;
+    let lastHeight = 0;
+    let wasHidden = true;
+
+    function dispose() {
+      disposed = true;
+      if (observer) observer.disconnect();
+      if (frame !== null) window.cancelAnimationFrame(frame);
+      window.removeEventListener('resize', schedule);
+      mounts.delete(container);
+    }
+
+    function update() {
+      frame = null;
+      if (disposed || !container.isConnected) return;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      if (!width || !height) {
+        wasHidden = true;
+        return;
+      }
+      const changed = width !== lastWidth || height !== lastHeight;
+      lastWidth = width;
+      lastHeight = height;
+      if (!map) {
+        try {
+          map = initialize();
+          map.on('unload', dispose);
+        } catch (error) {
+          dispose();
+          throw error;
+        }
+      } else if (changed || wasHidden) {
+        // Leaflet also resizes raster, vector and MapLibre layers through its resize event.
+        // Keep the visitor's current center and zoom when opening or resizing a wrapper.
+        map.invalidateSize({ animate: false, pan: true, debounceMoveend: true });
+      }
+      wasHidden = false;
+    }
+
+    function schedule() {
+      if (!disposed && frame === null) frame = window.requestAnimationFrame(update);
+    }
+
+    mounts.set(container, dispose);
+    if (typeof window.ResizeObserver === 'function') {
+      observer = new window.ResizeObserver(schedule);
+      observer.observe(container);
+    } else {
+      // Fallback for browsers without ResizeObserver; no permanent polling timer.
+      observer = new window.MutationObserver(schedule);
+      observer.observe(document.documentElement, {
+        attributes: true, attributeFilter: ['class', 'style', 'hidden', 'open'],
+        childList: true, subtree: true
+      });
+      window.addEventListener('resize', schedule);
+    }
+    // Preserve the existing synchronous initialization path for visible maps.
+    update();
+  }
+
+  return { mount: mount };
+})();
+
 // Main initialization function
 function oumInitializeMap() {
-  // Only proceed if we have a map element
-  if (!document.getElementById(map_el)) {
+  const container = document.getElementById(map_el);
+  if (!container) {
     console.warn('‼️ Open User Map: Map container missing. Initialization aborted. Disable page caching if applicable, or contact support@open-user-map.com for help.');
     return;
   }
-  
+  OUMMapLayout.mount(container, oumMountMap);
+}
+
+// Mount the map and its controls only once the container has usable dimensions.
+function oumMountMap() {
   // Initialize opening hours UI
   OUMOpeningHours.init();
 
@@ -4679,4 +4757,6 @@ function oumInitializeMap() {
       console.warn("Error executing custom JS:", error);
     }
   }
+
+  return mapInstance;
 }

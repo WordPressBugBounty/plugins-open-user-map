@@ -1,0 +1,114 @@
+{
+  "translation-revision-date": "2026-06-05 08:14:32+0000",
+  "generator": "Open User Map PO to JSON",
+  "domain": "messages",
+  "source": "src/js/editor-filters.js",
+  "locale_data": {
+    "messages": {
+      "": {
+        "domain": "open-user-map",
+        "lang": "de_DE",
+        "plural-forms": "nplurals=2; plural=n != 1;"
+      },
+      "Remove": [
+        "Entfernen"
+      ],
+      "OR": [
+        "ODER"
+      ],
+      "Custom fields": [
+        "Eigene Felder"
+      ],
+      "Match categories": [
+        "Kategorien erfüllen"
+      ],
+      "Any": [
+        "Beliebige"
+      ],
+      "All": [
+        "Alle"
+      ],
+      "Created date": [
+        "Erstellt am"
+      ],
+      "Updated date": [
+        "Aktualisiert am"
+      ],
+      "Any date": [
+        "Beliebiges Datum"
+      ],
+      "On": [
+        "Am"
+      ],
+      "After": [
+        "Nach"
+      ],
+      "Before": [
+        "Vor"
+      ],
+      "Period": [
+        "Zeitraum"
+      ],
+      "Date": [
+        "Datum"
+      ],
+      "Saved filter": [
+        "Gespeicherter Filter"
+      ],
+      "Choose an end date after the start date.": [
+        "Wähle ein Enddatum nach dem Startdatum."
+      ],
+      "Saved filter is kept until you replace it.": [
+        "Der gespeicherte Filter bleibt bis zur Änderung erhalten."
+      ],
+      "These filters require PRO. Saved values are kept.": [
+        "Diese Filter benötigen PRO. Gespeicherte Werte bleiben erhalten."
+      ],
+      "Added by": [
+        "Hinzugefügt von"
+      ],
+      "All users": [
+        "Alle Benutzer"
+      ],
+      "Current user": [
+        "Aktueller Benutzer"
+      ],
+      "User": [
+        "Benutzer"
+      ],
+      "Role": [
+        "Rolle"
+      ],
+      "Preview shows your locations.": [
+        "Die Vorschau zeigt deine Marker."
+      ],
+      "Match conditions": [
+        "Bedingungen erfüllen"
+      ],
+      "Choose field": [
+        "Feld wählen"
+      ],
+      "Field": [
+        "Feld"
+      ],
+      "Values": [
+        "Werte"
+      ],
+      "Match values": [
+        "Werte erfüllen"
+      ],
+      "Add condition": [
+        "Bedingung hinzufügen"
+      ],
+      "Reset": [
+        "Zurücksetzen"
+      ],
+      "Filter": [
+        "Filter"
+      ],
+      "Reset filters": [
+        "Filter zurücksetzen"
+      ]
+    }
+  }
+}

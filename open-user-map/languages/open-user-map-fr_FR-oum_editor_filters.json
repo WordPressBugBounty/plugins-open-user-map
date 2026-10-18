@@ -1,0 +1,111 @@
+{
+  "translation-revision-date": "2026-10-18 20:00+0000",
+  "generator": "Open User Map PO to JSON",
+  "domain": "messages",
+  "source": "src/js/editor-filters.js",
+  "locale_data": {
+    "messages": {
+      "": {
+        "domain": "open-user-map",
+        "lang": "fr_FR",
+        "plural-forms": "nplurals=2; plural=n > 1;"
+      },
+      "Remove": [
+        "Supprimer"
+      ],
+      "Custom fields": [
+        "Champs personnalisés"
+      ],
+      "Reset": [
+        "Réinitialiser"
+      ],
+      "Filter": [
+        "Filtres"
+      ],
+      "Any date": [
+        "Toutes les dates"
+      ],
+      "On": [
+        "Le"
+      ],
+      "After": [
+        "Après"
+      ],
+      "Before": [
+        "Avant"
+      ],
+      "Period": [
+        "Période"
+      ],
+      "Saved filter": [
+        "Filtre enregistré"
+      ],
+      "Match categories": [
+        "Catégories requises"
+      ],
+      "Any": [
+        "Au moins un"
+      ],
+      "All": [
+        "Tous"
+      ],
+      "Created date": [
+        "Date de création"
+      ],
+      "Updated date": [
+        "Date de modification"
+      ],
+      "Date": [
+        "Date"
+      ],
+      "Choose an end date after the start date.": [
+        "La date de fin doit suivre la date de début."
+      ],
+      "Saved filter is kept until you replace it.": [
+        "Le filtre enregistré est conservé jusqu’à son remplacement."
+      ],
+      "These filters require PRO. Saved values are kept.": [
+        "Ces filtres nécessitent PRO. Les valeurs sont conservées."
+      ],
+      "Added by": [
+        "Ajouté par"
+      ],
+      "All users": [
+        "Tous les utilisateurs"
+      ],
+      "Current user": [
+        "Utilisateur actuel"
+      ],
+      "User": [
+        "Utilisateur"
+      ],
+      "Role": [
+        "Rôle"
+      ],
+      "Preview shows your locations.": [
+        "L’aperçu affiche vos repères."
+      ],
+      "Match conditions": [
+        "Conditions requises"
+      ],
+      "Choose field": [
+        "Choisir un champ"
+      ],
+      "Field": [
+        "Champ"
+      ],
+      "Values": [
+        "Valeurs"
+      ],
+      "Match values": [
+        "Valeurs requises"
+      ],
+      "Add condition": [
+        "Ajouter une condition"
+      ],
+      "Reset filters": [
+        "Réinitialiser les filtres"
+      ]
+    }
+  }
+}

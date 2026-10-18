@@ -929,22 +929,23 @@ class BaseController {
 
     public function oum_custom_strings() {
         return array(
-            'delete_location'         => __( 'Delete this location?', 'open-user-map' ),
-            'delete_location_message' => __( 'This action cannot be undone. The location will be permanently removed from the map.', 'open-user-map' ),
-            'delete_location_button'  => __( 'Yes, delete location', 'open-user-map' ),
-            'location_deleted'        => __( 'Location deleted', 'open-user-map' ),
-            'delete_success'          => __( 'The location has been successfully removed from the map.', 'open-user-map' ),
-            'delete_error'            => __( 'An error occurred while deleting the location. Please try again.', 'open-user-map' ),
-            'close_and_refresh'       => ( get_option( 'oum_thankyou_buttontext' ) ?: __( 'Close and refresh map', 'open-user-map' ) ),
-            'changes_saved'           => __( 'Changes saved', 'open-user-map' ),
-            'changes_saved_message'   => __( 'Your changes have been saved and will be visible after we reviewed them.', 'open-user-map' ),
-            'thank_you'               => __( 'Thank you!', 'open-user-map' ),
-            'thank_you_message'       => __( 'We will check your location suggestion and release it as soon as possible.', 'open-user-map' ),
-            'max_files_exceeded'      => __( 'Maximum %1$d images allowed. Only the first %2$d new images will be used.', 'open-user-map' ),
-            'max_filesize_exceeded'   => __( 'The following images exceed the maximum file size of %1$dMB:\\n%2$s', 'open-user-map' ),
-            'edit_location'           => __( 'Edit location', 'open-user-map' ),
-            'bubble_load_error'       => __( 'Unable to load location details.', 'open-user-map' ),
-            'bubble_loading'          => __( 'Loading location', 'open-user-map' ),
+            'delete_location'           => __( 'Delete this location?', 'open-user-map' ),
+            'delete_location_message'   => __( 'This action cannot be undone. The location will be permanently removed from the map.', 'open-user-map' ),
+            'delete_location_button'    => __( 'Yes, delete location', 'open-user-map' ),
+            'location_deleted'          => __( 'Location deleted', 'open-user-map' ),
+            'delete_success'            => __( 'The location has been successfully removed from the map.', 'open-user-map' ),
+            'delete_error'              => __( 'An error occurred while deleting the location. Please try again.', 'open-user-map' ),
+            'close_and_refresh'         => ( get_option( 'oum_thankyou_buttontext' ) ?: __( 'Close and refresh map', 'open-user-map' ) ),
+            'changes_saved'             => __( 'Changes saved', 'open-user-map' ),
+            'changes_saved_message'     => __( 'Your changes have been saved and will be visible after we reviewed them.', 'open-user-map' ),
+            'changes_published_message' => __( 'Your changes have been saved.', 'open-user-map' ),
+            'thank_you'                 => __( 'Thank you!', 'open-user-map' ),
+            'thank_you_message'         => __( 'We will check your location suggestion and release it as soon as possible.', 'open-user-map' ),
+            'max_files_exceeded'        => __( 'Maximum %1$d images allowed. Only the first %2$d new images will be used.', 'open-user-map' ),
+            'max_filesize_exceeded'     => __( 'The following images exceed the maximum file size of %1$dMB:\\n%2$s', 'open-user-map' ),
+            'edit_location'             => __( 'Edit location', 'open-user-map' ),
+            'bubble_load_error'         => __( 'Unable to load location details.', 'open-user-map' ),
+            'bubble_loading'            => __( 'Loading location', 'open-user-map' ),
         );
     }
 
@@ -1804,9 +1805,19 @@ class BaseController {
                             \OpenUserMapPlugin\Base\LocationController::set_excerpt( $post_id );
                         }
                     }
+                    // Report the stored status, including changes made by WordPress hooks.
+                    $saved_status = get_post_status( $post_id );
+                    $submission_message = get_option( 'oum_thankyou_text' );
+                    if ( $submission_message ) {
+                        // Match the existing form's textContent, including custom HTML/entities.
+                        $submission_message = html_entity_decode( wp_strip_all_tags( $submission_message ), ENT_QUOTES, get_bloginfo( 'charset' ) );
+                    } else {
+                        $submission_message = ( $saved_status === 'publish' ? __( 'Your location has been published.', 'open-user-map' ) : __( 'We will check your location suggestion and release it as soon as possible.', 'open-user-map' ) );
+                    }
                     wp_send_json_success( array(
-                        'message' => 'Ok, the location is now pending review.',
-                        'post_id' => $post_id,
+                        'message'     => $submission_message,
+                        'post_id'     => $post_id,
+                        'post_status' => $saved_status,
                     ) );
                 }
             }
@@ -2072,6 +2083,25 @@ class BaseController {
     }
 
     /**
+     * Admin edit screen URL for a location.
+     *
+     * Built with admin_url() instead of get_edit_post_link(). That function
+     * returns nothing unless the current user can edit the post. Frontend
+     * submissions (guests and subscribers) fail that check, so the admin
+     * notification and webhook would otherwise get an empty link.
+     *
+     * @param int $post_id
+     * @return string
+     */
+    protected function get_location_admin_edit_url( $post_id ) {
+        $post_id = absint( $post_id );
+        if ( !$post_id ) {
+            return '';
+        }
+        return admin_url( 'post.php?post=' . $post_id . '&action=edit' );
+    }
+
+    /**
      * PRO: Trigger webhook notification
      */
     public function trigger_webhook( $post_id, $event_type, $data_meta = null ) {
@@ -2105,7 +2135,7 @@ class BaseController {
             'content'           => get_post_field( 'post_content', $post_id ),
             'website_url'       => get_site_url(),
             'website_name'      => get_bloginfo( 'name' ),
-            'edit_location_url' => get_edit_post_link( $post_id ),
+            'edit_location_url' => $this->get_location_admin_edit_url( $post_id ),
             'taxonomy_terms'    => wp_get_post_terms( $post_id, 'oum-type', array(
                 'fields' => 'names',
             ) ),

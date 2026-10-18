@@ -170,6 +170,8 @@ class Frontend extends BaseController {
             10,
             3
         );
+        // Footnotes Made Easy: process notes normally without scanning OUM's scripts.
+        $this->register_footnotes_compatibility();
         // Prevent shortcode parsing by All In One SEO plugin
         add_filter( 'aioseo_disable_shortcode_parsing', '__return_true' );
         // Prevent shortcode parsing by Slim SEO plugin
@@ -186,6 +188,76 @@ class Frontend extends BaseController {
             $blocks[] = 'open-user-map/map';
             return $blocks;
         } );
+    }
+
+    /**
+     * Keep Footnotes Made Easy's priority and hook order while shielding OUM scripts.
+     * Its script-block regex can exhaust PCRE's backtracking limit on large maps.
+     */
+    private function register_footnotes_compatibility() {
+        global $swas_wp_footnotes, $wp_filter;
+        if ( !is_object( $swas_wp_footnotes ) || !is_callable( array($swas_wp_footnotes, 'process') ) ) {
+            return;
+        }
+        $callback = array($swas_wp_footnotes, 'process');
+        $priority = has_filter( 'the_content', $callback );
+        if ( $priority === false || !isset( $wp_filter['the_content'] ) || !$wp_filter['the_content'] instanceof \WP_Hook ) {
+            return;
+        }
+        foreach ( $wp_filter['the_content']->callbacks[$priority] as $key => $registered ) {
+            if ( $registered['function'] !== $callback ) {
+                continue;
+            }
+            // Preserve the original hook key so other integrations can still remove it.
+            // Replacing only the callable also preserves its position at this priority.
+            $wp_filter['the_content']->callbacks[$priority][$key]['function'] = function ( $content ) use($callback) {
+                return $this->process_footnotes_without_oum_scripts( $content, $callback );
+            };
+            break;
+        }
+    }
+
+    private function process_footnotes_without_oum_scripts( $content, $callback ) {
+        if ( !is_string( $content ) || strpos( $content, 'oum-init-map' ) === false && strpos( $content, 'oum-inline-js' ) === false ) {
+            return call_user_func( $callback, $content );
+        }
+        $scripts = array();
+        $parts = array();
+        $offset = 0;
+        $scan = 0;
+        // Scan complete script blocks without applying a regex to their large bodies.
+        while ( ($start = stripos( $content, '<script', $scan )) !== false ) {
+            if ( !preg_match( '/^<script\\b/i', substr( $content, $start, 8 ) ) ) {
+                $scan = $start + 7;
+                continue;
+            }
+            $open_end = strpos( $content, '>', $start + 7 );
+            if ( $open_end === false ) {
+                break;
+            }
+            $close = stripos( $content, '</script>', $open_end + 1 );
+            if ( $close === false ) {
+                break;
+            }
+            $scan = $close + 9;
+            $opening = substr( $content, $start, $open_end - $start + 1 );
+            if ( !preg_match( '/^<script\\b[^>]*\\s+id\\s*=\\s*([\'"])(?:oum-init-map|oum-inline-js)\\1(?:\\s|>)/i', $opening ) ) {
+                continue;
+            }
+            do {
+                $token = '<!--' . wp_unique_id( 'oum-fme-script-' ) . '-->';
+            } while ( strpos( $content, $token ) !== false );
+            $scripts[$token] = substr( $content, $start, $scan - $start );
+            $parts[] = substr( $content, $offset, $start - $offset );
+            $parts[] = $token;
+            $offset = $scan;
+        }
+        if ( !$scripts ) {
+            return call_user_func( $callback, $content );
+        }
+        $parts[] = substr( $content, $offset );
+        $filtered = call_user_func( $callback, implode( '', $parts ) );
+        return ( is_string( $filtered ) ? strtr( $filtered, $scripts ) : $filtered );
     }
 
 }

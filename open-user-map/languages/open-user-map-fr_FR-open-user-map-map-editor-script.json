@@ -1,0 +1,90 @@
+{
+  "translation-revision-date": "2026-10-18 20:00+0000",
+  "generator": "Open User Map PO to JSON",
+  "domain": "messages",
+  "source": "blocks/build/index.js",
+  "locale_data": {
+    "messages": {
+      "": {
+        "domain": "open-user-map",
+        "lang": "fr_FR",
+        "plural-forms": "nplurals=2; plural=n > 1;"
+      },
+      "Region": [
+        "Région"
+      ],
+      "Height": [
+        "Hauteur"
+      ],
+      "Locations": [
+        "Repères"
+      ],
+      "Map view": [
+        "Vue de la carte"
+      ],
+      "Choose \"Edit view\" on the map and then move and zoom the map": [
+        "Cliquez sur « Modifier la vue ». Déplacez et zoomez sur la carte."
+      ],
+      "Add markers in \"Manage Locations\" or directly on the map in the front end.": [
+        "Ajoutez des repères via « Gérer les repères » ou sur la carte de votre site."
+      ],
+      "Global settings": [
+        "Réglages globaux"
+      ],
+      "Global setting": [
+        "Réglage global"
+      ],
+      "Manage locations": [
+        "Gérer les repères"
+      ],
+      "No region": [
+        "Aucune région"
+      ],
+      "Categories": [
+        "Catégories"
+      ],
+      "Leave empty to show all.": [
+        "Laissez vide pour tout afficher."
+      ],
+      "Popups": [
+        "Fenêtres des repères"
+      ],
+      "Hidden": [
+        "Masquées"
+      ],
+      "Visible": [
+        "Visibles"
+      ],
+      "Size": [
+        "Dimensions"
+      ],
+      "Width": [
+        "Largeur"
+      ],
+      "Screen width": [
+        "Largeur de l’écran"
+      ],
+      "Column width": [
+        "Largeur de la colonne"
+      ],
+      "Mobile height": [
+        "Hauteur sur mobile"
+      ],
+      "Automatic": [
+        "Automatique"
+      ],
+      "Use Dimensions to change the height.": [
+        "Modifiez la hauteur dans « Dimensions »."
+      ],
+      "Reset height": [
+        "Réinitialiser la hauteur"
+      ],
+      "Reset": [
+        "Réinitialiser"
+      ],
+      "Example map with locations and popup": [
+        "Exemple de carte avec repères et fenêtre ouverte"
+      ]
+    }
+  }
+}

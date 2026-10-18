@@ -1294,7 +1294,7 @@
 .open-user-map .box-wrap.oum-regions-layout-2 > .map-wrap {
   width: calc(100% - 150px);
 }
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767px) {
   .open-user-map .box-wrap .map-wrap {
     aspect-ratio: unset;
     height: 400px;
@@ -4497,4 +4497,18 @@ body.oum-add-location-opened {
   to {
     transform: rotate(360deg);
   }
+}
+.oum-native-block.has-oum-radius .open-user-map,
+.oum-native-block.has-oum-radius .oum-map-container,
+.oum-native-block.has-oum-radius .box-wrap,
+.oum-native-block.has-oum-radius .map-wrap {
+  border-radius: inherit;
+}
+
+.oum-native-block.has-oum-radius .map-wrap {
+  overflow: hidden;
+}
+
+.oum-native-block.has-oum-height {
+  min-height: 0 !important;
 }/*# sourceMappingURL=frontend.css.map */

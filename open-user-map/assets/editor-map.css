@@ -1,0 +1,289 @@
+/* Percentage-sized previews have no intrinsic width in a horizontal flex row.
+ * Keep this default weaker than Elementor's native width and responsive rules.
+ * This stylesheet is loaded only in the editors; frontend layouts stay unchanged.
+ */
+:where(.elementor-widget-open_user_map_widget) {
+  width: 100%;
+}
+
+.oum-editor-map {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  isolation: isolate;
+}
+
+.oum-editor-map[data-size=fullwidth] > .oum-editor-canvas {
+  width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.oum-editor-toolbar {
+  position: absolute;
+  inset: 0;
+  z-index: 1001;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #222;
+  font: 13px/1.4 sans-serif;
+}
+
+.oum-editor-toolbar button {
+  pointer-events: auto;
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid #757575;
+  border-radius: 4px;
+  background: #fff;
+  color: #222;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.oum-editor-edit-icon {
+  font-size: 20px;
+  margin-right: 7px;
+  vertical-align: middle;
+}
+
+.oum-editor-map:not(.is-editing) .oum-editor-toolbar button:not(.oum-editor-toggle),
+.oum-editor-map:not(.is-editing) .leaflet-control-zoom {
+  display: none;
+}
+
+/* Editing actions share the lower-left area with the inactive management links.
+ * Keep attribution clear and let buttons wrap on narrow maps.
+ */
+.oum-editor-map.is-editing .oum-editor-toolbar {
+  inset: auto auto 24px 8px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  max-width: calc(100% - 16px);
+}
+
+.oum-editor-map.is-editing .oum-editor-actions {
+  display: none;
+}
+
+/* Follow the native WordPress primary-button palette in both editors. */
+.oum-editor-map .oum-editor-toolbar .oum-editor-toggle {
+  background: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+  border-color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+  color: var(--wp-components-color-accent-inverted, #fff);
+  outline: 1px solid transparent;
+}
+
+.oum-editor-map .oum-editor-toolbar .oum-editor-toggle:hover {
+  background: var(--wp-components-color-accent-darker-10, var(--wp-admin-theme-color-darker-10, #2145e6));
+  border-color: var(--wp-components-color-accent-darker-10, var(--wp-admin-theme-color-darker-10, #2145e6));
+}
+
+.oum-editor-map .oum-editor-toolbar .oum-editor-toggle:active {
+  background: var(--wp-components-color-accent-darker-20, var(--wp-admin-theme-color-darker-20, #183ad6));
+  border-color: var(--wp-components-color-accent-darker-20, var(--wp-admin-theme-color-darker-20, #183ad6));
+}
+
+.oum-editor-map .oum-editor-toolbar .oum-editor-toggle:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--wp-components-color-background, #fff), 0 0 0 var(--wp-admin-border-width-focus, 2px) var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+}
+
+.oum-editor-notice {
+  pointer-events: none;
+  position: absolute;
+  bottom: 10px;
+  margin: 0;
+  padding: 6px;
+  background: #fff;
+}
+
+.wp-block.wp-block-open-user-map-map.oum-native-block,
+.elementor-editor-active .elementor-widget-open_user_map_widget,
+.elementor-editor-preview .elementor-widget-open_user_map_widget {
+  background-image: none;
+  background-color: transparent;
+}
+
+.oum-editor-canvas {
+  width: 100%;
+  height: var(--oum-editor-height, auto);
+  aspect-ratio: 1.77;
+  min-height: 1px;
+  background: #eee;
+}
+
+.oum-editor-map:not(.is-editing) .leaflet-control-zoom, .oum-editor-map:not(.is-editing) .leaflet-marker-pane {
+  pointer-events: none;
+}
+
+.oum-editor-status {
+  padding: 12px;
+  background: #fff;
+  color: #222;
+  font: 14px sans-serif;
+}
+
+@media (max-width: 767px) {
+  .oum-editor-canvas {
+    height: var(--oum-editor-mobile-height, 400px);
+    aspect-ratio: auto;
+  }
+}
+.oum-native-block.has-oum-radius > div,
+.oum-native-block.has-oum-radius .oum-editor-canvas {
+  border-radius: inherit;
+}
+
+.oum-native-block.has-oum-radius .oum-editor-canvas {
+  overflow: hidden;
+}
+
+/* Keep the locked preview visible behind the edit action. */
+.oum-editor-map:not(.is-editing) > .oum-editor-canvas::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(transparent, rgba(255, 255, 255, 0.7));
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.oum-editor-toolbar > button {
+  position: relative;
+}
+
+/* The locked map is a preview; only Edit view accepts input. */
+.oum-editor-map:not(.is-editing) > .oum-editor-canvas {
+  pointer-events: none;
+}
+
+/* The displayed value follows the actual canvas, including native responsive rules. */
+.oum-editor-height {
+  position: absolute;
+  bottom: 24px;
+  right: 8px;
+  z-index: 1001;
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: #fff;
+  color: #222;
+  font: 12px/1.4 sans-serif;
+  pointer-events: none;
+}
+
+.oum-editor-height:empty {
+  display: none;
+}
+
+/* Short instructions and map feedback share the map's center. */
+.oum-editor-feedback, .oum-editor-status, .oum-editor-move-hint, .oum-editor-notice {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1002;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border-radius: 4px;
+  background: #fff;
+  color: #222;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1333333333);
+  font: 13px/1.5 sans-serif;
+  text-align: center;
+}
+
+.oum-editor-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.oum-editor-feedback:empty, .oum-editor-status:empty {
+  display: none;
+}
+
+.oum-editor-move-hint {
+  pointer-events: none;
+}
+
+.oum-editor-move-hint[hidden] {
+  display: none;
+}
+
+.oum-editor-map.is-hint-visible > .oum-editor-feedback, .oum-editor-map.is-hint-visible > .oum-editor-notice {
+  visibility: hidden;
+}
+
+.oum-editor-feedback button, .oum-editor-status button {
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-left: 8px;
+}
+
+.oum-editor-feedback a {
+  color: #135e96;
+  text-decoration: underline;
+}
+
+.oum-editor-map:not([data-ready]) .oum-editor-toolbar {
+  visibility: hidden;
+}
+
+.oum-editor-height {
+  bottom: auto;
+}
+
+/* Leave room for a centered notice while keeping Edit view available. */
+.oum-editor-map.has-map-notice:not(.is-editing) .oum-editor-toggle {
+  transform: translateY(65px);
+}
+
+.oum-editor-map.is-editing .oum-editor-empty {
+  display: none;
+}
+
+.oum-editor-notice {
+  bottom: auto;
+  margin: 0;
+}
+
+.oum-editor-actions {
+  position: absolute;
+  left: 8px;
+  bottom: 24px;
+  z-index: 1001;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-width: calc(100% - 16px);
+}
+
+.oum-editor-actions a {
+  padding: 5px 8px;
+  border: 1px solid #757575;
+  border-radius: 4px;
+  background: #fff;
+  color: #222;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1333333333);
+  font: 12px/1.4 sans-serif;
+  text-decoration: none;
+}
+
+.oum-editor-actions a:hover, .oum-editor-actions a:focus-visible {
+  background: #f0f0f0;
+  outline-offset: 2px;
+}
+
+/* Keep builder previews clear; dimensions and frontend attribution are unchanged. */
+.oum-editor-map .oum-editor-height,
+.oum-editor-map .leaflet-control-attribution,
+.oum-editor-map .maplibregl-ctrl-attrib,
+.oum-editor-map .maplibregl-ctrl-logo {
+  display: none;
+}/*# sourceMappingURL=editor-map.css.map */

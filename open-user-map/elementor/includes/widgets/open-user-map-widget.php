@@ -11,7 +11,7 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 	}
 
 	public function get_icon() {
-		return 'eicon-google-maps';
+		return 'eicon-google-maps oum-widget-icon';
 	}
 
 	public function get_categories() {
@@ -32,206 +32,35 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 
 	}
 
-	protected function register_controls() {
-
-		// Content Tab Start
-
-		$this->start_controls_section(
-			'section_info',
-			[
-				'label' => esc_html__( 'How to use', 'open-user-map' ),
-				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
-			]
-		);
-
-		$this->add_control(
-			'important_note',
-			[
-				'label' => '',
-				'type' => \Elementor\Controls_Manager::RAW_HTML,
-				'raw' => __('This block will show all <a href="edit.php?post_type=oum-location">Locations</a> on a map. By default users will be able to propose new locations by clicking a + Button on the map.', 'open-user-map') . '<br><br>' . __('Please configure the map styles and features in <a class="link-oum-settings" href="edit.php?post_type=oum-location&page=open-user-map-settings">Open User Map > Settings</a>.', 'open-user-map'),
-				'content_classes' => 'oum-elementor-howto-description',
-			]
-		);
-
-		$this->end_controls_section();
-
-		$this->start_controls_section(
-			'section_custom_map_position',
-			[
-				'label' => esc_html__( 'Custom Map Position', 'open-user-map' ),
-				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
-			]
-		);
-
-		$this->add_control(
-			'custom_map_position_note',
-			[
-				'label' => '',
-				'type' => \Elementor\Controls_Manager::RAW_HTML,
-				'raw' => __('Feel free to customize initial map position (Latitude, Longitude, Zoom OR Region).<br><br>This will override the general configuration from the <a href="edit.php?post_type=oum-location&page=open-user-map-settings">settings</a>.', 'open-user-map'),
-				'content_classes' => 'oum-elementor-howto-description',
-			]
-		);
-
-		$this->add_control(
-			'latitude',
-			[
-				'label' => esc_html__( 'Latitude', 'open-user-map' ),
-				'type' => \Elementor\Controls_Manager::TEXT,
-				'placeholder' => 'e.g. 51.50665732176545',
-			]
-		);
-
-		$this->add_control(
-			'longitude',
-			[
-				'label' => esc_html__( 'Longitude', 'open-user-map' ),
-				'type' => \Elementor\Controls_Manager::TEXT,
-				'placeholder' => 'e.g. -0.12752251529432854',
-			]
-		);
-
-		$this->add_control(
-			'zoom',
-			[
-				'label' => esc_html__( 'Zoom (3 - 15)', 'open-user-map' ),
-				'type' => \Elementor\Controls_Manager::NUMBER,
-				'placeholder' => 'e.g. 13',
-				'min' => 3,
-				'max' => 15
-			]
-		);
-
-		$this->add_control(
-			'or',
-			[
-				'label' => '',
-				'type' => \Elementor\Controls_Manager::RAW_HTML,
-				'raw' => __('<b>OR</b>', 'open-user-map'),
-				'content_classes' => 'oum-elementor-howto-description',
-			]
-		);
-
-		$this->add_control(
-			'region',
-			[
-				'label' => esc_html__( 'Pre-select Region', 'open-user-map' ),
-				'type' => \Elementor\Controls_Manager::TEXT,
-				'placeholder' => 'e.g. Europe',
-			]
-		);
-
-		$this->end_controls_section();
-
-		$this->start_controls_section(
-			'section_custom_locations',
-			[
-				'label' => esc_html__( 'Filter Locations', 'open-user-map' ),
-				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
-			]
-		);
-
-		$this->add_control(
-			'custom_locations_note',
-			[
-				'label' => '',
-				'type' => \Elementor\Controls_Manager::RAW_HTML,
-				'raw' => __('Show only specific markers by filtering for categories or Post IDs. You can separate multiple Categories or IDs with a | symbol.', 'open-user-map'),
-				'content_classes' => 'oum-elementor-howto-description',
-			]
-		);
-
-		$this->add_control(
-			'types',
-			[
-				'label' => esc_html__( 'Marker categories [PRO]', 'open-user-map' ),
-				'type' => \Elementor\Controls_Manager::TEXT,
-				'placeholder' => __('food|drinks', 'open-user-map')
-			]
-		);
-
-		$this->add_control(
-			'ids',
-			[
-				'label' => esc_html__( 'Post IDs', 'open-user-map' ),
-				'type' => \Elementor\Controls_Manager::TEXT,
-				'placeholder' => __('1|2|3', 'open-user-map')
-			]
-		);
-
-		$this->end_controls_section();
-
-		$this->start_controls_section(
-			'section_marker_popups',
-			[
-				'label' => esc_html__( 'Marker Popups', 'open-user-map' ),
-				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
-			]
-		);
-
-		$this->add_control(
-			'hide_location_popup',
-			[
-				'label' => esc_html__( 'Hide', 'open-user-map' ),
-				'type' => \Elementor\Controls_Manager::SWITCHER,
-				'return_value' => 'true',
-				'default' => '',
-				'description' => esc_html__( 'If enabled, clicking a marker does not open a popup.', 'open-user-map' ),
-			]
-		);
-
-		$this->end_controls_section();
-
-		// Content Tab End
-
-
-		// Style Tab Start
-
-		$this->start_controls_section(
-			'section_title_style',
-			[
-				'label' => esc_html__( 'Custom Size', 'open-user-map' ),
-				'tab' => \Elementor\Controls_Manager::TAB_STYLE,
-			]
-		);
-
-		$this->add_control(
-			'oum_map_size',
-			[
-				'label' => esc_html__( 'Map Size', 'open-user-map' ),
-				'type' => \Elementor\Controls_Manager::SELECT,
-				'options' => [
-					''  => '',
-					'default'  => esc_html__( 'Content width', 'open-user-map' ),
-					'fullwidth' => esc_html__( 'Full width', 'open-user-map' ),
-				],
-			]
-		);
-
-		$this->add_control(
-			'oum_map_height',
-			[
-				'label' => esc_html__( 'Height', 'open-user-map' ),
-				'type' => \Elementor\Controls_Manager::NUMBER,
-				'placeholder' => 'px',
-			]
-		);
-
-		$this->add_control(
-			'oum_map_height_mobile',
-			[
-				'label' => esc_html__( 'Height (Mobile)', 'open-user-map' ),
-				'type' => \Elementor\Controls_Manager::NUMBER,
-				'placeholder' => 'px',
-			]
-		);
-
-		$this->end_controls_section();
-
-		// Style Tab End
-
-	}
+    protected function register_controls() {
+        $globals = \OpenUserMapPlugin\Base\EditorController::globals();
+        $choices = \OpenUserMapPlugin\Base\EditorController::choices();
+        $this->start_controls_section('section_custom_map_position', ['label'=>__('Map view', 'open-user-map')]);
+        $this->add_control('custom_map_position_note', ['type'=>\Elementor\Controls_Manager::RAW_HTML, 'raw'=>esc_html__('Choose "Edit view" on the map and then move and zoom the map', 'open-user-map').'<br><br>'.esc_html__('Add markers in "Manage Locations" or directly on the map in the front end.', 'open-user-map')]);
+        $this->add_control('oum_map_links', ['type'=>\Elementor\Controls_Manager::RAW_HTML, 'raw'=>'<a target="_blank" rel="noopener" href="'.esc_url(admin_url('edit.php?post_type=oum-location&page=open-user-map-settings')).'">'.esc_html__('Global settings','open-user-map').'</a> · <a target="_blank" rel="noopener" href="'.esc_url(admin_url('edit.php?post_type=oum-location')).'">'.esc_html__('Manage locations','open-user-map').'</a>']);
+        $this->add_control('region', ['label'=>__('Region', 'open-user-map'), 'type'=>'oum_region', 'oum_choices'=>$choices['region']]);
+        // Keep stored coordinates available to the map and native history, without manual fields.
+        foreach (['latitude','longitude','zoom'] as $key) $this->add_control($key, ['type'=>\Elementor\Controls_Manager::HIDDEN]);
+        $this->end_controls_section();
+        $this->start_controls_section('section_custom_locations', ['label'=>__('Filter', 'open-user-map')]);
+        // Keep the old pipe-delimited storage. A name picker writes it through a custom control.
+        foreach (['types'=>__('Categories', 'open-user-map'), 'ids'=>__('Locations', 'open-user-map')] as $key=>$label) {
+            $this->add_control($key, ['label'=>$label, 'label_block'=>true, 'type'=>'oum_locations', 'oum_choices'=>$choices[$key], 'description'=>__('Leave empty to show all.', 'open-user-map')]);
+        }
+        $this->add_control('oum_filters',['type'=>'oum_filters']);
+        $this->end_controls_section();
+        $this->start_controls_section('section_marker_popups', ['label'=>__('Popups', 'open-user-map')]);
+        $popup = $globals['hide_location_popup'] === 'true' ? __('Hidden', 'open-user-map') : __('Visible', 'open-user-map');
+        $this->add_control('hide_location_popup', ['label'=>__('Popups', 'open-user-map'), 'type'=>\Elementor\Controls_Manager::SELECT, 'options'=>[''=>$popup.' ('.__('Global setting', 'open-user-map').')','false'=>__('Visible', 'open-user-map'),'true'=>__('Hidden', 'open-user-map')]]);
+        $this->add_control('oum_radius_native', ['type'=>\Elementor\Controls_Manager::HIDDEN]);
+        $this->add_control('oum_editor_version', ['type'=>\Elementor\Controls_Manager::HIDDEN]);
+        $this->end_controls_section();
+        $this->start_controls_section('section_title_style', ['label'=>__('Size', 'open-user-map'), 'tab'=>\Elementor\Controls_Manager::TAB_STYLE]);
+        $size = $globals['size'] === 'fullwidth' ? __('Screen width', 'open-user-map') : __('Column width', 'open-user-map');
+        $this->add_control('oum_map_size', ['label'=>__('Width', 'open-user-map'), 'type'=>\Elementor\Controls_Manager::SELECT, 'options'=>[''=>$size.' ('.__('Global setting', 'open-user-map').')','default'=>__('Column width', 'open-user-map'),'fullwidth'=>__('Screen width', 'open-user-map')]]);
+        $this->add_responsive_control('oum_map_height', ['label'=>__('Height', 'open-user-map'), 'type'=>\Elementor\Controls_Manager::NUMBER, 'min'=>1, 'placeholder'=>$globals['height'], 'device_args'=>['mobile'=>['placeholder'=>$globals['height_mobile'] ?: $globals['height']]], 'description'=>__('In pixels. Leave empty to use the global setting.', 'open-user-map')]);
+        $this->end_controls_section();
+    }
 
 	/**
 	 * Declare the widget as dynamic so Elementor treats it as dynamic content (e.g. for caching).
@@ -240,141 +69,67 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 		return true;
 	}
 
-	protected function render() {
-		
-		$settings = $this->get_settings_for_display();
-		
-		?>
-		
-		<?php if(Plugin::is_elementor_backend()): ?>
+    private function render_responsive_height($settings) {
+        if(!isset(\Elementor\Plugin::$instance->breakpoints)) return;
+        $breakpoints=\Elementor\Plugin::$instance->breakpoints->get_active_breakpoints();
+        uasort($breakpoints, function($a,$b){return $b->get_value() <=> $a->get_value();});
+        $selector='.elementor-element-'.preg_replace('/[^a-zA-Z0-9_-]/', '', $this->get_id());
+        $selector .= ' .open-user-map .box-wrap > .map-wrap, '.$selector.' .oum-editor-canvas';
+        $format=function($value){$value=trim((string)$value);if(is_numeric($value))return $value.'px';return preg_match('/^\\d+(?:\\.\\d+)?(?:px|%|vh|vw|em|rem)$/i',$value)?strtolower($value):'';};
+        $css='';
+        // Desktop and mobile remain owned by the original shortcode height logic.
+        // Only newly available intermediate breakpoints need additional scoped CSS.
+        foreach($breakpoints as $key=>$point) {
+            if($key==='mobile') continue;
+            $value=isset($settings['oum_map_height_'.$key]) ? $format($settings['oum_map_height_'.$key]) : '';
+            if($value==='')continue;
+            $css.='@media('.($point->get_direction()==='min'?'min':'max').'-width:'.(float)$point->get_value().'px){'.$selector.'{height:'.$value.' !important;padding:0 !important;aspect-ratio:auto !important;}}';
+        }
+        if($css==='')return;
+        $mobile=isset($settings['oum_map_height_mobile']) && (string)$settings['oum_map_height_mobile']!=='' ? $settings['oum_map_height_mobile'] : get_option('oum_map_height_mobile','');
+        $mobile=$format($mobile);
+        if($mobile!=='' && isset($breakpoints['mobile'])) $css.='@media(max-width:'.(float)$breakpoints['mobile']->get_value().'px){'.$selector.'{height:'.$mobile.' !important;padding:0 !important;aspect-ratio:auto !important;}}';
+        echo '<style>'.$css.'</style>';
+    }
 
-			<!-- Backend Block -->
-			
-			<?php
-			// Calculate backend preview height with priority order:
-			// 1. Default aspect ratio 1.77 (56.5% padding-top hack)
-			// 2. Plugin settings height (oum_map_height)
-			// 3. Widget custom height (highest priority)
-			
-			$backend_height_style = '';
-			$use_aspect_ratio = true;
-			
-			// Check if plugin settings has a custom height
-			$plugin_height = get_option('oum_map_height');
-			if ($plugin_height && is_numeric($plugin_height)) {
-				$backend_height_style = 'height: ' . esc_attr($plugin_height) . 'px;';
-				$use_aspect_ratio = false;
-			}
-			
-			// Check if widget has a custom height (highest priority)
-			if ($settings['oum_map_height'] && is_numeric($settings['oum_map_height'])) {
-				$backend_height_style = 'height: ' . esc_attr($settings['oum_map_height']) . 'px;';
-				$use_aspect_ratio = false;
-			}
-			
-			// If no custom height is set, use aspect ratio 1.77
-			if ($use_aspect_ratio) {
-				$backend_height_style = 'aspect-ratio: 1.77';
-			}
-			?>
-			
-			<div class="hint" style="<?php echo $backend_height_style; ?>">
-				<h5><?php echo __('Open User Map', 'open-user-map'); ?></h5>
-				<p>
-					<?php echo __('This block will show your Locations on a map in the front end.', 'open-user-map'); ?>
-				</p>
-				<?php if($settings['latitude'] != '' || $settings['longitude'] != '' || $settings['zoom'] != '' || $settings['region'] != '' || $settings['types'] != '' || $settings['ids'] != ''): ?>
-					<div class="oum-custom-settings">
-						<?php if($settings['latitude'] != '' || $settings['longitude'] != '' || $settings['zoom'] != '' || $settings['region'] != ''): ?>
-							<p class="custom-settings-label">
-								<strong><?php echo __('Custom Map Position (optional):', 'open-user-map'); ?></strong>
-							</p>
-						<?php endif; ?>
-						<?php if($settings['latitude'] != '' || $settings['longitude'] != '' || $settings['zoom'] != ''): ?>
-							<div class="flex">
-								<div>
-									<div>
-										<label><?php echo __('Latitude', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo esc_attr($settings['latitude']); ?>" disabled>
-									</div>
-								</div>
-								<div>
-									<div>
-										<label><?php echo __('Longitude', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo esc_attr($settings['longitude']); ?>" disabled>
-									</div>
-								</div>
-								<div>
-									<div>
-										<label><?php echo __('Zoom', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo esc_attr($settings['zoom']); ?>" disabled>
-									</div>
-								</div>
-							</div>
-						<?php endif; ?>
+    private function render_native_radius($settings) {
+        $selector='.elementor-element-'.preg_replace('/[^a-zA-Z0-9_-]/', '', $this->get_id());
+        $selector .= ' .map-wrap, '.$selector.' .oum-editor-canvas';
+        $devices=[''=>null];
+        if(isset(\Elementor\Plugin::$instance->breakpoints)) {
+            $breakpoints=\Elementor\Plugin::$instance->breakpoints->get_active_breakpoints();
+            uasort($breakpoints, function($a,$b){return $b->get_value() <=> $a->get_value();});
+            foreach($breakpoints as $key=>$point) $devices['_'.$key]=$point;
+        }
+        $css='';
+        foreach($devices as $suffix=>$point) {
+            $value=isset($settings['_border_radius'.$suffix]) ? $settings['_border_radius'.$suffix] : null;
+            if(!is_array($value)) continue;
+            $parts=[];$has_value=false;
+            $unit=isset($value['unit']) && in_array($value['unit'],['px','%','em','rem','vh','vw'],true) ? $value['unit'] : 'px';
+            foreach(['top','right','bottom','left'] as $corner) {
+                $number=isset($value[$corner]) && is_numeric($value[$corner]) ? max(0,(float)$value[$corner]) : 0;
+                if(isset($value[$corner]) && (string)$value[$corner] !== '') $has_value=true;
+                $parts[]=$number.$unit;
+            }
+            if(!$has_value) continue;
+            $rule=$selector.'{border-radius:'.implode(' ',$parts).';overflow:hidden;}';
+            if($point) $rule='@media('.($point->get_direction()==='min'?'min':'max').'-width:'.(float)$point->get_value().'px){'.$rule.'}';
+            $css.=$rule;
+        }
+        if($css!=='') echo '<style>'.$css.'</style>';
+    }
 
-						<?php if($settings['region'] != ''): ?>
-							<div class="flex">
-								<div>
-									<div>
-										<label><?php echo __('Pre-select Region', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo esc_attr($settings['region']); ?>" disabled>
-									</div>
-								</div>
-							</div>
-						<?php endif; ?>
-
-						<?php if($settings['types'] != '' || $settings['ids'] != ''): ?>
-							<p class="custom-settings-label">
-								<strong><?php echo __('Filter Locations (optional):', 'open-user-map'); ?></strong>
-							</p>
-							<div class="flex">
-								<div>
-									<div>
-										<label><?php echo __('Filter by Marker Categories [PRO]', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo esc_attr($settings['types']); ?>" disabled>
-									</div>
-								</div>
-								<div>
-									<div>
-										<label><?php echo __('Filter by POST IDs', 'open-user-map'); ?></label><br>
-										<input type="text" value="<?php echo esc_attr($settings['ids']); ?>" disabled>
-									</div>
-								</div>
-							</div>
-						<?php endif; ?>
-
-					</div>
-				<?php endif; ?>
-			</div>
-
-		<?php else: ?>
-
-			<!-- Frontend Block -->
-
-			<?php 
-			$lat = $settings['latitude'] ? 'lat="'.$settings['latitude'].'"' : '';
-			$long = $settings['longitude'] ? 'long="'.$settings['longitude'].'"' : '';
-			$zoom = $settings['zoom'] ? 'zoom="'.$settings['zoom'].'"' : '';
-
-			$region = $settings['region'] ? 'region="'.$settings['region'].'"' : '';
-
-			$types = $settings['types'] ? 'types="'.$settings['types'].'"' : '';
-			$ids = $settings['ids'] ? 'ids="'.$settings['ids'].'"' : '';
-			
-			$size = $settings['oum_map_size'] ? 'size="'.$settings['oum_map_size'].'"' : '';
-
-			$height = $settings['oum_map_height'] ? 'height="'.$settings['oum_map_height'].'px"' : '';
-			$height_mobile = $settings['oum_map_height_mobile'] ? 'height_mobile="'.$settings['oum_map_height_mobile'].'px"' : '';
-			
-			$hide_location_popup = (isset($settings['hide_location_popup']) && $settings['hide_location_popup'] === 'true') ? 'hide_location_popup="true"' : '';
-			
-			echo do_shortcode('[open-user-map '. $lat . ' ' . $long . ' ' . $zoom . ' ' . $region . ' '. $types . ' '. $ids . ' '. $size .' '. $height .' '. $height_mobile .' '. $hide_location_popup .']'); 
-			?>
-
-		<?php endif; ?>
-		
-		<?php
-	}
-
+    protected function render() {
+        $settings=$this->get_settings_for_display();
+        $attributes = \OpenUserMapPlugin\Base\EditorSettings::elementor_attributes($settings);
+        $this->render_responsive_height($settings);
+        $radius=!empty($settings['oum_radius_native']);
+        if($radius) $this->render_native_radius($settings);
+        if (Plugin::is_elementor_backend()) {
+            echo '<div data-oum-editor-settings="'.esc_attr(wp_json_encode($attributes)).'"></div>';
+        } else {
+            echo do_shortcode(\OpenUserMapPlugin\Base\EditorSettings::shortcode($attributes));
+        }
+    }
 }

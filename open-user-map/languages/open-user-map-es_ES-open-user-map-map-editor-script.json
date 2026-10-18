@@ -1,0 +1,90 @@
+{
+  "translation-revision-date": "2026-10-18 20:00+0000",
+  "generator": "Open User Map PO to JSON",
+  "domain": "messages",
+  "source": "blocks/build/index.js",
+  "locale_data": {
+    "messages": {
+      "": {
+        "domain": "open-user-map",
+        "lang": "es_ES",
+        "plural-forms": "nplurals=2; plural=n != 1;"
+      },
+      "Region": [
+        "Región"
+      ],
+      "Height": [
+        "Altura"
+      ],
+      "Locations": [
+        "Marcadores"
+      ],
+      "Map view": [
+        "Vista del mapa"
+      ],
+      "Choose \"Edit view\" on the map and then move and zoom the map": [
+        "Pulsa «Editar vista». Mueve el mapa y ajusta el zoom."
+      ],
+      "Add markers in \"Manage Locations\" or directly on the map in the front end.": [
+        "Añade marcadores en «Gestionar marcadores» o en el mapa de tu web."
+      ],
+      "Global settings": [
+        "Ajustes globales"
+      ],
+      "Global setting": [
+        "Ajuste global"
+      ],
+      "Manage locations": [
+        "Gestionar marcadores"
+      ],
+      "No region": [
+        "Sin región"
+      ],
+      "Categories": [
+        "Categorías"
+      ],
+      "Leave empty to show all.": [
+        "Déjalo vacío para mostrar todos."
+      ],
+      "Popups": [
+        "Ventanas de marcadores"
+      ],
+      "Hidden": [
+        "Ocultas"
+      ],
+      "Visible": [
+        "Visibles"
+      ],
+      "Size": [
+        "Tamaño"
+      ],
+      "Width": [
+        "Anchura"
+      ],
+      "Screen width": [
+        "Anchura de pantalla"
+      ],
+      "Column width": [
+        "Anchura de columna"
+      ],
+      "Mobile height": [
+        "Altura en móvil"
+      ],
+      "Automatic": [
+        "Automática"
+      ],
+      "Use Dimensions to change the height.": [
+        "Cambia la altura en «Dimensiones»."
+      ],
+      "Reset height": [
+        "Restablecer altura"
+      ],
+      "Reset": [
+        "Restablecer"
+      ],
+      "Example map with locations and popup": [
+        "Ejemplo de mapa con marcadores y una ventana abierta"
+      ]
+    }
+  }
+}

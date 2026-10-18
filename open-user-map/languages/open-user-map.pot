@@ -3029,3 +3029,13 @@ msgstr ""
 msgctxt "block description"
 msgid "Insert a custom map featuring your own locations or an interactive map where anyone can add location pins without registering."
 msgstr ""
+
+
+#: inc/Base/BaseController.php
+msgid "Your location has been published."
+msgstr ""
+
+
+#: inc/Base/BaseController.php
+msgid "Your changes have been saved."
+msgstr ""

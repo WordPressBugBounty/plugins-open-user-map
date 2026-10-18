@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Open User Map – Interactive Leaflet Maps - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-07-05 21:21:29+0000\n"
+"PO-Revision-Date: 2026-10-18 20:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2619,3 +2619,307 @@ msgstr "100plugins"
 #: open-user-map.php
 msgid "https://wordpress.org/plugins/open-user-map/"
 msgstr "https://wordpress.org/plugins/open-user-map/"
+
+#: editor interface
+msgid "Map view"
+msgstr "Vista del mapa"
+
+#: editor interface
+msgid "Choose \"Edit view\" on the map and then move and zoom the map"
+msgstr "Pulsa «Editar vista». Mueve el mapa y ajusta el zoom."
+
+#: editor interface
+msgid "Add markers in \"Manage Locations\" or directly on the map in the front end."
+msgstr "Añade marcadores en «Gestionar marcadores» o en el mapa de tu web."
+
+#: editor interface
+msgid "Global settings"
+msgstr "Ajustes globales"
+
+#: editor interface
+msgid "Global setting"
+msgstr "Ajuste global"
+
+#: editor interface
+msgid "Manage locations"
+msgstr "Gestionar marcadores"
+
+#: editor interface
+msgid "No region"
+msgstr "Sin región"
+
+#: editor interface
+msgid "Categories"
+msgstr "Categorías"
+
+#: editor interface
+msgid "Leave empty to show all."
+msgstr "Déjalo vacío para mostrar todos."
+
+#: editor interface
+msgid "Popups"
+msgstr "Ventanas de marcadores"
+
+#: editor interface
+msgid "Hidden"
+msgstr "Ocultas"
+
+#: editor interface
+msgid "Visible"
+msgstr "Visibles"
+
+#: editor interface
+msgid "Size"
+msgstr "Tamaño"
+
+#: editor interface
+msgid "Width"
+msgstr "Anchura"
+
+#: editor interface
+msgid "Screen width"
+msgstr "Anchura de pantalla"
+
+#: editor interface
+msgid "Column width"
+msgstr "Anchura de columna"
+
+#: editor interface
+msgid "Mobile height"
+msgstr "Altura en móvil"
+
+#: editor interface
+msgid "Automatic"
+msgstr "Automática"
+
+#: editor interface
+msgid "Use Dimensions to change the height."
+msgstr "Cambia la altura en «Dimensiones»."
+
+#: editor interface
+msgid "In pixels. Leave empty to use the global setting."
+msgstr "En píxeles. Déjalo vacío para usar el ajuste global."
+
+#: editor interface
+msgid "Reset height"
+msgstr "Restablecer altura"
+
+#: editor interface
+msgid "Reset"
+msgstr "Restablecer"
+
+#: editor interface
+msgid "Example map with locations and popup"
+msgstr "Ejemplo de mapa con marcadores y una ventana abierta"
+
+#: editor interface
+msgid "Filter"
+msgstr "Filtros"
+
+#: editor interface
+msgid "Any date"
+msgstr "Cualquier fecha"
+
+#: editor interface
+msgid "On"
+msgstr "El"
+
+#: editor interface
+msgid "After"
+msgstr "Después de"
+
+#: editor interface
+msgid "Before"
+msgstr "Antes de"
+
+#: editor interface
+msgid "Period"
+msgstr "Periodo"
+
+#: editor interface
+msgid "Saved filter"
+msgstr "Filtro guardado"
+
+#: editor interface
+msgid "Match categories"
+msgstr "Categorías requeridas"
+
+#: editor interface
+msgid "Any"
+msgstr "Cualquiera"
+
+#: editor interface
+msgid "All"
+msgstr "Todos"
+
+#: editor interface
+msgid "Created date"
+msgstr "Fecha de creación"
+
+#: editor interface
+msgid "Updated date"
+msgstr "Fecha de modificación"
+
+#: editor interface
+msgid "Date"
+msgstr "Fecha"
+
+#: editor interface
+msgid "Choose an end date after the start date."
+msgstr "La fecha final debe ser posterior a la inicial."
+
+#: editor interface
+msgid "Saved filter is kept until you replace it."
+msgstr "El filtro guardado se mantiene hasta que lo cambies."
+
+#: editor interface
+msgid "These filters require PRO. Saved values are kept."
+msgstr "Estos filtros requieren PRO. Los valores se conservan."
+
+#: editor interface
+msgid "Added by"
+msgstr "Añadido por"
+
+#: editor interface
+msgid "All users"
+msgstr "Todos los usuarios"
+
+#: editor interface
+msgid "Current user"
+msgstr "Usuario actual"
+
+#: editor interface
+msgid "User"
+msgstr "Usuario"
+
+#: editor interface
+msgid "Role"
+msgstr "Rol"
+
+#: editor interface
+msgid "Preview shows your locations."
+msgstr "La vista previa muestra tus marcadores."
+
+#: editor interface
+msgid "Match conditions"
+msgstr "Condiciones requeridas"
+
+#: editor interface
+msgid "Choose field"
+msgstr "Elegir campo"
+
+#: editor interface
+msgid "Field"
+msgstr "Campo"
+
+#: editor interface
+msgid "Values"
+msgstr "Valores"
+
+#: editor interface
+msgid "Match values"
+msgstr "Valores requeridos"
+
+#: editor interface
+msgid "Add condition"
+msgstr "Añadir condición"
+
+#: editor interface
+msgid "Reset filters"
+msgstr "Restablecer filtros"
+
+#: editor interface
+msgid "Settings"
+msgstr "Ajustes"
+
+#: editor interface
+msgid "Add and edit markers"
+msgstr "Añadir y editar marcadores"
+
+#: editor interface
+msgid "Move and zoom."
+msgstr "Mueve el mapa y ajusta el zoom."
+
+#: editor interface
+msgid "Reset map view"
+msgstr "Restablecer vista"
+
+#: editor interface
+msgid "No locations yet."
+msgstr "Aún no hay marcadores."
+
+#: editor interface
+msgid "No visible locations."
+msgstr "No hay marcadores visibles."
+
+#: editor interface
+msgid "Add a map key."
+msgstr "Añade una clave de mapa."
+
+#: editor interface
+msgid "Check map style."
+msgstr "Revisa el estilo del mapa."
+
+#: editor interface
+msgid "Map tiles could not load."
+msgstr "No se pudo cargar el fondo del mapa."
+
+#: editor interface
+msgid "Session expired."
+msgstr "La sesión ha caducado."
+
+#: editor interface
+msgid "Reload editor"
+msgstr "Recargar editor"
+
+#: editor interface
+msgid "Connection lost."
+msgstr "Se ha perdido la conexión."
+
+#: editor interface
+msgid "Previous image"
+msgstr "Imagen anterior"
+
+#: editor interface
+msgid "Next image"
+msgstr "Imagen siguiente"
+
+#: editor interface
+msgid "Edit view"
+msgstr "Editar vista"
+
+#: editor interface
+msgid "Done"
+msgstr "Listo"
+
+#: editor interface
+msgid "Loading map…"
+msgstr "Cargando mapa…"
+
+#: editor interface
+msgid "Map could not be loaded."
+msgstr "No se pudo cargar el mapa."
+
+#: editor interface
+msgid "Retry"
+msgstr "Reintentar"
+
+#: editor interface
+msgid "Zoom in"
+msgstr "Acercar"
+
+#: editor interface
+msgid "Zoom out"
+msgstr "Alejar"
+
+#: editor interface
+msgid "Check map view."
+msgstr "Revisa la vista del mapa."
+
+#: editor interface
+msgid "No locations found."
+msgstr "No se encontraron marcadores."
+
+#: editor interface
+msgid "Search…"
+msgstr "Buscar…"

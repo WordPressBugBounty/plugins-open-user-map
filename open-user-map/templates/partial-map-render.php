@@ -683,7 +683,7 @@ if ( $oum_map_height_mobile ) {
 
           /* custom map height */
           oum_custom_css += <?php 
-    echo wp_json_encode( '@media screen and (max-width: 768px) {.open-user-map .box-wrap > .map-wrap {padding: 0 !important; height: ' . $oum_map_height_mobile . ' !important; aspect-ratio: unset !important;}}' );
+    echo wp_json_encode( '@media screen and (max-width: 767px) {.open-user-map .box-wrap > .map-wrap {padding: 0 !important; height: ' . $oum_map_height_mobile . ' !important; aspect-ratio: unset !important;}}' );
     ?>;
 
         <?php 

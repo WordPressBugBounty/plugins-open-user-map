@@ -3097,7 +3097,7 @@
 .wp-block.wp-block-open-user-map-map,
 .elementor-editor-active .elementor-widget-open_user_map_widget,
 .elementor-editor-preview .elementor-widget-open_user_map_widget {
-  background: url(images/block-bg.jpg) top center no-repeat;
+  background: none;
   background-size: cover;
 }
 .wp-block.wp-block-open-user-map-map .hint,

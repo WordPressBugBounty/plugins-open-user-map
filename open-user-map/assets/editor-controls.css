@@ -1,0 +1,57 @@
+.elementor-control-type-oum_locations .elementor-control-field {
+  display: block;
+}
+
+.elementor-control-type-oum_locations .elementor-control-title {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.elementor-control-type-oum_locations .select2-container .select2-selection--multiple {
+  min-height: 44px;
+  padding: 5px 7px;
+}
+
+.elementor-control-type-oum_locations .select2-container .select2-selection__rendered {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 0;
+}
+
+.elementor-control-type-oum_locations .select2-container .select2-selection__choice {
+  font-size: 13px !important;
+  line-height: 22px !important;
+  padding: 3px 8px !important;
+  margin: 0;
+  border-radius: 3px;
+}
+
+.elementor-control-type-oum_locations .select2-container .select2-selection__choice__remove {
+  font-size: 17px !important;
+  padding-right: 5px;
+}
+
+.elementor-control-type-oum_locations .select2-container .select2-search--inline {
+  margin: 0;
+  flex: 1;
+  min-width: 80px;
+}
+
+.elementor-control-type-oum_locations .select2-container .select2-search__field {
+  font-size: 13px;
+  line-height: 28px;
+  margin: 0;
+  min-height: 28px;
+  width: 100% !important;
+}
+
+/* Use the same OUM artwork at the native widget and navigator icon sizes. */
+i.oum-widget-icon::before {
+  content: "";
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background: url("images/icon-256x256.png") center/contain no-repeat;
+  vertical-align: middle;
+}/*# sourceMappingURL=editor-controls.css.map */

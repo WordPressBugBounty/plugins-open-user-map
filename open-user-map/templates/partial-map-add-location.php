@@ -32,6 +32,7 @@ if ( $oum_show_add_location_button ) {
     $text_notify_me_on_publish_email = __( 'Your email', 'open-user-map' );
     $thankyou_headline = get_option( 'oum_thankyou_headline' );
     $thankyou_text = get_option( 'oum_thankyou_text' );
+    $oum_submit_default_label = ( $this->post_status === 'publish' ? __( 'Add location', 'open-user-map' ) : __( 'Submit location for review', 'open-user-map' ) );
     // Get marker types for selection
     $types = get_terms( array(
         'taxonomy'   => 'oum-type',
@@ -610,7 +611,7 @@ if ( $oum_show_add_location_button ) {
         <input type="submit" id="oum_submit_btn" style="background-color: <?php 
     echo $oum_ui_color;
     ?>" value="<?php 
-    echo ( get_option( 'oum_submit_button_label' ) ? get_option( 'oum_submit_button_label' ) : __( 'Submit location for review', 'open-user-map' ) );
+    echo esc_attr( ( get_option( 'oum_submit_button_label' ) ?: $oum_submit_default_label ) );
     ?>" />
 
         <?php 

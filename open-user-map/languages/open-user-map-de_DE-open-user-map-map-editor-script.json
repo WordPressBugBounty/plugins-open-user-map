@@ -1,0 +1,87 @@
+{
+  "translation-revision-date": "2026-06-05 08:14:32+0000",
+  "generator": "Open User Map PO to JSON",
+  "domain": "messages",
+  "source": "blocks/build/index.js",
+  "locale_data": {
+    "messages": {
+      "": {
+        "domain": "open-user-map",
+        "lang": "de_DE",
+        "plural-forms": "nplurals=2; plural=n != 1;"
+      },
+      "Region": [
+        "Region"
+      ],
+      "Height": [
+        "Höhe"
+      ],
+      "Locations": [
+        "Marker"
+      ],
+      "Reset": [
+        "Zurücksetzen"
+      ],
+      "Map view": [
+        "Kartenausschnitt"
+      ],
+      "No region": [
+        "Keine Region"
+      ],
+      "Leave empty to show all.": [
+        "Leer lassen, um alle anzuzeigen."
+      ],
+      "Popups": [
+        "Popups"
+      ],
+      "Hidden": [
+        "Ausgeblendet"
+      ],
+      "Visible": [
+        "Sichtbar"
+      ],
+      "Global setting": [
+        "Globale Einstellung"
+      ],
+      "Screen width": [
+        "Bildschirmbreite"
+      ],
+      "Column width": [
+        "Spaltenbreite"
+      ],
+      "Mobile height": [
+        "Mobile Höhe"
+      ],
+      "Automatic": [
+        "Automatisch"
+      ],
+      "Use Dimensions to change the height.": [
+        "Ändere die Höhe unter „Abmessungen“."
+      ],
+      "Manage locations": [
+        "Marker verwalten"
+      ],
+      "Global settings": [
+        "Globale Einstellungen"
+      ],
+      "Reset height": [
+        "Höhe zurücksetzen"
+      ],
+      "Choose \"Edit view\" on the map and then move and zoom the map": [
+        "Klicke auf „Ansicht bearbeiten“. Verschiebe und zoome die Karte."
+      ],
+      "Add markers in \"Manage Locations\" or directly on the map in the front end.": [
+        "Füge Marker unter „Marker verwalten“ oder auf der Karte deiner Website hinzu."
+      ],
+      "Categories": [
+        "Kategorien"
+      ],
+      "Size": [
+        "Größe"
+      ],
+      "Width": [
+        "Breite"
+      ]
+    }
+  }
+}

@@ -23,25 +23,31 @@ class BlockController extends BaseController
     public function set_gutenberg_blocks()
     {   
         // Register Block
-        register_block_type( 
+        register_block_type_from_metadata(
             $this->plugin_path . 'blocks',
             array(
-                'render_callback' => is_admin() ? null : array($this, 'render_block_map')
+                'render_callback' => array($this, 'render_native_map')
             )
         );
 
-        // add JS translation for Gutenberg Blocks script
-        /*
-         Pay Attention: 
-         - currently doesnt work with wordpress.org translation --> use local translation file 
-         - Translation file needs to be called "open-user-map-de_DE-oum_blocks_script.json"
-         - Howto: https://developer.wordpress.org/block-editor/how-to-guides/internationalization/
-         */
-        // wp_set_script_translations( 
-        //     'oum_blocks_script', 
-        //     'open-user-map', 
-        //     $this->plugin_path . 'languages' 
-        // );
+        wp_set_script_translations('open-user-map-map-editor-script', 'open-user-map', $this->plugin_path.'languages');
+
+
+    }
+
+    public function render_native_map($attributes, $content) {
+        $native_height = isset($attributes['style']['dimensions']['minHeight']) ? $attributes['style']['dimensions']['minHeight'] : '';
+        if (is_scalar($native_height) && (string)$native_height !== '') {
+            $attributes['height'] = (string)$native_height;
+        }
+        $map = $this->render_block_map($attributes, $content);
+        // Old blocks keep their exact markup unless native styles are explicitly set.
+        if (!empty($attributes['style']) || !empty($attributes['align']) || (!empty($attributes['className']) && !empty($attributes['editorVersion']))) {
+            $radius=!empty($attributes['style']['border']['radius']);
+            $wrapper = function_exists('get_block_wrapper_attributes') ? get_block_wrapper_attributes(array('class'=>'oum-native-block'.($radius ? ' has-oum-radius' : '').($native_height!=='' ? ' has-oum-height' : ''))) : 'class="oum-native-block"';
+            return '<div '.$wrapper.'>'.$map.'</div>';
+        }
+        return $map;
     }
 
     /**
