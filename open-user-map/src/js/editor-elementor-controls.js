@@ -1,6 +1,37 @@
 (function ($) {
     'use strict';
     function registerControls() {
+        function legacyHeight(view,prefix){return view.container.settings.get(view.model.get('name').replace(prefix,'oum_map_height'));}
+        const NativeSelect=elementor.getControlView('select');
+        const NativeSlider=elementor.getControlView('slider');
+        elementor.addControlView('oum_height_mode',NativeSelect.extend({getControlValue:function(){
+            const value=NativeSelect.prototype.getControlValue.apply(this,arguments);
+            const legacy=legacyHeight(this,'oum_height_mode');
+            return !value && legacy!==undefined && legacy!==null && String(legacy)!=='' ? 'height' : value;
+        }}));
+        elementor.addControlView('oum_height_value',NativeSlider.extend({
+            onInputChange:function(event){
+                if(event.currentTarget.dataset.setting!=='unit')return;
+                if(NativeSlider.prototype.handleUnitChange)NativeSlider.prototype.handleUnitChange.call(this);
+                else this.resetSize();
+            },
+            getControlValue:function(property){
+                let value=NativeSlider.prototype.getControlValue.call(this) || {};
+                const mode=this.container.settings.get(this.model.get('name').replace('oum_height_value','oum_height_mode'));
+                if(!mode && (value.size===undefined || String(value.size)==='')){
+                    const legacy=String(legacyHeight(this,'oum_height_value') || '').match(/^(\d+(?:\.\d+)?)(px|%|em|rem|vh|vw)?$/);
+                    if(legacy)value=Object.assign({},value,{size:Number(legacy[1]),unit:legacy[2] || 'px'});
+                }
+                return property ? value[property] : value;
+            }
+        }));
+        function resetHeight(container,suffix){
+            $e.run('document/elements/settings',{container:container,options:{external:true},settings:{['oum_height_mode'+suffix]:'',['oum_height_value'+suffix]:{unit:'px',size:''},['oum_map_height'+suffix]:'',['oum_ratio'+suffix]:'',['oum_ratio_custom'+suffix]:''}});
+        }
+        elementor.channels.editor.on('oum:reset-height',function(view){
+            const device=elementor.channels.deviceMode.request('currentMode');
+            resetHeight(view.container,device==='desktop' ? '' : '_'+device);
+        });
         // Add the opt-in to the same native command/history transaction as the radius edit.
         // Previously saved (ineffective) radii stay untouched until deliberately edited.
         $e.commands.on('run:before', function (component,command,args) {
@@ -12,6 +43,21 @@
                 const settings=args.isMultiSettings ? args.settings[container.id] : args.settings;
                 if (settings && Object.keys(settings).some(function(key){return /^_border_radius(?:_|$)/.test(key);})) settings.oum_radius_native='yes';
                 if(settings) {
+                    if(Object.keys(settings).some(function(key){return /^oum_(?:height_|ratio)/.test(key);}))args.options=Object.assign({},args.options,{external:true});
+                    Object.keys(settings).forEach(function(key){
+                        let match=key.match(/^oum_height_mode(.*)$/);
+                        if(match){
+                            const suffix=match[1],old=container.settings.get('oum_map_height'+suffix),current=container.settings.get('oum_height_value'+suffix);
+                            if(settings[key]===''){
+                                settings['oum_map_height'+suffix]='';settings['oum_height_value'+suffix]={unit:'px',size:''};
+                            }else if(settings[key]==='height' && (!current || current.size===undefined || String(current.size)==='')){
+                                const numeric=String(old || '').match(/^(\d+(?:\.\d+)?)(px|%|em|rem|vh|vw)?$/);
+                                settings['oum_height_value'+suffix]={size:numeric ? Number(numeric[1]) : 400,unit:numeric && numeric[2] || 'px'};
+                            }else if(settings[key]==='ratio' && !container.settings.get('oum_ratio'+suffix))settings['oum_ratio'+suffix]='16/9';
+                        }
+                        match=key.match(/^oum_height_value(.*)$/);
+                        if(match && settings[key] && String(settings[key].size || '')!=='')settings['oum_height_mode'+match[1]]='height';
+                    });
                     settings.oum_editor_version=1;
                     if (settings.region) Object.assign(settings,{latitude:'',longitude:'',zoom:''});
                 }

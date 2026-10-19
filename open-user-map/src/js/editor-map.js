@@ -409,7 +409,7 @@
         });
         instances.forEach(function (state, root) { if (!root.isConnected) state.destroy(); });
     }
-    window.OUMEditorMap = {mount:mount,unmount:function (root) { if(!root)return;if(root.ownerDocument !== window.document){const token=bridges.get(root);if(token)token.active=false;const runtime=root.ownerDocument.defaultView.OUMEditorMap;if(runtime)runtime.unmount(root);bridges.delete(root);return;}const state = instances.get(root); if (state) state.destroy(); }};
+    window.OUMEditorMap = {mount:mount,unmount:function (root) { if(!root)return;if(root.ownerDocument !== window.document){const token=bridges.get(root);if(token)token.active=false;const view=root.ownerDocument.defaultView;const runtime=view && view.OUMEditorMap;if(runtime)runtime.unmount(root);bridges.delete(root);return;}const state = instances.get(root); if (state) state.destroy(); }};
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scan); else scan();
     let pending;
     new MutationObserver(function () { clearTimeout(pending); pending = setTimeout(scan,50); }).observe(document.documentElement,{childList:true,subtree:true});

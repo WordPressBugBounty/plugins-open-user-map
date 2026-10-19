@@ -234,6 +234,9 @@ final class Plugin {
 	 */
 	public function register_controls( $controls_manager ) {
         require_once __DIR__.'/locations-control.php';
+        require_once __DIR__.'/sizing-controls.php';
+        $controls_manager->register(new OUM_Height_Mode_Control());
+        $controls_manager->register(new OUM_Height_Value_Control());
         $controls_manager->register(new OUM_Locations_Control());
         $controls_manager->register(new OUM_Region_Control());
         $controls_manager->register(new OUM_Filters_Control());

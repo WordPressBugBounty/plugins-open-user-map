@@ -36,16 +36,20 @@ class BlockController extends BaseController
     }
 
     public function render_native_map($attributes, $content) {
-        $native_height = isset($attributes['style']['dimensions']['minHeight']) ? $attributes['style']['dimensions']['minHeight'] : '';
+        $native_height = isset($attributes['style']['dimensions']['height']) ? $attributes['style']['dimensions']['height'] : (isset($attributes['style']['dimensions']['minHeight']) ? $attributes['style']['dimensions']['minHeight'] : '');
         if (is_scalar($native_height) && (string)$native_height !== '') {
             $attributes['height'] = (string)$native_height;
         }
+        $height_css = BlockHeight::responsive_css($attributes);
+        $width_css = BlockWidth::responsive_css($attributes);
         $map = $this->render_block_map($attributes, $content);
         // Old blocks keep their exact markup unless native styles are explicitly set.
-        if (!empty($attributes['style']) || !empty($attributes['align']) || (!empty($attributes['className']) && !empty($attributes['editorVersion']))) {
+        if ($height_css || $width_css || !empty($attributes['style']) || !empty($attributes['align']) || (!empty($attributes['className']) && !empty($attributes['editorVersion']))) {
             $radius=!empty($attributes['style']['border']['radius']);
-            $wrapper = function_exists('get_block_wrapper_attributes') ? get_block_wrapper_attributes(array('class'=>'oum-native-block'.($radius ? ' has-oum-radius' : '').($native_height!=='' ? ' has-oum-height' : ''))) : 'class="oum-native-block"';
-            return '<div '.$wrapper.'>'.$map.'</div>';
+            $classes = 'oum-native-block'.($radius ? ' has-oum-radius' : '').($native_height!=='' ? ' has-oum-height' : '').($height_css ? ' has-oum-dimensions' : '').($width_css ? ' has-oum-width' : '').(($height_css || $width_css) ? ' '.BlockHeight::class_name($attributes) : '');
+            $fallback_classes = ($height_css || $width_css) ? $classes : 'oum-native-block';
+            $wrapper = function_exists('get_block_wrapper_attributes') ? get_block_wrapper_attributes(array('class'=>$classes)) : 'class="'.esc_attr($fallback_classes).'"';
+            return '<div '.$wrapper.'>'.(($height_css || $width_css) ? '<style>'.$height_css.$width_css.'</style>' : '').$map.'</div>';
         }
         return $map;
     }

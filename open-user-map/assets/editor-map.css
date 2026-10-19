@@ -286,4 +286,35 @@
 .oum-editor-map .maplibregl-ctrl-attrib,
 .oum-editor-map .maplibregl-ctrl-logo {
   display: none;
+}
+
+.oum-native-block.has-oum-dimensions .oum-editor-canvas {
+  height: var(--oum-block-height, auto) !important;
+  aspect-ratio: var(--oum-block-ratio, 1.77) !important;
+}
+
+.oum-native-block.has-oum-width .oum-editor-map > .oum-editor-canvas {
+  width: var(--oum-block-width);
+  margin-left: var(--oum-block-offset);
+  transform: translateX(var(--oum-block-translate));
+}
+
+/* Theme link styles must not underline the map zoom symbols. */
+.oum-editor-map .leaflet-control-zoom a,
+.oum-editor-map .leaflet-control-zoom a:hover,
+.oum-editor-map .leaflet-control-zoom a:focus,
+.oum-editor-map .leaflet-control-zoom a:active {
+  text-decoration: none !important;
+}
+
+.oum-elementor-sizing.has-oum-dimensions .oum-editor-canvas {
+  height: var(--oum-block-height, auto) !important;
+  padding: 0 !important;
+  aspect-ratio: var(--oum-block-ratio, 1.77) !important;
+}
+
+.oum-elementor-sizing.has-oum-width .oum-editor-map > .oum-editor-canvas {
+  width: var(--oum-block-width);
+  margin-left: var(--oum-block-offset);
+  transform: translateX(var(--oum-block-translate));
 }/*# sourceMappingURL=editor-map.css.map */

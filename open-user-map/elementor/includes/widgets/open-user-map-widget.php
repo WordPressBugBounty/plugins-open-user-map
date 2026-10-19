@@ -33,6 +33,9 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
 	}
 
     protected function register_controls() {
+        // Supplement older downloaded language packs with the bundled editor terms.
+        get_translations_for_domain('open-user-map');
+        load_textdomain('open-user-map', dirname(__DIR__, 3).'/languages/open-user-map-'.determine_locale().'.mo');
         $globals = \OpenUserMapPlugin\Base\EditorController::globals();
         $choices = \OpenUserMapPlugin\Base\EditorController::choices();
         $this->start_controls_section('section_custom_map_position', ['label'=>__('Map view', 'open-user-map')]);
@@ -55,10 +58,26 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
         $this->add_control('oum_radius_native', ['type'=>\Elementor\Controls_Manager::HIDDEN]);
         $this->add_control('oum_editor_version', ['type'=>\Elementor\Controls_Manager::HIDDEN]);
         $this->end_controls_section();
-        $this->start_controls_section('section_title_style', ['label'=>__('Size', 'open-user-map'), 'tab'=>\Elementor\Controls_Manager::TAB_STYLE]);
-        $size = $globals['size'] === 'fullwidth' ? __('Screen width', 'open-user-map') : __('Column width', 'open-user-map');
-        $this->add_control('oum_map_size', ['label'=>__('Width', 'open-user-map'), 'type'=>\Elementor\Controls_Manager::SELECT, 'options'=>[''=>$size.' ('.__('Global setting', 'open-user-map').')','default'=>__('Column width', 'open-user-map'),'fullwidth'=>__('Screen width', 'open-user-map')]]);
-        $this->add_responsive_control('oum_map_height', ['label'=>__('Height', 'open-user-map'), 'type'=>\Elementor\Controls_Manager::NUMBER, 'min'=>1, 'placeholder'=>$globals['height'], 'device_args'=>['mobile'=>['placeholder'=>$globals['height_mobile'] ?: $globals['height']]], 'description'=>__('In pixels. Leave empty to use the global setting.', 'open-user-map')]);
+        $this->start_controls_section('section_title_style', ['label'=>__('Dimensions', 'open-user-map'), 'tab'=>\Elementor\Controls_Manager::TAB_STYLE]);
+        $this->add_responsive_control('oum_map_size', ['label'=>__('Width', 'open-user-map'), 'type'=>\Elementor\Controls_Manager::SELECT, 'frontend_available'=>true, 'default'=>'', 'options'=>[''=>__('Automatic','open-user-map'),'default'=>__('Column width', 'open-user-map'),'fullwidth'=>__('Screen width', 'open-user-map')]]);
+        // Keep every legacy numeric device value; the native size control reads it without migration.
+        $this->add_responsive_control('oum_map_height', ['type'=>\Elementor\Controls_Manager::HIDDEN,'frontend_available'=>true]);
+        $this->add_responsive_control('oum_height_mode', ['label'=>__('Height','open-user-map'),'type'=>'oum_height_mode','classes'=>'elementor-control-type-select','frontend_available'=>true,'default'=>'','options'=>[''=>__('Automatic','open-user-map'),'ratio'=>__('Aspect ratio','open-user-map'),'height'=>__('Fixed height','open-user-map')]]);
+        $height_args=[];$ratio_args=[];$custom_args=[];
+        $devices=\Elementor\Plugin::$instance->breakpoints->get_active_devices_list(['reverse'=>true,'desktop_first'=>true]);
+        foreach($devices as $device){
+            $suffix=$device==='desktop' ? '' : '_'.$device;
+            $height_args[$device]=['conditions'=>['relation'=>'or','terms'=>[
+                ['name'=>'oum_height_mode'.$suffix,'operator'=>'===','value'=>'height'],
+                ['relation'=>'and','terms'=>[['name'=>'oum_height_mode'.$suffix,'operator'=>'===','value'=>''],['name'=>'oum_map_height'.$suffix,'operator'=>'!==','value'=>'']]]
+            ]]];
+            $ratio_args[$device]=['conditions'=>['terms'=>[['name'=>'oum_height_mode'.$suffix,'operator'=>'===','value'=>'ratio']]]];
+            $custom_args[$device]=['conditions'=>['terms'=>[['name'=>'oum_height_mode'.$suffix,'operator'=>'===','value'=>'ratio'],['name'=>'oum_ratio'.$suffix,'operator'=>'===','value'=>'custom']]]];
+        }
+        $this->add_responsive_control('oum_height_value', ['label'=>__('Fixed height','open-user-map'),'type'=>'oum_height_value','label_block'=>false,'classes'=>'elementor-control-type-slider','frontend_available'=>true,'size_units'=>['px','%','em','rem','vh','vw','svh','lvh','dvh','vmin','vmax'],'range'=>['px'=>['min'=>1,'max'=>1200],'vh'=>['min'=>1,'max'=>100],'%'=>['min'=>1,'max'=>100]],'device_args'=>$height_args]);
+        $this->add_responsive_control('oum_ratio', ['label'=>__('Aspect ratio','open-user-map'),'type'=>\Elementor\Controls_Manager::SELECT,'frontend_available'=>true,'default'=>'','options'=>['16/9'=>'16:9','4/3'=>'4:3','1/1'=>'1:1','3/4'=>'3:4','9/16'=>'9:16','custom'=>__('Custom','open-user-map')],'device_args'=>$ratio_args]);
+        $this->add_responsive_control('oum_ratio_custom', ['label'=>__('Aspect ratio','open-user-map'),'type'=>\Elementor\Controls_Manager::TEXT,'frontend_available'=>true,'placeholder'=>'16/9','device_args'=>$custom_args]);
+        $this->add_control('oum_reset_height',['type'=>\Elementor\Controls_Manager::BUTTON,'text'=>__('Reset','open-user-map'),'event'=>'oum:reset-height']);
         $this->end_controls_section();
     }
 
@@ -123,7 +142,11 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
     protected function render() {
         $settings=$this->get_settings_for_display();
         $attributes = \OpenUserMapPlugin\Base\EditorSettings::elementor_attributes($settings);
-        $this->render_responsive_height($settings);
+        $sizing=\OpenUserMapPlugin\Base\ElementorSizing::build($settings,$this->get_id(),\Elementor\Plugin::$instance->breakpoints->get_active_breakpoints());
+        if(!$sizing['height'])$this->render_responsive_height($settings);
+        if($sizing['css']!==''){
+            echo '<style>'.$sizing['css'].'</style><div class="oum-elementor-sizing'.($sizing['height']?' has-oum-dimensions':'').($sizing['width']?' has-oum-width':'').'">';
+        }
         $radius=!empty($settings['oum_radius_native']);
         if($radius) $this->render_native_radius($settings);
         if (Plugin::is_elementor_backend()) {
@@ -131,5 +154,6 @@ class Elementor_Open_User_Map_Widget extends \Elementor\Widget_Base {
         } else {
             echo do_shortcode(\OpenUserMapPlugin\Base\EditorSettings::shortcode($attributes));
         }
+        if($sizing['css']!=='')echo '</div>';
     }
 }

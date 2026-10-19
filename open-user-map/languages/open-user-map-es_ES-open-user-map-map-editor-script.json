@@ -55,9 +55,6 @@
       "Visible": [
         "Visibles"
       ],
-      "Size": [
-        "Tamaño"
-      ],
       "Width": [
         "Anchura"
       ],
@@ -67,14 +64,8 @@
       "Column width": [
         "Anchura de columna"
       ],
-      "Mobile height": [
-        "Altura en móvil"
-      ],
       "Automatic": [
         "Automática"
-      ],
-      "Use Dimensions to change the height.": [
-        "Cambia la altura en «Dimensiones»."
       ],
       "Reset height": [
         "Restablecer altura"
@@ -84,6 +75,33 @@
       ],
       "Example map with locations and popup": [
         "Ejemplo de mapa con marcadores y una ventana abierta"
+      ],
+      "Fixed height": [
+        "Altura fija"
+      ],
+      "Aspect ratio": [
+        "Relación de aspecto"
+      ],
+      "Custom": [
+        "Personalizado"
+      ],
+      "Use 16/9.": [
+        "Usa 16/9."
+      ],
+      "Desktop": [
+        "Escritorio"
+      ],
+      "Tablet": [
+        "Tableta"
+      ],
+      "Mobile": [
+        "Móvil"
+      ],
+      "All devices (base)": [
+        "Todos los dispositivos (base)"
+      ],
+      "Desktop (base)": [
+        "Escritorio (base)"
       ]
     }
   }

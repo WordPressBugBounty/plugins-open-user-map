@@ -129,6 +129,38 @@
     return window.L.tileLayer.provider('OpenStreetMap.Mapnik').addTo(map);
   }
 
+  function protectOpenFreeMapShieldFilters(map) {
+    const shieldLayerIds = ['highway-shield-non-us', 'highway-shield-us-interstate', 'road_shield_us'];
+    const refLengthComparison = JSON.stringify(['<=', ['get', 'ref_length'], 6]);
+
+    function applyShieldGuards() {
+      const style = map.getStyle();
+
+      if (!style || !Array.isArray(style.layers)) {
+        return;
+      }
+
+      style.layers.forEach(function(layer) {
+        const filter = layer.filter;
+
+        // Match only the known upstream filters; leave fixed or custom filters intact.
+        if (shieldLayerIds.indexOf(layer.id) === -1 || layer['source-layer'] !== 'transportation_name' ||
+            !Array.isArray(filter) || filter[0] !== 'all' || JSON.stringify(filter[1]) !== refLengthComparison) {
+          return;
+        }
+
+        // Junction points can lack ref_length. Reject them as before, without a numeric evaluation error.
+        map.setFilter(layer.id, ['case', ['==', ['typeof', ['get', 'ref_length']], 'number'], filter, false]);
+      });
+    }
+
+    map.on('style.load', applyShieldGuards);
+
+    if (map.isStyleLoaded()) {
+      applyShieldGuards();
+    }
+  }
+
   function addOpenFreeMapLayer(map, style) {
     if (!window.L || typeof window.L.maplibreGL !== 'function') {
       console.warn('Open User Map: MapLibre assets are required for OpenFreeMap styles.');
@@ -139,12 +171,20 @@
 
     ensureLeafletZoomBounds(map);
 
-    return window.L.maplibreGL({
+    const layer = window.L.maplibreGL({
       style: style.url,
       attributionControl: {
         customAttribution: openFreeMapAttribution
       }
-    }).addTo(map);
+    });
+
+    // Leaflet can defer onAdd until its first setView; wait for the GL map to exist.
+    layer.on('add', function() {
+      protectOpenFreeMapShieldFilters(layer.getMaplibreMap());
+    });
+    layer.addTo(map);
+
+    return layer;
   }
 
   function addBaseLayer(map, mapStyle, options) {

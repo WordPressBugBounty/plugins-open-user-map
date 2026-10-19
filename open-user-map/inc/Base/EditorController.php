@@ -67,6 +67,7 @@ class EditorController extends BaseController {
                 'checkStyle'=>__('Check map style.','open-user-map'), 'tilesError'=>__('Map tiles could not load.','open-user-map'), 'sessionExpired'=>__('Session expired.','open-user-map'),
                 'reloadEditor'=>__('Reload editor','open-user-map'), 'connectionError'=>__('Connection lost.','open-user-map'),
                 'height'=>__('Height','open-user-map'),'previous'=>__('Previous image','open-user-map'),'next'=>__('Next image','open-user-map'),'edit'=>__('Edit view','open-user-map'),'done'=>__('Done','open-user-map'),'reset'=>__('Reset','open-user-map'),'loading'=>__('Loading map…','open-user-map'),'error'=>__('Map could not be loaded.','open-user-map'),'retry'=>__('Retry','open-user-map'),'zoomIn'=>__('Zoom in','open-user-map'),'zoomOut'=>__('Zoom out','open-user-map'),'checkView'=>__('Check map view.','open-user-map'),'noLocations'=>__('No locations found.','open-user-map')),
+            'heightControls'=>BlockHeight::editor_configuration(),
             'globals'=>self::globals(), 'choices'=>self::choices(),
         ));
         wp_enqueue_style('oum_editor_popups',$this->plugin_url.'assets/editor-popups.css',array(),filemtime($this->plugin_path.'assets/editor-popups.css'));

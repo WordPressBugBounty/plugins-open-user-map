@@ -63,6 +63,21 @@
     },
     "oumPreview": {
       "type": "boolean"
+    },
+    "style": {
+      "type": "object"
+    },
+    "aspect_ratio_mobile": {
+      "type": "string"
+    },
+    "size_mobile": {
+      "type": "string"
+    },
+    "size_tablet": {
+      "type": "string"
+    },
+    "width_responsive": {
+      "type": "boolean"
     }
   },
   "supports": {
@@ -72,11 +87,12 @@
     ],
     "spacing": {
       "margin": true,
-      "padding": true
+      "padding": true,
+      "__experimentalDefaultControls": {
+        "padding": false
+      }
     },
-    "dimensions": {
-      "minHeight": true
-    },
+    "dimensions": {},
     "__experimentalBorder": {
       "radius": true,
       "width": true,

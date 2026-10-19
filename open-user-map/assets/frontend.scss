@@ -4950,3 +4950,61 @@ body.oum-add-location-opened {
 .oum-native-block.has-oum-radius .map-wrap { overflow:hidden; }
 
 .oum-native-block.has-oum-height { min-height:0 !important; }
+
+// Only blocks with explicitly saved native device heights use this bridge.
+.oum-native-block.has-oum-dimensions .open-user-map .box-wrap > .map-wrap {
+    width: 100% !important;
+    max-width: 100%;
+    padding: 0 !important;
+    height: var(--oum-block-height, auto) !important;
+    aspect-ratio: var(--oum-block-ratio, 1.77) !important;
+}
+
+
+.oum-native-block.has-oum-dimensions { height: auto !important; min-height: 0 !important; }
+
+// Device widths apply only after a Gutenberg responsive width is explicitly chosen.
+.oum-native-block.has-oum-width .open-user-map .box-wrap {
+    width: var(--oum-block-width) !important;
+    margin-left: var(--oum-block-offset) !important;
+    transform: translateX(var(--oum-block-translate)) !important;
+}
+.oum-native-block.has-oum-width .oum-map-with-sidebar {
+    width: var(--oum-block-width) !important;
+    margin-left: var(--oum-block-offset) !important;
+    transform: translateX(var(--oum-block-translate)) !important;
+    max-width: none;
+    .box-wrap {
+        width: 100% !important;
+        margin-left: 0 !important;
+        transform: none !important;
+    }
+}
+
+/* Theme link styles must not underline the map zoom symbols. */
+.open-user-map .leaflet-control-zoom a,
+.open-user-map .leaflet-control-zoom a:hover,
+.open-user-map .leaflet-control-zoom a:focus,
+.open-user-map .leaflet-control-zoom a:active { text-decoration: none !important; }
+
+/* Native Elementor device dimensions apply only to explicitly edited sizing. */
+.oum-elementor-sizing { width: 100%; min-width: 0; }
+.oum-elementor-sizing.has-oum-dimensions .open-user-map .box-wrap > .map-wrap {
+    width: 100% !important;
+    max-width: 100%;
+    height: var(--oum-block-height, auto) !important;
+    padding: 0 !important;
+    aspect-ratio: var(--oum-block-ratio, 1.77) !important;
+}
+.oum-elementor-sizing.has-oum-width .open-user-map .box-wrap,
+.oum-elementor-sizing.has-oum-width .oum-map-with-sidebar {
+    width: var(--oum-block-width) !important;
+    margin-left: var(--oum-block-offset) !important;
+    transform: translateX(var(--oum-block-translate)) !important;
+    max-width: none;
+}
+.oum-elementor-sizing.has-oum-width .oum-map-with-sidebar .box-wrap {
+    width: 100% !important;
+    margin-left: 0 !important;
+    transform: none !important;
+}

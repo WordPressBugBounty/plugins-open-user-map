@@ -3054,3 +3054,67 @@ msgstr "Dein Marker wurde veröffentlicht."
 #: inc/Base/BaseController.php
 msgid "Your changes have been saved."
 msgstr "Deine Änderungen wurden gespeichert."
+
+#: blocks/src/editor.js
+msgid "Size (mobile)"
+msgstr "Größe (mobil)"
+
+#: blocks/src/editor.js
+msgid "Fixed height"
+msgstr "Feste Höhe"
+
+#: blocks/src/editor.js
+msgid "Aspect ratio"
+msgstr "Seitenverhältnis"
+
+#: blocks/src/editor.js
+msgid "Custom"
+msgstr "Individuell"
+
+#: blocks/src/editor.js
+msgid "Reset size"
+msgstr "Größe zurücksetzen"
+
+#: blocks/src/editor.js
+msgid "Use 16/9."
+msgstr "Verwende 16/9."
+
+#: blocks/src/editor.js
+msgid "Size (tablet)"
+msgstr "Größe (Tablet)"
+
+#: blocks/src/editor.js
+msgid "Height (mobile)"
+msgstr "Höhe (mobil)"
+
+#: blocks/src/editor.js
+msgid "Height (tablet)"
+msgstr "Höhe (Tablet)"
+
+#: blocks/src/editor.js
+msgid "Desktop"
+msgstr "Desktop"
+
+#: blocks/src/editor.js
+msgid "Smartphone"
+msgstr "Smartphone"
+
+#: blocks/src/editor.js
+msgid "Tablet"
+msgstr "Tablet"
+
+#: blocks/src/editor.js
+msgid "Mobile"
+msgstr "Mobil"
+
+#: blocks/src/editor.js
+msgid "All devices (base)"
+msgstr "Alle Geräte (Basis)"
+
+#: blocks/src/editor.js
+msgid "Desktop (base)"
+msgstr "Desktop (Basis)"
+
+#: elementor/includes/widgets/open-user-map-widget.php
+msgid "Dimensions"
+msgstr "Maße"

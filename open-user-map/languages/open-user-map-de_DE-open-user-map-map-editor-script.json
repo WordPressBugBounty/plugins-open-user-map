@@ -49,14 +49,8 @@
       "Column width": [
         "Spaltenbreite"
       ],
-      "Mobile height": [
-        "Mobile Höhe"
-      ],
       "Automatic": [
         "Automatisch"
-      ],
-      "Use Dimensions to change the height.": [
-        "Ändere die Höhe unter „Abmessungen“."
       ],
       "Manage locations": [
         "Marker verwalten"
@@ -76,11 +70,35 @@
       "Categories": [
         "Kategorien"
       ],
-      "Size": [
-        "Größe"
-      ],
       "Width": [
         "Breite"
+      ],
+      "Fixed height": [
+        "Feste Höhe"
+      ],
+      "Aspect ratio": [
+        "Seitenverhältnis"
+      ],
+      "Custom": [
+        "Individuell"
+      ],
+      "Use 16/9.": [
+        "Verwende 16/9."
+      ],
+      "Desktop": [
+        "Desktop"
+      ],
+      "Tablet": [
+        "Tablet"
+      ],
+      "Mobile": [
+        "Mobil"
+      ],
+      "All devices (base)": [
+        "Alle Geräte (Basis)"
+      ],
+      "Desktop (base)": [
+        "Desktop (Basis)"
       ]
     }
   }

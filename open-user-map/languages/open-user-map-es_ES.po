@@ -2923,3 +2923,67 @@ msgstr "No se encontraron marcadores."
 #: editor interface
 msgid "Search…"
 msgstr "Buscar…"
+
+#: blocks/src/editor.js
+msgid "Size (mobile)"
+msgstr "Tamaño (móvil)"
+
+#: blocks/src/editor.js
+msgid "Fixed height"
+msgstr "Altura fija"
+
+#: blocks/src/editor.js
+msgid "Aspect ratio"
+msgstr "Relación de aspecto"
+
+#: blocks/src/editor.js
+msgid "Custom"
+msgstr "Personalizado"
+
+#: blocks/src/editor.js
+msgid "Reset size"
+msgstr "Restablecer tamaño"
+
+#: blocks/src/editor.js
+msgid "Use 16/9."
+msgstr "Usa 16/9."
+
+#: blocks/src/editor.js
+msgid "Size (tablet)"
+msgstr "Tamaño (tableta)"
+
+#: blocks/src/editor.js
+msgid "Height (mobile)"
+msgstr "Altura (móvil)"
+
+#: blocks/src/editor.js
+msgid "Height (tablet)"
+msgstr "Altura (tableta)"
+
+#: blocks/src/editor.js
+msgid "Desktop"
+msgstr "Escritorio"
+
+#: blocks/src/editor.js
+msgid "Smartphone"
+msgstr "Smartphone"
+
+#: blocks/src/editor.js
+msgid "Tablet"
+msgstr "Tableta"
+
+#: blocks/src/editor.js
+msgid "Mobile"
+msgstr "Móvil"
+
+#: blocks/src/editor.js
+msgid "All devices (base)"
+msgstr "Todos los dispositivos (base)"
+
+#: blocks/src/editor.js
+msgid "Desktop (base)"
+msgstr "Escritorio (base)"
+
+#: elementor/includes/widgets/open-user-map-widget.php
+msgid "Dimensions"
+msgstr "Dimensiones"
