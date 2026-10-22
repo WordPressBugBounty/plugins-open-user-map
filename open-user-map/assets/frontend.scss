@@ -1,3 +1,6 @@
+@use "sass:map";
+@use "sass:color";
+
 // Variables
 $colors: (
   primary: #e82c71,
@@ -409,7 +412,7 @@ $search_input_width: 300px;
               position: relative;
               top: 2px;
               appearance: auto;
-              accent-color: map-get($colors, 'primary');
+              accent-color: map.get($colors, 'primary');
               width: 16px;
               height: 16px;
               flex-shrink: 0;
@@ -461,7 +464,7 @@ $search_input_width: 300px;
             font-size: 13px;
 
             &:hover {
-              color: map-get($colors, 'primary');
+              color: map.get($colors, 'primary');
             }
           }
         }
@@ -698,7 +701,7 @@ $search_input_width: 300px;
               }
   
               a {
-                color: map-get($colors, "primary");
+                color: map.get($colors, "primary");
               }
   
               .oum_location_date {
@@ -1357,7 +1360,7 @@ $search_input_width: 300px;
         top: 8px;
         right: 13px;
         z-index: 9999;
-        background: map-get($colors, "primary");
+        background: map.get($colors, "primary");
         color: white;
         box-shadow: 0 0 4px 2px rgba(0,0,0,0.2);
         display: flex;
@@ -1398,7 +1401,7 @@ $search_input_width: 300px;
   
         &:hover,
         &:active {
-          background: darken(map-get($colors, "primary"), 10%);
+          background: color.adjust(map.get($colors, "primary"), $lightness: -10%, $space: hsl);
           width: 158px;
   
           span.btn_text {
@@ -1510,7 +1513,7 @@ $search_input_width: 300px;
         border-bottom-right-radius: 4px;
 
         a {
-          color: map-get($colors, "primary");
+          color: map.get($colors, "primary");
           text-decoration: none;
           display: inline;
           line-height: 1;
@@ -1626,7 +1629,7 @@ $search_input_width: 300px;
         cursor: pointer;
   
         &:hover {
-          color: map-get($colors, "primary");
+          color: map.get($colors, "primary");
         }
   
         @media screen and (max-width: 768px) {
@@ -1637,7 +1640,7 @@ $search_input_width: 300px;
 
       #oum_add_location {
         .oum-required-indicator {
-          color: map-get($colors, "primary");
+          color: map.get($colors, "primary");
           font-size: 18px;
           line-height: 1;
           margin-left: 2px;
@@ -1648,7 +1651,7 @@ $search_input_width: 300px;
           text-align: center;
           font-size: 36px;
           margin-bottom: 7px;
-          color: map-get($colors, "primary");
+          color: map.get($colors, "primary");
 
           &.oum-add-location-headline {
             display: block;
@@ -1706,13 +1709,13 @@ $search_input_width: 300px;
 
             &.is-selected,
             &:has(input:checked) {
-              border-color: map-get($colors, "primary");
-              background-color: rgba(map-get($colors, "primary"), 0.08);
-              box-shadow: 0 0 0 1px rgba(map-get($colors, "primary"), 0.2);
+              border-color: map.get($colors, "primary");
+              background-color: rgba(map.get($colors, "primary"), 0.08);
+              box-shadow: 0 0 0 1px rgba(map.get($colors, "primary"), 0.2);
             }
 
             &:hover {
-              border-color: map-get($colors, "primary");
+              border-color: map.get($colors, "primary");
             }
           }
 
@@ -1721,7 +1724,7 @@ $search_input_width: 300px;
             display: block;
             width: 38px;
             height: 38px;
-            color: map-get($colors, "primary");
+            color: map.get($colors, "primary");
 
             svg {
               display: block;
@@ -1855,8 +1858,8 @@ $search_input_width: 300px;
           width: 100%;
 
           &:focus {
-            border-color: map-get($colors, "primary");
-            box-shadow: 0 0 0 2px rgba(map-get($colors, "primary"), 0.1);
+            border-color: map.get($colors, "primary");
+            box-shadow: 0 0 0 2px rgba(map.get($colors, "primary"), 0.1);
           }
         }
 
@@ -2126,7 +2129,7 @@ $search_input_width: 300px;
         }
 
         #oum_location_image {
-          color: map-get($colors, "primary");
+          color: map.get($colors, "primary");
         }
 
         .oum_media {
@@ -2150,7 +2153,7 @@ $search_input_width: 300px;
               padding: 0;
               margin: 0;
               line-height: 1;
-              color: map-get($colors, "primary");
+              color: map.get($colors, "primary");
               cursor: pointer;
               position: relative;
               flex-shrink: 0;
@@ -2234,7 +2237,7 @@ $search_input_width: 300px;
                   font-weight: bold;
                   font-family: math;
                   color: #fff;
-                  background: map-get($colors, "primary");
+                  background: map.get($colors, "primary");
                   width: 18px;
                   height: 18px;
                   line-height: 18px;
@@ -2264,11 +2267,11 @@ $search_input_width: 300px;
               transition: border-color 0.2s ease;
 
               &:hover {
-                border-color: map-get($colors, "primary");
+                border-color: map.get($colors, "primary");
               }
 
               &:focus {
-                border-color: map-get($colors, "primary");
+                border-color: map.get($colors, "primary");
                 outline: none;
                 box-shadow: 0 0 0 2px rgba(224, 42, 175, 0.1);
               }
@@ -2355,7 +2358,7 @@ $search_input_width: 300px;
               &.dragging {
                 cursor: grabbing;
                 background: #fff;
-                border-color: map-get($colors, "primary");
+                border-color: map.get($colors, "primary");
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
               }
 
@@ -2409,7 +2412,7 @@ $search_input_width: 300px;
           }
 
           .image-preview-placeholder {
-            border: 2px dashed map-get($colors, "primary");
+            border: 2px dashed map.get($colors, "primary");
             border-radius: 4px;
             background: rgba(224, 42, 175, 0.05);
             transition: all 0.15s ease-in-out;
@@ -2437,7 +2440,7 @@ $search_input_width: 300px;
           font-weight: bold;
           border-radius: 4px;
           margin: 40px 0 10px;
-          background: map-get($colors, "primary");
+          background: map.get($colors, "primary");
           padding: 15px 30px;
           line-height: 1;
           border: none;
@@ -2460,7 +2463,7 @@ $search_input_width: 300px;
           &:hover, 
           &:active {
             color: white;
-            background-color: darken(map-get($colors, "primary"), 10%);
+            background-color: color.adjust(map.get($colors, "primary"), $lightness: -10%, $space: hsl);
           }
 
           @media screen and (max-width: 768px) {
@@ -2474,7 +2477,7 @@ $search_input_width: 300px;
 
           span {
             cursor: pointer;
-            color: map-get($colors, "primary");
+            color: map.get($colors, "primary");
             display: inline-block;
             margin-top: 20px;
             margin-bottom: 10px;
@@ -2493,7 +2496,7 @@ $search_input_width: 300px;
         text-align: center;
 
         h3 {
-          color: map-get($colors, "primary");
+          color: map.get($colors, "primary");
           margin-bottom: 20px;
         }
 
@@ -2504,7 +2507,7 @@ $search_input_width: 300px;
           text-align: center;
           font-weight: bold;
           border-radius: 4px;
-          background: map-get($colors, "primary");
+          background: map.get($colors, "primary");
           padding: 15px 30px;
           line-height: 1;
           border: none;
@@ -2514,7 +2517,7 @@ $search_input_width: 300px;
           &:hover, 
           &:active {
             color: white;
-            background: darken(map-get($colors, "primary"), 10%);
+            background: color.adjust(map.get($colors, "primary"), $lightness: -10%, $space: hsl);
           }
         }
       }
@@ -2806,7 +2809,7 @@ $search_input_width: 300px;
           }
   
           a {
-            color: map-get($colors, "primary");
+            color: map.get($colors, "primary");
           }
     
           .oum_location_date {
@@ -3156,7 +3159,7 @@ $search_input_width: 300px;
         cursor: pointer;
   
         &:hover {
-          color: map-get($colors, "primary");
+          color: map.get($colors, "primary");
         }
       }
   
@@ -3448,7 +3451,7 @@ $search_input_width: 300px;
       }
 
       a {
-        color: map-get($colors, "primary");
+        color: map.get($colors, "primary");
       }
 
       .oum_location_date {
@@ -4082,7 +4085,7 @@ body.oum-add-location-opened {
     transition: background-color 0.3s ease !important;
 
     &:hover {
-      background-color: darken(#e82c71, 10%) !important;
+      background-color: color.adjust(#e82c71, $lightness: -10%, $space: hsl) !important;
     }
   }
 }
@@ -4302,7 +4305,7 @@ body.oum-add-location-opened {
         visibility: visible;
 
         &:focus {
-          border-color: map-get($colors, "primary");
+          border-color: map.get($colors, "primary");
           box-shadow: 0 0 0 2px rgba(232, 44, 113, 0.1);
         }
       }
@@ -4539,7 +4542,7 @@ body.oum-add-location-opened {
         box-sizing: border-box;
 
         &:focus {
-          border-color: map-get($colors, "primary");
+          border-color: map.get($colors, "primary");
           box-shadow: 0 0 0 2px rgba(232, 44, 113, 0.1);
         }
 
@@ -4673,18 +4676,18 @@ body.oum-add-location-opened {
       font-size: 16px;
       background: none;
       border: none;
-      color: map-get($colors, "primary");
+      color: map.get($colors, "primary");
       text-decoration: none;
       padding: 0;
       line-height: 1;
 
       &:hover {
-        color: darken(map-get($colors, "primary"), 10%);
+        color: color.adjust(map.get($colors, "primary"), $lightness: -10%, $space: hsl);
         text-decoration: underline;
       }
 
       &:active {
-        color: darken(map-get($colors, "primary"), 20%);
+        color: color.adjust(map.get($colors, "primary"), $lightness: -20%, $space: hsl);
       }
     }
   }
@@ -4769,7 +4772,7 @@ body.oum-add-location-opened {
         flex-shrink: 0;
 
         &:hover {
-          color: map-get($colors, 'primary');
+          color: map.get($colors, 'primary');
         }
       }
     }

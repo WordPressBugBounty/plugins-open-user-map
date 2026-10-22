@@ -4661,7 +4661,18 @@ function oumInitializeMap() {
     console.warn('‼️ Open User Map: Map container missing. Initialization aborted. Disable page caching if applicable, or contact support@open-user-map.com for help.');
     return;
   }
-  OUMMapLayout.mount(container, oumMountMap);
+  // Inline forms deliberately keep their main map hidden for configuration and
+  // shared bounds. Bootstrap when the form map is visible, and resize that map.
+  const inlineForm = container.closest('.oum-inline-form');
+  const formContainer = inlineForm && inlineForm.querySelector('#mapGetLocation');
+  if (formContainer) {
+    OUMMapLayout.mount(formContainer, function () {
+      oumMountMap();
+      return OUMFormMap.getMap();
+    });
+  } else {
+    OUMMapLayout.mount(container, oumMountMap);
+  }
 }
 
 // Mount the map and its controls only once the container has usable dimensions.
