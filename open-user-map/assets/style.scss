@@ -1055,6 +1055,10 @@
 }
 
 // Settings Page
+html.oum-settings-save-bar-page {
+  scroll-padding-bottom: var(--oum-settings-save-bar-height, 80px);
+}
+
 .oum-location_page_open-user-map-settings,
 .toplevel_page_open-user-map {
 
@@ -1304,8 +1308,43 @@
 
   .oum-nav-tab-wrapper {
     .nav-tab {
-      outline: none;
-      box-shadow: none;
+      &:focus-visible {
+        outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+        outline-offset: 2px;
+      }
+    }
+  }
+
+  .oum-settings-save-bar {
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    box-sizing: border-box;
+    padding: 12px 16px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    border-top: 1px solid #dcdcde;
+    background: #fff;
+
+    &.is-pinned {
+      position: fixed;
+      bottom: 0;
+    }
+
+    .submit {
+      margin: 0;
+      padding: 0;
+
+      .button {
+        margin-bottom: 0;
+      }
+    }
+
+    .oum-settings-save-status {
+      color: #50575e;
+      font-size: 13px;
+      line-height: 1.5;
     }
   }
 
@@ -1316,6 +1355,79 @@
 
       &.active {
         display: block;
+      }
+    }
+  }
+
+
+  // Responsive settings content. Wide field tables scroll within their own region.
+  .oum-tab-content {
+    [hidden] {
+      display: none !important;
+    }
+
+    .form-table {
+      width: 100%;
+    }
+
+    .community-group-box > tr > td:not([colspan]) {
+      width: calc(100% - 270px);
+      overflow-wrap: anywhere;
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]), select, textarea,
+    img, video, iframe, .map_styles, .marker_icons, .oum-code-snippet {
+      box-sizing: border-box;
+      max-width: 100%;
+    }
+
+    pre {
+      max-width: 100%;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .oum_2cols, .oum_3cols {
+      flex-wrap: wrap;
+
+      > * { min-width: 0; }
+    }
+
+    .oum-attribute-table {
+      table-layout: fixed;
+
+      th { width: auto; }
+      code { overflow-wrap: anywhere; }
+    }
+
+    .community-group-heading {
+      scroll-margin-top: 48px;
+    }
+  }
+
+  .oum-community-contributions-card {
+    flex-wrap: wrap;
+    box-sizing: border-box;
+
+    .oum-community-contributions-content { flex-basis: 260px; }
+    .oum-community-contributions-teaser { max-width: 100%; }
+  }
+
+  @media screen and (max-width: 782px) {
+    .oum-tab-content {
+      .community-group-box > tr > th,
+      .community-group-box > tr > td:not([colspan]) {
+        box-sizing: border-box;
+        width: 100%;
+      }
+
+      .community-group-box > tr > th { padding-bottom: 12px; }
+      .community-group-box > tr > td:not([colspan]) { padding-top: 12px; }
+      .community-group-heading { scroll-margin-top: 62px; }
+
+      // Preserve the custom-field table's columns inside its scroll region.
+      .oum_custom_fields_wrapper table {
+        th, td { display: table-cell; width: auto; }
       }
     }
   }
@@ -1604,12 +1716,9 @@
         background: #f6f7f7;
       }
 
-      &:focus,
-      &:active,
       &:focus-visible {
-        outline: none;
-        background: transparent;
-        box-shadow: none;
+        outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+        outline-offset: 2px;
       }
     }
   }
@@ -1642,8 +1751,9 @@
     }
   }
 
-  .wrap-community-tab-settings {
-    .form-table {
+  .wrap-community-tab-settings,
+  .oum-settings-groups {
+    > .form-table {
       display: flex;
       flex-direction: column;
       border-collapse: separate;
@@ -1772,8 +1882,17 @@
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
       position: relative;
 
-      input {
-        display: none;
+      input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        margin: 0;
+      }
+
+      &:has(input:focus-visible) {
+        outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+        outline-offset: 3px;
       }
 
       &.pro-only {
@@ -1850,10 +1969,6 @@
 
         &[data-style="OpenFreeMap.fiord"] {
           background-image: url('images/map_style_OpenFreeMap.fiord.png');
-        }
-    
-        &[data-style="Stadia.StamenTonerLite"] {
-          background-image: url('images/map_style_Stamen.TonerLite.png');
         }
     
         &[data-style="Esri.WorldStreetMap"] {
@@ -2022,8 +2137,17 @@
       margin: 5px;
       position: relative;
 
-      input {
-        display: none;
+      input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        margin: 0;
+      }
+
+      &:has(input:focus-visible) {
+        outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+        outline-offset: 3px;
       }
 
       &.pro-only {
@@ -2356,6 +2480,15 @@
   }
 
   .oum_custom_fields_wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+    contain: inline-size;
+
+    &:focus-visible {
+      outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+      outline-offset: 2px;
+    }
+
     table {
       border-collapse: collapse;
       border: 1px solid #c3c4c7;
@@ -2393,7 +2526,17 @@
           }
 
           td.actions {
-            a {
+            white-space: nowrap;
+
+            button {
+              background: transparent;
+              border: 0;
+              padding: 4px;
+              cursor: pointer;
+
+              &:focus-visible {
+                outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+              }
               text-decoration: none !important;
               display: inline-block;
       
@@ -2418,7 +2561,12 @@
     top: 0;
     z-index: 0;
     appearance: none;
-    visibility: hidden;
+    opacity: 0;
+
+    &:focus-visible + label::before {
+      outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+      outline-offset: 3px;
+    }
 
     + label {
       position: relative;
@@ -2430,6 +2578,7 @@
       padding-left: 50px;
       position: relative;
       margin-top: -18px;
+      min-height: 23px;
 
       &::before {
         box-sizing: border-box;
@@ -2478,6 +2627,11 @@
     margin-left: 5px;
 
     .oum-tooltip-trigger {
+      border: 0;
+      padding: 0;
+      vertical-align: middle;
+      font-family: inherit;
+      font-weight: 400;
       display: inline-block; 
       width: 16px; 
       height: 16px; 
@@ -2503,8 +2657,24 @@
       font-size: 12px;
       z-index: 1000; 
       box-shadow: 0 2px 8px rgba(0,0,0,0.3); 
-      min-width: 200px; 
-      max-width: 300px;
+      box-sizing: border-box;
+      width: 300px;
+      min-width: 0;
+      max-width: calc(100vw - 24px);
+      font-weight: 400;
+      line-height: 1.6;
+      text-align: start;
+
+      .oum-tooltip-title {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .oum-tooltip-description {
+        display: block;
+      }
 
       h4 {
         margin-top: 0;
@@ -2526,7 +2696,7 @@
         content: "";
         position: absolute; 
         top: 100%; 
-        left: 50%; 
+        left: var(--oum-tooltip-arrow-left, 50%);
         transform: translateX(-50%); 
         width: 0; 
         height: 0; 
@@ -2534,6 +2704,25 @@
         border-right: 5px solid transparent; 
         border-top: 5px solid #333;
       }
+
+      &[data-placement="below"]::after {
+        top: auto;
+        bottom: 100%;
+        border-top: 0;
+        border-bottom: 5px solid #333;
+      }
+    }
+  }
+
+  .oum-tooltip-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 0;
+    z-index: 100001;
+
+    .oum-tooltip-content {
+      overscroll-behavior: contain;
     }
   }
 
@@ -2604,67 +2793,80 @@
     padding: 0px 4px;
   }
 
+  .oum-pro-feature-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: #50575e;
+
+    > a,
+    > span {
+      display: block;
+    }
+
+    a {
+      font-size: inherit;
+      font-weight: inherit;
+    }
+
+    a:not(.button) {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    // WordPress owns button colors, borders, and interaction states.
+    a.oum-pro-feature-buy {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      min-height: 32px;
+      margin: 0;
+      padding: 4px 13px;
+      line-height: 1.5;
+
+      @media (pointer: coarse) {
+        min-height: 44px;
+      }
+    }
+  }
+
+  .oum-pro-choice {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+
+    .oum-pro-feature-actions {
+      margin-top: 0;
+    }
+  }
+
   .oum-gopro-tr td,
   .oum-gopro-div {
     opacity: 0.65;
   }
 
-  .oum-marker-categories-settings-panel {
-    max-width: 740px;
-  }
+  // Keep the original Free/PRO gate rows as the shell; their groups use the
+  // same full-width tables and columns as every other settings tab.
+  .oum-categories-shell {
+    margin: 0;
+    border-spacing: 0;
 
-  .oum-marker-categories-section {
-    padding: 18px 0;
-
-    + .oum-marker-categories-section {
-      border-top: 1px solid #dcdcde;
+    > tbody > tr > td {
+      padding: 0;
     }
 
-    h3 {
-      margin: 0 0 8px;
-      font-size: 15px;
+    // Only locked controls are dimmed, not the surrounding groups or upgrade CTA.
+    > tbody > .oum-gopro-tr > td,
+    .oum-gopro-tr .community-group-heading > td {
+      opacity: 1;
     }
-
-    > .description {
-      margin: 0 0 12px;
-    }
-  }
-
-  .oum-settings-control {
-    margin-top: 18px;
-
-    > .description {
-      margin: 6px 0 0 50px;
-    }
-  }
-
-  .oum-location-shapes-panel {
-    max-width: 740px;
-    border: 1px solid #dcdcde;
-    border-radius: 6px;
-    background: #fff;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  }
-
-  .oum-location-shape-row {
-    padding: 18px 20px;
-
-    + .oum-location-shape-row {
-      border-top: 1px solid #e5e5e5;
-    }
-
-    &.is-locked {
-      opacity: 0.65;
-    }
-  }
-
-  .oum-location-shape-row > .description {
-    margin: 4px 0 0 50px;
-  }
-
-  .oum-location-shape-title {
-    font-size: 15px;
-    font-weight: 600;
   }
 
   .oum-category-type-icon {
@@ -2691,9 +2893,22 @@
     background-size: contain;
   }
 
+  .oum-location-shape-setting {
+    > .oum-switch + label {
+      font-weight: 600;
+    }
+
+    > .description {
+      margin: 4px 0 0 50px;
+      font-style: normal;
+    }
+  }
+
   .oum-location-shape-suboption {
-    margin-top: 12px;
+    margin-top: 16px;
     margin-left: 50px;
+    padding-left: 16px;
+    border-left: 2px solid #dcdcde;
 
     input {
       vertical-align: middle;

@@ -1,10 +1,10 @@
 === Open User Map – Interactive Leaflet Maps ===
-Contributors: 100plugins, freemius
+Contributors: 100plugins
 Tags: map, interactive map, leaflet, maps, openstreetmap
 Requires at least: 5.5
 Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 1.4.55
+Stable tag: 1.4.56
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -443,6 +443,18 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.56 =
+* Fixed: Inline submission forms respect login restrictions and recover from failed submissions with a visible error.
+* Fixed: Opening or resizing the settings map no longer reports unsaved changes on fresh installations.
+* Improved: Purchase and trial hints are limited to fully PRO settings; premium suboptions use compact PRO badges.
+* Improved: Settings use consistent sections, quick links, and clearer category-type and search controls.
+* Improved: The Save Changes button stays visible and indicates unsaved changes.
+* Improved: Location Settings starts with the submission form settings.
+* Improved: PRO settings show native WordPress purchase buttons, trial links, and license status guidance.
+* Improved: Feature help popups support keyboard navigation and stay within the visible screen area.
+* Improved: Keyboard access and scrolling for wide custom-field tables.
+* Updated: German and Spanish translations; added French translations for the new settings and related interface texts.
+
 = 1.4.55 =
 * Bugfix: Map didn't not show up with [open-user-map-form] shortcode
 

@@ -99,7 +99,11 @@ jQuery('#oum_add_location').submit(function(event) {
     processData: false,
     data: formData,
     success: function (response, textStatus, XMLHttpRequest) {
-      jQuery('#oum_submit_btn').removeClass('oum-loading');
+      // Expired sessions and cached forms can receive a non-JSON WordPress response.
+      if (!response || typeof response !== 'object' || typeof response.success !== 'boolean') {
+        oumShowSubmissionError();
+        return;
+      }
 
       if(response.success == false) {
         oumShowError(response.data);
@@ -176,11 +180,20 @@ jQuery('#oum_add_location').submit(function(event) {
         }
       }
     },
-    error: function (XMLHttpRequest, textStatus, errorThrown) { 
-      console.log(errorThrown);
+    error: function () {
+      oumShowSubmissionError();
+    },
+    complete: function () {
+      jQuery('#oum_submit_btn').removeClass('oum-loading');
     }
   });
 });
+
+function oumShowSubmissionError() {
+  oumShowError([{message: typeof oum_custom_strings !== 'undefined' && oum_custom_strings.submission_error
+    ? oum_custom_strings.submission_error
+    : 'Your location could not be submitted. Please reload the page and try again.'}]);
+}
 
 function oumShowError(errors) {
   const errorWrapEl = jQuery('#oum_add_location_error');

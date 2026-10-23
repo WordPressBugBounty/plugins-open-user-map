@@ -519,6 +519,138 @@ class Settings extends BaseController {
         }
     }
 
+    /** Shared presentation for settings sections; never controls feature availability. */
+    public function render_settings_quick_links( $sections ) {
+        ?>
+        <nav class="community-quick-links" aria-label="<?php 
+        echo esc_attr__( 'Settings sections', 'open-user-map' );
+        ?>">
+            <strong><?php 
+        echo esc_html__( 'Quick links', 'open-user-map' );
+        ?>:</strong>
+            <?php 
+        foreach ( $sections as $id => $title ) {
+            ?>
+                <a href="#<?php 
+            echo esc_attr( $id );
+            ?>"><?php 
+            echo esc_html( $title );
+            ?></a>
+            <?php 
+        }
+        ?>
+        </nav>
+        <?php 
+    }
+
+    /** Opens a table row group. Close its tbody after the complete Free/PRO row pair. */
+    public function render_settings_group_start( $id, $title, $description ) {
+        ?>
+        <tbody class="community-group-box">
+            <tr class="community-group-heading" id="<?php 
+        echo esc_attr( $id );
+        ?>" tabindex="-1">
+                <td colspan="2">
+                    <div class="community-group-heading-inner">
+                        <h3><?php 
+        echo esc_html( $title );
+        ?></h3>
+                        <p><?php 
+        echo esc_html( $description );
+        ?></p>
+                    </div>
+                </td>
+            </tr>
+        <?php 
+    }
+
+    /** Feature help is shared by the existing premium and non-premium rows. */
+    public function render_pro_feature_help( $title, $description ) {
+        $id = wp_unique_id( 'oum-feature-help-' );
+        /* translators: %s: feature name. */
+        $help_label = sprintf( __( 'About %s', 'open-user-map' ), $title );
+        ?>
+        <span class="oum-tooltip">
+            <button type="button" class="oum-tooltip-trigger" aria-label="<?php 
+        echo esc_attr( $help_label );
+        ?>" aria-expanded="false" aria-controls="<?php 
+        echo esc_attr( $id );
+        ?>">?</button>
+            <span class="oum-tooltip-content" id="<?php 
+        echo esc_attr( $id );
+        ?>" role="tooltip">
+                <strong class="oum-tooltip-title"><?php 
+        echo esc_html( $title );
+        ?></strong>
+                <span class="oum-tooltip-description"><?php 
+        echo wp_kses_post( $description );
+        ?></span>
+            </span>
+        </span>
+        <?php 
+    }
+
+    /** Presentation only: callers stay inside their original Freemius branches. */
+    public function render_pro_feature_actions( $locked = false ) {
+        $fs = oum_fs();
+        $trial = $fs->is_trial();
+        // A running trial on the Free build still needs the PRO build installed.
+        if ( !$locked && (!$trial || !$fs->is_premium()) ) {
+            return;
+        }
+        $needs_activation = $locked && ($trial || $fs->is_paying());
+        // Follow the SDK's trial-promotion prerequisites, without its notice timing.
+        $show_trial = $locked && !$trial && !$fs->is_paying() && !$fs->is_premium() && $fs->has_trial_plan() && !$fs->is_trial_utilized() && !$fs->is_activation_mode() && !$fs->is_pending_activation() && (!$fs->is_network_active() || $fs->is_delegated_connection()) && $fs->apply_filters( 'show_trial', true );
+        ?>
+        <span class="oum-pro-feature-actions">
+            <?php 
+        if ( $trial ) {
+            ?>
+                <span class="oum-pro-feature-status"><?php 
+            echo esc_html__( 'Trial active', 'open-user-map' );
+            ?></span>
+            <?php 
+        }
+        ?>
+            <?php 
+        if ( $needs_activation ) {
+            ?>
+                <a href="<?php 
+            echo esc_url( $fs->get_account_url() );
+            ?>"><?php 
+            echo esc_html__( 'Install or activate PRO', 'open-user-map' );
+            ?></a>
+            <?php 
+        }
+        ?>
+            <?php 
+        if ( !$needs_activation || $trial ) {
+            ?>
+                <a class="button button-primary oum-pro-feature-buy" href="<?php 
+            echo esc_url( $fs->get_upgrade_url() );
+            ?>"><?php 
+            echo esc_html__( 'Buy PRO', 'open-user-map' );
+            ?></a>
+            <?php 
+        }
+        ?>
+            <?php 
+        if ( $show_trial ) {
+            ?>
+                <span><?php 
+            echo esc_html__( 'or', 'open-user-map' );
+            ?> <a href="<?php 
+            echo esc_url( $fs->get_trial_url() );
+            ?>"><?php 
+            echo esc_html__( 'try free for 7 days', 'open-user-map' );
+            ?></a></span>
+            <?php 
+        }
+        ?>
+        </span>
+        <?php 
+    }
+
     public function admin_index() {
         require_once oum_get_template( 'page-backend-settings.php' );
     }

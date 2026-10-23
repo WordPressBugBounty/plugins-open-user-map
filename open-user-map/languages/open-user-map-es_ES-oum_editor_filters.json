@@ -1,5 +1,5 @@
 {
-  "translation-revision-date": "2026-10-18 20:00+0000",
+  "translation-revision-date": "2026-10-23 16:06+0000",
   "generator": "Open User Map PO to JSON",
   "domain": "messages",
   "source": "src/js/editor-filters.js",
@@ -10,20 +10,38 @@
         "lang": "es_ES",
         "plural-forms": "nplurals=2; plural=n != 1;"
       },
-      "Remove": [
-        "Eliminar"
-      ],
-      "OR": [
-        "O"
-      ],
-      "Custom fields": [
-        "Campos personalizados"
+      "Filter": [
+        "Filtros"
       ],
       "Reset": [
         "Restablecer"
       ],
-      "Filter": [
-        "Filtros"
+      "Remove": [
+        "Eliminar"
+      ],
+      "Custom fields": [
+        "Campos personalizados"
+      ],
+      "OR": [
+        "O"
+      ],
+      "AND": [
+        "Y"
+      ],
+      "All": [
+        "Todos"
+      ],
+      "Match categories": [
+        "Categorías requeridas"
+      ],
+      "Any": [
+        "Cualquiera"
+      ],
+      "Created date": [
+        "Fecha de creación"
+      ],
+      "Updated date": [
+        "Fecha de modificación"
       ],
       "Any date": [
         "Cualquier fecha"
@@ -40,26 +58,11 @@
       "Period": [
         "Periodo"
       ],
-      "Saved filter": [
-        "Filtro guardado"
-      ],
-      "Match categories": [
-        "Categorías requeridas"
-      ],
-      "Any": [
-        "Cualquiera"
-      ],
-      "All": [
-        "Todos"
-      ],
-      "Created date": [
-        "Fecha de creación"
-      ],
-      "Updated date": [
-        "Fecha de modificación"
-      ],
       "Date": [
         "Fecha"
+      ],
+      "Saved filter": [
+        "Filtro guardado"
       ],
       "Choose an end date after the start date.": [
         "La fecha final debe ser posterior a la inicial."

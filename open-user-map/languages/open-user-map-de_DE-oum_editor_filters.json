@@ -1,5 +1,5 @@
 {
-  "translation-revision-date": "2026-06-05 08:14:32+0000",
+  "translation-revision-date": "2026-10-23 16:06+0000",
   "generator": "Open User Map PO to JSON",
   "domain": "messages",
   "source": "src/js/editor-filters.js",
@@ -10,23 +10,32 @@
         "lang": "de_DE",
         "plural-forms": "nplurals=2; plural=n != 1;"
       },
+      "Filter": [
+        "Filter"
+      ],
+      "Reset": [
+        "Zurücksetzen"
+      ],
       "Remove": [
         "Entfernen"
+      ],
+      "Custom fields": [
+        "Eigene Felder"
       ],
       "OR": [
         "ODER"
       ],
-      "Custom fields": [
-        "Eigene Felder"
+      "AND": [
+        "UND"
+      ],
+      "All": [
+        "Alle"
       ],
       "Match categories": [
         "Kategorien erfüllen"
       ],
       "Any": [
         "Beliebige"
-      ],
-      "All": [
-        "Alle"
       ],
       "Created date": [
         "Erstellt am"
@@ -99,12 +108,6 @@
       ],
       "Add condition": [
         "Bedingung hinzufügen"
-      ],
-      "Reset": [
-        "Zurücksetzen"
-      ],
-      "Filter": [
-        "Filter"
       ],
       "Reset filters": [
         "Filter zurücksetzen"

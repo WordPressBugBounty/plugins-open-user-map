@@ -1,5 +1,5 @@
 {
-  "translation-revision-date": "2026-10-18 20:00+0000",
+  "translation-revision-date": "2026-10-23 16:06+0000",
   "generator": "Open User Map PO to JSON",
   "domain": "messages",
   "source": "blocks/build/index.js",
@@ -10,14 +10,8 @@
         "lang": "fr_FR",
         "plural-forms": "nplurals=2; plural=n > 1;"
       },
-      "Region": [
-        "Région"
-      ],
-      "Height": [
-        "Hauteur"
-      ],
-      "Locations": [
-        "Repères"
+      "No region": [
+        "Aucune région"
       ],
       "Map view": [
         "Vue de la carte"
@@ -31,17 +25,17 @@
       "Global settings": [
         "Réglages globaux"
       ],
-      "Global setting": [
-        "Réglage global"
-      ],
       "Manage locations": [
         "Gérer les repères"
       ],
-      "No region": [
-        "Aucune région"
+      "Region": [
+        "Région"
       ],
       "Categories": [
         "Catégories"
+      ],
+      "Locations": [
+        "Repères"
       ],
       "Leave empty to show all.": [
         "Laissez vide pour tout afficher."
@@ -55,35 +49,38 @@
       "Visible": [
         "Visibles"
       ],
+      "Global setting": [
+        "Réglage global"
+      ],
       "Width": [
         "Largeur"
-      ],
-      "Screen width": [
-        "Largeur de l’écran"
-      ],
-      "Column width": [
-        "Largeur de la colonne"
       ],
       "Automatic": [
         "Automatique"
       ],
-      "Reset height": [
-        "Réinitialiser la hauteur"
+      "Column width": [
+        "Largeur de la colonne"
       ],
-      "Reset": [
-        "Réinitialiser"
+      "Screen width": [
+        "Largeur de l’écran"
       ],
-      "Example map with locations and popup": [
-        "Exemple de carte avec repères et fenêtre ouverte"
-      ],
-      "Fixed height": [
-        "Hauteur fixe"
+      "Height": [
+        "Hauteur"
       ],
       "Aspect ratio": [
         "Format"
       ],
+      "Fixed height": [
+        "Hauteur fixe"
+      ],
       "Custom": [
         "Personnalisé"
+      ],
+      "Reset": [
+        "Réinitialiser"
+      ],
+      "Reset height": [
+        "Réinitialiser la hauteur"
       ],
       "Use 16/9.": [
         "Utilisez 16/9."
@@ -102,6 +99,9 @@
       ],
       "Desktop (base)": [
         "Ordinateur (base)"
+      ],
+      "Example map with locations and popup": [
+        "Exemple de carte avec repères et fenêtre ouverte"
       ]
     }
   }

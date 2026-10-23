@@ -1,5 +1,5 @@
 {
-  "translation-revision-date": "2026-10-18 20:00+0000",
+  "translation-revision-date": "2026-10-23 16:06+0000",
   "generator": "Open User Map PO to JSON",
   "domain": "messages",
   "source": "src/js/editor-filters.js",
@@ -10,17 +10,35 @@
         "lang": "fr_FR",
         "plural-forms": "nplurals=2; plural=n > 1;"
       },
+      "Filter": [
+        "Filtres"
+      ],
+      "Reset": [
+        "Réinitialiser"
+      ],
       "Remove": [
         "Supprimer"
       ],
       "Custom fields": [
         "Champs personnalisés"
       ],
-      "Reset": [
-        "Réinitialiser"
+      "AND": [
+        "ET"
       ],
-      "Filter": [
-        "Filtres"
+      "All": [
+        "Tous"
+      ],
+      "Match categories": [
+        "Catégories requises"
+      ],
+      "Any": [
+        "Au moins un"
+      ],
+      "Created date": [
+        "Date de création"
+      ],
+      "Updated date": [
+        "Date de modification"
       ],
       "Any date": [
         "Toutes les dates"
@@ -37,26 +55,11 @@
       "Period": [
         "Période"
       ],
-      "Saved filter": [
-        "Filtre enregistré"
-      ],
-      "Match categories": [
-        "Catégories requises"
-      ],
-      "Any": [
-        "Au moins un"
-      ],
-      "All": [
-        "Tous"
-      ],
-      "Created date": [
-        "Date de création"
-      ],
-      "Updated date": [
-        "Date de modification"
-      ],
       "Date": [
         "Date"
+      ],
+      "Saved filter": [
+        "Filtre enregistré"
       ],
       "Choose an end date after the start date.": [
         "La date de fin doit suivre la date de début."

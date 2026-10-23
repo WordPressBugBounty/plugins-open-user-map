@@ -1,5 +1,5 @@
 {
-  "translation-revision-date": "2026-06-05 08:14:32+0000",
+  "translation-revision-date": "2026-10-23 16:06+0000",
   "generator": "Open User Map PO to JSON",
   "domain": "messages",
   "source": "blocks/build/index.js",
@@ -10,23 +10,32 @@
         "lang": "de_DE",
         "plural-forms": "nplurals=2; plural=n != 1;"
       },
-      "Region": [
-        "Region"
-      ],
-      "Height": [
-        "Höhe"
-      ],
-      "Locations": [
-        "Marker"
-      ],
-      "Reset": [
-        "Zurücksetzen"
+      "No region": [
+        "Keine Region"
       ],
       "Map view": [
         "Kartenausschnitt"
       ],
-      "No region": [
-        "Keine Region"
+      "Choose \"Edit view\" on the map and then move and zoom the map": [
+        "Klicke auf „Ansicht bearbeiten“. Verschiebe und zoome die Karte."
+      ],
+      "Add markers in \"Manage Locations\" or directly on the map in the front end.": [
+        "Füge Marker unter „Marker verwalten“ oder auf der Karte deiner Website hinzu."
+      ],
+      "Global settings": [
+        "Globale Einstellungen"
+      ],
+      "Manage locations": [
+        "Marker verwalten"
+      ],
+      "Region": [
+        "Region"
+      ],
+      "Categories": [
+        "Kategorien"
+      ],
+      "Locations": [
+        "Marker"
       ],
       "Leave empty to show all.": [
         "Leer lassen, um alle anzuzeigen."
@@ -43,44 +52,35 @@
       "Global setting": [
         "Globale Einstellung"
       ],
-      "Screen width": [
-        "Bildschirmbreite"
-      ],
-      "Column width": [
-        "Spaltenbreite"
+      "Width": [
+        "Breite"
       ],
       "Automatic": [
         "Automatisch"
       ],
-      "Manage locations": [
-        "Marker verwalten"
+      "Column width": [
+        "Spaltenbreite"
       ],
-      "Global settings": [
-        "Globale Einstellungen"
+      "Screen width": [
+        "Bildschirmbreite"
       ],
-      "Reset height": [
-        "Höhe zurücksetzen"
-      ],
-      "Choose \"Edit view\" on the map and then move and zoom the map": [
-        "Klicke auf „Ansicht bearbeiten“. Verschiebe und zoome die Karte."
-      ],
-      "Add markers in \"Manage Locations\" or directly on the map in the front end.": [
-        "Füge Marker unter „Marker verwalten“ oder auf der Karte deiner Website hinzu."
-      ],
-      "Categories": [
-        "Kategorien"
-      ],
-      "Width": [
-        "Breite"
-      ],
-      "Fixed height": [
-        "Feste Höhe"
+      "Height": [
+        "Höhe"
       ],
       "Aspect ratio": [
         "Seitenverhältnis"
       ],
+      "Fixed height": [
+        "Feste Höhe"
+      ],
       "Custom": [
         "Individuell"
+      ],
+      "Reset": [
+        "Zurücksetzen"
+      ],
+      "Reset height": [
+        "Höhe zurücksetzen"
       ],
       "Use 16/9.": [
         "Verwende 16/9."
@@ -99,6 +99,9 @@
       ],
       "Desktop (base)": [
         "Desktop (Basis)"
+      ],
+      "Example map with locations and popup": [
+        "Beispielkarte mit Markern und Popup"
       ]
     }
   }

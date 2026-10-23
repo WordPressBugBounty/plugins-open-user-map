@@ -935,6 +935,7 @@ class BaseController {
             'location_deleted'          => __( 'Location deleted', 'open-user-map' ),
             'delete_success'            => __( 'The location has been successfully removed from the map.', 'open-user-map' ),
             'delete_error'              => __( 'An error occurred while deleting the location. Please try again.', 'open-user-map' ),
+            'submission_error'          => __( 'Your location could not be submitted. Please reload the page and try again.', 'open-user-map' ),
             'close_and_refresh'         => ( get_option( 'oum_thankyou_buttontext' ) ?: __( 'Close and refresh map', 'open-user-map' ) ),
             'changes_saved'             => __( 'Changes saved', 'open-user-map' ),
             'changes_saved_message'     => __( 'Your changes have been saved and will be visible after we reviewed them.', 'open-user-map' ),

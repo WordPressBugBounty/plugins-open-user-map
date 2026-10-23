@@ -1,5 +1,5 @@
 {
-  "translation-revision-date": "2026-10-18 20:00+0000",
+  "translation-revision-date": "2026-10-23 16:06+0000",
   "generator": "Open User Map PO to JSON",
   "domain": "messages",
   "source": "blocks/build/index.js",
@@ -10,14 +10,8 @@
         "lang": "es_ES",
         "plural-forms": "nplurals=2; plural=n != 1;"
       },
-      "Region": [
-        "Región"
-      ],
-      "Height": [
-        "Altura"
-      ],
-      "Locations": [
-        "Marcadores"
+      "No region": [
+        "Sin región"
       ],
       "Map view": [
         "Vista del mapa"
@@ -31,17 +25,17 @@
       "Global settings": [
         "Ajustes globales"
       ],
-      "Global setting": [
-        "Ajuste global"
-      ],
       "Manage locations": [
         "Gestionar marcadores"
       ],
-      "No region": [
-        "Sin región"
+      "Region": [
+        "Región"
       ],
       "Categories": [
         "Categorías"
+      ],
+      "Locations": [
+        "Marcadores"
       ],
       "Leave empty to show all.": [
         "Déjalo vacío para mostrar todos."
@@ -55,35 +49,38 @@
       "Visible": [
         "Visibles"
       ],
+      "Global setting": [
+        "Ajuste global"
+      ],
       "Width": [
         "Anchura"
-      ],
-      "Screen width": [
-        "Anchura de pantalla"
-      ],
-      "Column width": [
-        "Anchura de columna"
       ],
       "Automatic": [
         "Automática"
       ],
-      "Reset height": [
-        "Restablecer altura"
+      "Column width": [
+        "Anchura de columna"
       ],
-      "Reset": [
-        "Restablecer"
+      "Screen width": [
+        "Anchura de pantalla"
       ],
-      "Example map with locations and popup": [
-        "Ejemplo de mapa con marcadores y una ventana abierta"
-      ],
-      "Fixed height": [
-        "Altura fija"
+      "Height": [
+        "Altura"
       ],
       "Aspect ratio": [
         "Relación de aspecto"
       ],
+      "Fixed height": [
+        "Altura fija"
+      ],
       "Custom": [
         "Personalizado"
+      ],
+      "Reset": [
+        "Restablecer"
+      ],
+      "Reset height": [
+        "Restablecer altura"
       ],
       "Use 16/9.": [
         "Usa 16/9."
@@ -102,6 +99,9 @@
       ],
       "Desktop (base)": [
         "Escritorio (base)"
+      ],
+      "Example map with locations and popup": [
+        "Ejemplo de mapa con marcadores y una ventana abierta"
       ]
     }
   }

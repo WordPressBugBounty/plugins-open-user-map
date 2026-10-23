@@ -152,17 +152,6 @@ window.addEventListener('load', function(e) {
     }
   }
 
-  // Location Submissions tab: smooth scroll for quick links
-  jQuery(document).on('click', '.community-quick-links a[href^="#"]', function(e) {
-    const id = this.getAttribute('href');
-    if (id === '#') return;
-    const target = document.querySelector(id);
-    if (target) {
-      e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  });
-
   // map style selector
   jQuery('.map_styles input[type=radio]').on('change', function(e) {
     jQuery('.map_styles label').removeClass('checked');
@@ -290,8 +279,15 @@ window.addEventListener('load', function(e) {
 
   map.setView([lat, lng], zoom);
 
-  // set Initial view by move/zoom
-  map.on('move', function(e) {
+  // Persist view changes, not invalidateSize() events from tabs or window resizing.
+  // Leaflet starts pan/zoom/search changes with movestart; resizing has no movestart.
+  let initialViewChanging = false;
+  map.on('movestart', function() {
+      initialViewChanging = true;
+  });
+  map.on('moveend', function() {
+      if (!initialViewChanging) return;
+      initialViewChanging = false;
       setInitialLatLngZoom(map.getCenter(), map.getZoom());
   });
 
@@ -300,6 +296,7 @@ window.addEventListener('load', function(e) {
       jQuery('#oum_start_lat').val(mapCenterLatLng.lat);
       jQuery('#oum_start_lng').val(mapCenterLatLng.lng);
       jQuery('#oum_start_zoom').val(mapZoom);
+      document.getElementById('oum_start_lat').dispatchEvent(new Event('change', {bubbles: true}));
   }
 
   //Custom Fields
@@ -352,9 +349,9 @@ window.addEventListener('load', function(e) {
               <input type="text" class="field-type-text field-type-link field-type-email field-type-checkbox field-type-radio field-type-select" name="oum_custom_fields[${index}][description]" placeholder="Enter description (optional)" value="" />
             </td>
             <td class="actions">
-              <a class="up" href="#"><span class="dashicons dashicons-arrow-up"></span></a>
-              <a class="down" href="#"><span class="dashicons dashicons-arrow-down"></span></a>
-              <a class="remove_button" href="#"><span class="dashicons dashicons-trash"></span></a>
+              <button type="button" class="up"><span class="dashicons dashicons-arrow-up"></span></button>
+              <button type="button" class="down"><span class="dashicons dashicons-arrow-down"></span></button>
+              <button type="button" class="remove_button"><span class="dashicons dashicons-trash"></span></button>
             </td>
           </tr>
         `;
