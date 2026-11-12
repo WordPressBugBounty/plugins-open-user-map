@@ -15,6 +15,9 @@ class Settings extends BaseController {
         add_action( 'admin_notices', array($this, 'show_getting_started_notice') );
         add_action( 'wp_ajax_oum_dismiss_getting_started_notice', array($this, 'getting_started_dismiss_notice') );
         add_action( 'admin_notices', array($this, 'show_update_notice') );
+        add_action( 'admin_notices', array($this, 'show_black_friday_notice') );
+        oum_fs()->add_filter( 'templates/pricing.php', array($this, 'prepend_black_friday_notice_to_pricing') );
+        add_action( 'wp_ajax_oum_dismiss_black_friday_2026', array($this, 'dismiss_black_friday_notice') );
         add_action( 'admin_notices', array($this, 'show_map_style_auto_switch_notice') );
         add_action( 'wp_ajax_oum_dismiss_update_notice', array($this, 'dismiss_update_notice') );
         add_action( 'wp_ajax_oum_csv_export', array($this, 'csv_export') );
@@ -100,6 +103,9 @@ class Settings extends BaseController {
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_start_zoom', array(
             'sanitize_callback' => array($this, 'validate_zoom'),
+        ) );
+        register_setting( 'open-user-map-settings-group', 'oum_start_view', array(
+            'sanitize_callback' => array($this, 'validate_start_view'),
         ) );
         register_setting( 'open-user-map-settings-group', 'oum_enable_fixed_map_bounds', array(
             'sanitize_callback' => 'sanitize_text_field',
@@ -510,11 +516,45 @@ class Settings extends BaseController {
         ) );
     }
 
+    /** Store the selected viewport together with the coordinates it belongs to. */
+    public function validate_start_view( $value ) {
+        if ( !is_string( $value ) ) {
+            return '';
+        }
+        $view = json_decode( $value, true );
+        if ( !is_array( $view ) ) {
+            return '';
+        }
+        $clean = array();
+        foreach ( array(
+            'south',
+            'west',
+            'north',
+            'east',
+            'lat',
+            'lng',
+            'zoom'
+        ) as $key ) {
+            if ( !isset( $view[$key] ) || !is_numeric( $view[$key] ) || !is_finite( (float) $view[$key] ) ) {
+                return '';
+            }
+            $clean[$key] = (float) $view[$key];
+        }
+        if ( $clean['south'] < -90 || $clean['north'] > 90 || $clean['south'] >= $clean['north'] || $clean['west'] >= $clean['east'] || abs( $clean['west'] ) > 1080 || abs( $clean['east'] ) > 1080 || abs( $clean['lat'] ) > 90 || abs( $clean['lng'] ) > 1080 || $clean['zoom'] < 0 || $clean['zoom'] > 22 ) {
+            return '';
+        }
+        return wp_json_encode( $clean );
+    }
+
+    private function is_setup_wizard_active() {
+        $add_location = get_option( 'oum_enable_add_location' );
+        return $add_location !== 'on' && $add_location !== '' || get_option( 'oum_wizard_usecase_done' ) && !get_option( 'oum_wizard_finish_done' );
+    }
+
     public function add_oum_wizard() {
-        if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable_add_location' ) !== '' || get_option( 'oum_wizard_usecase_done' ) && !get_option( 'oum_wizard_finish_done' ) ) {
+        if ( $this->is_setup_wizard_active() ) {
             add_action( 'admin_body_class', function ( $class ) {
-                $class .= ' oum-settings-wizard';
-                return $class;
+                return $class . ' oum-settings-wizard';
             } );
         }
     }
@@ -1601,6 +1641,65 @@ class Settings extends BaseController {
             $location = $location . $separator . 'tab=' . urlencode( $active_tab );
         }
         return $location;
+    }
+
+    public function show_black_friday_notice() {
+        // Midnight on 1 December in CET, independent of the site's time zone.
+        if ( time() >= strtotime( '2026-12-01T00:00:00+01:00' ) || !current_user_can( 'manage_options' ) ) {
+            return;
+        }
+        $screen = get_current_screen();
+        if ( !$screen || $screen->parent_file !== 'edit.php?post_type=oum-location' || $this->is_setup_wizard_active() ) {
+            return;
+        }
+        $fs = oum_fs();
+        if ( $fs->is_trial() || get_user_option( 'oum_black_friday_2026_dismissed' ) ) {
+            return;
+        }
+        $license = ( $fs->has_active_valid_license() ? $fs->_get_license() : null );
+        if ( $license instanceof \FS_Plugin_License && $license->is_lifetime() ) {
+            return;
+        }
+        ?>
+        <div class="notice notice-success is-dismissible" id="oum-black-friday-2026"
+            data-nonce="<?php 
+        echo esc_attr( wp_create_nonce( 'oum_dismiss_black_friday_2026' ) );
+        ?>">
+            <p>
+                <strong><?php 
+        esc_html_e( 'Black Friday offer – Open User Map:', 'open-user-map' );
+        ?></strong>
+                <?php 
+        /* translators: 1: discount percentage, 2: coupon code. */
+        echo sprintf( esc_html__( 'Save %1$s on the PRO Lifetime license with coupon code %2$s.', 'open-user-map' ), '30%', '<code>FSBFCM2026</code>' );
+        ?>
+            </p>
+            <button type="button" class="notice-dismiss">
+                <span class="screen-reader-text"><?php 
+        esc_html_e( 'Dismiss this notice.' );
+        ?></span>
+            </button>
+        </div>
+        <?php 
+    }
+
+    public function prepend_black_friday_notice_to_pricing( $content ) {
+        // Freemius clears the normal admin notice hooks on its pricing screen.
+        if ( has_action( 'admin_notices', array($this, 'show_black_friday_notice') ) ) {
+            return $content;
+        }
+        ob_start();
+        $this->show_black_friday_notice();
+        return ob_get_clean() . $content;
+    }
+
+    public function dismiss_black_friday_notice() {
+        if ( ($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( null, 403 );
+        }
+        check_ajax_referer( 'oum_dismiss_black_friday_2026' );
+        update_user_option( get_current_user_id(), 'oum_black_friday_2026_dismissed', 1 );
+        wp_send_json_success();
     }
 
 }

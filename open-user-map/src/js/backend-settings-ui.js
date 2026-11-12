@@ -14,6 +14,14 @@
     if (regions) regions.addEventListener('change', updateRegions);
     updateRegions();
 
+    const reporting = content.querySelector('#oum_enable_location_reporting');
+    if (reporting) {
+      const reportSettings = content.querySelector('[data-oum-location-report-settings]');
+      reporting.addEventListener('change', function () {
+        reportSettings.hidden = !reporting.checked;
+      });
+    }
+
     // Respect sections hidden by existing feature switches, without hiding links
     // merely because their tab is currently inactive.
     function updateQuickLinks() {

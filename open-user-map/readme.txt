@@ -4,7 +4,7 @@ Tags: map, interactive map, leaflet, maps, openstreetmap
 Requires at least: 5.5
 Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 1.4.56
+Stable tag: 1.4.58
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -443,6 +443,13 @@ Please check our [Knowledge Base](https://www.open-user-map.com/support/knowledg
 7. More than 60 Settings to customize
 
 == Changelog ==
+= 1.4.58 =
+* Added a dismissible Black Friday notice on Open User Map admin screens for Free users and PRO subscribers after setup. The notice expires automatically.
+
+= 1.4.57 =
+* New (PRO): Visitors can report a location from its map popup with a reason. Admins can customize the button label, require login, receive email notifications, and review saved reports in WordPress.
+* Improved: The Locations list gives titles more room and keeps ID, Votes, and Reports compact. Coordinates are visible by default, and Text and Subtitle are available in Screen Options.
+
 = 1.4.56 =
 * Fixed: Inline submission forms respect login restrictions and recover from failed submissions with a visible error.
 * Fixed: Opening or resizing the settings map no longer reports unsaved changes on fresh installations.

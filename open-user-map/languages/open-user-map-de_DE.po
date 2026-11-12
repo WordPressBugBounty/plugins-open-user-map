@@ -2,10 +2,10 @@
 # This file is distributed under the same license as the Plugins - Open User Map - Stable (latest release) package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Open User Map 1.4.56\n"
+"Project-Id-Version: Open User Map 1.4.57\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/open-user-map\n"
 "POT-Creation-Date: 2026-10-23T21:53:40+00:00\n"
-"PO-Revision-Date: 2026-10-23 16:06+0000\n"
+"PO-Revision-Date: 2026-11-12 09:59+0000\n"
 "Last-Translator: Open User Map\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
@@ -3570,6 +3570,10 @@ msgstr "Bedingung hinzufügen"
 msgid "Reset filters"
 msgstr "Filter zurücksetzen"
 
+#: templates/page-backend-settings.php:3837
+msgid "Let visitors report a problem with a location. Receive email notifications and review reports in WordPress."
+msgstr "Lass Besucher ein Problem mit einem Standort melden. Du erhältst E-Mail-Benachrichtigungen und kannst die Meldungen in WordPress einsehen."
+
 #~ msgid "Choose which category types should be available. Icons and colors are set per Marker Category."
 #~ msgstr "Wähle aus, welche Kategorie-Typen verfügbar sein sollen. Icons und Farben werden pro Marker-Kategorie festgelegt."
 
@@ -3878,3 +3882,146 @@ msgstr "Filter zurücksetzen"
 
 #~ msgid "Smartphone"
 #~ msgstr "Smartphone"
+
+#: inc/Base/LocationReport.php:37
+#: templates/page-backend-settings.php:2633
+msgid "Report a problem"
+msgstr "Problem melden"
+
+#: templates/page-backend-settings.php:2615
+#: templates/page-backend-settings.php:3836
+msgid "Location reporting"
+msgstr "Standorte melden"
+
+#: templates/page-backend-settings.php:2622
+msgid "Enable location reporting"
+msgstr "Standorte melden aktivieren"
+
+#: templates/page-backend-settings.php:2627
+msgid "Require login to report a location"
+msgstr "Anmeldung zum Melden erforderlich"
+
+#: templates/page-backend-settings.php:2630
+msgid "Report button label"
+msgstr "Beschriftung der Meldeaktion"
+
+#: inc/Base/BaseController.php:2565
+#: inc/Base/LocationReport.php:48
+msgid "Please log in to report this location."
+msgstr "Bitte melde dich an, um diesen Standort zu melden."
+
+#: inc/Base/LocationReport.php:49
+msgid "Log in"
+msgstr "Anmelden"
+
+#: inc/Base/LocationReport.php:58
+#, php-format
+msgid "Reason (maximum %d characters)"
+msgstr "Grund (maximal %d Zeichen)"
+
+#: inc/Base/BaseController.php:2586
+#: inc/Base/LocationReport.php:52
+#, php-format
+msgid "Enter a reason of 1 to %d characters."
+msgstr "Gib einen Grund mit 1 bis %d Zeichen ein."
+
+#: inc/Base/LocationReport.php:61
+msgid "Send report"
+msgstr "Meldung senden"
+
+#: inc/Base/LocationReport.php:65
+msgid "Close"
+msgstr "Schließen"
+
+#: inc/Base/BaseController.php:2562
+msgid "Location reporting is unavailable."
+msgstr "Die Meldefunktion ist nicht verfügbar."
+
+#: inc/Base/BaseController.php:2575
+msgid "The report form has expired. Reload the page and try again."
+msgstr "Das Meldeformular ist abgelaufen. Lade die Seite neu und versuche es erneut."
+
+#: inc/Base/BaseController.php:2593
+msgid "A report for this location was already submitted recently. Please try again later."
+msgstr "Für diesen Standort wurde kürzlich bereits eine Meldung eingereicht. Versuche es später erneut."
+
+#: inc/Base/BaseController.php:2596
+#: inc/Base/LocationReport.php:53
+msgid "The report could not be sent. Please try again."
+msgstr "Die Meldung konnte nicht gesendet werden. Versuche es erneut."
+
+#: inc/Base/BaseController.php:2598
+msgid "Thank you. Your report was sent."
+msgstr "Danke. Deine Meldung wurde gesendet."
+
+#: inc/Base/LocationReport.php:145
+msgid "Location report"
+msgstr "Standortmeldung"
+
+#. translators: 1: location title, 2: report reason, 3: admin edit link.
+#: inc/Base/LocationReport.php:148
+#, php-format
+msgid ""
+"Location: %1$s\n"
+"\n"
+"Reason:\n"
+"%2$s\n"
+"\n"
+"Edit location: %3$s"
+msgstr "Standort: %1$s\n\nGrund:\n%2$s\n\nStandort bearbeiten: %3$s"
+
+#: inc/Base/BaseController.php:2596
+msgid "Your report was saved, but the email could not be sent. Please try again."
+msgstr "Deine Meldung wurde gespeichert, aber die E-Mail konnte nicht gesendet werden. Versuche es erneut."
+
+#: inc/Base/LocationReport.php:44 templates/page-backend-location-reports.php:4
+msgid "Location reports"
+msgstr "Standortmeldungen"
+
+#: inc/Base/LocationReport.php:45
+msgid "Reports"
+msgstr "Meldungen"
+
+#: inc/Base/LocationReport.php:68
+msgid "Pending"
+msgstr "Ausstehend"
+
+#: inc/Base/LocationReport.php:69
+msgid "Sent"
+msgstr "Gesendet"
+
+#: inc/Base/LocationReport.php:70
+msgid "Failed"
+msgstr "Fehlgeschlagen"
+
+#: templates/page-backend-location-reports.php:7
+msgid "No reports found."
+msgstr "Keine Meldungen gefunden."
+
+#: templates/page-backend-location-reports.php:13
+msgid "Reason"
+msgstr "Grund"
+
+#: templates/page-backend-location-reports.php:15
+msgid "Email status"
+msgstr "E-Mail-Status"
+
+#. translators: %d: ID of the reported location.
+#: templates/page-backend-location-reports.php:23
+#, php-format
+msgid "Location #%d"
+msgstr "Standort #%d"
+
+#: templates/page-backend-settings.php:2673
+msgid "Let visitors report a problem with a location."
+msgstr "Erlaube Besuchern, ein Problem mit einem Standort zu melden."
+
+#: inc/Pages/Settings.php:1650
+msgid "Black Friday offer – Open User Map:"
+msgstr "Black Friday Aktion – Open User Map:"
+
+#. translators: 1: discount percentage, 2: coupon code.
+#: inc/Pages/Settings.php:1654
+#, php-format
+msgid "Save %1$s on the PRO Lifetime license with coupon code %2$s."
+msgstr "Sparen Sie %1$s auf die lebenslange PRO-Lizenz mit dem Gutscheincode %2$s."

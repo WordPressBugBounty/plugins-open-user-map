@@ -102,9 +102,10 @@ class LocationMapBubbleBuilder {
 	 *
 	 * @param array  $location Same shape as entries in $locations_list from partial-map-init.php.
 	 * @param string $plugin_url Plugin URL for assets.
+	 * @param bool $include_report Include the action in the interactive popup response.
 	 * @return string
 	 */
-	public static function build_html( array $location, $plugin_url ) {
+	public static function build_html( array $location, $plugin_url, $include_report = false ) {
 		if ( get_option( 'oum_enable_location_date' ) === 'on' ) {
 			$date_tag = '<div class="oum_location_date">' . wp_kses_post( $location['date'] ) . '</div>';
 		} else {
@@ -270,7 +271,7 @@ class LocationMapBubbleBuilder {
 		}
 
 		if ( get_option( 'oum_enable_single_page' ) ) {
-			$link_tag = '<div class="oum_read_more"><a href="' . get_the_permalink( $location['post_id'] ) . '">' . __( 'Read more', 'open-user-map' ) . '</a></div>';
+			$link_tag = '<div class="oum_read_more"><a href="' . esc_url( get_the_permalink( $location['post_id'] ) ) . '">' . esc_html__( 'Read more', 'open-user-map' ) . '<span class="oum-read-more-arrow" aria-hidden="true"></span></a></div>';
 		} else {
 			$link_tag = '';
 		}
@@ -319,7 +320,18 @@ class LocationMapBubbleBuilder {
 		$content .= $custom_fields;
 		$content .= $description_tag;
 		$content .= $audio_tag;
-		$content .= '<div class="oum_location_text_bottom">' . $vote_button . $link_tag . '</div>';
+		$report_button = $include_report ? LocationReport::render_popup_action( $location['post_id'] ) : '';
+		// Preserve literal backslashes in the report label and form data.
+		$report_button = str_replace( '\\', '&#92;', $report_button );
+		$row_actions = $vote_button . $link_tag;
+		if ( $vote_button !== '' && $link_tag === '' ) {
+			$row_actions .= $report_button;
+			$report_button = '';
+		}
+		if ( $row_actions !== '' ) {
+			$content .= '<div class="oum_location_text_bottom oum_location_popup_actions">' . $row_actions . '</div>';
+		}
+		$content .= $report_button;
 		$content .= '</div>';
 		$content .= $edit_button;
 		$content .= $additional_search_meta;

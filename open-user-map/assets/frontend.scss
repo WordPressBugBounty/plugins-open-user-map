@@ -10,6 +10,102 @@ $colors: (
 $search_input_width: 300px;
 
 // Mixins
+$oum-location-dialog-backdrop: radial-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9));
+
+@mixin oum-location-dialog-surface {
+  width: 768px;
+  max-width: 80%;
+  background: #f8f8f8;
+  color: #333;
+  padding: 33px 43px;
+  border-radius: 20px;
+
+  @media screen and (max-width: 768px) {
+    max-width: 100%;
+    padding: 15px;
+    border-radius: 0;
+  }
+}
+
+@mixin oum-location-dialog-close($accent) {
+  position: absolute;
+  top: 23px;
+  right: 30px;
+  font-size: 30px;
+  line-height: 1;
+  display: inline-block;
+  color: #333;
+  cursor: pointer;
+
+  &:hover {
+    color: $accent;
+  }
+
+  @media screen and (max-width: 768px) {
+    top: 16px;
+    right: 16px;
+  }
+}
+
+@mixin oum-location-dialog-heading($accent) {
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 7px;
+  color: $accent;
+
+  @media screen and (max-width: 768px) {
+    text-align: left;
+    font-size: 26px;
+    margin-bottom: 13px;
+  }
+}
+
+@mixin oum-location-dialog-field($accent, $focus-shadow) {
+  font-family: inherit;
+  margin: 0 0 25px;
+  font-size: 15px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  color: #333;
+  background-color: #fff;
+  outline: none;
+  line-height: 1;
+  padding: 14px;
+  width: 100%;
+
+  &:focus {
+    border-color: $accent;
+    box-shadow: 0 0 0 2px $focus-shadow;
+  }
+}
+
+@mixin oum-location-dialog-submit($accent, $hover-accent) {
+  cursor: pointer;
+  font-size: 19px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 4px;
+  margin: 40px 0 10px;
+  background: $accent;
+  padding: 15px 30px;
+  line-height: 1;
+  border: none;
+  color: white;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+
+  &:hover,
+  &:active {
+    color: white;
+    background-color: $hover-accent;
+  }
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
+}
+
 @mixin oum-carousel {
   position: relative;
   width: 100%;
@@ -643,7 +739,7 @@ $search_input_width: 300px;
               padding: 15px;
               overflow: auto;
   
-              * {
+              *:not(:where(.oum-location-report *)) {
                 color: #000;
               }
 
@@ -1581,7 +1677,7 @@ $search_input_width: 300px;
     display: none;
     position: fixed;
     z-index: 9999;
-    background: radial-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9));
+    background: $oum-location-dialog-backdrop;
     top: 0;
     left: 0;
     right: 0;
@@ -1603,39 +1699,12 @@ $search_input_width: 300px;
 
     .location-overlay-content {
       position: relative;
-      width: 768px;
-      max-width: 80%;
       display: flex;
       flex-direction: column;
-      background: #f8f8f8;
-      color: #333;
-      padding: 33px 43px;
-      border-radius: 20px;
-
-      @media screen and (max-width: 768px) {
-        max-width: 100%;
-        padding: 15px;
-        border-radius: 0;
-      }
+      @include oum-location-dialog-surface;
 
       #close-add-location-overlay {
-        position: absolute;
-        top: 23px;
-        right: 30px;
-        font-size: 30px;
-        line-height: 1;
-        display: inline-block;
-        color: #333;
-        cursor: pointer;
-  
-        &:hover {
-          color: map.get($colors, "primary");
-        }
-  
-        @media screen and (max-width: 768px) {
-          top: 16px;
-          right: 16px;
-        }
+        @include oum-location-dialog-close(map.get($colors, primary));
       }
 
       #oum_add_location {
@@ -1648,10 +1717,7 @@ $search_input_width: 300px;
         }
 
         h2 {
-          text-align: center;
-          font-size: 36px;
-          margin-bottom: 7px;
-          color: map.get($colors, "primary");
+          @include oum-location-dialog-heading(map.get($colors, primary));
 
           &.oum-add-location-headline {
             display: block;
@@ -1659,12 +1725,6 @@ $search_input_width: 300px;
 
           &.oum-edit-location-headline {
             display: none;
-          }
-
-          @media screen and (max-width: 768px) {
-            text-align: left;
-            font-size: 26px;
-            margin-bottom: 13px;
           }
         }
 
@@ -1845,22 +1905,7 @@ $search_input_width: 300px;
         textarea,
         select,
         .oum-category-dropdown-display {
-          font-family: inherit;
-          margin: 0 0 25px;
-          font-size: 15px;
-          border: 1px solid #bbb;
-          border-radius: 4px;
-          color: #333;
-          background-color: #fff;
-          outline: none;
-          line-height: 1;
-          padding: 14px;
-          width: 100%;
-
-          &:focus {
-            border-color: map.get($colors, "primary");
-            box-shadow: 0 0 0 2px rgba(map.get($colors, "primary"), 0.1);
-          }
+          @include oum-location-dialog-field(map.get($colors, primary), rgba(map.get($colors, primary), 0.1));
         }
 
         select,
@@ -2434,20 +2479,7 @@ $search_input_width: 300px;
         }
 
         input[type=submit] {
-          cursor: pointer;
-          font-size: 19px;
-          text-align: center;
-          font-weight: bold;
-          border-radius: 4px;
-          margin: 40px 0 10px;
-          background: map.get($colors, "primary");
-          padding: 15px 30px;
-          line-height: 1;
-          border: none;
-          color: white;
-          position: relative;
-          left: 50%;
-          transform: translateX(-50%);
+          @include oum-location-dialog-submit(map.get($colors, primary), color.adjust(map.get($colors, primary), $lightness: -10%, $space: hsl));
 
           &.oum-loading {
             text-indent: -9999px;
@@ -2458,16 +2490,6 @@ $search_input_width: 300px;
             background-size: 40px;
             width: 100px;
             opacity: 0.6;
-          }
-
-          &:hover, 
-          &:active {
-            color: white;
-            background-color: color.adjust(map.get($colors, "primary"), $lightness: -10%, $space: hsl);
-          }
-
-          @media screen and (max-width: 768px) {
-            width: 100%;
           }
         }
 
@@ -2749,7 +2771,7 @@ $search_input_width: 300px;
           padding: 35px 20px;
           line-height: 1.5;
   
-          * {
+          *:not(:where(.oum-location-report *)) {
             color: #000;
           }
 
@@ -5010,4 +5032,194 @@ body.oum-add-location-opened {
     width: 100% !important;
     margin-left: 0 !important;
     transform: none !important;
+}
+
+.oum_location_text_bottom.oum_location_popup_actions {
+  flex-wrap: wrap;
+  row-gap: 4px;
+
+  .oum_star_rating_wrap {
+    flex-shrink: 0;
+  }
+
+  .oum_read_more:not(:first-child) {
+    margin-inline-start: auto;
+  }
+
+  .oum-read-more-arrow::before {
+    content: "→";
+    display: inline-block;
+    margin-inline-start: 0.35em;
+  }
+
+  &:dir(rtl) .oum-read-more-arrow::before {
+    content: "←";
+  }
+}
+
+.oum_location_text .oum-location-report {
+  display: flex;
+  margin-block-start: 0.5rem;
+}
+
+.oum_location_popup_actions > .oum-location-report {
+  flex: 1 1 6rem;
+  justify-content: flex-end;
+  margin-block-start: 0;
+  min-width: 0;
+  text-align: end;
+}
+
+.oum_location_popup_actions + .oum-location-report {
+  justify-content: flex-end;
+  margin-block-start: 0.25rem;
+  text-align: end;
+}
+
+.oum-location-report .oum-location-report-open {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.25rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #757575;
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: inherit;
+  text-decoration: none;
+  text-transform: none;
+  cursor: pointer;
+
+  &:hover .oum-location-report-label,
+  &:focus-visible .oum-location-report-label {
+    text-decoration: underline;
+  }
+
+  .oum-location-report-label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (pointer: coarse) {
+    min-height: 2.75rem;
+  }
+}
+
+.oum-location-report-dialog {
+  --oum-report-accent: #{map.get($colors, primary)};
+  @include oum-location-dialog-surface;
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  height: fit-content;
+  max-height: calc(100% - 100px);
+  margin: 50px auto;
+  border: 0;
+  overflow: auto;
+
+  @media screen and (max-width: 768px) {
+    max-height: 100%;
+    margin-block: 0;
+  }
+
+  &::backdrop {
+    background: $oum-location-dialog-backdrop;
+  }
+
+  h2 {
+    @include oum-location-dialog-heading(var(--oum-report-accent));
+    margin-block-start: 0;
+    padding-inline: 2.5rem;
+    overflow-wrap: anywhere;
+
+    @media screen and (max-width: 768px) {
+      padding-left: 0;
+    }
+  }
+
+  &.oum-location-report-dialog-login h2 {
+    text-align: center;
+    padding-inline: 2.5rem;
+  }
+
+  .oum-location-report-login {
+    display: grid;
+    justify-items: center;
+    gap: 1.25rem;
+    margin-block: 1rem 0.5rem;
+    text-align: center;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  label {
+    display: block;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.5;
+    margin: 0 0 8px;
+  }
+
+  textarea {
+    @include oum-location-dialog-field(var(--oum-report-accent), color-mix(in srgb, var(--oum-report-accent) 10%, transparent));
+    display: block;
+    box-sizing: border-box;
+    resize: vertical;
+  }
+
+  button:focus-visible,
+  .oum-location-report-login-link:focus-visible {
+    outline: 2px solid var(--oum-report-accent);
+    outline-offset: 2px;
+  }
+
+  .oum-location-report-submit,
+  .oum-location-report-login-link {
+    @include oum-location-dialog-submit(var(--oum-report-accent), color-mix(in srgb, var(--oum-report-accent), black 10%));
+    font-family: inherit;
+    text-transform: none;
+  }
+
+  .oum-location-report-submit:disabled {
+    opacity: 0.6;
+  }
+
+  .oum-location-report-login-link {
+    position: static;
+    transform: none;
+    margin: 0;
+    width: auto;
+    box-sizing: border-box;
+    text-decoration: none;
+
+    &:hover, &:active, &:focus {
+      text-decoration: none;
+    }
+  }
+
+  .oum-location-report-form[hidden] + .oum-location-report-status {
+    text-align: center;
+  }
+
+  .oum-location-report-status:empty {
+    margin: 0;
+  }
+
+  .oum-location-report-close {
+    @include oum-location-dialog-close(var(--oum-report-accent));
+    font-family: inherit;
+    font-weight: normal;
+    padding: 7px;
+    margin: -7px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
 }

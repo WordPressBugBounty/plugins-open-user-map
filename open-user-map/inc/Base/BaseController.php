@@ -1210,6 +1210,8 @@ class BaseController {
         // AJAX: Get updated vote count for a location
         add_action( 'wp_ajax_oum_get_vote_count', array($this, 'ajax_get_vote_count') );
         add_action( 'wp_ajax_nopriv_oum_get_vote_count', array($this, 'ajax_get_vote_count') );
+        add_action( 'wp_ajax_' . LocationReport::ACTION, array($this, 'ajax_report_location') );
+        add_action( 'wp_ajax_nopriv_' . LocationReport::ACTION, array($this, 'ajax_report_location') );
         // AJAX: Provide a fresh nonce for cached frontend forms
         add_action( 'wp_ajax_oum_refresh_location_nonce', array($this, 'ajax_refresh_location_nonce') );
         add_action( 'wp_ajax_nopriv_oum_refresh_location_nonce', array($this, 'ajax_refresh_location_nonce') );
@@ -1349,6 +1351,9 @@ class BaseController {
         $this->include_map_scripts( $this->get_map_style_for_assets( $block_attributes ) );
         // Enqueue registered frontend block map script
         wp_enqueue_script( 'oum_frontend_block_map_js' );
+        if ( LocationReport::is_enabled() ) {
+            wp_enqueue_script( 'oum_frontend_location_report_js' );
+        }
         wp_enqueue_style( 'oum_leaflet_draw_css' );
         wp_enqueue_script( 'oum_leaflet_draw_js' );
         // Localize custom strings
@@ -2173,6 +2178,69 @@ class BaseController {
     }
 
     /**
+     * AJAX: save a valid location report and email the site administrator.
+     */
+    public function ajax_report_location() {
+        if ( !LocationReport::is_enabled() ) {
+            wp_send_json_error( array(
+                'message' => __( 'Location reporting is unavailable.', 'open-user-map' ),
+            ), 403 );
+        }
+        if ( LocationReport::requires_login() && !is_user_logged_in() ) {
+            wp_send_json_error( array(
+                'message' => __( 'Please log in to report this location.', 'open-user-map' ),
+            ), 403 );
+        }
+        $post_id = filter_var( $_POST['post_id'] ?? null, FILTER_VALIDATE_INT, array(
+            'options' => array(
+                'min_range' => 1,
+            ),
+        ) );
+        if ( !$post_id ) {
+            wp_send_json_error( array(
+                'message' => __( 'Invalid location.', 'open-user-map' ),
+            ), 400 );
+        }
+        $nonce = $_POST['nonce'] ?? '';
+        if ( !is_string( $nonce ) || !wp_verify_nonce( wp_unslash( $nonce ), LocationReport::ACTION . '_' . $post_id ) ) {
+            wp_send_json_error( array(
+                'message' => __( 'The report form has expired. Reload the page and try again.', 'open-user-map' ),
+            ), 403 );
+        }
+        $post = get_post( $post_id );
+        if ( !$post || $post->post_type !== 'oum-location' || $post->post_status !== 'publish' ) {
+            wp_send_json_error( array(
+                'message' => __( 'Location not found.', 'open-user-map' ),
+            ), 404 );
+        }
+        $reason = LocationReport::validate_reason( $_POST['reason'] ?? null );
+        if ( $reason === '' ) {
+            wp_send_json_error( array(
+                'message' => sprintf( __( 'Enter a reason of 1 to %d characters.', 'open-user-map' ), LocationReport::MAX_REASON_LENGTH ),
+            ), 400 );
+        }
+        $result = LocationReport::save_and_notify( $post, $reason, $this->get_location_admin_edit_url( $post_id ) );
+        if ( $result === 'repeated' ) {
+            wp_send_json_error( array(
+                'message' => __( 'A report for this location was already submitted recently. Please try again later.', 'open-user-map' ),
+            ), 429 );
+        }
+        if ( $result === 'mail_failed' ) {
+            wp_send_json_error( array(
+                'message' => __( 'Your report was saved, but the email could not be sent. Please try again.', 'open-user-map' ),
+            ), 503 );
+        }
+        if ( $result !== 'sent' ) {
+            wp_send_json_error( array(
+                'message' => __( 'The report could not be sent. Please try again.', 'open-user-map' ),
+            ), 503 );
+        }
+        wp_send_json_success( array(
+            'message' => __( 'Thank you. Your report was sent.', 'open-user-map' ),
+        ) );
+    }
+
+    /**
      * AJAX: return full popup bubble HTML for one published location (lazy load).
      */
     public function ajax_get_location_bubble() {
@@ -2191,7 +2259,7 @@ class BaseController {
             ) );
             return;
         }
-        $html = LocationMapBubbleBuilder::build_html( $row, $this->plugin_url );
+        $html = LocationMapBubbleBuilder::build_html( $row, $this->plugin_url, true );
         wp_send_json_success( array(
             'html' => $html,
         ) );

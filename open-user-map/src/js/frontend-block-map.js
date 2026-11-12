@@ -367,6 +367,33 @@ const OUMConfig = (function () {
 /**
  * Map Core Module - Handles the main map initialization and configuration
  */
+// Browsers send trackpad pinch gestures as Ctrl+pixel-wheel events. Leaflet's
+// mouse-wheel normalization dampens these; use their scale directly instead.
+function oumEnableTrackpadPinchZoom(map) {
+  const nativeWheel = L.Map.ScrollWheelZoom.prototype._onWheelScroll;
+  const PinchWheelZoom = L.Map.ScrollWheelZoom.extend({
+    _onWheelScroll: function (event) {
+      if (!event.ctrlKey || event.deltaMode !== 0) {
+        return nativeWheel.call(this, event);
+      }
+      clearTimeout(this._timer);
+      this._delta = 0;
+      this._startTime = null;
+      const target = this._map;
+      target._stop();
+      // Match browser pinch scaling (exp(-deltaY / 100)) in Leaflet zoom units.
+      const change = Math.max(-1, Math.min(1, -event.deltaY / (100 * Math.LN2)));
+      target.setZoomAround(target.mouseEventToContainerPoint(event), target.getZoom() + change, { animate: false });
+      L.DomEvent.stop(event);
+    },
+  });
+  const enabled = map.scrollWheelZoom.enabled();
+  map.scrollWheelZoom.disable();
+  map.addHandler('scrollWheelZoom', PinchWheelZoom);
+  if (enabled) map.scrollWheelZoom.enable();
+  else map.scrollWheelZoom.disable();
+}
+
 const OUMMap = (function () {
   // Private variables
   let map = null;
@@ -406,61 +433,27 @@ const OUMMap = (function () {
     }
   }
 
-  // Leaflet.markercluster expects discrete zoom steps to keep cluster membership stable.
-  function isClusterZoomLocked() {
-    return !!oum_enable_cluster;
-  }
-
-  // Normalize programmatic zoom values so clustered maps never start on fractional zooms.
-  function normalizeMainMapZoom(zoom) {
-    const parsedZoom = Number(zoom);
-    if (isNaN(parsedZoom)) {
-      return zoom;
+  function getInitialViewBounds() {
+    const view = typeof oum_start_view !== 'undefined' ? oum_start_view : null;
+    // A shortcode, region or externally changed start position must not reuse stale settings bounds.
+    if (view && ['south', 'west', 'north', 'east', 'lat', 'lng', 'zoom'].every(
+      key => typeof view[key] === 'number' && Number.isFinite(view[key])
+    ) && view.south >= -90 && view.north <= 90 && view.south < view.north && view.west < view.east &&
+      Math.abs(view.lat - startPosition.lat) < 1e-7 &&
+      Math.abs(view.lng - startPosition.lng) < 1e-7 &&
+      Math.abs(view.zoom - startPosition.zoom) < 1e-7) {
+      return L.latLngBounds([view.south, view.west], [view.north, view.east]);
     }
-
-    return isClusterZoomLocked() ? Math.round(parsedZoom) : parsedZoom;
-  }
-
-  // Route main-map setView calls through the same zoom normalization logic.
-  function setMainMapView(center, zoom, options = {}) {
-    map.setView(center, normalizeMainMapZoom(zoom), options);
-  }
-
-  // Keep animated moves aligned with the integer zoom used by clustered maps.
-  function flyMainMapTo(center, zoom, options = {}) {
-    map.flyTo(center, normalizeMainMapZoom(zoom), options);
-  }
-
-  // Clamp flyToBounds to an integer max zoom so cluster refreshes stay deterministic.
-  function flyMainMapToBounds(bounds, options = {}) {
-    const flyOptions = { ...options };
-
-    if (isClusterZoomLocked()) {
-      flyOptions.maxZoom = normalizeMainMapZoom(map.getBoundsZoom(bounds, false));
-    }
-
-    map.flyToBounds(bounds, flyOptions);
+    // Existing installations and custom start positions retain their historical reference viewport.
+    return L.latLngBounds(OUMUtils.latLngToBounds(
+      startPosition.lat, startPosition.lng, startPosition.zoom, 520, 294
+    ));
   }
 
   function setupMapBounds() {
     // Set bounds if fixed map bounds is enabled
     if (oum_enable_fixed_map_bounds) {
-      // Calculate bounds using the updated latLngToBounds method
-      // This uses Leaflet's projection system to properly account for Mercator distortion
-      // Settings map dimensions (used when setting initial view in admin)
-      const boundsArray = OUMUtils.latLngToBounds(
-        startPosition.lat,
-        startPosition.lng,
-        startPosition.zoom,
-        520, // Width of settings map
-        294 // Height of settings map
-      );
-
-      // Convert the bounds array to a Leaflet LatLngBounds object
-      world_bounds = L.latLngBounds(
-        L.latLng(boundsArray[0][0], boundsArray[0][1]),
-        L.latLng(boundsArray[1][0], boundsArray[1][1])
-      );
+      world_bounds = getInitialViewBounds();
 
       // Store bounds globally for form map to use
       sharedMapBounds = world_bounds;
@@ -470,9 +463,10 @@ const OUMMap = (function () {
       sharedMapBounds = world_bounds;
     }
 
-    // Set the minimum zoom level to prevent zooming out too far
+    // Cluster grids require an integer lower limit. Keep the bounds-fit threshold
+    // fractional for pan enforcement; only round the navigation limit down.
     const maxVisibleBounds = map.getBoundsZoom(world_bounds);
-    map.setMinZoom(maxVisibleBounds);
+    map.setMinZoom(Math.floor(maxVisibleBounds));
 
     // Set max bounds without padding
     map.setMaxBounds(world_bounds);
@@ -520,7 +514,7 @@ const OUMMap = (function () {
         }
 
         if (needsAdjustment) {
-          setMainMapView([newLat, newLng], zoom, { animate: false });
+          map.setView([newLat, newLng], zoom, { animate: false });
         }
       }
 
@@ -842,14 +836,14 @@ const OUMMap = (function () {
       } else {
         // Handle valid search result
         if (e.location.bounds) {
-          flyMainMapToBounds(e.location.bounds);
+          map.flyToBounds(e.location.bounds);
         } else if (e.location.raw && e.location.raw.mapView) {
-          flyMainMapToBounds([
+          map.flyToBounds([
             [e.location.raw.mapView.south, e.location.raw.mapView.west],
             [e.location.raw.mapView.north, e.location.raw.mapView.east]
           ]);
         } else {
-          flyMainMapTo([e.location.y, e.location.x], 17);
+          map.flyTo([e.location.y, e.location.x], 17);
         }
       }
     });
@@ -905,7 +899,7 @@ const OUMMap = (function () {
           }
 
           // Center Map
-          flyMainMapTo([region_lat, region_lng], region_bounds_zoom);
+          map.flyTo([region_lat, region_lng], region_bounds_zoom);
 
           // Update active state
           document
@@ -934,7 +928,7 @@ const OUMMap = (function () {
         map = L.map(mapEl, {
           gestureHandling: oum_enable_scrollwheel_zoom_map ? false : true,
           minZoom: 1, // Set default minimum zoom
-          zoomSnap: isClusterZoomLocked() ? 1 : 0.01, // MarkerCluster needs integer zoom steps.
+          zoomSnap: 0.01, // Preserve precise view fitting independently of clustering.
           zoomDelta: 1, // Zoom step size for controls
           attributionControl: true,
           fullscreenControl: oum_enable_fullscreen,
@@ -946,6 +940,7 @@ const OUMMap = (function () {
           },
         });
 
+        oumEnableTrackpadPinchZoom(map);
         map.attributionControl.setPrefix(false);
 
         // First set up the tile layer
@@ -954,57 +949,11 @@ const OUMMap = (function () {
         // Invalidate size to ensure accurate measurements
         map.invalidateSize();
         
-        // Get the actual frontend map container size
-        const mapContainer = map.getContainer();
-        const frontendMapWidth = mapContainer.offsetWidth || 520;
-        const frontendMapHeight = mapContainer.offsetHeight || 294;
-        
-        // Settings map dimensions (fixed)
-        const settingsMapWidth = 520;
-        const settingsMapHeight = 294;
-        
-        // Calculate aspect ratios to determine if they match
-        const settingsAspectRatio = settingsMapWidth / settingsMapHeight;
-        const frontendAspectRatio = frontendMapWidth / frontendMapHeight;
-        const aspectRatioDifference = Math.abs(settingsAspectRatio - frontendAspectRatio);
-        
-        // Calculate initial bounds based on settings map dimensions (520)
-        // This gives us the geographic area that should be visible
-        const settingsBoundsArray = OUMUtils.latLngToBounds(
-          startPosition.lat,
-          startPosition.lng,
-          startPosition.zoom,
-          settingsMapWidth,
-          settingsMapHeight
-        );
-
-        // Convert to Leaflet bounds
-        const settingsBounds = L.latLngBounds(
-          L.latLng(settingsBoundsArray[0][0], settingsBoundsArray[0][1]),
-          L.latLng(settingsBoundsArray[1][0], settingsBoundsArray[1][1])
-        );
-
-        let targetZoom;
-        
-        // If aspect ratios are very similar (within 1%), use ratio-based zoom calculation
-        // This preserves the exact same geographic area when aspect ratios match
-        if (aspectRatioDifference < 0.01) {
-          // Calculate zoom adjustment based on size ratio
-          // If frontend map is larger, we need higher zoom to show same area
-          // Formula: zoom adjustment = log2(frontendWidth / settingsWidth)
-          const widthRatio = frontendMapWidth / settingsMapWidth;
-          const zoomAdjustment = Math.log2(widthRatio);
-          targetZoom = startPosition.zoom + zoomAdjustment;
-        } else {
-          // Aspect ratios differ - use getBoundsZoom to account for different aspect ratios
-          // This will fit the bounds but may show slightly different area due to aspect ratio
-          targetZoom = map.getBoundsZoom(settingsBounds, false);
-        }
-        targetZoom = normalizeMainMapZoom(targetZoom);
-        
-        // Use setView with the calculated zoom level to show the same geographic area
-        // This ensures the same geographic bounds are visible regardless of frontend map size
-        setMainMapView([startPosition.lat, startPosition.lng], targetZoom, {
+        // Fit the actual selected geographic bounds for every aspect ratio. getBoundsZoom
+        // floors to the supported fractional zoom step, keeping the whole selection visible.
+        const initialBounds = getInitialViewBounds();
+        const targetZoom = map.getBoundsZoom(initialBounds, false);
+        map.setView([startPosition.lat, startPosition.lng], targetZoom, {
           animate: false
         });
 
@@ -1971,6 +1920,8 @@ const OUMFormMap = (function () {
       },
     });
 
+    oumEnableTrackpadPinchZoom(formMap);
+
     // Make form map globally available (for backward compatibility)
     window.oumMap2 = formMap;
 
@@ -2001,7 +1952,7 @@ const OUMFormMap = (function () {
       formMap.invalidateSize();
       maxVisibleBounds = formMap.getBoundsZoom(sharedMapBounds);
       // Set minimum zoom level to prevent users from zooming out too far
-      formMap.setMinZoom(maxVisibleBounds);
+      formMap.setMinZoom(Math.floor(maxVisibleBounds));
     } else {
       maxVisibleBounds = formMap.getBoundsZoom(boundsToUse);
     }
@@ -2072,7 +2023,7 @@ const OUMFormMap = (function () {
     if (oum_enable_fixed_map_bounds && sharedMapBounds) {
       formMap.invalidateSize();
       const maxVisibleBounds = formMap.getBoundsZoom(sharedMapBounds);
-      formMap.setMinZoom(maxVisibleBounds);
+      formMap.setMinZoom(Math.floor(maxVisibleBounds));
     }
   }
 

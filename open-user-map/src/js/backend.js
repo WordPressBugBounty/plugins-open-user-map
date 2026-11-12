@@ -1,3 +1,21 @@
+// Persist the campaign dismissal without reloading unsaved settings.
+jQuery(document).on('click', '#oum-black-friday-2026 .notice-dismiss', function() {
+    var button = jQuery(this);
+    var notice = button.closest('#oum-black-friday-2026');
+    button.prop('disabled', true);
+
+    jQuery.post(ajaxurl, {
+        action: 'oum_dismiss_black_friday_2026',
+        _ajax_nonce: notice.attr('data-nonce')
+    }).done(function(response) {
+        if (response && response.success) {
+            notice.remove();
+        }
+    }).always(function() {
+        button.prop('disabled', false);
+    });
+});
+
 //Dismiss Getting Started Notice
 jQuery(document).on('click', '.oum-getting-started-notice .notice-dismiss', function() {
     jQuery.ajax({

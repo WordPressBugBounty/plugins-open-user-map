@@ -2,10 +2,10 @@
 # This file is distributed under the same license as the Plugins - Open User Map - Stable (latest release) package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Open User Map 1.4.56\n"
+"Project-Id-Version: Open User Map 1.4.57\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/open-user-map\n"
 "POT-Creation-Date: 2026-10-23T21:53:40+00:00\n"
-"PO-Revision-Date: 2026-10-23 16:06+0000\n"
+"PO-Revision-Date: 2026-11-12 09:59+0000\n"
 "Last-Translator: Open User Map\n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -3570,6 +3570,10 @@ msgstr "Ajouter une condition"
 msgid "Reset filters"
 msgstr "Réinitialiser les filtres"
 
+#: templates/page-backend-settings.php:3837
+msgid "Let visitors report a problem with a location. Receive email notifications and review reports in WordPress."
+msgstr "Permettez aux visiteurs de signaler un problème concernant un emplacement. Recevez des notifications par e-mail et consultez les signalements dans WordPress."
+
 #~ msgid "Size"
 #~ msgstr "Dimensions"
 
@@ -3599,3 +3603,146 @@ msgstr "Réinitialiser les filtres"
 
 #~ msgid "Smartphone"
 #~ msgstr "Smartphone"
+
+#: inc/Base/LocationReport.php:37
+#: templates/page-backend-settings.php:2633
+msgid "Report a problem"
+msgstr "Signaler un problème"
+
+#: templates/page-backend-settings.php:2615
+#: templates/page-backend-settings.php:3836
+msgid "Location reporting"
+msgstr "Signalement de lieux"
+
+#: templates/page-backend-settings.php:2622
+msgid "Enable location reporting"
+msgstr "Activer le signalement de lieux"
+
+#: templates/page-backend-settings.php:2627
+msgid "Require login to report a location"
+msgstr "Exiger une connexion pour signaler un lieu"
+
+#: templates/page-backend-settings.php:2630
+msgid "Report button label"
+msgstr "Libellé du bouton de signalement"
+
+#: inc/Base/BaseController.php:2565
+#: inc/Base/LocationReport.php:48
+msgid "Please log in to report this location."
+msgstr "Connectez-vous pour signaler ce lieu."
+
+#: inc/Base/LocationReport.php:49
+msgid "Log in"
+msgstr "Se connecter"
+
+#: inc/Base/LocationReport.php:58
+#, php-format
+msgid "Reason (maximum %d characters)"
+msgstr "Motif (%d caractères maximum)"
+
+#: inc/Base/BaseController.php:2586
+#: inc/Base/LocationReport.php:52
+#, php-format
+msgid "Enter a reason of 1 to %d characters."
+msgstr "Saisissez un motif de 1 à %d caractères."
+
+#: inc/Base/LocationReport.php:61
+msgid "Send report"
+msgstr "Envoyer le signalement"
+
+#: inc/Base/LocationReport.php:65
+msgid "Close"
+msgstr "Fermer"
+
+#: inc/Base/BaseController.php:2562
+msgid "Location reporting is unavailable."
+msgstr "Le signalement de lieux est indisponible."
+
+#: inc/Base/BaseController.php:2575
+msgid "The report form has expired. Reload the page and try again."
+msgstr "Le formulaire a expiré. Rechargez la page et réessayez."
+
+#: inc/Base/BaseController.php:2593
+msgid "A report for this location was already submitted recently. Please try again later."
+msgstr "Un signalement a déjà été envoyé récemment pour ce lieu. Réessayez plus tard."
+
+#: inc/Base/BaseController.php:2596
+#: inc/Base/LocationReport.php:53
+msgid "The report could not be sent. Please try again."
+msgstr "Le signalement n’a pas pu être envoyé. Réessayez."
+
+#: inc/Base/BaseController.php:2598
+msgid "Thank you. Your report was sent."
+msgstr "Merci. Votre signalement a été envoyé."
+
+#: inc/Base/LocationReport.php:145
+msgid "Location report"
+msgstr "Signalement de lieu"
+
+#. translators: 1: location title, 2: report reason, 3: admin edit link.
+#: inc/Base/LocationReport.php:148
+#, php-format
+msgid ""
+"Location: %1$s\n"
+"\n"
+"Reason:\n"
+"%2$s\n"
+"\n"
+"Edit location: %3$s"
+msgstr "Lieu : %1$s\n\nMotif :\n%2$s\n\nModifier le lieu : %3$s"
+
+#: inc/Base/BaseController.php:2596
+msgid "Your report was saved, but the email could not be sent. Please try again."
+msgstr "Votre signalement a été enregistré, mais l’e-mail n’a pas pu être envoyé. Réessayez."
+
+#: inc/Base/LocationReport.php:44 templates/page-backend-location-reports.php:4
+msgid "Location reports"
+msgstr "Signalements de lieux"
+
+#: inc/Base/LocationReport.php:45
+msgid "Reports"
+msgstr "Signalements"
+
+#: inc/Base/LocationReport.php:68
+msgid "Pending"
+msgstr "En attente"
+
+#: inc/Base/LocationReport.php:69
+msgid "Sent"
+msgstr "Envoyé"
+
+#: inc/Base/LocationReport.php:70
+msgid "Failed"
+msgstr "Échec"
+
+#: templates/page-backend-location-reports.php:7
+msgid "No reports found."
+msgstr "Aucun signalement trouvé."
+
+#: templates/page-backend-location-reports.php:13
+msgid "Reason"
+msgstr "Motif"
+
+#: templates/page-backend-location-reports.php:15
+msgid "Email status"
+msgstr "État de l’e-mail"
+
+#. translators: %d: ID of the reported location.
+#: templates/page-backend-location-reports.php:23
+#, php-format
+msgid "Location #%d"
+msgstr "Lieu n° %d"
+
+#: templates/page-backend-settings.php:2673
+msgid "Let visitors report a problem with a location."
+msgstr "Permettez aux visiteurs de signaler un problème concernant un lieu."
+
+#: inc/Pages/Settings.php:1650
+msgid "Black Friday offer – Open User Map:"
+msgstr "Offre Black Friday – Open User Map :"
+
+#. translators: 1: discount percentage, 2: coupon code.
+#: inc/Pages/Settings.php:1654
+#, php-format
+msgid "Save %1$s on the PRO Lifetime license with coupon code %2$s."
+msgstr "Profitez de %1$s de réduction sur la licence PRO à vie avec le code promo %2$s."

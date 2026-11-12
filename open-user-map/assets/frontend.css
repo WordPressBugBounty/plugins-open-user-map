@@ -1,3 +1,4 @@
+@charset "UTF-8";
 .elementor-widget-open_user_map_widget,
 .elementor-widget-shortcode:has(.open-user-map),
 .elementor-widget-shortcode:has(.open-user-map-image-gallery) {
@@ -392,7 +393,7 @@
   padding: 15px;
   overflow: auto;
 }
-.open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text * {
+.open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text *:not(:where(.oum-location-report *)) {
   color: #000;
 }
 .open-user-map .box-wrap .map-wrap .leaflet-map .leaflet-popup-content-wrapper .leaflet-popup-content .oum_location_text .oum_location_title {
@@ -1326,10 +1327,10 @@
 }
 .open-user-map .add-location .location-overlay-content {
   position: relative;
-  width: 768px;
-  max-width: 80%;
   display: flex;
   flex-direction: column;
+  width: 768px;
+  max-width: 80%;
   background: #f8f8f8;
   color: #333;
   padding: 33px 43px;
@@ -1374,18 +1375,18 @@
   margin-bottom: 7px;
   color: #e82c71;
 }
-.open-user-map .add-location .location-overlay-content #oum_add_location h2.oum-add-location-headline {
-  display: block;
-}
-.open-user-map .add-location .location-overlay-content #oum_add_location h2.oum-edit-location-headline {
-  display: none;
-}
 @media screen and (max-width: 768px) {
   .open-user-map .add-location .location-overlay-content #oum_add_location h2 {
     text-align: left;
     font-size: 26px;
     margin-bottom: 13px;
   }
+}
+.open-user-map .add-location .location-overlay-content #oum_add_location h2.oum-add-location-headline {
+  display: block;
+}
+.open-user-map .add-location .location-overlay-content #oum_add_location h2.oum-edit-location-headline {
+  display: none;
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location .oum-location-type-control {
   display: grid;
@@ -2043,6 +2044,15 @@
   left: 50%;
   transform: translateX(-50%);
 }
+.open-user-map .add-location .location-overlay-content #oum_add_location input[type=submit]:hover, .open-user-map .add-location .location-overlay-content #oum_add_location input[type=submit]:active {
+  color: white;
+  background-color: rgb(202.8846153846, 22.1153846154, 88.4615384615);
+}
+@media screen and (max-width: 768px) {
+  .open-user-map .add-location .location-overlay-content #oum_add_location input[type=submit] {
+    width: 100%;
+  }
+}
 .open-user-map .add-location .location-overlay-content #oum_add_location input[type=submit].oum-loading {
   text-indent: -9999px;
   background-image: url(images/loading.gif);
@@ -2052,15 +2062,6 @@
   background-size: 40px;
   width: 100px;
   opacity: 0.6;
-}
-.open-user-map .add-location .location-overlay-content #oum_add_location input[type=submit]:hover, .open-user-map .add-location .location-overlay-content #oum_add_location input[type=submit]:active {
-  color: white;
-  background-color: rgb(202.8846153846, 22.1153846154, 88.4615384615);
-}
-@media screen and (max-width: 768px) {
-  .open-user-map .add-location .location-overlay-content #oum_add_location input[type=submit] {
-    width: 100%;
-  }
 }
 .open-user-map .add-location .location-overlay-content #oum_add_location #oum_delete_location_btn {
   display: none;
@@ -2397,7 +2398,7 @@
   padding: 35px 20px;
   line-height: 1.5;
 }
-.open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text * {
+.open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text *:not(:where(.oum-location-report *)) {
   color: #000;
 }
 .open-user-map.oum-container-for-fullscreen #location-fullscreen-container .location-content-wrap .oum_location_text .oum_location_categories {
@@ -4578,6 +4579,265 @@ body.oum-add-location-opened {
   width: 100% !important;
   margin-left: 0 !important;
   transform: none !important;
+}
+
+.oum_location_text_bottom.oum_location_popup_actions {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.oum_location_text_bottom.oum_location_popup_actions .oum_star_rating_wrap {
+  flex-shrink: 0;
+}
+.oum_location_text_bottom.oum_location_popup_actions .oum_read_more:not(:first-child) {
+  margin-inline-start: auto;
+}
+.oum_location_text_bottom.oum_location_popup_actions .oum-read-more-arrow::before {
+  content: "→";
+  display: inline-block;
+  margin-inline-start: 0.35em;
+}
+.oum_location_text_bottom.oum_location_popup_actions:dir(rtl) .oum-read-more-arrow::before {
+  content: "←";
+}
+
+.oum_location_text .oum-location-report {
+  display: flex;
+  margin-block-start: 0.5rem;
+}
+
+.oum_location_popup_actions > .oum-location-report {
+  flex: 1 1 6rem;
+  justify-content: flex-end;
+  margin-block-start: 0;
+  min-width: 0;
+  text-align: end;
+}
+
+.oum_location_popup_actions + .oum-location-report {
+  justify-content: flex-end;
+  margin-block-start: 0.25rem;
+  text-align: end;
+}
+
+.oum-location-report .oum-location-report-open {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.25rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #757575;
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: inherit;
+  text-decoration: none;
+  text-transform: none;
+  cursor: pointer;
+}
+.oum-location-report .oum-location-report-open:hover .oum-location-report-label, .oum-location-report .oum-location-report-open:focus-visible .oum-location-report-label {
+  text-decoration: underline;
+}
+.oum-location-report .oum-location-report-open .oum-location-report-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (pointer: coarse) {
+  .oum-location-report .oum-location-report-open {
+    min-height: 2.75rem;
+  }
+}
+
+.oum-location-report-dialog {
+  --oum-report-accent: #e82c71;
+  width: 768px;
+  max-width: 80%;
+  background: #f8f8f8;
+  color: #333;
+  padding: 33px 43px;
+  border-radius: 20px;
+}
+@media screen and (max-width: 768px) {
+  .oum-location-report-dialog {
+    max-width: 100%;
+    padding: 15px;
+    border-radius: 0;
+  }
+}
+.oum-location-report-dialog {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  height: fit-content;
+  max-height: calc(100% - 100px);
+  margin: 50px auto;
+  border: 0;
+  overflow: auto;
+}
+@media screen and (max-width: 768px) {
+  .oum-location-report-dialog {
+    max-height: 100%;
+    margin-block: 0;
+  }
+}
+.oum-location-report-dialog::backdrop {
+  background: radial-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9));
+}
+.oum-location-report-dialog h2 {
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 7px;
+  color: var(--oum-report-accent);
+}
+@media screen and (max-width: 768px) {
+  .oum-location-report-dialog h2 {
+    text-align: left;
+    font-size: 26px;
+    margin-bottom: 13px;
+  }
+}
+.oum-location-report-dialog h2 {
+  margin-block-start: 0;
+  padding-inline: 2.5rem;
+  overflow-wrap: anywhere;
+}
+@media screen and (max-width: 768px) {
+  .oum-location-report-dialog h2 {
+    padding-left: 0;
+  }
+}
+.oum-location-report-dialog.oum-location-report-dialog-login h2 {
+  text-align: center;
+  padding-inline: 2.5rem;
+}
+.oum-location-report-dialog .oum-location-report-login {
+  display: grid;
+  justify-items: center;
+  gap: 1.25rem;
+  margin-block: 1rem 0.5rem;
+  text-align: center;
+}
+.oum-location-report-dialog .oum-location-report-login p {
+  margin: 0;
+}
+.oum-location-report-dialog label {
+  display: block;
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+.oum-location-report-dialog textarea {
+  font-family: inherit;
+  margin: 0 0 25px;
+  font-size: 15px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  color: #333;
+  background-color: #fff;
+  outline: none;
+  line-height: 1;
+  padding: 14px;
+  width: 100%;
+}
+.oum-location-report-dialog textarea:focus {
+  border-color: var(--oum-report-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--oum-report-accent) 10%, transparent);
+}
+.oum-location-report-dialog textarea {
+  display: block;
+  box-sizing: border-box;
+  resize: vertical;
+}
+.oum-location-report-dialog button:focus-visible,
+.oum-location-report-dialog .oum-location-report-login-link:focus-visible {
+  outline: 2px solid var(--oum-report-accent);
+  outline-offset: 2px;
+}
+.oum-location-report-dialog .oum-location-report-submit,
+.oum-location-report-dialog .oum-location-report-login-link {
+  cursor: pointer;
+  font-size: 19px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 4px;
+  margin: 40px 0 10px;
+  background: var(--oum-report-accent);
+  padding: 15px 30px;
+  line-height: 1;
+  border: none;
+  color: white;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.oum-location-report-dialog .oum-location-report-submit:hover, .oum-location-report-dialog .oum-location-report-submit:active,
+.oum-location-report-dialog .oum-location-report-login-link:hover,
+.oum-location-report-dialog .oum-location-report-login-link:active {
+  color: white;
+  background-color: color-mix(in srgb, var(--oum-report-accent), black 10%);
+}
+@media screen and (max-width: 768px) {
+  .oum-location-report-dialog .oum-location-report-submit,
+  .oum-location-report-dialog .oum-location-report-login-link {
+    width: 100%;
+  }
+}
+.oum-location-report-dialog .oum-location-report-submit,
+.oum-location-report-dialog .oum-location-report-login-link {
+  font-family: inherit;
+  text-transform: none;
+}
+.oum-location-report-dialog .oum-location-report-submit:disabled {
+  opacity: 0.6;
+}
+.oum-location-report-dialog .oum-location-report-login-link {
+  position: static;
+  transform: none;
+  margin: 0;
+  width: auto;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+.oum-location-report-dialog .oum-location-report-login-link:hover, .oum-location-report-dialog .oum-location-report-login-link:active, .oum-location-report-dialog .oum-location-report-login-link:focus {
+  text-decoration: none;
+}
+.oum-location-report-dialog .oum-location-report-form[hidden] + .oum-location-report-status {
+  text-align: center;
+}
+.oum-location-report-dialog .oum-location-report-status:empty {
+  margin: 0;
+}
+.oum-location-report-dialog .oum-location-report-close {
+  position: absolute;
+  top: 23px;
+  right: 30px;
+  font-size: 30px;
+  line-height: 1;
+  display: inline-block;
+  color: #333;
+  cursor: pointer;
+}
+.oum-location-report-dialog .oum-location-report-close:hover {
+  color: var(--oum-report-accent);
+}
+@media screen and (max-width: 768px) {
+  .oum-location-report-dialog .oum-location-report-close {
+    top: 16px;
+    right: 16px;
+  }
+}
+.oum-location-report-dialog .oum-location-report-close {
+  font-family: inherit;
+  font-weight: normal;
+  padding: 7px;
+  margin: -7px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 /*# sourceMappingURL=frontend.css.map */

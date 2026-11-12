@@ -96,7 +96,7 @@
                     if(state.disposed)return;if(!r.success || !r.data.html)throw new Error('Popup unavailable');
                     const parsed=new window.DOMParser().parseFromString(r.data.html,'text/html');
                     // Preview frontend markup without running visitor actions or custom scripts.
-                    parsed.querySelectorAll('script,object,embed,base,meta,link').forEach(function(el){el.remove();});
+                    parsed.querySelectorAll('script,object,embed,base,meta,link,.oum-location-report').forEach(function(el){el.remove();});
                     parsed.querySelectorAll('*').forEach(function(el){
                         Array.from(el.attributes).forEach(function(attr){if(/^on/i.test(attr.name) || attr.name==='srcdoc' || (/^(href|src|action|formaction)$/i.test(attr.name) && /^\s*javascript:/i.test(attr.value)))el.removeAttribute(attr.name);});
                         if(el.tagName==='A'){el.target='_blank';el.rel='noopener noreferrer';}

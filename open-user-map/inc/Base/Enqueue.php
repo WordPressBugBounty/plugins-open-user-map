@@ -594,6 +594,13 @@ class Enqueue extends BaseController
             )
         );
         wp_register_script(
+            'oum_frontend_location_report_js',
+            $this->plugin_url . 'src/js/frontend-location-report.js',
+            array(),
+            $this->plugin_version,
+            true
+        );
+        wp_register_script(
             'oum_frontend_vote_js',
             $this->plugin_url . 'src/js/frontend-vote.js',
             array('jquery'),

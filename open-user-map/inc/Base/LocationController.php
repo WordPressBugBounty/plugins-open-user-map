@@ -9,6 +9,8 @@ use OpenUserMapPlugin\Base\BaseController;
 class LocationController extends BaseController {
     public $settings;
 
+    private $location_report_counts;
+
     public function register() {
         // CPT: Location
         add_action( 'init', array($this, 'location_cpt') );
@@ -16,6 +18,12 @@ class LocationController extends BaseController {
         add_action( 'add_meta_boxes', array($this, 'add_meta_box') );
         add_action( 'save_post', array($this, 'save_fields') );
         add_action( 'manage_oum-location_posts_columns', array($this, 'set_custom_location_columns') );
+        add_filter(
+            'default_hidden_columns',
+            array($this, 'default_hidden_location_columns'),
+            10,
+            2
+        );
         add_action(
             'manage_oum-location_posts_custom_column',
             array($this, 'set_custom_location_columns_data'),
@@ -822,6 +830,13 @@ class LocationController extends BaseController {
         }
     }
 
+    public function default_hidden_location_columns( $hidden, $screen ) {
+        if ( $screen->id === 'edit-oum-location' ) {
+            $hidden = array_merge( $hidden, array('text', 'address') );
+        }
+        return $hidden;
+    }
+
     public function set_custom_location_columns( $columns ) {
         // Get all default columns we want to preserve
         $cb = ( isset( $columns['cb'] ) ? $columns['cb'] : '' );
@@ -854,6 +869,9 @@ class LocationController extends BaseController {
                 $columns['votes'] = __( 'Votes', 'open-user-map' );
             }
         }
+        if ( LocationReport::is_enabled() ) {
+            $columns['oum_reports'] = __( 'Reports', 'open-user-map' );
+        }
         if ( $comments ) {
             $columns['comments'] = $comments;
         }
@@ -867,6 +885,18 @@ class LocationController extends BaseController {
     }
 
     public function set_custom_location_columns_data( $column, $post_id ) {
+        if ( $column === 'oum_reports' ) {
+            if ( $this->location_report_counts === null ) {
+                global $wp_query;
+                $location_ids = wp_list_pluck( $wp_query->posts ?? array(), 'ID' );
+                $location_ids[] = $post_id;
+                $this->location_report_counts = LocationReport::count_by_location( $location_ids );
+            } elseif ( !isset( $this->location_report_counts[$post_id] ) ) {
+                $this->location_report_counts += LocationReport::count_by_location( array($post_id) );
+            }
+            echo esc_html( number_format_i18n( $this->location_report_counts[$post_id] ?? 0 ) );
+            return;
+        }
         $data = get_post_meta( $post_id, '_oum_location_key', true );
         $text = ( isset( $data['text'] ) ? $data['text'] : '' );
         $address = ( isset( $data['address'] ) ? $data['address'] : '' );

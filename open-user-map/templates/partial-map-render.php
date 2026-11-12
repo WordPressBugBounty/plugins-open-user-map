@@ -386,6 +386,9 @@ echo wp_json_encode( (string) $oum_enable_fixed_map_bounds );
         var oum_use_settings_start_location = <?php 
 echo $oum_use_settings_start_location;
 ?>;
+        var oum_start_view = <?php 
+echo wp_json_encode( ( $oum_use_settings_start_location === 'true' ? json_decode( get_option( 'oum_start_view', '' ), true ) : null ) );
+?>;
         var oum_has_regions = <?php 
 echo ( $oum_enable_regions == 'on' && $regions && count( $regions ) > 0 ? 'true' : 'false' );
 ?>;

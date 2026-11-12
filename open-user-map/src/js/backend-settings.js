@@ -279,6 +279,23 @@ window.addEventListener('load', function(e) {
 
   map.setView([lat, lng], zoom);
 
+  // Reopen the selected geographic area even when the settings preview has a new size.
+  try {
+      const savedView = JSON.parse(document.getElementById('oum_start_view')?.value || 'null');
+      if (savedView && ['south', 'west', 'north', 'east', 'lat', 'lng', 'zoom'].every(
+          key => typeof savedView[key] === 'number' && Number.isFinite(savedView[key])
+      ) && savedView.south < savedView.north && savedView.west < savedView.east &&
+          Math.abs(savedView.lat - Number(lat)) < 1e-7 &&
+          Math.abs(savedView.lng - Number(lng)) < 1e-7 &&
+          Math.abs(savedView.zoom - Number(zoom)) < 1e-7) {
+          const bounds = L.latLngBounds([savedView.south, savedView.west], [savedView.north, savedView.east]);
+          map.setView([savedView.lat, savedView.lng], map.getBoundsZoom(bounds, false), {animate: false});
+      }
+  } catch (error) {
+      // Older installations have no saved bounds; their center and zoom stay valid.
+  }
+
+
   // Persist view changes, not invalidateSize() events from tabs or window resizing.
   // Leaflet starts pan/zoom/search changes with movestart; resizing has no movestart.
   let initialViewChanging = false;
@@ -296,6 +313,15 @@ window.addEventListener('load', function(e) {
       jQuery('#oum_start_lat').val(mapCenterLatLng.lat);
       jQuery('#oum_start_lng').val(mapCenterLatLng.lng);
       jQuery('#oum_start_zoom').val(mapZoom);
+      const viewInput = document.getElementById('oum_start_view');
+      if (viewInput) {
+          const bounds = map.getBounds();
+          viewInput.value = JSON.stringify({
+              south: bounds.getSouth(), west: bounds.getWest(),
+              north: bounds.getNorth(), east: bounds.getEast(),
+              lat: mapCenterLatLng.lat, lng: mapCenterLatLng.lng, zoom: mapZoom
+          });
+      }
       document.getElementById('oum_start_lat').dispatchEvent(new Event('change', {bubbles: true}));
   }
 

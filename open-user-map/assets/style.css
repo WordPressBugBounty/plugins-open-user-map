@@ -1,4 +1,22 @@
 @charset "UTF-8";
+.post-type-oum-location .wp-list-table .column-post_id {
+  width: 5rem;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+@media screen and (min-width: 783px) {
+  .post-type-oum-location .wp-list-table th.column-title {
+    width: 30% !important;
+  }
+  .post-type-oum-location .wp-list-table th.column-votes {
+    width: 7rem !important;
+  }
+  .post-type-oum-location .wp-list-table th.column-post_id,
+  .post-type-oum-location .wp-list-table th.column-oum_reports {
+    width: 5rem !important;
+  }
+}
 .oum-pro {
   display: inline-block;
   background: #dc3232;

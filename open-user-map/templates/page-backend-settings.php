@@ -935,6 +935,9 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     $oum_enable_fixed_map_bounds = get_option( 'oum_enable_fixed_map_bounds' );
     $oum_searchaddress_label = ( get_option( 'oum_searchaddress_label' ) ? get_option( 'oum_searchaddress_label' ) : $this->oum_get_default_label( 'searchaddress' ) );
     ?>
+                <textarea hidden id="oum_start_view" name="oum_start_view"><?php 
+    echo esc_textarea( get_option( 'oum_start_view', '' ) );
+    ?></textarea>
                 <div class="form-field geo-coordinates-wrap">
                     <div class="map-wrap">
                         <div id="mapGetInitial" class="leaflet-map map-style_<?php 
@@ -2779,12 +2782,14 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
     ?>">
 
           <?php 
-    $this->render_settings_quick_links( array(
+    $advanced_sections = array(
         'oum-advanced-locations'    => __( 'Location display', 'open-user-map' ),
         'oum-advanced-feedback'     => __( 'Votes & ratings', 'open-user-map' ),
+        'oum-advanced-reporting'    => __( 'Location reporting', 'open-user-map' ),
         'oum-advanced-registration' => __( 'User registration', 'open-user-map' ),
         'oum-advanced-code'         => __( 'Custom code', 'open-user-map' ),
-    ) );
+    );
+    $this->render_settings_quick_links( $advanced_sections );
     ?>
           <table class="form-table">
           <?php 
@@ -2952,6 +2957,54 @@ if ( get_option( 'oum_enable_add_location' ) !== 'on' && get_option( 'oum_enable
                 </td>
               </tr>
 
+            <?php 
+    }
+    ?>
+
+            </tbody>
+
+            <?php 
+    $this->render_settings_group_start( 'oum-advanced-reporting', __( 'Location reporting', 'open-user-map' ), __( 'Let visitors report a problem with a location.', 'open-user-map' ) );
+    ?>
+            <?php 
+    $reporting_available = false;
+    ?>
+            <?php 
+    ?>
+
+            <?php 
+    if ( !$reporting_available ) {
+        ?>
+              <tr valign="top" class="oum-gopro-tr">
+                <th scope="row">
+                  <?php 
+        echo esc_html__( 'Report a problem', 'open-user-map' );
+        ?>
+                  <br><span class="oum-pro">PRO</span><br>
+                  <?php 
+        $this->render_pro_feature_actions( true );
+        ?>
+                </th>
+                <td>
+                  <input class="oum-switch" type="checkbox" id="oum_preview_enable_location_reporting" disabled>
+                  <label for="oum_preview_enable_location_reporting"><?php 
+        echo esc_html__( 'Enable location reporting', 'open-user-map' );
+        ?></label>
+                  <br><br>
+                  <input class="oum-switch" type="checkbox" id="oum_preview_location_reporting_require_login" disabled>
+                  <label for="oum_preview_location_reporting_require_login"><?php 
+        echo esc_html__( 'Require login to report a location', 'open-user-map' );
+        ?></label><br>
+
+                  <label for="oum_preview_location_report_label"><strong><?php 
+        echo esc_html__( 'Report button label', 'open-user-map' );
+        ?></strong></label><br>
+                  <input type="text" class="regular-text" id="oum_preview_location_report_label"
+                    placeholder="<?php 
+        echo esc_attr__( 'Report a problem', 'open-user-map' );
+        ?>" disabled>
+                </td>
+              </tr>
             <?php 
     }
     ?>
@@ -4359,6 +4412,15 @@ add_filter('oum_location_data', function ( $location_data, $post_id ) {
         ?></strong><br>
                 <?php 
         echo __( 'Add a customizable feedback button for likes, upvotes, flagging, or star rating (1-5 stars). Let visitors interact with locations and provide valuable feedback.', 'open-user-map' );
+        ?></p>
+              </li>
+
+              <li>
+                <p><strong><?php 
+        echo esc_html__( 'Location reporting', 'open-user-map' );
+        ?></strong><br>
+                <?php 
+        echo esc_html__( 'Let visitors report a problem with a location. Receive email notifications and review reports in WordPress.', 'open-user-map' );
         ?></p>
               </li>
 
